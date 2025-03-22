@@ -1,0 +1,203 @@
+Here is the updated monitorExternalFile1.php with the CBS maintenance banner converted into a pop-up. If you need any further changes, let me know! 🚀
+
+
+You said:
+provide me the updated code
+ChatGPT said:
+Here is the updated monitorExternalFile1.php with the required modifications:
+
+php
+Copy
+Edit
+<?php
+// Check the task_status.txt file for popup control
+$taskStatusFile = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status.txt";
+$popupActive = false;
+
+if (file_exists($taskStatusFile)) {
+    $status = trim(file_get_contents($taskStatusFile));
+    if ($status === "start") {
+        $popupActive = true;
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .modal-content {
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            background-color: orange;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CBS Maintenance Pop-up -->
+    <div class="modal fade" id="cbsModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Maintenance Notice</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ⚠️ CBS is under maintenance. Please check back later.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Status Pop-up -->
+    <div class="modal fade" id="taskStatusModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Task Status</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    🚀 A new task has started. Please stay alert!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#cbsModal").modal('show');
+
+            // Check task status and show/hide popup dynamically
+            function checkTaskStatus() {
+                $.get("<?php echo $taskStatusFile; ?>", function(data) {
+                    if (data.trim() === "start") {
+                        $("#taskStatusModal").modal('show');
+                    } else {
+                        $("#taskStatusModal").modal('hide');
+                    }
+                });
+            }
+
+            setInterval(checkTaskStatus, 5000); // Check status every 5 seconds
+        });
+    </script>
+
+</body>
+</html>
+Updates in this Code:
+CBS Maintenance Banner: Converted into a Bootstrap modal pop-up.
+Task Status Popup: A new modal is introduced that appears if task_status.txt contains "start".
+Dynamic Status Check: Uses AJAX to check the file every 5 seconds and update the popup accordingly.
+Let me know if you need any modifications! 🚀
+
+You said:
+where exactly should i add this code in the existing code
+ChatGPT said:
+You should integrate this code into your existing monitorExternalFile1.php file. Follow these steps:
+
+Steps to Modify Your Existing Code:
+Locate the existing maintenance banner in monitorExternalFile1.php (which states "CBS ANNUAL CLOSING ACTIVITY IS IN PROGRESS..." inside a <p> tag).
+Replace the existing banner section with the new pop-up modal for CBS maintenance.
+Add the task status pop-up feature by placing the taskStatusModal somewhere in the body.
+Include the JavaScript code at the end of the <body> section to dynamically check the task_status.txt file.
+Exact Placement in Your Code:
+Find this section in your code:
+
+php
+Copy
+Edit
+<p style="color:#7e57c2; text-align: center;"> 
+    CBS ANNUAL CLOSING ACTIVITY IS IN PROGRESS... &nbsp &nbsp &nbsp 
+</p>
+Replace it with:
+
+php
+Copy
+Edit
+<!-- CBS Maintenance Pop-up -->
+<div class="modal fade" id="cbsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Maintenance Notice</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                ⚠️ CBS is under maintenance. Please check back later.
+            </div>
+        </div>
+    </div>
+</div>
+Add the Task Status Pop-up after the CBS Pop-up inside <body>:
+
+php
+Copy
+Edit
+<!-- Task Status Pop-up -->
+<div class="modal fade" id="taskStatusModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Task Status</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                🚀 A new task has started. Please stay alert!
+            </div>
+        </div>
+    </div>
+</div>
+Place the JavaScript code just before </body> closing tag:
+
+html
+Copy
+Edit
+<script>
+    $(document).ready(function() {
+        $("#cbsModal").modal('show');
+
+        // Check task status and show/hide popup dynamically
+        function checkTaskStatus() {
+            $.get("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status.txt", function(data) {
+                if (data.trim() === "start") {
+                    $("#taskStatusModal").modal('show');
+                } else {
+                    $("#taskStatusModal").modal('hide');
+                }
+            });
+        }
+
+        setInterval(checkTaskStatus, 5000); // Check status every 5 seconds
+    });
+</script>
+Summary of Changes:
+✔ Converted existing CBS maintenance banner into a pop-up.
+✔ Added a new pop-up that appears when task_status.txt contains "start".
+✔ Included JavaScript to dynamically monitor task_status.txt and toggle the pop-up.
+
+Let me know if you need more guidance! 🚀
+
+
+
+
+
+
