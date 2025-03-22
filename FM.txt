@@ -1,43 +1,99 @@
-<?php
-// Include the external file
-include 'monitorExternalFile1.php';
+Inside the <head> section
+Add this CSS and jQuery library before </head> to style and enable the pop-up functionality.
 
-// Check the task_status.txt file for popup control
-$taskStatusFile = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status.txt";
-$popupActive = false;
-
-if (file_exists($taskStatusFile)) {
-    $status = trim(file_get_contents($taskStatusFile));
-    if ($status === "start") {
-        $popupActive = true;
-    }
-}
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Krish</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+html
+Copy
+Edit
+    <style>
+        #taskPopup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            background-color: red;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 10px;
+            z-index: 1000;
+        }
+        #closePopup {
+            background-color: white;
+            color: red;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+    </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+2. Inside the <body> section
+Add this HTML anywhere inside the <body> tag (preferably right before </body>).
+
+html
+Copy
+Edit
+    <div id="taskPopup">
+        CBS ANNUAL CLOSING ACTIVITY IS IN PROGRESS...
+        <br>
+        <button id="closePopup">Close</button>
+    </div>
+3. Before </body> tag
+Add this JavaScript at the end of the <body> section, just before </body>.
+
+html
+Copy
+Edit
     <script>
         function checkTaskStatus() {
-            $.get("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status.txt", function(data) {
-                if (data.trim() === "start") {
-                    alert("🚀 A new task has started. Please stay alert!");
+            $.ajax({
+                url: 'monitorExternalFile1.php',
+                method: 'GET',
+                success: function(response) {
+                    if (response.trim() === 'start') {
+                        $("#taskPopup").fadeIn();
+                        window.location.href = 'legends.php';
+                    } else {
+                        $("#taskPopup").fadeOut();
+                    }
                 }
             });
         }
 
         $(document).ready(function() {
-            setInterval(checkTaskStatus, 5000); // Check status every 5 seconds
+            checkTaskStatus();
+            setInterval(checkTaskStatus, 5000);
+            $("#closePopup").click(function() {
+                $("#taskPopup").fadeOut();
+            });
         });
     </script>
-</head>
-<body>
-    
-</body>
-</html>
+Final Placement in smart_krish.php
+CSS & jQuery → Inside <head> ... </head>
+
+HTML pop-up → Inside <body> ... </body>
+
+JavaScript → Before closing </body> tag
+
+After adding these, when task_status.txt is "start", the pop-up appears, and the page redirects to legends.php in the same tab. If "stop", the pop-up disappears.
+
+Let me know if you need more tweaks! 😊
+
+
+
+
+
+
+
+
+
+
+
+
+Reason
+
