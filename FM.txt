@@ -1,0 +1,43 @@
+<?php
+// Include the external file
+include 'monitorExternalFile1.php';
+
+// Check the task_status.txt file for popup control
+$taskStatusFile = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status.txt";
+$popupActive = false;
+
+if (file_exists($taskStatusFile)) {
+    $status = trim(file_get_contents($taskStatusFile));
+    if ($status === "start") {
+        $popupActive = true;
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Krish</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function checkTaskStatus() {
+            $.get("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status.txt", function(data) {
+                if (data.trim() === "start") {
+                    alert("🚀 A new task has started. Please stay alert!");
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            setInterval(checkTaskStatus, 5000); // Check status every 5 seconds
+        });
+    </script>
+</head>
+<body>
+    
+</body>
+</html>
