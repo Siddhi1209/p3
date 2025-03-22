@@ -1,0 +1,54 @@
+<?php
+// Include the external file
+include 'monitorExternalFile1.php';
+
+// Check the task_status.txt file for popup control
+$taskStatusFile = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status.txt";
+$popupActive = false;
+
+if (file_exists($taskStatusFile)) {
+    $status = trim(file_get_contents($taskStatusFile));
+    if ($status === "start") {
+        $popupActive = true;
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Krish</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    
+    <?php if ($popupActive): ?>
+    <!-- Task Status Pop-up -->
+    <div class="modal fade" id="taskStatusModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="text-align: center; padding: 20px; font-size: 24px; font-weight: bold; color: white; background-color: orange;">
+                <div class="modal-header">
+                    <h5 class="modal-title">Task Status</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    🚀 A new task has started. Please stay alert!
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $("#taskStatusModal").modal('show');
+        });
+    </script>
+    <?php endif; ?>
+    
+</body>
+</html>
