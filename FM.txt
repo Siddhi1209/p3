@@ -1,88 +1,126 @@
-Inside the <head> section
-Add this CSS and jQuery library before </head> to style and enable the pop-up functionality.
+You can achieve this by modifying smart_krish.php to dynamically check legend.php, which will read the task_status.txt file from the specified path.
 
-html
+Steps to Implement:
+legend.php will check task_status.txt
+
+If the file contains "start", it will send a response to show the maintenance popup.
+
+If it contains "stop" or doesn't exist, the popup will not appear.
+
+smart_krish.php will use JavaScript
+
+It will fetch data from legend.php and display a popup without a close button when maintenance mode is active.
+
+It will continuously check every few seconds to hide the popup when task_status.txt changes to "stop".
+
+1. Modify legend.php
+This PHP script reads task_status.txt from the given path and returns a JSON response.
+
+php
 Copy
 Edit
-    <style>
-        #taskPopup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            background-color: red;
-            color: white;
-            text-align: center;
-            padding: 20px;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 10px;
-            z-index: 1000;
-        }
-        #closePopup {
-            background-color: white;
-            color: red;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-    </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-2. Inside the <body> section
-Add this HTML anywhere inside the <body> tag (preferably right before </body>).
+<?php
+$filePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status.txt";
 
-html
+if (file_exists($filePath)) {
+    $status = trim(file_get_contents($filePath));
+
+    if ($status === "start") {
+        echo json_encode([
+            "status" => "show",
+            "message" => "The portal is under maintenance. Please try again later."
+        ]);
+    } else {
+        echo json_encode(["status" => "hide"]);
+    }
+} else {
+    echo json_encode(["status" => "hide"]);
+}
+?>
+2. Modify smart_krish.php
+This file will check legend.php regularly and show/hide the popup accordingly.
+
+php
 Copy
 Edit
-    <div id="taskPopup">
-        CBS ANNUAL CLOSING ACTIVITY IS IN PROGRESS...
-        <br>
-        <button id="closePopup">Close</button>
-    </div>
-3. Before </body> tag
-Add this JavaScript at the end of the <body> section, just before </body>.
-
-html
-Copy
-Edit
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Krish Portal</title>
     <script>
-        function checkTaskStatus() {
-            $.ajax({
-                url: 'monitorExternalFile1.php',
-                method: 'GET',
-                success: function(response) {
-                    if (response.trim() === 'start') {
-                        $("#taskPopup").fadeIn();
-                        window.location.href = 'legends.php';
-                    } else {
-                        $("#taskPopup").fadeOut();
+        function checkMaintenance() {
+            fetch('legend.php')
+            .then(response => response.json())
+            .then(data => {
+                let popup = document.getElementById("maintenance-popup");
+
+                if (data.status === "show") {
+                    if (!popup) {
+                        showPopup(data.message);
+                    }
+                } else {
+                    if (popup) {
+                        popup.remove();
                     }
                 }
-            });
+            })
+            .catch(error => console.error('Error fetching maintenance status:', error));
         }
 
-        $(document).ready(function() {
-            checkTaskStatus();
-            setInterval(checkTaskStatus, 5000);
-            $("#closePopup").click(function() {
-                $("#taskPopup").fadeOut();
-            });
-        });
+        function showPopup(message) {
+            let popup = document.createElement("div");
+            popup.id = "maintenance-popup";
+            popup.style.position = "fixed";
+            popup.style.top = "0";
+            popup.style.left = "0";
+            popup.style.width = "100%";
+            popup.style.height = "100%";
+            popup.style.background = "rgba(0, 0, 0, 0.8)";
+            popup.style.display = "flex";
+            popup.style.justifyContent = "center";
+            popup.style.alignItems = "center";
+            popup.style.color = "white";
+            popup.style.fontSize = "20px";
+            popup.style.textAlign = "center";
+            popup.innerHTML = `<div style="background: #333; padding: 20px; border-radius: 10px; padding: 20px;">${message}</div>`;
+            document.body.appendChild(popup);
+        }
+
+        // Run checkMaintenance every 5 seconds
+        setInterval(checkMaintenance, 5000);
+        window.onload = checkMaintenance;
     </script>
-Final Placement in smart_krish.php
-CSS & jQuery → Inside <head> ... </head>
+</head>
+<body>
+    <h1>Welcome to Smart Krish Portal</h1>
+</body>
+</html>
+How It Works
+✅ legend.php checks task_status.txt in /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/.
+✅ If it contains "start", legend.php tells smart_krish.php to show the popup.
+✅ If "stop" is found (or the file is missing), the popup disappears.
+✅ No close button is provided, preventing users from dismissing the popup.
+✅ Auto-refresh every 5 seconds, ensuring real-time updates.
 
-HTML pop-up → Inside <body> ... </body>
+How to Activate/Deactivate Maintenance Mode
+To enable the popup (start maintenance mode):
 
-JavaScript → Before closing </body> tag
+bash
+Copy
+Edit
+echo "start" > /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status.txt
+To disable the popup (stop maintenance mode):
 
-After adding these, when task_status.txt is "start", the pop-up appears, and the page redirects to legends.php in the same tab. If "stop", the pop-up disappears.
+bash
+Copy
+Edit
+echo "stop" > /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status.txt
+This ensures the portal can dynamically enter and exit maintenance mode.
 
-Let me know if you need more tweaks! 😊
+🚀 Let me know if you need further modifications!
+
 
 
 
@@ -97,3 +135,4 @@ Let me know if you need more tweaks! 😊
 
 Reason
 
+ChatGPT can
