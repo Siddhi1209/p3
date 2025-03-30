@@ -1,0 +1,55 @@
+I have website smart_krish.php which also includes monitorExternalFile1.php for additional contents of website. now i want to add 
+a big pop up on smart_krish.php. this pop up should be displayed on smart_krish.php if a file task_status.txt has value start in the 
+/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/ path of portal server. if the value of the task_status.txt file becomes stop the pop '
+up should disappear. There is a preexisting banner in monitorExternalFile1.php stating CBS is under maintenance. convert this banner into a pop up i am uploading code of smart_krish.php and monitorExternalFile1.php make necessary changes in the code of monitorExternalFile1.php and provide me entire file.
+ 
+
+
+
+write a shell script which will run in linux server. there is a file task_status in /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/,
+ if this file has value start rename smart_17.php to smart_Krish.php present in /var/www/html/pace/Online_portal/pages path of portal server.
+and when value in task_status is stop, smart_krish.php will be renamed to smart_17.php and smart_Krish_bkp will be renamed to smart_Krish.php in 
+/var/www/html/pace/Online_portal/pages path of portal server.
+
+
+#!/bin/bash
+
+# Define file paths
+task_status_file="/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status"
+portal_path="/var/www/html/pace/Online_portal/pages"
+
+cd "$portal_path" || { echo "Failed to change directory to $portal_path"; exit 1; }
+
+# Read the status from the task_status file
+if [ -f "$task_status_file" ]; then
+    status=$(cat "$task_status_file")
+else
+    echo "task_status file not found! Exiting..."
+    exit 1
+fi
+
+# Perform renaming based on the status
+if [ "$status" == "start" ]; then
+    if [ -f "smart_17.php" ]; then
+        mv smart_17.php smart_Krish.php
+        echo "smart_17.php renamed to smart_Krish.php"
+    else
+        echo "smart_17.php not found!"
+    fi
+elif [ "$status" == "stop" ]; then
+    if [ -f "smart_Krish.php" ]; then
+        mv smart_Krish.php smart_17.php
+        echo "smart_Krish.php renamed to smart_17.php"
+    else
+        echo "smart_Krish.php not found!"
+    fi
+    if [ -f "smart_Krish_bkp" ]; then
+        mv smart_Krish_bkp smart_Krish.php
+        echo "smart_Krish_bkp renamed to smart_Krish.php"
+    else
+        echo "smart_Krish_bkp not found!"
+    fi
+else
+    echo "Invalid status in task_status file. Expected 'start' or 'stop'."
+    exit 1
+fi
