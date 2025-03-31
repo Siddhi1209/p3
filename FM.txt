@@ -1,7 +1,23 @@
-                                              </div>
-                                        </div>
-                                </div>   --!>>
-                </section>
+<?php
+error_reporting(1);
+$server_file=file("card_folder/prcard.txt");
+$drserver_file=file("card_folder/drcard.txt");
+$nrserver_file=file("card_folder/nrcard.txt");
+//print_r($file);
+$site=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/DR_CHECK");
+?>
+<!DOCTYPE html>
+<html>
+<head>
+        <meta charset="UTF-8">
+        <div id="home">
+         <title>Server Virtual IP/PHYSICAL IP/NAME</title>
+         <meta http-quiv="refresh" content="5">
+        <div>
+        <?php include("../includes/header_uppercp.php"); ?>
+        <link href="../swal/swal.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+</head>
+<body class="skin-blue sidebar-collapse">
                         <script src="../swal/swal.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
                         <script>
                                 $(document).ready(function (){
@@ -24,4 +40,3 @@
         </div>
 </body>
 </html>
-
