@@ -1,124 +1,63 @@
-You should add this code at the beginning of your smart_krish.php file, before the HTML starts.
-
-Where to Place the Code:
-The PHP section at the top is correctly placed.
-The HTML section starts with <!DOCTYPE html>, which is also correctly placed.
-The modal and script section is in the right place inside <body>, so it will display the pop-up dynamically.
-Final Verification:
-✅ Ensure this block remains at the top before any HTML output:
-
-php
-Copy
-Edit
 <?php
-// Include the external file
-include 'monitorExternalFile1.php';
+session_start();
+require("../config_apr.php");
+require("monitorExternalFile1.php");
 
-// Check the task_status.txt file for popup control
-$taskStatusFile = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status.txt";
-$popupActive = false;
-
-if (file_exists($taskStatusFile)) {
-    $status = trim(file_get_contents($taskStatusFile));
-    if ($status === "start") {
-        $popupActive = true;
-    }
-}
+$task_status_file = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status";
+$task_status = file_exists($task_status_file) ? trim(file_get_contents($task_status_file)) : "stop";
 ?>
-✅ Ensure the pop-up modal is inside <body> before any other major content:
 
-html
-Copy
-Edit
-<?php if ($popupActive): ?>
-    <!-- Task Status Pop-up -->
-    <div class="modal fade" id="taskStatusModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Task Status</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    🚀 A new task has started. Please stay alert!
-                </div>
-            </div>
-        </div>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Monitoring</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+        #taskBanner {
+            background-color: red;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Banner -->
+    <div id="taskBanner">🔴 Task is Running...</div>
+
     <script>
+        function checkTaskStatus() {
+            $.ajax({
+                url: 'check_task_status.php',
+                method: 'GET',
+                success: function(response) {
+                    if (response.trim() === 'start') {
+                        $("#taskBanner").fadeIn();
+                    } else {
+                        $("#taskBanner").fadeOut();
+                    }
+                }
+            });
+        }
+
+        // Auto-check every 5 seconds
+        setInterval(checkTaskStatus, 5000);
+        
+        // Initial check on page load
         $(document).ready(function() {
-            $("#taskStatusModal").modal('show');
+            checkTaskStatus();
         });
     </script>
-<?php endif; ?>
-This is already in your updated file, so no extra changes are needed! 🎯 Just ensure that:
-
-This PHP block is before any HTML output.
-The modal and script are inside <body>.
-Let me know if you face any issues! 🚀
-
-
-You said:
-smart_krish.php.txt
-Document
-Add this in my existing smart_krish.php file
-You should insert the code in the existing smart_krish.php file as follows:
-
-Where to Insert the Code:
-At the beginning of the file (before HTML starts):
-Add this after the existing session_start(); and require("../config_apr.php"); lines:
-
-php
-Copy
-Edit
-// Check the task_status.txt file for popup control
-$taskStatusFile = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status.txt";
-$popupActive = false;
-
-if (file_exists($taskStatusFile)) {
-    $status = trim(file_get_contents($taskStatusFile));
-    if ($status === "start") {
-        $popupActive = true;
-    }
-}
-Before the </body> closing tag (inside the <body> section):
-Add this to ensure the modal is displayed properly:
-
-php
-Copy
-Edit
-<?php if ($popupActive): ?>
-<!-- Task Status Pop-up -->
-<div class="modal fade" id="taskStatusModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content" style="text-align: center; padding: 20px; font-size: 24px; font-weight: bold; color: white; background-color: orange;">
-            <div class="modal-header">
-                <h5 class="modal-title">Task Status</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                🚀 A new task has started. Please stay alert!
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-    $(document).ready(function() {
-        $("#taskStatusModal").modal('show');
-    });
-</script>
-<?php endif; ?>
-Final Placement in smart_krish.php:
-✅ Place PHP logic for task_status.txt after session start.
-✅ Place modal popup inside <body> before </body>.
-Would you like me to apply these changes to your uploaded file? 🚀
-
-
-
-
-
-
+</body>
+</html>
