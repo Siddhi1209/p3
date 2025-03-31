@@ -4,72 +4,68 @@ $server_file = file("card_folder/prcard.txt");
 $drserver_file = file("card_folder/drcard.txt");
 $nrserver_file = file("card_folder/nrcard.txt");
 $site = file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/DR_CHECK");
-?>
-<!DOCTYPE html>
-<html>
+?><!DOCTYPE html><html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Server Virtual IP/PHYSICAL IP/NAME</title>
-    <meta http-equiv="refresh" content="5">
+    <meta http-equiv="refresh" content="5"><?php include("../includes/header_uppercp.php"); ?>
+<link href="../swal/swal.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
 
-    <?php include("../includes/header_uppercp.php"); ?>
-    <link href="../swal/swal.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+<style>
+    /* Apply background image with blur effect */
+    body {
+        margin: 0;
+        padding: 0;
+        position: relative;
+        background: url('/pages/background.png') no-repeat center center fixed;
+        background-size: cover;
+    }
+    
+    /* Blurred overlay */
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('/pages/background.png') no-repeat center center fixed;
+        background-size: cover;
+        filter: blur(10px);
+        z-index: 0;
+    }
+    
+    /* Ensure popup stays on top */
+    .swal-modal {
+        z-index: 10000;
+        background-color: rgba(255, 255, 255, 0.9); /* Slight transparency */
+    }
+</style>
 
-    <style>
-        /* Apply background image with blur effect */
-        body {
-            margin: 0;
-            padding: 0;
-            background: url('/pages/background.png') no-repeat center center fixed;
-            background-size: cover;
-            position: relative;
-        }
-
-        /* Blurred overlay */
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('/pages/background.png') no-repeat center center fixed;
-            background-size: cover;
-            filter: blur(10px); /* Adjust blur intensity */
-            z-index: -1;
-        }
-
-        /* Ensure popup stays on top */
-        .swal-modal {
-            z-index: 10000;
-        }
-    </style>
 </head>
-<body class="skin-blue sidebar-collapse">
+<body class="skin-blue sidebar-collapse"><script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="../swal/swal.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
 
-    <script src="../swal/swal.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <script>
-        $(document).ready(function () {
-            swal({
-                title: "CBS ANNUAL CLOSING ACTIVITY IS IN PROGRESS!!",
-                text: "CBS UNDER MAINTENANCE !!!",
-                icon: "info",
-                button: false,
-                className: "green-bg",
-                closeOnClickOutside: false
-            });
-
-            setTimeout(function () {
-                window.close();
-            }, 200000); // Close window after 200 seconds
-
-            setTimeout(function () {
-                location.reload();
-            }, 10000); // Refresh page after 10 seconds
+<script>
+    $(document).ready(function () {
+        swal({
+            title: "CBS ANNUAL CLOSING ACTIVITY IS IN PROGRESS!!",
+            text: "CBS UNDER MAINTENANCE !!!",
+            icon: "info",
+            button: false,
+            className: "green-bg",
+            closeOnClickOutside: false
         });
-    </script>
+
+        setTimeout(function () {
+            window.close();
+        }, 200000); // Close window after 200 seconds
+
+        setTimeout(function () {
+            location.reload();
+        }, 10000); // Refresh page after 10 seconds
+    });
+</script>
 
 </body>
 </html>
