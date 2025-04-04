@@ -1,42 +1,54 @@
-<?php
-error_reporting(1);
-$server_file=file("card_folder/prcard.txt");
-$drserver_file=file("card_folder/drcard.txt");
-$nrserver_file=file("card_folder/nrcard.txt");
-//print_r($file);
-$site=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/DR_CHECK");
-?>
-<!DOCTYPE html>
-<html>
-<head>
-        <meta charset="UTF-8">
-        <div id="home">
-         <title>Server Virtual IP/PHYSICAL IP/NAME</title>
-         <meta http-quiv="refresh" content="5">
-        <div>
-        <?php include("../includes/header_uppercp.php"); ?>
-        <link href="../swal/swal.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
-</head>
-<body class="skin-blue sidebar-collapse">
-                        <script src="../swal/swal.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
-                        <script>
-                                $(document).ready(function (){
-                                        swal ({
-                                                title:"CBS ANNUAL CLOSING ACTIVITY IS IN PROGRESS !!",
-                                                text: "CBS UNDER MAINTENANCE !!!",
-                                                button:false,
-                                                classname:"green-bg",
-                                                icon:"info",
-                                                closeOnClickOutside:false,
-                                        })
-                                        window.setTimeout(function (){
-                                           window.close();
-                                        },200000)
-                                });
-                                        setTimeout(function(){
-                                           location.reload();
-                                         },10000);
-                        </script>
-        </div>
-</body>
-</html>
+terna 09:39 DP1.1.001 09:39 007784 7.82 103 01045 NO_BOOK_DEPOSIT_TRANSFER
+terna 09:39 DP1.1.012 09:39 009927 7.70 105 01045 NO_BOOK_DEPOSIT_TRANSFER
+jamuna 09:50 BLT.1.073 09:50 046898 4.36 434 80002 BGL_LESS_TXN_UPI_BA
+jamuna 09:50 BLT.1.043 09:50 028905 4.36 433 80004 BGL_LESS_TXN_UPI_BC
+jamuna 09:50 BLT.1.186 09:50 054455 4.35 430 80006 BGL_LESS_TXN_UPI_BE
+jamuna 09:50 BLT.1.013 09:50 010392 4.31 433 80006 BGL_LESS_TXN_UPI_BE
+jhelum 09:47 BLT.1.129 09:47 046910 4.25 423 80006 BGL_LESS_TXN_UPI_BE
+jamuna 09:50 BLT.1.136 09:50 023137 4.23 432 80006 BGL_LESS_TXN_UPI_BE
+jhelum 09:47 BLT.1.168 09:47 015436 4.15 421 80008 BGL_LESS_TXN_UPI_BG
+ganga 09:46 BLT.1.156 09:46 038561 4.13 421 80004 BGL_LESS_TXN_UPI_BC
+jhelum 09:47 BLT.1.146 09:47 058380 4.07 424 80008 BGL_LESS_TXN_UPI_BG
+jhelum 09:47 BLT.1.084 09:47 013643 4.05 422 80006 BGL_LESS_TXN_UPI_BE
+jhelum 09:47 BLT.1.008 09:47 016706 4.02 426 80006 BGL_LESS_TXN_UPI_BE
+ganga 09:46 BLT.1.047 09:46 028781 4.02 422 80002 BGL_LESS_TXN_UPI_BA
+jhelum 09:47 BLT.1.153 09:47 004609 4.01 427 80002 BGL_LESS_TXN_UPI_BA
+ganga 09:46 BLT.1.134 09:46 024424 4.01 420 80006 BGL_LESS_TXN_UPI_BE
+jhelum 09:47 BLT.1.090 09:47 017686 4.00 426 80002 BGL_LESS_TXN_UPI_BA
+ganga 09:46 BLT.1.128 09:46 021467 3.89 422 80008 BGL_LESS_TXN_UPI_BG
+ganga 09:46 BLT.1.116 09:46 011724 3.88 422 80004 BGL_LESS_TXN_UPI_BC
+ganga 09:46 BLT.1.062 09:46 034336 3.87 422 80006 BGL_LESS_TXN_UPI_BE
+
+function sys_utl3(){
+                $data2 = explode("\n", shell_exec("cat ".$this->currpath."top_8apps.txt.".$this->datecrr." |grep -v 'no rows'"));
+                //$data2 = file("../../SystemUtilization/top_8apps.txt");// /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/top_8apps.txt.$date
+                if(parent::checkblank($data2)){ echo parent::checkblank($data2);}
+                array_pop($data2);
+                if(count($data2) == '0'){
+                        echo "<tr><th colspan='4'><span class='btn btn-warning'>No Data Available</span></th></tr>";
+                }
+                else{
+                        foreach ($data2 as $line_num => $line) {
+                                        $var = explode(" ",$line);
+                                        if($var[1] != $var[3]){
+                                                echo "<td class='text-center' ><span >".ucwords(strtolower($var[0]))."(".$var[1].")</span></td>";
+                                                echo "<td class='text-center' ><span>".$var[2]."</span></td>";
+                                                echo "<td class='text-center bg-aqua-active' title='".$var[8]."'>".$var[7]."</td>";
+                                                if($var[5] > '50') {
+                                                        echo "<td class='bg-red text-center' >".$var[4]." -- ".$var[5]."%</td>";
+                                                }
+                                                else{
+                                                        echo "<td class='text-center' >".$var[4]." -- ".$var[5]."%</td>";
+                                                }
+                                        }
+                                        else{
+                                                echo "<td class='text-center' ><span >".ucwords(strtolower($var[0]))."(".$var[1].")</span></td>";
+                                                echo "<td class='text-center' ><span>".$var[2]."</span></td>";
+                                                echo "<td class='text-center bg-aqua-active' title='".$var[8]."'>".$var[7]."</td>";
+                                                if($var[5] > '50') {echo "<td class='bg-red text-center' >".$var[4]." -- ".$var[5]."%</td>";}
+                                                else{echo "<td class='text-center' >".$var[4]." -- ".$var[5]."%</td>";}
+                                        }
+                                        echo "</tr>";
+                        }
+                }
+        }
