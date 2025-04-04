@@ -1,63 +1,22 @@
-<?php
-session_start();
-require("../config_apr.php");
-require("monitorExternalFile1.php");
+function sys_utl3(){                 
+    $data2 = explode("\n", shell_exec("cat ".$this->currpath."top_8apps.txt.".$this->datecrr." | grep -v 'no rows'"));                 
 
-$task_status_file = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status";
-$task_status = file_exists($task_status_file) ? trim(file_get_contents($task_status_file)) : "stop";
-?>
+    if (parent::checkblank($data2)) { 
+        echo parent::checkblank($data2);
+    }                 
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Monitoring</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        body {
-            background: url('background.jpg') no-repeat center center fixed;
-            background-size: cover;
-        }
-        #taskBanner {
-            background-color: red;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            display: none;
-        }
-    </style>
-</head>
-<body>
+    array_pop($data2);                 
 
-    <!-- Banner -->
-    <div id="taskBanner">🔴 Task is Running...</div>
-
-    <script>
-        function checkTaskStatus() {
-            $.ajax({
-                url: 'check_task_status.php',
-                method: 'GET',
-                success: function(response) {
-                    if (response.trim() === 'start') {
-                        $("#taskBanner").fadeIn();
-                    } else {
-                        $("#taskBanner").fadeOut();
-                    }
-                }
-            });
-        }
-
-        // Auto-check every 5 seconds
-        setInterval(checkTaskStatus, 5000);
-        
-        // Initial check on page load
-        $(document).ready(function() {
-            checkTaskStatus();
-        });
-    </script>
-</body>
-</html>
+    if (count($data2) == 0) {                         
+        echo "<tr><th colspan='4'><span class='btn btn-warning'>No Data Available</span></th></tr>";                 
+    } else {                         
+        foreach ($data2 as $line_num => $line) {                                          
+            $var = explode(" ", $line);                                          
+            echo "<td class='text-center'><span >".ucwords(strtolower($var[0]))."(".$var[1].")</span></td>";                                          
+            echo "<td class='text-center'><span>".$var[2]."</span></td>";                                          
+            echo "<td class='text-center bg-aqua-active' title='".$var[8]."'>".$var[7]."</td>";                                          
+            echo "<td class='text-center'>".$var[4]."</td>";                                          
+            echo "</tr>";                         
+        }                 
+    }         
+}
