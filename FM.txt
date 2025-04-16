@@ -1,54 +1,474 @@
-terna 09:39 DP1.1.001 09:39 007784 7.82 103 01045 NO_BOOK_DEPOSIT_TRANSFER
-terna 09:39 DP1.1.012 09:39 009927 7.70 105 01045 NO_BOOK_DEPOSIT_TRANSFER
-jamuna 09:50 BLT.1.073 09:50 046898 4.36 434 80002 BGL_LESS_TXN_UPI_BA
-jamuna 09:50 BLT.1.043 09:50 028905 4.36 433 80004 BGL_LESS_TXN_UPI_BC
-jamuna 09:50 BLT.1.186 09:50 054455 4.35 430 80006 BGL_LESS_TXN_UPI_BE
-jamuna 09:50 BLT.1.013 09:50 010392 4.31 433 80006 BGL_LESS_TXN_UPI_BE
-jhelum 09:47 BLT.1.129 09:47 046910 4.25 423 80006 BGL_LESS_TXN_UPI_BE
-jamuna 09:50 BLT.1.136 09:50 023137 4.23 432 80006 BGL_LESS_TXN_UPI_BE
-jhelum 09:47 BLT.1.168 09:47 015436 4.15 421 80008 BGL_LESS_TXN_UPI_BG
-ganga 09:46 BLT.1.156 09:46 038561 4.13 421 80004 BGL_LESS_TXN_UPI_BC
-jhelum 09:47 BLT.1.146 09:47 058380 4.07 424 80008 BGL_LESS_TXN_UPI_BG
-jhelum 09:47 BLT.1.084 09:47 013643 4.05 422 80006 BGL_LESS_TXN_UPI_BE
-jhelum 09:47 BLT.1.008 09:47 016706 4.02 426 80006 BGL_LESS_TXN_UPI_BE
-ganga 09:46 BLT.1.047 09:46 028781 4.02 422 80002 BGL_LESS_TXN_UPI_BA
-jhelum 09:47 BLT.1.153 09:47 004609 4.01 427 80002 BGL_LESS_TXN_UPI_BA
-ganga 09:46 BLT.1.134 09:46 024424 4.01 420 80006 BGL_LESS_TXN_UPI_BE
-jhelum 09:47 BLT.1.090 09:47 017686 4.00 426 80002 BGL_LESS_TXN_UPI_BA
-ganga 09:46 BLT.1.128 09:46 021467 3.89 422 80008 BGL_LESS_TXN_UPI_BG
-ganga 09:46 BLT.1.116 09:46 011724 3.88 422 80004 BGL_LESS_TXN_UPI_BC
-ganga 09:46 BLT.1.062 09:46 034336 3.87 422 80006 BGL_LESS_TXN_UPI_BE
-
-function sys_utl3(){
-                $data2 = explode("\n", shell_exec("cat ".$this->currpath."top_8apps.txt.".$this->datecrr." |grep -v 'no rows'"));
-                //$data2 = file("../../SystemUtilization/top_8apps.txt");// /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/top_8apps.txt.$date
-                if(parent::checkblank($data2)){ echo parent::checkblank($data2);}
-                array_pop($data2);
-                if(count($data2) == '0'){
-                        echo "<tr><th colspan='4'><span class='btn btn-warning'>No Data Available</span></th></tr>";
-                }
-                else{
-                        foreach ($data2 as $line_num => $line) {
-                                        $var = explode(" ",$line);
-                                        if($var[1] != $var[3]){
-                                                echo "<td class='text-center' ><span >".ucwords(strtolower($var[0]))."(".$var[1].")</span></td>";
-                                                echo "<td class='text-center' ><span>".$var[2]."</span></td>";
-                                                echo "<td class='text-center bg-aqua-active' title='".$var[8]."'>".$var[7]."</td>";
-                                                if($var[5] > '50') {
-                                                        echo "<td class='bg-red text-center' >".$var[4]." -- ".$var[5]."%</td>";
-                                                }
-                                                else{
-                                                        echo "<td class='text-center' >".$var[4]." -- ".$var[5]."%</td>";
-                                                }
-                                        }
-                                        else{
-                                                echo "<td class='text-center' ><span >".ucwords(strtolower($var[0]))."(".$var[1].")</span></td>";
-                                                echo "<td class='text-center' ><span>".$var[2]."</span></td>";
-                                                echo "<td class='text-center bg-aqua-active' title='".$var[8]."'>".$var[7]."</td>";
-                                                if($var[5] > '50') {echo "<td class='bg-red text-center' >".$var[4]." -- ".$var[5]."%</td>";}
-                                                else{echo "<td class='text-center' >".$var[4]." -- ".$var[5]."%</td>";}
-                                        }
-                                        echo "</tr>";
-                        }
-                }
-        }
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+<title>EOD</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta name="generator" content="pdftohtml 0.36"/>
+<style type="text/css">
+<!--
+.xflip {
+    -moz-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    transform: scaleX(-1);
+    filter: fliph;
+}
+.yflip {
+    -moz-transform: scaleY(-1);
+    -webkit-transform: scaleY(-1);
+    -o-transform: scaleY(-1);
+    transform: scaleY(-1);
+    filter: flipv;
+}
+.xyflip {
+    -moz-transform: scaleX(-1) scaleY(-1);
+    -webkit-transform: scaleX(-1) scaleY(-1);
+    -o-transform: scaleX(-1) scaleY(-1);
+    transform: scaleX(-1) scaleY(-1);
+    filter: fliph + flipv;
+}
+-->
+</style>
+</head>
+<body bgcolor="#A0A0A0" vlink="blue" link="blue">
+<a name=1></a>7/18/23, 11:33 PM<br/>
+BR0501 restart issue in MOCK - my_wiki<br/>
+<b>BR0501&#160;restart&#160;issue&#160;in&#160;MOCK</b><br/>
+<b>Analysis</b><br/>
+When&#160;BR0501&#160;was&#160;about&#160;to&#160;start&#160;in&#160;bani&#160;server&#160;for&#160;single&#160;app&#160;it&#160;threw&#160;check&#160;rc&#160;=12.After&#160;analysis<br/>it&#160;was&#160;found&#160;that&#160;no&#160;rebl&#160;and&#160;batc&#160;entry&#160;has&#160;been&#160;made&#160;for&#160;the&#160;same.Then&#160;we&#160;observed&#160;that&#160;region<br/>also&#160;got&#160;down&#160;in&#160;the&#160;mean&#160;time&#160;after&#160;completion&#160;of&#160;IN0800.So&#160;after&#160;bringing&#160;up&#160;region&#160;we&#160;started<br/>start_br0501&#160;but&#160;it&#160;again&#160;ended&#160;with&#160;check&#160;rc&#160;255(FILE&#160;I/O&#160;error)&#160;except&#160;one&#160;stream.Finally&#160;after<br/>observation&#160;&#160;we&#160;&#160;found&#160;&#160;the&#160;&#160;permission&#160;&#160;of&#160;&#160;the&#160;&#160;directory&#160;&#160;/file&#160;&#160;has&#160;&#160;been&#160;&#160;changed&#160;&#160;from&#160;&#160;fnsonlid&#160;&#160;to<br/>fnsonli.So&#160;GLIFINV_???&#160;were&#160;n't&#160;written&#160;in&#160;the&#160;above&#160;mentioned&#160;mount&#160;point.But&#160;due&#160;to&#160;presence<br/>of&#160;&#160;OLD&#160;&#160;GLIFINV_???&#160;&#160;file&#160;&#160;for&#160;&#160;that&#160;&#160;particular&#160;&#160;stream&#160;&#160;which&#160;&#160;was&#160;&#160;running&#160;&#160;successfully,the&#160;&#160;stream<br/>didn't&#160;fail&#160;but&#160;it&#160;was&#160;unable&#160;to&#160;write&#160;the&#160;GLIVINV_???&#160;information&#160;where&#160;as&#160;it&#160;only&#160;touched&#160;the<br/>file&#160;&#160;inside&#160;&#160;$data/file&#160;&#160;mount&#160;&#160;point.But&#160;&#160;due&#160;&#160;to&#160;&#160;proper&#160;&#160;permission&#160;&#160;$data/temp&#160;&#160;directory&#160;&#160;all<br/>INVTOGL_???&#160;were&#160;touched&#160;so&#160;far.And&#160;the&#160;stream&#160;which&#160;was&#160;alive&#160;was&#160;writing&#160;the&#160;corresponding<br/>INVTOGL_???&#160;properly.For&#160;all&#160;streams&#160;rebl&#160;entries&#160;were&#160;made&#160;and&#160;only&#160;one&#160;batc&#160;entry&#160;found(for<br/>the ALIVE Stream) when we started start_br0501 following the check rc 255.<br/>
+<b>Solution</b><br/>
+Kill&#160;the&#160;running&#160;stream.Then&#160;by&#160;using&#160;checkbatc.sh&#160;script&#160;(entering&#160;option&#160;2&#160;and&#160;then&#160;stream&#160;no)<br/>manually&#160;we&#160;made&#160;all&#160;the&#160;failed&#160;streams&#160;batc&#160;entry.Bascially&#160;the&#160;script&#160;reads&#160;rebl&#160;table&#160;and&#160;put&#160;the<br/>start&#160;&#160;range&#160;&#160;for&#160;&#160;a&#160;&#160;particular&#160;&#160;stream&#160;&#160;just&#160;&#160;by&#160;&#160;decrementing&#160;&#160;the&#160;&#160;value&#160;&#160;by&#160;&#160;one.Then&#160;&#160;by&#160;&#160;cdc&#160;&#160;team<br/>$data/file&#160;permission&#160;has&#160;been&#160;changed.Then&#160;we&#160;fired&#160;<i>restart0501ms</i>&#160;but&#160;we&#160;found&#160;that&#160;there&#160;is<br/>some&#160;library&#160;file&#160;issue&#160;associated&#160;with&#160;MOCK&#160;environment&#160;which&#160;inturn&#160;didn't&#160;fire&#160;any&#160;stream.The<br/>issue&#160;&#160;was&#160;&#160;resolved&#160;&#160;by&#160;&#160;config&#160;&#160;team.Then&#160;&#160;restart0501ms&#160;&#160;worked&#160;&#160;successfully&#160;&#160;and&#160;&#160;verification&#160;&#160;was<br/>done.&#34;<br/>
+Retrieved&#160;from&#160;&#34;<a href="http://localhost/mediawiki/index.php?title=BR0501_restart_issue_in_MOCK&oldid=770">http://localhost/mediawiki/index.php?title=BR0501_restart_issue_in_MOCK&amp;oldid=770&#34;</a><br/>
+<b>This&#160;page&#160;was&#160;last&#160;edited&#160;on&#160;3&#160;September&#160;2014,&#160;at&#160;05:54.</b><br/>
+localhost/mediawiki/index.php/BR0501_restart_issue_in_MOCK<br/>
+1/1<br/>
+<hr/>
+<a name=2></a>7/18/23, 11:33 PM<br/>
+BR1222 restart in girija server as it failed with RC=243. - my_wiki<br/>
+<b>BR1222&#160;restart&#160;in&#160;girija&#160;server&#160;as&#160;it<br/>failed&#160;with&#160;RC=243.</b><br/>
+<b>Analysis</b><br/>
+lond1221ms&#160;&#160;job&#160;&#160;gets&#160;&#160;fired&#160;&#160;accross&#160;&#160;all&#160;&#160;7&#160;&#160;apps.But&#160;&#160;in&#160;&#160;girija&#160;&#160;server&#160;&#160;it&#160;&#160;runs&#160;&#160;for&#160;&#160;long&#160;&#160;time.One&#160;&#160;issue<br/>happened&#160;so&#160;far&#160;that&#160;when&#160;one&#160;stream&#160;of&#160;BR1222&#160;was&#160;running&#160;then&#160;due&#160;to&#160;region&#160;kill&#160;(reuired&#160;for<br/>bulk promotion ) one stream got killed with RC=243.<br/>
+<b>Solution</b><br/>
+Then&#160;&#160;finally&#160;&#160;after&#160;&#160;completion&#160;&#160;of&#160;&#160;bulk&#160;&#160;activity&#160;&#160;the&#160;&#160;job&#160;&#160;lond1222ms(called&#160;&#160;from&#160;&#160;lond1221ms)&#160;&#160;was<br/>restarted once again and finally all the streams of BR1222 ended successfully with RC=0.<br/>
+<a href="http://localhost/mediawiki/index.php?title=BR1222_restart_in_girija_server_as_it_failed_with_RC%3D243.&oldid=771">Retrieved&#160;from&#160;&#34;http://localhost/mediawiki/index.php?<br/>title=BR1222_restart_in_girija_server_as_it_failed_with_RC%3D243.&amp;oldid=771</a>&#34;<br/>
+<b>This&#160;page&#160;was&#160;last&#160;edited&#160;on&#160;3&#160;September&#160;2014,&#160;at&#160;05:56.</b><br/>
+localhost/mediawiki/index.php/BR1222_restart_in_girija_server_as_it_failed_with_RC%3D243.<br/>
+1/1<br/>
+<hr/>
+<a name=3></a>7/18/23, 11:33 PM<br/>
+DCBR0800 ended with RC=4. - my_wiki<br/>
+<b>DCBR0800&#160;ended&#160;with&#160;RC=4.</b><br/>
+<b>Analysis</b><br/>
+As&#160;&#160;per&#160;&#160;the&#160;&#160;analysis&#160;&#160;this&#160;&#160;rc&#160;&#160;4&#160;&#160;comes&#160;&#160;for&#160;&#160;those&#160;&#160;a/c&#160;&#160;where&#160;&#160;there&#160;&#160;is&#160;&#160;a&#160;&#160;mismatch&#160;&#160;happens&#160;&#160;for<br/>BAD_DEBT_IND&#160;field&#160;between&#160;RIGH&#160;and&#160;BORM&#160;table.It&#160;happens&#160;for&#160;OLD&#160;a/c(migrated)&#160;where<br/>during&#160;&#160;migration&#160;&#160;RIGH&#160;&#160;table&#160;&#160;migration&#160;&#160;was&#160;&#160;n't&#160;&#160;done&#160;&#160;properly&#160;&#160;(so&#160;&#160;RIGH&#160;&#160;BAD_DEBT_IND&#160;&#160;field<br/>doesn't&#160;match&#160;with&#160;BORM&#160;table).Now&#160;SBI&#160;bog&#160;set/enable&#160;the&#160;parameter&#160;for&#160;NPA&#160;tracking&#160;for&#160;that<br/>particular&#160;a/c&#160;which&#160;instead&#160;leads&#160;to&#160;check&#160;rc&#160;4&#160;in&#160;dcbr0800&#160;due&#160;to&#160;mismatch&#160;in&#160;BAD_DEBT_IND<br/>field for RIGH and BORM table for that particular a/c.<br/>
+So&#160;RIGH&#160;value&#160;will&#160;be&#160;set&#160;on&#160;that&#160;day&#160;once&#160;there&#160;after&#160;if&#160;again&#160;this&#160;a/c&#160;gets&#160;picked&#160;by&#160;dcbr0800&#160;on<br/>some other day it won't lead check rc.<br/>
+<b>Solution</b><br/>
+Datafix&#160;&#160;required&#160;&#160;for&#160;&#160;all&#160;&#160;those&#160;&#160;a/c&#160;&#160;s&#160;&#160;whose&#160;&#160;BAD_DEBT_IND&#160;&#160;filed&#160;&#160;value&#160;&#160;doesn't&#160;&#160;match&#160;&#160;for&#160;&#160;RIGH<br/>and BORM table.<br/>
+Retrieved&#160;from&#160;&#34;<a href="http://localhost/mediawiki/index.php?title=DCBR0800_ended_with_RC%3D4.&oldid=772">http://localhost/mediawiki/index.php?title=DCBR0800_ended_with_RC%3D4.&amp;oldid=772</a>&#34;<br/>
+<b>This&#160;page&#160;was&#160;last&#160;edited&#160;on&#160;3&#160;September&#160;2014,&#160;at&#160;05:58.</b><br/>
+localhost/mediawiki/index.php/DCBR0800_ended_with_RC%3D4.<br/>
+1/1<br/>
+<hr/>
+<a name=4></a>7/18/23, 11:32 PM<br/>
+Failure of GL0800 with RC = 8. - my_wiki<br/>
+<b>Failure&#160;of&#160;GL0800&#160;with&#160;RC&#160;=&#160;8.</b><br/>
+<b>ANALYSIS</b><br/>
+To restart a single stream of&#160;<a href="http://localhost/mediawiki/index.php?title=GL0800&action=edit&redlink=1">GL0800&#160;in Jamuna server as it ended with RC =8.</a><br/>
+<b>SOLUTION</b><br/>
+Steps to execute&#160;:<br/>
+&#160;1.&#160;mv&#160;$data/file/GLCCGEN_{failed_stream}&#160;&#160;&#160;$data/file/GLCCGEN_{failed_stream}_bkp<br/>&#160;<br/>&#160;2.&#160;mv&#160;$data/file/GLCCGEN_{failed_stream}.idx&#160;&#160;$data/file/GLCCGEN_{failed_stream}.idx&#160;_bkp<br/>&#160;<br/>&#160;3.&#160;gend0800_{failed_stream}<br/>
+After&#160;completion&#160;of&#160;the&#160;stream&#160;kill&#160;the&#160;check&#160;rc&#160;of&#160;<a href="http://localhost/mediawiki/index.php?title=Gend0800ms&action=edit&redlink=1">gend0800ms&#160;</a>in&#160;that&#160;particular&#160;server.&#160;But&#160;on<br/>that&#160;&#160;day&#160;&#160;if&#160;&#160;<a href="http://localhost/mediawiki/index.php?title=Gend0800ms&action=edit&redlink=1">gend0800ms&#160;&#160;</a>again&#160;&#160;failed&#160;&#160;with&#160;&#160;RC=8&#160;&#160;after&#160;&#160;rerun&#160;&#160;also&#160;&#160;run&#160;&#160;Balance&#160;&#160;Compare&#160;&#160;of<br/><b>Finance1</b>&#160;from outside to check it.<br/>
+Retrieved&#160;from&#160;&#34;<a href="http://localhost/mediawiki/index.php?title=Failure_of_GL0800_with_RC_%3D_8.&oldid=667">http://localhost/mediawiki/index.php?title=Failure_of_GL0800_with_RC_%3D_8.&amp;oldid=667</a>&#34;<br/>
+<b>This&#160;page&#160;was&#160;last&#160;edited&#160;on&#160;11&#160;August&#160;2014,&#160;at&#160;05:01.</b><br/>
+localhost/mediawiki/index.php/Failure_of_GL0800_with_RC_%3D_8.<br/>
+1/1<br/>
+<hr/>
+<a name=5></a>7/18/23, 11:32 PM<br/>
+Failure of IN0800 / BR0501 - my_wiki<br/>
+<b>Failure&#160;of&#160;IN0800&#160;/&#160;BR0501</b><br/>
+<b>Contents<br/><a href="">CASE 1</a></b><br/>
+<a href="">ANALYSIS<br/>SOLUTION</a><br/>
+<a href=""><b>CASE 2</b></a><br/>
+<a href="">ANALYSIS<br/>SOLUTION</a><br/>
+<a href=""><b>CASE 3</b></a><br/>
+<a href="">ANALYSIS</a><br/>
+<a href=""><b>CASE 4</b></a><br/>
+<a href="">ANALYSIS<br/>SOLUTION</a><br/>
+<a href=""><b>Case 5</b></a><br/>
+<a href="">Analysis<br/>Solution</a><br/>
+<a href=""><b>Case 6</b></a><br/>
+<a href="">Analysis</a><br/>
+<a href=""><b>Solution=</b></a><br/>
+<b>CASE 1</b><br/>
+<b>ANALYSIS</b><br/>
+There&#160;&#160;are&#160;&#160;scenarios&#160;&#160;in&#160;&#160;which&#160;&#160;<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">IN0800</a>&#160;&#160;processing&#160;&#160;will&#160;&#160;get&#160;&#160;stuck.&#160;&#160;To&#160;&#160;verify&#160;&#160;this&#160;&#160;check&#160;&#160;for&#160;&#160;the<br/>updation&#160;<br/>
+of&#160;<br/>
+files&#160;<br/>
+written&#160;<br/>
+by&#160;<br/>
+<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">IN0800&#160;</a><br/>
+viz.&#160;<br/>
+<b>$data/temp/INVTOGL_???</b>&#160;<br/>
+or<br/>
+<b>$data/file/GLIFINV_???</b>.<br/>
+<b>SOLUTION</b><br/>
+a)Look&#160;&#160;for&#160;&#160;any&#160;&#160;locks&#160;&#160;in&#160;&#160;DB.This&#160;&#160;happens&#160;&#160;if&#160;&#160;any&#160;&#160;online&#160;&#160;rtsora&#160;&#160;process&#160;&#160;is&#160;&#160;active&#160;&#160;in&#160;&#160;DB.From<br/>gv$session&#160;<br/>
+performance&#160;<br/>
+viw&#160;<br/>
+in&#160;<br/>
+database&#160;<br/>
+look&#160;<br/>
+for&#160;<br/>
+any&#160;<br/>
+modules&#160;<br/>
+other&#160;<br/>
+than<br/>
+<a href="http://localhost/mediawiki/index.php?title=SY0080&action=edit&redlink=1">SY0080,</a><a href="http://localhost/mediawiki/index.php?title=SY0005&action=edit&redlink=1">SY0005,</a><a href="http://localhost/mediawiki/index.php?title=SY0004&action=edit&redlink=1">SY0004,</a><a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">IN0800</a>,<a href="http://localhost/mediawiki/index.php?title=BR0501&action=edit&redlink=1">BR0501</a>.<br/>
+&#160;select&#160;module,state,status,event,username,machine&#160;from&#160;gv$session&#160;&#160;where&#160;username='FNSONLID';<br/>
+b)If&#160;any&#160;such&#160;process&#160;is&#160;in&#160;active&#160;state&#160;consult&#160;with&#160;DBA&#160;and&#160;kill&#160;the&#160;process&#160;from&#160;backend&#160;on&#160;the<br/>server on which the process is active as per the result of above query.<br/>
+localhost/mediawiki/index.php/Failure_of_IN0800_/_BR0501<br/>
+1/5<br/>
+<hr/>
+<a name=6></a>7/18/23, 11:32 PM<br/>
+Failure of IN0800 / BR0501 - my_wiki<br/>
+c)After&#160;killing&#160;the&#160;process&#160;see&#160;if&#160;proceessing&#160;<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">of&#160;IN0800</a>&#160;resumes&#160;or&#160;not&#160;by&#160;verifying&#160;the&#160;updation&#160;of<br/>files&#160;<b>$data/temp/INVTOGL_???</b>&#160;or&#160;<b>$data/file/GLIFINV_???</b>.<br/>
+d)If&#160;&#160;<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">IN0800&#160;&#160;</a>processing&#160;&#160;does&#160;&#160;not&#160;&#160;resume&#160;&#160;kill&#160;&#160;the&#160;&#160;streams&#160;&#160;which&#160;&#160;are&#160;&#160;hung.This&#160;&#160;will&#160;&#160;throw&#160;&#160;a<br/>checkrc.Do not kill the RC.<br/>
+e)Restart&#160;&#160;the&#160;&#160;streams&#160;&#160;which&#160;&#160;have&#160;&#160;been&#160;&#160;killed&#160;&#160;by&#160;&#160;the<b>&#160;&#160;$cat/restart0800_XXX&#160;&#160;job</b>,where<br/><a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">XXX=stream number of the killed&#160;IN0800&#160;stream.</a><br/>
+f)After&#160;successful&#160;completion&#160;of&#160;all&#160;the&#160;streams&#160;of&#160;IN0800&#160;on&#160;all&#160;the&#160;server,&#160;verify&#160;the&#160;logs&#160;of&#160;all<br/>the&#160;&#160;streams.There&#160;&#160;should&#160;&#160;not&#160;&#160;be&#160;&#160;any&#160;&#160;oracle&#160;&#160;error&#160;&#160;or&#160;&#160;any&#160;&#160;non-zero&#160;&#160;RC.Also&#160;&#160;verfiy&#160;&#160;the&#160;&#160;difference<br/>between the processed accounts and total accounts to be processed.The difference should be 0.<br/>
+<b>Steps</b><br/>
+-<br/>
+For total accounts execute the query:-<br/>
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;select&#160;/*+parallel(invm,8)&#160;*/&#160;count(1)&#160;from&#160;invm&#160;where&#160;key_1&#160;between&#160;'0030000000000000001'&#160;and&#160;<br/>'0039999999999999999'&#160;and&#160;curr_status&lt;&gt;'19';<br/>
+For&#160;processed&#160;accounts&#160;fire&#160;the&#160;below&#160;command&#160;on&#160;all&#160;the&#160;serves&#160;and&#160;addup&#160;the&#160;output&#160;of&#160;all&#160;the<br/>servers.The difference should be ideally zero.<br/>
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;no_of_streams=`grep&#160;'SPEC\$STREAM'&#160;$card/IN0800MS.card|awk&#160;'{print&#160;$NF}'`<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;start_stream=`streamgen.sh&#160;$no_of_streams|cut&#160;-d'|'&#160;-f1`<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;end_stream=`streamgen.sh&#160;$no_of_streams|cut&#160;-d'|'&#160;-f2`<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;sum=0<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;typeset&#160;-RZ3&#160;start_stream&#160;end_stream<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;while&#160;[&#160;$start_stream&#160;-le&#160;$end_stream&#160;]<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;do<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;sum_temp=`ll&#160;-lrt&#160;$data/temp/INVTOGL_${start_stream}|awk&#160;'{print&#160;$5}'`<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;((sum=sum+sum_temp))<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;((start_stream=start_stream+1))<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;done<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;line_count=`tail&#160;-1&#160;$data/temp/INVTOGL_${end_stream}|wc&#160;-c`((processed_count=sum/&#160;line_count))<br/>
+g)kill the checkrc that is running.<br/>
+<b>CASE 2</b><br/>
+<b>ANALYSIS</b><br/>
+<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">IN0800&#160;</a>failed&#160;with&#160;either&#160;RC=12&#160;for&#160;ORA-12592(TNS&#160;BAD&#160;PACKET)&#160;or&#160;for&#160;RC=243&#160;for&#160;Signal&#160;11<br/>error with some accounts processed.<br/>
+<b>SOLUTION</b><br/>
+a)First of all check the entry in rebl table for the particular stream of&#160;<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">IN0800&#160;which got failed.</a><br/>
+localhost/mediawiki/index.php/Failure_of_IN0800_/_BR0501<br/>
+2/5<br/>
+<hr/>
+<a name=7></a>7/18/23, 11:32 PM<br/>
+Failure of IN0800 / BR0501 - my_wiki<br/>
+&#160;&#160;&#160;select&#160;*&#160;from&#160;rebl&#160;where&#160;JOB_NAME='IN0800'&#160;and&#160;STREAM_NO='XXX';[Where&#160;XXX&#160;is&#160;the&#160;stream&#160;number&#160;of&#160;the&#160;failed&#160;<br/>stream]<br/>
+<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">b)If from step 1,entry is found in rebl table,this means that processing of&#160;IN0800</a>&#160;has happened for<br/>some accounts.Then check for entry of that stream in&#160;<b>batc</b>&#160;table.<br/>
+&#160;&#160;select&#160;*&#160;from&#160;batc&#160;&#160;where&#160;JOB_NAME='IN0800'&#160;and&#160;STREAM_NO='XXX';[Where&#160;XXX&#160;is&#160;the&#160;stream&#160;number&#160;of&#160;the&#160;failed&#160;<br/>stream]<br/>
+c)If&#160;no&#160;entry&#160;is&#160;found&#160;in&#160;batc&#160;table&#160;but&#160;entry&#160;is&#160;there&#160;in&#160;<b>rebl</b>&#160;table&#160;for&#160;that&#160;particular&#160;stream&#160;,run<br/>the script&#160;<b>$sh/checkbatc.sh</b>&#160;and give necessary arguments{Job name and stream number}.<br/>
+d)Then&#160;restart&#160;the&#160;failed&#160;stream&#160;of&#160;<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">IN0800</a>&#160;by&#160;executing&#160;the&#160;job,<a href="http://localhost/mediawiki/index.php?title=Restart0800_XXX&action=edit&redlink=1">restart0800_XXX</a>&#160;[Where&#160;XXX&#160;is<br/>the stream number of the failed stream] in background.<br/>
+e)Wait&#160;&#160;for&#160;&#160;the&#160;&#160;completion&#160;&#160;of&#160;&#160;all&#160;&#160;the&#160;&#160;streams&#160;&#160;in&#160;&#160;all&#160;&#160;the&#160;&#160;servers&#160;&#160;and&#160;&#160;follow&#160;&#160;the&#160;&#160;steps&#160;&#160;of&#160;&#160;checking<br/><a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">proper execution of&#160;IN0800&#160;as mentioned in case(i).</a><br/>
+<b>CASE 3</b><br/>
+<b>ANALYSIS</b><br/>
+At times&#160;<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">IN0800</a>/<a href="http://localhost/mediawiki/index.php?title=BR0501&action=edit&redlink=1">BR0501&#160;fails with RC=255 in a particular server for &#34;FILE NOT FOUND&#34; error.<br/></a>This&#160;happens&#160;mainly&#160;when&#160;some&#160;important&#160;files&#160;required&#160;for&#160;processing&#160;of&#160;<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">IN0800</a>/<a href="http://localhost/mediawiki/index.php?title=BR0501&action=edit&redlink=1">BR0501</a>&#160;is&#160;not<br/>present&#160;&#160;in&#160;&#160;its&#160;&#160;required&#160;&#160;path.The&#160;&#160;files&#160;&#160;are&#160;&#160;<b>$data/file/CGLUPDTS</b>,&#160;&#160;<b>$data/file/DPFUPDTS<br/></b>etc.In such case all the streams in that server will fail with RC=255.<br/>
+<b>CASE 4</b><br/>
+<b>ANALYSIS</b><br/>
+At&#160;&#160;times&#160;&#160;<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">IN0800&#160;&#160;</a>goes&#160;&#160;into&#160;&#160;loop&#160;&#160;for&#160;&#160;account&#160;&#160;level&#160;&#160;errors.&#160;&#160;There&#160;&#160;are&#160;&#160;one&#160;&#160;or&#160;&#160;two&#160;&#160;problematic<br/>accounts for which the processing either halts or goes into loop.<br/>
+<b>SOLUTION</b><br/>
+a)First&#160;of&#160;all&#160;check&#160;the&#160;entry&#160;in&#160;<b>rebl</b>&#160;table&#160;&amp;&#160;<b>batc</b>&#160;table&#160;for&#160;the&#160;particular&#160;stream&#160;of&#160;<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">IN0800</a>&#160;which<br/>got failed .<br/>
+&#160;&#160;&#160;Select&#160;*&#160;from&#160;rebl&#160;where&#160;JOB_NAME='IN0800'&#160;and&#160;STREAM_NO='XXX';[Where&#160;XXX&#160;is&#160;the&#160;stream&#160;number&#160;of&#160;the&#160;&#160;failed&#160;<br/>stream].<br/>
+localhost/mediawiki/index.php/Failure_of_IN0800_/_BR0501<br/>
+3/5<br/>
+<hr/>
+<a name=8></a>7/18/23, 11:32 PM<br/>
+Failure of IN0800 / BR0501 - my_wiki<br/>
+There&#160;should&#160;not&#160;be&#160;ideally&#160;any&#160;entry&#160;of&#160;the&#160;streams&#160;running&#160;in&#160;that&#160;particular&#160;server&#160;in&#160;batc&#160;and<br/>rebl table.<br/>
+b)Check&#160;in&#160;<b>genr</b>&#160;table,if&#160;the&#160;values&#160;in&#160;<b>genr</b>&#160;table&#160;are&#160;exactly&#160;matching&#160;<b>IN0800BL.card</b>&#160;for&#160;that<br/>particular server.<br/>
+For&#160;example&#160;for&#160;master&#160;server&#160;there&#160;should&#160;be&#160;two&#160;entries&#160;in&#160;genr&#160;table.Check&#160;the&#160;entries&#160;with&#160;the<br/>query<br/>
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;[select&#160;*&#160;from&#160;genr&#160;where&#160;SERVER_ID='01'&#160;and&#160;JOB_NAME='IN0800';]<br/>
+Then in card compare the entries for server ID 01 with the following command.<br/>
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;[&#160;grep&#160;&#34;^SPEC\$REBAL&#34;&#160;&#160;$card/IN0800BL.card|grep&#160;-w&#160;&#34;01&#34;&#160;]<br/>
+<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">c) If they are matching,then start&#160;IN0800&#160;in that particular server.</a><br/>
+&#160;&#160;&#160;nohup&#160;depd0800ms_1<br/>&#160;&#160;&gt;$sysout/depd0800ms_1.1.out<b>&#160;&amp;&#160;<br/>&#160;</b><br/>
+d)If&#160;they&#160;are&#160;not&#160;matching&#160;then,update&#160;the&#160;<b>START_ACCT</b>&#160;and&#160;<b>END_ACCT</b>&#160;for&#160;both&#160;the&#160;groups<br/>corresponding&#160;&#160;to&#160;&#160;the&#160;&#160;particular&#160;&#160;server&#160;&#160;and&#160;&#160;job_name&#160;&#160;in&#160;&#160;genr&#160;&#160;table&#160;&#160;as&#160;&#160;mentioned&#160;&#160;in<br/><b>IN0800BL.card.</b><br/>
+For&#160;example,&#160;if&#160;the&#160;accounts&#160;needs&#160;to&#160;be&#160;updated&#160;corresponding&#160;to&#160;master(server&#160;id&#160;01),Find&#160;the<br/>start account and end account from&#160;<b>$card/IN0800 BL.card.</b><br/>
+&#160;&#160;&#160;start_account_group1=`grep&#160;'^SPEC\$REBAL'&#160;&#160;&#160;$card/IN0800BL.card|grep&#160;-w&#160;'01'|head&#160;-1|awk&#160;'{print&#160;$5}'`<br/>&#160;&#160;&#160;end_account_group1=`grep&#160;'^SPEC\$REBAL'&#160;&#160;&#160;$card/IN0800BL.card|grep&#160;-w&#160;'01'|head&#160;-1|awk&#160;'{print&#160;$6}'`<br/>&#160;&#160;&#160;start_account_group2=`grep&#160;'^SPEC\$REBAL'&#160;&#160;&#160;$card/IN0800BL.card|grep&#160;-w&#160;'01'|tail&#160;-1|awk&#160;'{print&#160;$5}'`&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<br/>&#160;&#160;&#160;end_account_group2=`grep&#160;'^SPEC\$REBAL'&#160;&#160;&#160;$card/IN0800BL.card|grep&#160;-w&#160;'01'|tail&#160;-1|awk&#160;'{print&#160;$6}'`&#160;&#160;&#160;&#160;&#160;<br/>
+Then update genr with above values corresponding to the server and the job.<br/>
+&#160;&#160;&#160;&#160;update&#160;genr&#160;set&#160;<br/>START_ACCT='$start_account_group1'&#160;and&#160;END_ACCT='$end_account_group1'&#160;where&#160;SERVER_ID='01'&#160;and&#160;GROUP_ID='001'&#160;and&#160;<br/>JOB_NAME='IN0800';update&#160;genr&#160;set&#160;START_ACCT='$start_account_group2'&#160;and&#160;END_ACCT='$end_account_group2'&#160;where&#160;<br/>SERVER_ID='01'&#160;<br/>and&#160;GROUP_ID='002'&#160;and&#160;JOB_NAME='IN0800';<br/>
+<a href="http://localhost/mediawiki/index.php?title=IN0800&action=edit&redlink=1">e)Then start&#160;IN0800</a>&#160;in that particular server.<br/>
+&#160;&#160;&#160;&#160;&#160;&#160;nohup&#160;depd0800ms_1&#160;<br/>&#160;&#160;&#160;&#160;&#160;&gt;$sysout/depd0800ms_1.1.out&#160;&amp;<br/>
+<b>Case 5</b><br/>
+<b>Analysis</b><br/>
+localhost/mediawiki/index.php/Failure_of_IN0800_/_BR0501<br/>
+4/5<br/>
+<hr/>
+<a name=9></a>7/18/23, 11:32 PM<br/>
+Failure of IN0800 / BR0501 - my_wiki<br/>
+IN0800&#160;&#160;got&#160;&#160;failed&#160;&#160;with&#160;&#160;RC=12&#160;&#160;due&#160;&#160;to&#160;&#160;oracle&#160;&#160;error&#160;&#160;1438.&#160;&#160;This&#160;&#160;error&#160;&#160;comes&#160;&#160;when&#160;&#160;we&#160;&#160;try&#160;&#160;to<br/>insert/update&#160;any&#160;numeric&#160;value&#160;in&#160;a&#160;table&#160;with&#160;the&#160;value&#160;which&#160;it&#160;can&#160;not&#160;hold.&#160;Like&#160;if&#160;the&#160;column<br/>in&#160;the&#160;table&#160;has&#160;NUMBER(3)&#160;datatype,&#160;it&#160;can&#160;hold&#160;maximum&#160;upto&#160;value&#160;&#34;999&#34;.Also&#160;no&#160;accounts<br/>were&#160;&#160;getting&#160;&#160;skipped&#160;&#160;after&#160;&#160;restarting&#160;&#160;of&#160;&#160;IN0800.All&#160;&#160;accounts&#160;&#160;were&#160;&#160;getting&#160;&#160;written&#160;&#160;in&#160;&#160;INVTOGL<br/>file.This&#160;happens&#160;when&#160;the&#160;MSGS_PENDING&#160;value&#160;of&#160;some&#160;account&#160;is&#160;999&#160;and&#160;in&#160;a&#160;particular&#160;day<br/>IN0800 run,this value tries to put 1000 this error will occur.<br/>
+<b>Solution</b><br/>
+Reset the value of this field(MSGS_PENDING) in INVM.<br/>
+<b>Case 6</b><br/>
+<b>Analysis</b><br/>
+All&#160;stream&#160;of&#160;IN0800&#160;ended&#160;with&#160;RC=255&#160;with&#160;error&#160;(Subscript&#160;out&#160;of&#160;range)&#160;even&#160;after&#160;restarting<br/>all&#160;&#160;stream&#160;&#160;aborted&#160;&#160;with&#160;&#160;same&#160;&#160;error.&#160;&#160;Improper&#160;&#160;entries&#160;&#160;was&#160;&#160;present&#160;&#160;in&#160;&#160;TFCHRJ.card&#160;&#160;which&#160;&#160;was<br/>updated&#160;by&#160;BOG&#160;team&#160;and&#160;reflects&#160;the&#160;changes&#160;after&#160;execution&#160;of&#160;cfpdcard,&#160;due&#160;to&#160;this&#160;trickle-feed<br/>files&#160;(for&#160;ATM&#160;charges)&#160;inserted&#160;improper&#160;values&#160;in&#160;chrj&#160;table.&#160;The&#160;incident&#160;occured&#160;in&#160;SBBJ&#160;on<br/>EODDATE&#160;&#160;09/03/2015.Space&#160;&#160;was&#160;&#160;missing&#160;&#160;between&#160;&#160;3rd&#160;&#160;and&#160;&#160;4th&#160;&#160;column&#160;&#160;of&#160;&#160;card&#160;&#160;due&#160;&#160;to&#160;&#160;which<br/>wrong&#160;entries&#160;were&#160;in&#160;TRIGGER-INDEX&#160;field&#160;of&#160;CHRJ.Below&#160;is&#160;the&#160;difference&#160;shown&#160;in&#160;card&#160;file<br/>values Actual Card: SMS 001 098715 083 ACK 002 098021 028 QAB 003 098720 084<br/>
+Promoted Card: SMS 001 098715083 ACK 002 098021028 QAB 003 098720084<br/>
+<b>Solution=</b><br/>
+Update the proper values<br/>
+Retrieved&#160;from&#160;&#34;<a href="http://localhost/mediawiki/index.php?title=Failure_of_IN0800_/_BR0501&oldid=868">http://localhost/mediawiki/index.php?title=Failure_of_IN0800_/_BR0501&amp;oldid=868</a>&#34;<br/>
+<b>This&#160;page&#160;was&#160;last&#160;edited&#160;on&#160;10&#160;March&#160;2015,&#160;at&#160;10:09.</b><br/>
+localhost/mediawiki/index.php/Failure_of_IN0800_/_BR0501<br/>
+5/5<br/>
+<hr/>
+<a name=10></a>7/18/23, 11:32 PM<br/>
+Failure of INP816 due to unique constraint error - my_wiki<br/>
+<b>Failure&#160;of&#160;INP816&#160;due&#160;to&#160;unique<br/>constraint&#160;error</b><br/>
+<b>Analysis</b><br/>
+This&#160;happens&#160;mainly&#160;on&#160;monthends&#160;or&#160;quarter&#160;ends.If&#160;the&#160;inoperative&#160;date&#160;of&#160;some&#160;accounts&#160;is&#160;on<br/>that&#160;particular&#160;day&#160;then&#160;an&#160;entry&#160;would&#160;come&#160;into&#160;innp&#160;table.Also&#160;for&#160;some&#160;OD&#160;accounts&#160;there&#160;is&#160;a<br/>system&#160;generated&#160;transaction&#160;performed&#160;which&#160;comes&#160;into&#160;inod&#160;table.Now&#160;if&#160;for&#160;some&#160;OD&#160;account<br/>if&#160;&#160;a&#160;&#160;entry&#160;&#160;is&#160;&#160;there&#160;&#160;in&#160;&#160;inod&#160;&#160;and&#160;&#160;also&#160;&#160;an&#160;&#160;entry&#160;&#160;in&#160;&#160;innp&#160;&#160;table&#160;&#160;then&#160;&#160;since&#160;&#160;INP816&#160;&#160;runs&#160;&#160;after<br/>OD0816,there&#160;would&#160;be&#160;unique&#160;constraint&#160;error&#160;while&#160;posting&#160;the&#160;innp&#160;table&#160;record&#160;to&#160;inct.To&#160;find<br/>out all such accounts fire the query:-<br/>
+select&#160;ACCT_NO&#160;from&#160;innp&#160;where&#160;PROCESSED_FLAG='N'&#160;and&#160;INST_NO='003'&#160;and&#160;ACCT_NO&#160;in&#160;(select&#160;ACCT_NO&#160;from&#160;inod&#160;where&#160;<br/>INST_NO='003');<br/>
+To find out if the accounts are getting inoperative today or not fire the below query:-<br/>
+select&#160;LST_CUST_CR_DT,LST_CUST_DR_DT&#160;from&#160;invm&#160;where&#160;key_1='&amp;n';&#160;[&#160;Where&#160;&amp;n&#160;is&#160;the&#160;accounts&#160;obtained&#160;from&#160;previous&#160;<br/>query]<br/>
+<b>Solution</b><br/>
+ON all such incidences follow the below steps:-<br/>
+a)delete&#160;from&#160;genr&#160;where&#160;job_name='INP816';<br/>b)delete&#160;from&#160;rebl&#160;where&#160;job_name='INP816';<br/>c)From&#160;master&#160;&#160;day&#160;region&#160;fire&#160;:&#160;&#34;&#34;analy_script&#160;innp&#34;&#34;<br/>d)Fire&#160;&#34;&#34;nohup&#160;depd0816INPms&#160;&gt;&#160;/dev/null&#160;&amp;&#34;&#34;&#160;&#160;on&#160;all&#160;the&#160;servers<br/>
+<a href="http://localhost/mediawiki/index.php?title=Failure_of_INP816_due_to_unique_constraint_error&oldid=909">Retrieved&#160;from&#160;&#34;http://localhost/mediawiki/index.php?<br/>title=Failure_of_INP816_due_to_unique_constraint_error&amp;oldid=909</a>&#34;<br/>
+<b>This&#160;page&#160;was&#160;last&#160;edited&#160;on&#160;18&#160;June&#160;2015,&#160;at&#160;19:31.</b><br/>
+localhost/mediawiki/index.php/Failure_of_INP816_due_to_unique_constraint_error<br/>
+1/1<br/>
+<hr/>
+<a name=11></a>7/18/23, 11:31 PM<br/>
+Failure of SP0100 - my_wiki<br/>
+<b>Failure&#160;of&#160;SP0100</b><br/>
+<b>ANALYSIS</b><br/>
+The&#160;job&#160;<a href="http://localhost/mediawiki/index.php?title=SP0100&action=edit&redlink=1">SP0100</a>&#160;runs&#160;at&#160;the&#160;beginning&#160;of&#160;EOD&#160;and&#160;during&#160;SOD.It&#160;reads&#160;from&#160;Book&#160;table&#160;and&#160;looks<br/>for&#160;any&#160;parameter&#160;changes&#160;for&#160;todays&#160;date.If&#160;any&#160;parameter&#160;change&#160;is&#160;found&#160;for&#160;todays&#160;date&#160;it&#160;calls<br/>the corresponding spmrXXXX cat job<br/>
+where XXXX is the parameter table name.<br/>
+DIARY-FILE-TYPE:<br/>
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;1--DEPP&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;2---LONP&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;5---INSPARAM&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;6--DTEPARAM&#160;&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;10--ED1PPARAM&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;11--ED2PPARAM&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;12-MNMPARAM&#160;&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;13--USRPARAM&#160;&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;14--VENPARAM&#160;&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;28--GLPPPARAM&#160;&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;38--GLCPPARAM&#160;<br/>
+<b>SOLUTION</b><br/>
+There can be various type of errors in SP0100.<br/>
+<b>Case1</b>:- SP0100 failed with RC=8.<br/>
+In&#160;this&#160;case&#160;it&#160;needs&#160;to&#160;be&#160;checked&#160;if&#160;the&#160;table&#160;count&#160;and&#160;file&#160;count&#160;of&#160;all&#160;parameters&#160;are&#160;proper&#160;or<br/>not.Also&#160;in&#160;$sysout&#160;CR*&#160;logs&#160;needs&#160;to&#160;be&#160;checked&#160;for&#160;any&#160;junk&#160;character.Also&#160;some&#160;non-zero&#160;bad<br/>file&#160;in&#160;<b>$spool</b>&#160;should&#160;not&#160;be&#160;there.If&#160;everything&#160;is&#160;proper&#160;the&#160;RC&#160;can&#160;be&#160;killed.&#160;Else&#160;if&#160;there&#160;is&#160;a&#160;non<br/>zero sized bad file present then the following steps needs to be done.<br/>
+&#160;&#160;&#160;&#160;&#160;&#160;a)Either&#160;delete&#160;the&#160;keys&#160;from&#160;book&#160;table.Then&#160;take&#160;the&#160;&#160;problamatic&#160;*PARAM&#160;file&#160;from&#160;reports&#160;server&#160;and&#160;<br/>rerun&#160;spmd0100.Also&#160;Run&#160;spmr????&#160;job&#160;where&#160;????&#160;is&#160;the&#160;table&#160;name&#160;of&#160;problamtic&#160;parameter.In&#160;this&#160;case&#160;there&#160;wont&#160;<br/>be&#160;any&#160;non&#160;zero.<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;b)Else&#160;just&#160;rerun&#160;spmd0100&#160;and&#160;after&#160;that&#160;replace&#160;the&#160;problamatic&#160;*PARAM&#160;file&#160;from&#160;reports&#160;server&#160;and&#160;run&#160;<br/>spmr????&#160;job&#160;where&#160;????&#160;is&#160;the&#160;table&#160;name&#160;of&#160;the&#160;problamatic&#160;parameter.Then&#160;kill&#160;the&#160;checkrc.<br/>&#160;&#160;&#160;<br/>
+<b>Case2</b>:-SP0100 failed with RC=12<br/>
+<a href="http://localhost/mediawiki/index.php?title=Spmd0100&action=edit&redlink=1">In this case check if the region is up or not.If not up bring up the region and restart&#160;spmd0100.</a><br/>
+<b>Case3</b>:-During SP0100 run,the processing got stuck.<br/>
+In&#160;this&#160;scenario&#160;check&#160;if&#160;GLCPARAM.idx&#160;is&#160;created&#160;or&#160;not&#160;for&#160;todays&#160;date.If&#160;not&#160;kill&#160;the&#160;process-id<br/>of&#160;<a href="http://localhost/mediawiki/index.php?title=SP0100&action=edit&redlink=1">SP0100</a>&#160;and&#160;then&#160;run&#160;the&#160;job&#160;<b>$cat/indexglcp</b>.After&#160;that&#160;<b>GLCPARAM.idx</b>&#160;file&#160;is&#160;created.Then<br/><a href="http://localhost/mediawiki/index.php?title=Spmd0100&action=edit&redlink=1">rerun&#160;spmd0100.</a><br/>
+localhost/mediawiki/index.php/Failure_of_SP0100<br/>
+1/2<br/>
+<hr/>
+<a name=12></a>7/18/23, 11:31 PM<br/>
+Failure of SP0100 - my_wiki<br/>
+<b>Case4</b>:- SP0100 failed with RC=8 as CGLUPDTS file was not present.<br/>
+In this case create CGLUPDTS file and re-start the job spmd0100.<br/>
+Retrieved&#160;from&#160;&#34;<a href="http://localhost/mediawiki/index.php?title=Failure_of_SP0100&oldid=864">http://localhost/mediawiki/index.php?title=Failure_of_SP0100&amp;oldid=864</a>&#34;<br/>
+<b>This&#160;page&#160;was&#160;last&#160;edited&#160;on&#160;5&#160;March&#160;2015,&#160;at&#160;06:50.</b><br/>
+localhost/mediawiki/index.php/Failure_of_SP0100<br/>
+2/2<br/>
+<hr/>
+<a name=13></a>7/19/23, 12:55&#160;AM<br/>
+If any High value is observed in eod or Online - my_wiki<br/>
+<b>If&#160;any&#160;High&#160;value&#160;is&#160;observed&#160;in&#160;eod&#160;or<br/>Online</b><br/>
+<b>Issue Description</b>:- If any High value is observed in eod or Online<br/>
+<b>How&#160;to&#160;do&#160;First&#160;Level&#160;Analysis</b>:-&#160;Firstly,&#160;check&#160;the&#160;log&#160;in&#160;<b>$sysout/SY036[78].1.out</b>&#160;in&#160;each<br/>production&#160;&#160;servers&#160;&#160;after&#160;&#160;completion&#160;&#160;of&#160;&#160;DAY&#160;&#160;EOD&#160;&#160;and&#160;&#160;if&#160;&#160;any&#160;&#160;abnormalities&#160;&#160;are&#160;&#160;there&#160;&#160;,then&#160;&#160;don’t<br/>start the F1 Upload .<br/>
+If&#160;High&#160;value&#160;will&#160;come&#160;in&#160;Online&#160;,then&#160;check&#160;the&#160;file&#160;<b>(HIGHVAL_*)</b>&#160;in&#160;<b>$spool</b>&#160;in&#160;Sutlej&#160;Server<br/>and contact to&#160;<b>GLIF</b>&#160;team<br/>
+<b>Work&#160;Around&#160;Solution</b>:-&#160;If&#160;any&#160;high&#160;value&#160;will&#160;come&#160;in&#160;EOD&#160;or&#160;Online,&#160;contact&#160;to&#160;GLIF&#160;Team<br/>for datafix. Till their confirmation ,don’t go ahead<br/>
+<b>POST&#160;&#160;work&#160;&#160;Around&#160;&#160;Checks</b>:-&#160;&#160;After&#160;&#160;datafix&#160;&#160;,check&#160;&#160;the&#160;&#160;file&#160;&#160;and&#160;&#160;also&#160;&#160;if&#160;&#160;the&#160;&#160;case&#160;&#160;is&#160;&#160;related&#160;&#160;with<br/>online ,run the following script from Sutlej server:”<br/>
+<b>HIGHVAL_EXTRACT_one_digit_less”</b><br/>
+<a href="http://localhost/mediawiki/index.php?title=If_any_High_value_is_observed_in_eod_or_Online&oldid=679">Retrieved&#160;from&#160;&#34;http://localhost/mediawiki/index.php?<br/>title=If_any_High_value_is_observed_in_eod_or_Online&amp;oldid=679&#34;</a><br/>
+<b>This&#160;page&#160;was&#160;last&#160;edited&#160;on&#160;12&#160;August&#160;2014,&#160;at&#160;05:33.</b><br/>
+localhost/mediawiki/index.php/If_any_High_value_is_observed_in_eod_or_Online<br/>
+1/1<br/>
+<hr/>
+<a name=14></a>7/19/23, 1:04&#160;AM<br/>
+Killing of Checkrc of BR098A&#160;- my_wiki<br/>
+<b>Killing&#160;of&#160;Checkrc&#160;of&#160;BR098A</b><br/>
+<b>ANALYSIS</b><br/>
+In&#160;loan&#160;shadow&#160;there&#160;is&#160;call&#160;for&#160;<b>UT0298.COB</b>&#160;which&#160;is&#160;used&#160;to&#160;get&#160;base&#160;rates&#160;for&#160;each&#160;and&#160;every<br/>product after validations.<br/>For&#160;some&#160;loan&#160;accounts&#160;we&#160;found&#160;a&#160;case&#160;that&#160;approved&#160;loan&#160;amount&#160;is&#160;more&#160;than&#160;limit&#160;specified&#160;in<br/>table.<br/>Validation is there for loan limit and approved amount as<br/>
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;IF&#160;&#160;UT0298CA-CALL-TXN-DATE&#160;&gt;=&#160;TIER-DATE&#160;AND&#160;UT0298CA-CALL-TIER-MAX-VAL&#160;&lt;=&#160;TIER-MAXIMUM-VALUE<br/>
+functionally&#160;&#160;this&#160;&#160;should&#160;&#160;not&#160;&#160;happen,&#160;&#160;because&#160;&#160;of&#160;&#160;this&#160;&#160;streams&#160;&#160;having&#160;&#160;accounts&#160;&#160;approved&#160;&#160;amount<br/>more than limit are throwing a warning as RC=8<br/>
+<b>SOLUTION</b><br/>
+1) First check the streams and logs of jobs.<br/>2) then kill the check rc and split the report.<br/>
+Retrieved&#160;from&#160;&#34;<a href="http://localhost/mediawiki/index.php?title=Killing_of_Checkrc_of_BR098A&oldid=640">http://localhost/mediawiki/index.php?title=Kil&#160;ing_of_Checkrc_of_BR098A&amp;oldid=640&#34;</a><br/>
+<b>This&#160;page&#160;was&#160;last&#160;edited&#160;on&#160;9&#160;August&#160;2014,&#160;at&#160;07:04.</b><br/>
+localhost/mediawiki/index.php/Killing_of_Checkrc_of_BR098A<br/>
+1/1<br/>
+<hr/>
+<a name=15></a>7/18/23, 11:55 PM<br/>
+Procedure of Inspection Charges activity - my_wiki<br/>
+<b>Procedure&#160;of&#160;Inspection&#160;Charges&#160;activity</b><br/>
+Before EOD processing of 15 March 2015, check the count of records in both CSIB &amp; CSCL<br/>tables and take proper backups.<br/>After taking backups, truncate both CSIB and CSCL&#160;tables.<br/>Post EOD processing of 15 March 2015, check the count of records in CSIB table.<br/>Delete those records from CSIB table where EVENT_NO is not 98022[Event number of<br/>Inspection charges is 98022].<br/>Before the SOD of 16 March 2015, change the date in ‘CS0099.card’&#160;to ‘15032015’&#160;(this is to<br/>be done only in Master server).<br/>Run the job ‘cs0099’&#160;in Master alone(this job has to be done before SOD of 16 March 2015).<br/>After ‘cs0099’&#160;is completed, check the count of records in CSCL&#160;table.<br/>Proceed with the SOD of 16 March 2015 and wait till BANCS is live.<br/>After BANCS is live, the ‘CS0100MS.card’&#160;has to be setup in all the apps(based on the number<br/>of accounts in CSCL).<br/>Prepare ‘CS0100MS.card’&#160;in Master and scp it to all the remaining apps.<br/>Run the script ‘ms_setup_cs0100.sh’&#160;in all apps.<br/>After ‘ms_setup_cs0100.sh’&#160;completes, run the job ‘cs0100ms’&#160;in all the apps.<br/>
+Retrieved&#160;from&#160;&#34;<a href="http://localhost/mediawiki/index.php?title=Procedure_of_Inspection_Charges_activity&oldid=871">http://localhost/mediawiki/index.php?title=Procedure_of_Inspection_Charges_activity&amp;oldid=871&#34;</a><br/>
+<b>This&#160;page&#160;was&#160;last&#160;edited&#160;on&#160;13&#160;March&#160;2015,&#160;at&#160;09:01.</b><br/>
+localhost/mediawiki/index.php/Procedure_of_Inspection_Charges_activity<br/>
+1/1<br/>
+<hr/>
+<a name=16></a>7/18/23, 11:23 PM<br/>
+Regarding 813 and 816 issues. - my_wiki<br/>
+<b>Regarding&#160;813&#160;and&#160;816&#160;issues.</b><br/>
+<b>SOLUTION</b><br/>
+Running 816 Series<br/>1)Introduction:-<br/>
+The 813 series jobs inserts records into intermediate tables from output files of IN0800.<br/>•&#160;&#160;depd0813ODms&#160;&#160;inserts&#160;&#160;records&#160;&#160;into&#160;&#160;inod&#160;&#160;table&#160;&#160;by&#160;&#160;reading&#160;&#160;from&#160;&#160;flat&#160;&#160;files<br/>$data/temp/FI0813_???.<br/>•&#160;&#160;depd0813SBms&#160;&#160;inserts&#160;&#160;records&#160;&#160;into&#160;&#160;insb&#160;&#160;table&#160;&#160;by&#160;&#160;reading&#160;&#160;from&#160;&#160;flat&#160;&#160;files<br/>$data/temp/FI0813SB_???<br/>•&#160;&#160;depd0813SBCms&#160;&#160;inserts&#160;&#160;records&#160;&#160;into&#160;&#160;insc&#160;&#160;table&#160;&#160;by&#160;&#160;reading&#160;&#160;from&#160;&#160;flat&#160;&#160;files<br/>$data/temp/FI0813SBC_???<br/>•&#160;&#160;depd0813INPms&#160;&#160;inserts&#160;&#160;records&#160;&#160;into&#160;&#160;innp&#160;&#160;table&#160;&#160;by&#160;&#160;reading&#160;&#160;from&#160;&#160;flat&#160;&#160;files<br/>$data/temp/FI0813INP_???.<br/>
+These&#160;records&#160;in&#160;intermediate&#160;tables(inod,insc,insb,innp)&#160;are&#160;loaded&#160;into&#160;inct&#160;table&#160;by&#160;816&#160;series<br/>jobs.In&#160;&#160;normal&#160;&#160;days&#160;&#160;only&#160;&#160;inod&#160;&#160;table&#160;&#160;have&#160;&#160;records.So&#160;&#160;running&#160;&#160;816&#160;&#160;series&#160;&#160;in&#160;&#160;EOD&#160;&#160;is&#160;&#160;not&#160;&#160;time<br/>consuming.But&#160;during&#160;Interest&#160;Capitalization&#160;Quarter&#160;Ends,or&#160;on&#160;days&#160;when&#160;Base&#160;rate&#160;of&#160;the&#160;bank<br/>changes,it may be required to run this jobs in Online.<br/>
+2)Differnce&#160;between&#160;running&#160;816&#160;series&#160;jobs&#160;in&#160;Online&#160;and&#160;in&#160;EOD&#160;If&#160;816&#160;series&#160;jobs&#160;run&#160;in&#160;EOD<br/>itself&#160;&#160;we&#160;&#160;can&#160;&#160;run&#160;&#160;the&#160;&#160;PL/SQL&#160;&#160;version&#160;&#160;of&#160;&#160;the&#160;&#160;series.&#160;&#160;This&#160;&#160;version&#160;&#160;just&#160;&#160;bulk&#160;&#160;fetches&#160;&#160;from&#160;&#160;the<br/>intermediate&#160;tables&#160;and&#160;bulk&#160;inserts&#160;into&#160;inct&#160;table.&#160;This&#160;is&#160;possible&#160;as&#160;during&#160;night&#160;region&#160;no&#160;other<br/>record&#160;&#160;is&#160;&#160;going&#160;&#160;to&#160;&#160;get&#160;&#160;inserted&#160;&#160;into&#160;&#160;inct,so&#160;&#160;there&#160;&#160;is&#160;&#160;no&#160;&#160;need&#160;&#160;of&#160;&#160;taking&#160;&#160;care&#160;&#160;of&#160;&#160;proper&#160;&#160;sequence&#160;&#160;of<br/>record&#160;numbers&#160;in&#160;inct&#160;table.&#160;But&#160;if&#160;we&#160;are&#160;running&#160;816&#160;series&#160;in&#160;online&#160;we&#160;need&#160;to&#160;take&#160;care&#160;of&#160;the<br/>fact&#160;that&#160;during&#160;online&#160;there&#160;may&#160;be&#160;transactions&#160;that&#160;inserts&#160;into&#160;inct&#160;table.So&#160;if&#160;we&#160;are&#160;posting<br/>into&#160;inct&#160;from&#160;intermediate&#160;tables&#160;the&#160;record&#160;number&#160;sequencing&#160;needs&#160;to&#160;be&#160;taken&#160;care&#160;of.&#160;This&#160;is<br/>done&#160;by&#160;the&#160;PCO&#160;version&#160;of&#160;the&#160;816&#160;series&#160;jobs.&#160;So&#160;if&#160;we&#160;are&#160;running&#160;816&#160;in&#160;online&#160;we&#160;run&#160;the&#160;PCO<br/>version.<br/>
+3)Running 816 series in EOD(PL/SQL):-&#160;<br/>
+Check the card in control log in.&#160;<br/>OD0816MS.card&#160;<br/>SB0816MS.card&#160;<br/>SBC816MS.card&#160;<br/>INP816MS.card&#160;<br/>
+Only change the number of streams&#160;<br/>
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Note:&#160;No&#160;need&#160;to&#160;run&#160;any&#160;setup&#160;&#160;&#160;<br/>
+Now in DAY log in.&#160;<br/>run the job<br/>
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<br/>&#160;$cat/dyn_bal_816&#160;with&#160;table_name&#160;as&#160;argument.&#160;<br/>
+localhost/mediawiki/index.php/Regarding_813_and_816_issues.<br/>
+1/4<br/>
+<hr/>
+<a name=17></a>7/18/23, 11:23 PM<br/>
+Regarding 813 and 816 issues. - my_wiki<br/>
+This is for rebalancing.&#160;<br/>dyn_bal_816 inod&#160;<br/>dyn_bal_816 insb&#160;<br/>dyn_bal_816 insc&#160;<br/>dyn_bal_816 innp&#160;<br/>
+&#160;&#160;Note:&#160;This&#160;will&#160;insert&#160;the&#160;ranges&#160;into&#160;the&#160;genr&#160;table&#160;&#160;&#160;<br/>
+To verify the above action completed successfully or not check the entries in genr table.&#160;<br/>
+Select * from genr where job_name=’OD0816’;&#160;<br/>Select * from genr where job_name=’SB0816’;&#160;<br/>Select * from genr where job_name=’SBC816’;&#160;<br/>Select * from genr where job_name=’INP816’;&#160;<br/>
+And check whether there entries for all the servers.<br/>
+Run the cat job.&#160;<br/>Run the ms cat job in each of the server<br/>($cat)&#160;<br/>depd0816odsqlms&#160;<br/>depd0816scsqlms&#160;<br/>depd0816scsqlms&#160;<br/>depd0816npsqlms&#160;<br/>
+To&#160;&#160;check&#160;&#160;the&#160;&#160;number&#160;&#160;of&#160;&#160;records&#160;&#160;processed&#160;&#160;in&#160;&#160;sqlplus&#160;&#160;session&#160;&#160;check&#160;&#160;the&#160;&#160;following&#160;&#160;queries<br/>repeatedly.<br/>
+select /*+ parallel(inod,16) */ count(1),processed_flag from inod group by processed_flag;&#160;<br/>select /*+ parallel(insb,16) */ count(1),processed_flag from insb group by processed_flag;&#160;<br/>select /*+ parallel(insc,16) */ count(1),processed_flag from insc group by processed_flag;&#160;<br/>select /*+ parallel(innp,16) */ count(1),processed_flag from innp group by processed_flag;&#160;<br/>
+To check number of streams running(If total number of streams is 320)<br/>
+&#160;select * from tmst where job_name ='OD0816' and stream_no &lt;321;&#160;<br/>
+select * from tmst where job_name ='SB0816' and stream_no &lt;321;&#160;<br/>select&#160;*&#160;from&#160;tmst&#160;where&#160;job_name&#160;='SBC816'&#160;and&#160;stream_no&#160;&lt;321;&#160;&#160;&#160;select&#160;*&#160;from&#160;tmst&#160;where<br/>job_name ='INP816' and stream_no &lt;321;&#160;<br/>
+After completion the o/p of the following query should be:-<br/>
+Select /*+ parallel(innp,16) */ count(1),processed_flag from innp group by processed_flag;<br/>
+&#160;&#160;&#160;COUNT(1)&#160;P&#160;<br/>------------------------&#160;&#160;&#160;&#160;<br/>&#160;&#160;&#160;&#160;1936300&#160;Y&#160;<br/>
+All records should be in processed state(processed_flag=Y).<br/>No records should be in unprocessed state(processed_flag=N).<br/>
+localhost/mediawiki/index.php/Regarding_813_and_816_issues.<br/>
+2/4<br/>
+<hr/>
+<a name=18></a>7/18/23, 11:23 PM<br/>
+Regarding 813 and 816 issues. - my_wiki<br/>
+4) Running 816 series in EOD(PCO):-&#160;<br/>Check the card in control log in.&#160;<br/>OD0816MS.card&#160;<br/>SB0816MS.card&#160;<br/>SBC816MS.card&#160;<br/>INP816MS.card&#160;<br/>
+Only change the number of streams<br/>
+Run the setup ($sh)<br/>• ms_setup_od0816.sh<br/>• ms_setup_inp816.sh<br/>• ms_setup_sb0816.sh<br/>• ms_setup_sbc816.sh&#160;<br/>
+Now in DAY log in.<br/>
+run the job<br/>
+&#160;&#160;$cat/&#160;analy_script&#160;&#160;with&#160;table_name&#160;as&#160;argument.<br/>
+This is for rebalancing.&#160;<br/>analy_script inod<br/>
+&#160;analy_script insb&#160;<br/>
+analy_script insc&#160;<br/>analy_script innp&#160;<br/>
+To verify the above action completed successfully or not check the entries in rebl table.&#160;<br/>Select * from rebl where job_name=’OD0816’;&#160;<br/>Select * from rebl where job_name=’SB0816’;&#160;<br/>Select * from rebl where job_name=’SBC816’;&#160;<br/>Select * from rebl where job_name=’INP816’;&#160;<br/>And check whether there entries for all the servers.<br/>
+&#160;Run the ms cat job.&#160;<br/>
+Run the ms cat job in each of the server ($cat)&#160;<br/>depd0816ODms&#160;<br/>depd0816SBms&#160;<br/>depd0816INPms&#160;<br/>depd0816SBCms&#160;<br/>To&#160;&#160;check&#160;&#160;the&#160;&#160;number&#160;&#160;of&#160;&#160;records&#160;&#160;processed&#160;&#160;in&#160;&#160;sqlplus&#160;&#160;session&#160;&#160;check&#160;&#160;the&#160;&#160;following&#160;&#160;queries<br/>repeatedly.<br/>
+&#160;Select /*+ parallel(inod,16) */ count(1),processed_flag from inod group by processed_flag;&#160;<br/>
+Select /*+ parallel(insb,16) */ count(1),processed_flag from insb group by processed_flag;&#160;<br/>Select /*+ parallel(insc,16) */ count(1),processed_flag from insc group by processed_flag;&#160;<br/>Select /*+ parallel(innp,16) */ count(1),processed_flag from innp group by processed_flag;&#160;<br/>To check number of streams running(If total number of streams is 320).&#160;<br/>select * from tmst where job_name ='OD0816' and stream_no &lt;321;&#160;<br/>select * from tmst where job_name ='SB0816' and stream_no &lt;321;&#160;<br/>select * from tmst where job_name ='SBC816' and stream_no &lt;321;&#160;<br/>select * from tmst where job_name ='INP816' and stream_no &lt;321;&#160;<br/>
+&#160;After completion the o/p of the following query should be:-<br/>
+Select /*+ parallel(innp,16) */ count(1),processed_flag from innp group by processed_flag;<br/>
+localhost/mediawiki/index.php/Regarding_813_and_816_issues.<br/>
+3/4<br/>
+<hr/>
+<a name=19></a>7/18/23, 11:23 PM<br/>
+Regarding 813 and 816 issues. - my_wiki<br/>
+&#160;&#160;COUNT(1)&#160;P<br/>&#160;&#160;------------------------&#160;&#160;&#160;&#160;<br/>&#160;&#160;1936300&#160;Y&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<br/>
+All records should be in processed state(processed_flag=Y).<br/>
+No records should be in unprocessed state(processed_flag=N).<br/>
+END OF DOCUMENT---------------------------------------------<br/>
+Retrieved&#160;from&#160;&#34;<a href="http://localhost/mediawiki/index.php?title=Regarding_813_and_816_issues.&oldid=225">http://localhost/mediawiki/index.php?title=Regarding_813_and_816_issues.&amp;oldid=225</a>&#34;<br/>
+<b>This&#160;page&#160;was&#160;last&#160;edited&#160;on&#160;5&#160;August&#160;2014,&#160;at&#160;12:37.</b><br/>
+localhost/mediawiki/index.php/Regarding_813_and_816_issues.<br/>
+4/4<br/>
+<hr/>
+<a name=20></a>7/18/23, 11:33 PM<br/>
+Regarding failure of job IN0589 in production - my_wiki<br/>
+<b>Regarding&#160;failure&#160;of&#160;job&#160;IN0589&#160;in<br/>production</b><br/>
+<b>Analysis</b><br/>
+1)&#160;Oracle&#160;error(ora&#160;00001&#160;unique&#160;constraint)&#160;found&#160;in&#160;logs&#160;and&#160;job&#160;ended&#160;with&#160;RC&#160;=0&#160;and&#160;report<br/>files&#160;which&#160;got&#160;generated&#160;in&#160;day&#160;region&#160;spool&#160;was&#160;not&#160;correct.&#160;2)&#160;This&#160;job&#160;generates&#160;receipt&#160;scroll<br/>report.&#160;3)&#160;Job&#160;depd0007ms&#160;generates&#160;IN0007A_???&#160;files&#160;which&#160;then&#160;generates&#160;IN0007R&#160;file.&#160;One<br/>stream&#160;&#160;of&#160;&#160;IN0007A_???&#160;&#160;contained&#160;&#160;junk&#160;&#160;character&#160;&#160;in&#160;&#160;it&#160;&#160;which&#160;&#160;then&#160;&#160;generated&#160;&#160;wrong&#160;&#160;input<br/>file(IN0007R)&#160;for&#160;depd0589&#160;due&#160;to&#160;which&#160;job&#160;has&#160;given&#160;oracle&#160;error.&#160;4)&#160;To&#160;find&#160;the&#160;stream&#160;which<br/>is&#160;erroneous&#160;fire&#160;the&#160;following&#160;command&#160;in&#160;$spool.&#160;grep&#160;–nv&#160;“^003”&#160;IN0007A_???&#160;5)&#160;Open&#160;the<br/>erroneous&#160;&#160;stream&#160;&#160;file&#160;&#160;and&#160;&#160;go&#160;&#160;to&#160;&#160;the&#160;&#160;problematic&#160;&#160;line&#160;&#160;number&#160;&#160;obtained&#160;&#160;from&#160;&#160;previous&#160;&#160;command.<br/>The&#160;last&#160;character&#160;of&#160;the&#160;line,&#160;just&#160;above&#160;the&#160;problematic&#160;line&#160;will&#160;have&#160;a&#160;junk&#160;character.&#160;6)&#160;Delete<br/>that&#160;junk&#160;and&#160;copy&#160;the&#160;problematic&#160;line&#160;and&#160;append&#160;it&#160;to&#160;the&#160;previous&#160;line,&#160;so&#160;as&#160;proper&#160;format&#160;is<br/>maintained in the file. 7) Delete the problematic line.&#34;<br/>
+<b>Solution</b><br/>
+&#34;1)&#160;&#160;Files&#160;&#160;MKS1.DAT&#160;&#160;and&#160;&#160;all&#160;&#160;streams&#160;&#160;of&#160;&#160;IN0007A_???&#160;&#160;was&#160;&#160;brought&#160;&#160;in&#160;&#160;$spool&#160;&#160;on&#160;&#160;penna.&#160;&#160;2)&#160;&#160;The<br/>individual&#160;stream&#160;file&#160;was&#160;made&#160;proper&#160;after&#160;removing&#160;the&#160;junk&#160;and&#160;appending&#160;the&#160;next&#160;line&#160;to&#160;the<br/>original record. 3) All the streams of IN0007A_??? were concatenated to single file IN0007A<br/>
+&#160;&#160;for&#160;&#160;i&#160;&#160;in&#160;&#160;`ls&#160;$spool/IN0007A_???`<br/>&#160;&#160;do<br/>&#160;&#160;cat&#160;$i&#160;&gt;&gt;&#160;$spool/IN0007A<br/>&#160;&#160;done<br/>
+4) Sorting of file IN0007A done to generate IN0007R file(input for depd0589)<br/>
+&#160;&#160;sort&#160;-k&#160;1.1,1.58&#160;$spool/IN0007A&#160;-o&#160;$spool/IN0007R<br/>
+5)&#160;As&#160;we&#160;are&#160;running&#160;on&#160;penna,entry&#160;would&#160;be&#160;in&#160;brgs&#160;table.&#160;The&#160;entry&#160;for&#160;REPORT_ID=’IN0589’<br/>is removed for the generation date. If run date is 24/06/2014<br/>
+delete&#160;from&#160;brgs&#160;where&#160;INST_NO='003'&#160;and&#160;RUN_DATE='41813'&#160;and&#160;REPORT_ID='IN0589';<br/>
+6)&#160;&#160;As&#160;&#160;entries&#160;&#160;deleted&#160;&#160;for&#160;&#160;IN0589&#160;&#160;from&#160;&#160;brgs&#160;&#160;,so&#160;&#160;no&#160;&#160;need&#160;&#160;to&#160;&#160;make&#160;&#160;any&#160;&#160;changes&#160;&#160;in&#160;&#160;card&#160;&#160;file<br/>$card/RERUNSCROLLS.card.This&#160;card&#160;file&#160;contains&#160;the&#160;value&#160;for&#160;IN0589&#160;which&#160;is&#160;‘N’&#160;in&#160;present<br/>scenario.&#160;Y&#160;need&#160;to&#160;set&#160;for&#160;rerun&#160;of&#160;IN0589.&#160;7)&#160;Run&#160;the&#160;cat&#160;job&#160;depd0589&#160;in&#160;day&#160;region,which&#160;will<br/>generate&#160;&#160;depd0589.prt&#160;&#160;file&#160;&#160;8)&#160;&#160;The&#160;&#160;number&#160;&#160;of&#160;&#160;unique&#160;&#160;branches&#160;&#160;in&#160;&#160;the&#160;&#160;file&#160;&#160;IN0007R&#160;&#160;and&#160;&#160;in&#160;&#160;brgs<br/>table for report id IN0589 should be same.<br/>
+a)cut&#160;–c&#160;4-8&#160;$spool/IN0007R|sort&#160;–u|wc&#160;–l<br/>b)sqlplus&#160;&lt;&lt;&#160;EOF<br/>&#160;&#160;&#160;&#160;select&#160;count(1)&#160;from&#160;brgs&#160;where&#160;report_id=’IN0589’&#160;and&#160;inst_no=’003’&#160;and&#160;RUN_DATE='41813';<br/>The&#160;count&#160;of&#160;(a)&#160;and&#160;(b)&#160;should&#160;be&#160;same.<br/>
+localhost/mediawiki/index.php/Regarding_failure_of_job_IN0589_in_production<br/>
+1/2<br/>
+<hr/>
+<a name=21></a>7/18/23, 11:33 PM<br/>
+Regarding failure of job IN0589 in production - my_wiki<br/>
+<a href="http://localhost/mediawiki/index.php?title=Regarding_failure_of_job_IN0589_in_production&oldid=775">Retrieved&#160;from&#160;&#34;http://localhost/mediawiki/index.php?<br/>title=Regarding_failure_of_job_IN0589_in_production&amp;oldid=775</a>&#34;<br/>
+<b>This&#160;page&#160;was&#160;last&#160;edited&#160;on&#160;3&#160;September&#160;2014,&#160;at&#160;06:03.</b><br/>
+localhost/mediawiki/index.php/Regarding_failure_of_job_IN0589_in_production<br/>
+2/2<br/>
+<hr/>
+<a name=22></a>7/19/23, 1:02&#160;AM<br/>
+Running of 816 series on PENNA&#160;- my_wiki<br/>
+<b>Running&#160;of&#160;816&#160;series&#160;on&#160;PENNA</b><br/>
+<b>SOLUTION</b><br/>
+<b>How To Run 816 Series(PLSQL)<br/></b>Check the card in control log in.<br/>OD0816MS.card<br/>SB0816MS.card<br/>SBC816MS.card<br/>INP816MS.card<br/>
+Only change the number of streams to 240 Streams for PENNA.<br/>Note: No need to run any setup<br/>USE $card/IRACS.card_PENNA<br/>Cp $card/IRACS.card_PENNA IRACS.card<br/>Now in DAY log in.<br/>Go to cat<br/>cd $cat<br/>check for the dyn_bal_816 cat job ll –lrt dyn_bal_816<br/>run the job dyn_bal_816 with table_name as argument<br/>dyn_bal_816 inod<br/>dyn_bal_816 insb<br/>dyn_bal_816 insc<br/>dyn_bal_816 innp<br/>Note: This will insert the ranges into the genr table<br/>To verify the above action completed successfully or not check the entries in genr table.<br/>
+&#160;&#160;&#160;&#160;Select&#160;*&#160;from&#160;genr&#160;where&#160;job_name=’OD0816’;&#160;<br/>&#160;&#160;&#160;&#160;Select&#160;*&#160;from&#160;genr&#160;where&#160;job_name=’SB0816’;&#160;<br/>&#160;&#160;&#160;&#160;Select&#160;*&#160;from&#160;genr&#160;where&#160;job_name=’SBC816’;&#160;<br/>&#160;&#160;&#160;&#160;Select&#160;*&#160;from&#160;genr&#160;where&#160;job_name=’INP816’;&#160;<br/>
+And check whether there entries for all the servers.<br/>
+Run the cat job. (Run The JOBS Sequentially not in Parallel)<br/>Run the ms cat job in each of the server ($cat)<br/>depd0816odsqlms<br/>depd0816scsqlms<br/>depd0816scsqlms<br/>depd0816npsqlms<br/>
+To&#160;&#160;check&#160;&#160;the&#160;&#160;number&#160;&#160;of&#160;&#160;records&#160;&#160;processed&#160;&#160;in&#160;&#160;sqlplus&#160;&#160;session&#160;&#160;check&#160;&#160;the&#160;&#160;following&#160;&#160;queries<br/>repeatedly.<br/>
+&#160;&#160;&#160;&#160;&#160;Select&#160;/*+&#160;parallel(inod,16)&#160;*/&#160;count(1),processed_flag&#160;from&#160;inod&#160;group&#160;by&#160;processed_flag;&#160;<br/>&#160;&#160;&#160;&#160;&#160;Select&#160;/*+&#160;parallel(insb,16)&#160;*/&#160;count(1),processed_flag&#160;from&#160;insb&#160;group&#160;by&#160;processed_flag;&#160;<br/>&#160;&#160;&#160;&#160;&#160;Select&#160;/*+&#160;parallel(insc,16)&#160;*/&#160;count(1),processed_flag&#160;from&#160;insc&#160;group&#160;by&#160;processed_flag;&#160;<br/>&#160;&#160;&#160;&#160;&#160;Select&#160;/*+&#160;parallel(innp,16)&#160;*/&#160;count(1),processed_flag&#160;from&#160;innp&#160;group&#160;by&#160;processed_flag;&#160;<br/>
+To check number of streams running<br/>
+localhost/mediawiki/index.php/Running_of_816_series_on_PENNA<br/>
+1/2<br/>
+<hr/>
+<a name=23></a>7/19/23, 1:02&#160;AM<br/>
+Running of 816 series on PENNA&#160;- my_wiki<br/>
+&#160;&#160;&#160;&#160;&#160;select&#160;*&#160;from&#160;tmst&#160;where&#160;job_name&#160;='OD0816'&#160;and&#160;stream_no&#160;&lt;161;&#160;eneral&#160;TMST&#160;check<br/>&#160;&#160;&#160;&#160;&#160;select&#160;*&#160;from&#160;tmst&#160;where&#160;job_name&#160;='job_name'&#160;and&#160;stream_no&#160;&lt;total_streams;<br/>&#160;&#160;&#160;&#160;&#160;select&#160;*&#160;from&#160;tmst&#160;where&#160;job_name&#160;='SB0816'&#160;and&#160;stream_no&#160;&lt;161;&#160;<br/>&#160;&#160;&#160;&#160;&#160;select&#160;*&#160;from&#160;tmst&#160;where&#160;job_name&#160;='SBC816'&#160;and&#160;stream_no&#160;&lt;161;<br/>&#160;&#160;&#160;&#160;&#160;select&#160;*&#160;from&#160;tmst&#160;where&#160;job_name&#160;='INP816'&#160;and&#160;stream_no&#160;&lt;161;<br/>
+Retrieved&#160;from&#160;&#34;<a href="http://localhost/mediawiki/index.php?title=Running_of_816_series_on_PENNA&oldid=388">http://localhost/mediawiki/index.php?title=Running_of_816_series_on_PENNA&amp;oldid=388</a>&#34;<br/>
+<b>This&#160;page&#160;was&#160;last&#160;edited&#160;on&#160;7&#160;August&#160;2014,&#160;at&#160;06:42.</b><br/>
+localhost/mediawiki/index.php/Running_of_816_series_on_PENNA<br/>
+2/2<br/>
+<hr/>
+<a name=24></a>7/18/23, 11:29 PM<br/>
+Running of gend0255ms in penna as it was moved/not executed/killed during long run of month end eod. - my_wiki<br/>
+<b>Running&#160;of&#160;gend0255ms&#160;in&#160;penna&#160;as&#160;it&#160;was<br/>moved/not&#160;executed/killed&#160;during&#160;long&#160;run</b><br/>
+<b>of&#160;month&#160;end&#160;eod.</b><br/>
+<b>ANALYSIS</b><br/>
+There&#160;are&#160;scenarios&#160;like&#160;quarter&#160;end&#160;or&#160;year&#160;end&#160;where&#160;<a href="http://localhost/mediawiki/index.php?title=Gend0255ms&action=edit&redlink=1">gend0255ms</a>&#160;job&#160;is&#160;moved&#160;intentionally&#160;due&#160;to&#160;longer<br/>eod window or else sometimes it gets killed due to time constraint.<br/>
+If&#160;it&#160;is&#160;a&#160;normal&#160;day&#160;where&#160;<a href="http://localhost/mediawiki/index.php?title=Gend0255ms&action=edit&redlink=1">gend0255ms&#160;</a>job&#160;was&#160;not&#160;run&#160;properly&#160;then&#160;there&#160;is&#160;no&#160;question&#160;of&#160;bothering.&#160;But<br/>due to provisional extraction month end date&#160;<a href="http://localhost/mediawiki/index.php?title=Gend0255ms&action=edit&redlink=1">gend0255ms</a>&#160;should be ended properly.<br/>
+So&#160;it&#160;is&#160;killed&#160;or&#160;not&#160;executed&#160;then&#160;we&#160;need&#160;to&#160;run&#160;it&#160;in&#160;penna.&#160;If&#160;it&#160;is&#160;partly&#160;run&#160;means&#160;killed&#160;in&#160;production<br/>then&#160;it&#160;is&#160;a&#160;better&#160;practice&#160;to&#160;run&#160;<a href="http://localhost/mediawiki/index.php?title=Gend0255ms&action=edit&redlink=1">gend0255ms</a>&#160;after&#160;gl&#160;purging&#160;done&#160;at&#160;the&#160;month&#160;starting&#160;otherwise&#160;bad&#160;file<br/>generation&#160;&#160;will&#160;&#160;degrade&#160;&#160;the&#160;&#160;performance&#160;&#160;of&#160;&#160;<a href="http://localhost/mediawiki/index.php?title=Gend0255ms&action=edit&redlink=1">gend0255ms</a>&#160;&#160;as&#160;&#160;unique&#160;&#160;constraint&#160;&#160;error&#160;&#160;will&#160;&#160;come&#160;&#160;for&#160;&#160;those<br/>loaded entries in production.<br/>
+<b>SOLUTION</b><br/>
+First&#160;of&#160;all&#160;$data/file&#160;backup(cdc&#160;tapebackup&#160;for&#160;GLIF&#160;files)&#160;need&#160;to&#160;be&#160;taken&#160;for&#160;all&#160;GLIF*&#160;files&#160;across&#160;all&#160;7<br/>apps.<br/>
+But&#160;the&#160;GLIFINV_??&#160;files&#160;backup&#160;need&#160;to&#160;taken&#160;in&#160;indivisual&#160;server&#160;as&#160;they&#160;don't&#160;have&#160;any&#160;unique&#160;name&#160;to<br/>be&#160;&#160;distinguished&#160;&#160;across&#160;&#160;all&#160;&#160;the&#160;&#160;servers.&#160;&#160;So&#160;&#160;for&#160;&#160;the&#160;&#160;below&#160;&#160;mentioned&#160;&#160;files&#160;&#160;all&#160;&#160;the&#160;&#160;same(naming&#160;&#160;convention)<br/>type of files need to be concatenated into a single file irrespective of servers.<br/>
+&#160;GLIFINV_FD&#160;<br/>&#160;GLIFINV_IN&#160;<br/>&#160;GLIFINV_B8&#160;<br/>&#160;GLIFINV_BC&#160;<br/>&#160;GLIFINV_CT&#160;<br/>&#160;GLIFINV_GB&#160;<br/>&#160;GLIFINV_RE&#160;&#160;&#160;<br/>
+Then restore those files in penna server. Then the below mentioned steps need to be followed.<br/>
+1) cd /fns/i/r/card<br/>
+&#160;cat&#160;GL0255_M.card&#160;<br/>&#160;GL0255_S1.card&#160;<br/>&#160;GL0255_S2.card&#160;<br/>&#160;GL0255_S3.card&#160;<br/>&#160;GL0255_S4.card&#160;<br/>&#160;GL0255_S5.card&#160;<br/>&#160;GL0255_S6.card&#160;<br/>&#160;&gt;&gt;&#160;$HOME/GL0255.card&#160;&#160;<br/>
+verification:-<br/>
+&#160;grep&#160;&#160;-w&#160;&#34;GLIFBOR_DC_...&#34;&#160;GL0255.card|wc&#160;-l&#160;=280&#160;<br/>&#160;grep&#160;&#160;-w&#160;&#34;GLIFINV_DC_...&#34;&#160;GL0255.card|wc&#160;-l&#160;=336&#160;<br/>&#160;grep&#160;&#160;-w&#160;&#34;GLIFINV_...&#34;&#160;GL0255.card|wc&#160;-l&#160;=338&#160;<br/>&#160;grep&#160;&#160;-w&#160;&#34;GLIFBOR_...&#34;&#160;GL0255.card|wc&#160;-l&#160;=280&#160;<br/>&#160;grep&#160;&#160;-w&#160;&#34;GLIFINV_TD_...&#34;&#160;GL0255.card|wc&#160;-l&#160;=336&#160;&#160;<br/>
+localhost/mediawiki/index.php/Running_of_gend0255ms_in_penna_as_it_was_moved/not_executed/killed_during_long_run_of_month_end_eod.<br/>
+1/2<br/>
+<hr/>
+<a name=25></a>7/18/23, 11:29 PM<br/>
+Running of gend0255ms in penna as it was moved/not executed/killed during long run of month end eod. - my_wiki<br/>
+After&#160;&#160;formation&#160;&#160;of&#160;&#160;<b>GL0255.card</b>&#160;&#160;please&#160;&#160;remove&#160;&#160;the&#160;&#160;multiple&#160;&#160;entries&#160;&#160;of&#160;&#160;GLIFINV_??&#160;&#160;.&#160;&#160;After&#160;&#160;that&#160;&#160;the<br/>verification should be done for &#34;GLIFINV_..&#34; .<br/>
+&#160;&#160;grep&#160;&#160;-w&#160;&#34;GLIFINV_..&#34;&#160;GL0255.card|wc&#160;-l&#160;=7&#160;&#160;&#160;<br/>
+2) put the $HOME/GL0255.card in penna server /fns/i/r/card.<br/>
+3) run ms_setup_gend0255ms.sh in penna.<br/>
+4 ) fire the job gend0255ms from penna fnsonlir region.<br/>
+<br/>
+<hr/>
+<a name=26></a>7/19/23, 1:00&#160;AM<br/>
+Running of gend0807 on PENNA&#160;of same day - my_wiki<br/>
+<b>Running&#160;of&#160;gend0807&#160;on&#160;PENNA&#160;of<br/>same&#160;day</b><br/>
+<b>SOLUTION</b><br/>
+1) Unset&#160;<b>BANCS_MULTI_APPS</b>&#160;in control region.<br/>2) Run the&#160;<b>ms_setup_gl0807.sh</b>&#160;from control region.<br/>3) Run the job&#160;<b>gend0807ms</b>&#160;from reference region.<br/>
+<br/>title=Running_of_gend0807_on_PENNA_of_same_day&amp;oldid=736&#34;</a><br/>
+<br/>
+<hr/>
+<a name=27></a>7/19/23, 1:00&#160;AM<br/>
+Running of gend0807 or VVR backdated - my_wiki<br/>
+<b>Running&#160;of&#160;gend0807&#160;or&#160;VVR&#160;backdated</b><br/>
+<b>SOLUTION</b><br/>
+<b>How to import journal table on penna for backdated</b><br/>
+login as fnsonli (control of penna) sqlplus /<br/>1) Truncate all journal table starting from jr01 to jr64;<br/>
+&#160;&#160;(run&#160;/home/fnsonlir/indermohan&gt;./TRUNCATE_JRTABLE.sql&#160;from&#160;control&#160;login)&#160;e.g.&#160;Truncate&#160;table&#160;jr01;<br/>
+2) Untar the dump file through --&gt; tar -xvf &lt;dumpfile.tar&gt;<br/>3) Gunzip all the jrnal dump files<br/>4) Change the permission to 777 for all the journal files<br/>5) Go to sqlplus /<br/>
+create directory &lt;directory name&gt; as '&lt;directory path&gt;';<br/>Now after creating directory execute this command from control login<br/>
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;(fnsonli)&#160;impdp&#160;/&#160;dumpfile=jrnl_YYYYDDMM_%U.dmp&#160;parallel=8&#160;directory=&lt;directory&#160;name&gt;&#160;<br/>table_exists_action=truncate<br/>
+After&#160;&#160;successful&#160;&#160;completion&#160;&#160;of&#160;&#160;this&#160;&#160;import&#160;&#160;command&#160;&#160;fire&#160;&#160;VVR&#160;&#160;on&#160;&#160;penna&#160;&#160;through&#160;&#160;fnsonlir&#160;&#160;login<br/>(How to fire vvr on penna)<br/>
+<b>login&#160;as&#160;fnsonlir&#160;delete&#160;NBC*&#160;files&#160;from&#160;penna(spool)</b>&#160;delete&#160;files&#160;for&#160;*433*&#160;,&#160;*344*,&#160;*807*&#160;,<br/>*0vvr* from penna. (spool &amp; $data/temp &amp; $data/file)<br/>
+login&#160;as&#160;fnsonli&#160;run&#160;&lt;&#160;unset&#160;BANCS_MULTI_APPS&#160;&gt;&#160;take&#160;any&#160;MFLAGS&#160;copy&#160;like&#160;MFLAGS_temp<br/>from&#160;/fns/ir/r/data/file&#160;and&#160;change&#160;the&#160;date&#160;to&#160;requested&#160;date&#160;in&#160;MFLAGS_temp&#160;.&#160;After&#160;changing<br/>this replace the original MFLAGS to MFLAGS_temp in following jobs.<br/>
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;1)cfpd0344&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;2)lonp0433a&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;3)lonp0433b<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;4)cfpr9507<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;5)cfpd0vvr<br/>&#160;<br/>
+run following ms setup from /fns/ir/r/sh (control) of penna<br/>
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;a)&#160;ms_setup_sy0vvr.sh<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;b)&#160;ms_setup_sy0344.sh<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;c)&#160;ms_setup_sy0433.sh&#160;<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;d)ms_setup_gl0807.sh&#160;&#160;&#160;<br/>
+login as fnsonlir run &lt; unset BANCS_MULTI_APPS &gt;<br/>
+jobs to be run in penna<br/>
+nohup cfpd0344ms &gt; /dev/null &amp;<br/>
+localhost/mediawiki/index.php/Running_of_gend0807_or_VVR_backdated<br/>
+1/2<br/>
+<hr/>
+<a name=28></a>7/19/23, 1:00&#160;AM<br/>
+Running of gend0807 or VVR backdated - my_wiki<br/>
+Note:lonp0433ms will be fired from cfpd0344ms<br/>
+<br/>
+2/2<br/>
+<hr/>
+</body>
+</html>
