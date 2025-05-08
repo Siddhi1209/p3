@@ -1,46 +1,36 @@
-function status_queue(){
-    // Read and process the data file
+function status_queue() {
+    // Read and process the file content
     $data1 = explode("\n", str_replace("NQKE", "-1", shell_exec("cat " . $this->currpath . "status_queue_8app.txt." . $this->datecrr . " | grep -v VV3Q")));
-
-    // Check for blank data
-    if(parent::checkblank($data1)) { 
+    
+    if (parent::checkblank($data1)) {
         echo parent::checkblank($data1);
-        return;
     }
-
+    
     $data = $this->throwRed($data1, ',');
-
-    // Output HTML table rows
+    
     foreach ($data as $key2 => $value2) {
         $queueArray = explode(",", $value2);
         echo "<tr>";
-
         foreach ($queueArray as $k2 => $v2) {
-            if($k2 == '0'){
+            if ($k2 == '0') {
                 $linkreplica = "window.open('queuereplica.php?queue=" . urlencode($v2) . "&&date=" . $this->datecrr . "','','height=800,width=1400,scrollbars=yes,resizable=yes');";
                 echo "<th><a onclick=\"$linkreplica\">$v2</a></th>";
-            }
-            elseif($v2 == 'NQKE' ||  $v2 == -1){
+            } elseif ($v2 == 'NQKE' || $v2 == -1) {
                 echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
-            }
-            elseif($k2 > '0' && $v2 >= '1' && $v2 < '100'){
+            } elseif ($k2 > '0' && $v2 >= '1' && $v2 < '100') {
                 echo "<td title='$v2'>0</td>";
-            }
-            elseif($k2 > '0' && $v2 >= '100' && $v2 < '500'){
+            } elseif ($k2 > '0' && $v2 >= '100' && $v2 < '500') {
                 echo "<td title='$v2'>0</td>";
-            }
-            elseif($k2 > '0' && $v2 >= '500'){
-                echo "<td class='bg-red-active beep-on-load'>$v2</td>";
-            }
-            else{
+            } elseif ($k2 > '0' && $v2 >= '500') {
+                echo "<td class='your-red-class beep-on-load'>$v2</td>";
+            } else {
                 echo "<td>$v2</td>";
             }
         }
-
         echo "</tr>";
     }
 
-    // Beep audio and script to play on load if red alert values exist
+    // Add beep audio and script at the end of table generation
     echo <<<EOD
 <audio id="beep-audio" src="beep.mp3" preload="auto"></audio>
 <script>
@@ -48,12 +38,13 @@ function status_queue(){
         var beepCells = document.querySelectorAll('.beep-on-load');
         if (beepCells.length > 0) {
             var beep = document.getElementById('beep-audio');
-            if (beep) beep.play().catch(function(e) {
-                console.log("Beep blocked by browser: " + e);
-            });
+            if (beep) {
+                beep.play().catch(function(e) {
+                    console.log("Autoplay blocked: " + e);
+                });
+            }
         }
     });
 </script>
 EOD;
 }
-
