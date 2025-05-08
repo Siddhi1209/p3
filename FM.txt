@@ -1,148 +1,51 @@
-<!DOCTYPE html><html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EOD Issue Tracker</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f9f9f9;
-      display: flex;
-    }
-    nav {
-      width: 250px;
-      background-color: #2c3e50;
-      height: 100vh;
-      color: white;
-      padding: 20px;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-      position: fixed;
-      overflow-y: auto;
-    }
-    nav h2 {
-      font-size: 20px;
-      margin-bottom: 10px;
-      color: #ecf0f1;
-    }
-    nav a {
-      display: block;
-      color: #bdc3c7;
-      text-decoration: none;
-      padding: 8px 0;
-    }
-    nav a:hover {
-      color: #1abc9c;
-    }
-    main {
-      margin-left: 270px;
-      padding: 20px;
-      width: 100%;
-    }
-    section {
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-    section h3 {
-      color: #34495e;
-      margin-top: 0;
-    }
-    .timestamp {
-      color: #7f8c8d;
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
-    .section-title {
-      border-bottom: 1px solid #ecf0f1;
-      padding-bottom: 10px;
-      margin-bottom: 15px;
-    }
-  </style>
-</head>
-<body>
-  <nav>
-    <h2>EOD Issues</h2>
-    <a href="#br0501">BR0501 Issue</a>
-    <a href="#br1222">BR1222 Failure</a>
-    <a href="#dcbr0800">DCBR0800 RC=4</a>
-    <a href="#gl0800">GL0800 RC=8</a>
-    <a href="#in0800">IN0800/BR0501 Failures</a>
-    <a href="#inp816">INP816 Unique Constraint</a>
-    <a href="#sp0100">SP0100 Issues</a>
-    <a href="#highval">High Value Cases</a>
-    <a href="#br098a">BR098A Checkrc</a>
-    <a href="#inspection">Inspection Charges</a>
-  </nav>  <main>
-    <section id="br0501">
-      <h3 class="section-title">BR0501 Restart Issue in MOCK</h3>
-      <div class="timestamp">Logged on: 7/18/23, 11:33 PM</div>
-      <p><strong>Analysis:</strong> BR0501 failed with check rc = 12 due to missing rebl and batc entries. Directory permission issues caused file I/O errors (rc=255). One stream succeeded due to presence of older GLIFINV_??? file.</p>
-      <p><strong>Solution:</strong> Killed the stream, used <code>checkbatc.sh</code> to manually create batc entries. Fixed permissions for <code>$data/file</code>. Config team resolved library issues and <code>restart0501ms</code> was successful.</p>
-    </section><section id="br1222">
-  <h3 class="section-title">BR1222 Restart in Girija Server (RC=243)</h3>
-  <div class="timestamp">Logged on: 7/18/23, 11:33 PM</div>
-  <p><strong>Analysis:</strong> One BR1222 stream failed with RC=243 due to region kill during bulk promotion.</p>
-  <p><strong>Solution:</strong> After bulk activity, restarted <code>lond1222ms</code> and all streams ended successfully with RC=0.</p>
-</section>
+        function status_queue(){
+        //      $data = file("../../ApplnMonitor/status_queue_8app.txt");
+                $data1 = explode("\n", str_replace("NQKE","-1",shell_exec("cat ".$this->currpath."status_queue_8app.txt.".$this->datecrr."|grep -v VV3Q")));
+        //      $data1 = explode("\n", file_get_contents($this->currpath."status_queue_8app.txt_prasad"));
+                if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
+                $data = $this->throwRed($data1,',');
+                foreach ($data as $key2 => $value2){
+                        $queueArray = explode(",",$value2);
+                        echo "<tr>";
+                        foreach ($queueArray as $k2 => $v2){
+                                /*if($queueArray[0]=='GLAQ'){
+                                        if($k2 == '0'){
+                                                $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                                                echo "<th><a onclick=$linkreplica>".$v2."</a></th>";
+                                        }
+                                        elseif($k2 > '0' && $v2 >= '1' && $v2 < '1000'){
+                                                echo "<td date-toggle='tooltip' title='$v2'>0</td>";
+                                        }
+                                        elseif($k2 > '0' && $v2 >= '1000'){
+                                                echo "<td style='color:white;background-color:red;'>".$v2."</td>";
+                                        }
+                                        else{
+                                                echo "<td>".$v2."</td>";
+                                        }
+                                }
+                                else{*/
+                                        if($k2 == '0'){
+                                                $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                                                echo "<th><a onclick=$linkreplica>".$v2."</a></th>";
+                                        }
+                                        elseif($v2 == 'NQKE' ||  $v2 == -1){
+                                                echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
+                                        }
+                                        elseif($k2 > '0' && $v2 >= '1' && $v2 < '100'){
+                                                echo "<td title='$v2'>0</td>";
+                                        }
+                                        elseif($k2 > '0' && $v2 >= '100' && $v2 < '500'){
+                                                echo "<td title='$v2'>0</td>";
+                                        }
+                                        elseif($k2 > '0' && $v2 >= '500'){
+                                                echo "<td class='bg-red-active'>".$v2."</td>";
+                                        }
+                                        else{
+                                                echo "<td>".$v2."</td>";
+                                        }
+                                //}
 
-<section id="dcbr0800">
-  <h3 class="section-title">DCBR0800 Ended with RC=4</h3>
-  <div class="timestamp">Logged on: 7/18/23, 11:33 PM</div>
-  <p><strong>Analysis:</strong> Mismatch in <code>BAD_DEBT_IND</code> between RIGH and BORM tables due to incomplete migration for old accounts.</p>
-  <p><strong>Solution:</strong> Datafix applied to align values in RIGH and BORM tables.</p>
-</section>
-
-<section id="gl0800">
-  <h3 class="section-title">Failure of GL0800 with RC=8</h3>
-  <div class="timestamp">Logged on: 7/18/23, 11:32 PM</div>
-  <p><strong>Analysis:</strong> Single stream failure in Jamuna server.</p>
-  <p><strong>Solution:</strong> Renamed <code>GLCCGEN</code> files and restarted <code>gend0800</code>. If issue persists, run Balance Compare of Finance1.</p>
-</section>
-
-<section id="in0800">
-  <h3 class="section-title">Failures of IN0800 / BR0501</h3>
-  <div class="timestamp">Multiple Cases</div>
-  <p><strong>Analysis & Solutions:</strong> Various cases including DB locks, missing files (CGLUPDTS/DPFUPDTS), stream hanging, and Oracle errors like RC=12/243/255. Problems often related to rebl/batc inconsistencies, incorrect card entries, and data type overflow.</p>
-  <p><strong>Fixes:</strong> Kill locks, run <code>checkbatc.sh</code>, update GENR table, and restart affected streams. Perform file cleanup or updates as necessary.</p>
-</section>
-
-<section id="inp816">
-  <h3 class="section-title">Failure of INP816 Due to Unique Constraint</h3>
-  <div class="timestamp">Logged on: 7/18/23, 11:32 PM</div>
-  <p><strong>Analysis:</strong> On month/quarter ends, overlapping entries in INOD and INNP tables for same account cause constraint issues during posting.</p>
-  <p><strong>Solution:</strong> Delete entries from GENR and REBL for INP816, analyze INNP, then restart using <code>depd0816INPms</code>.</p>
-</section>
-
-<section id="sp0100">
-  <h3 class="section-title">Failure of SP0100</h3>
-  <div class="timestamp">Multiple Cases</div>
-  <p><strong>Analysis:</strong> RC=8 due to junk characters, bad files, or parameter mismatch. RC=12 if region is down. File <code>GLCPARAM.idx</code> missing can also cause stuck processing.</p>
-  <p><strong>Solution:</strong> Clean up junk files, fix parameters, recreate missing files, and rerun <code>spmd0100</code> or related <code>spmr*</code> jobs. Check file counts and logs.</p>
-</section>
-
-<section id="highval">
-  <h3 class="section-title">High Value Observed in EOD or Online</h3>
-  <div class="timestamp">Logged on: 7/19/23, 12:55 AM</div>
-  <p><strong>Steps:</strong> Check logs in <code>$sysout/SY036[78].1.out</code> and look for <code>HIGHVAL_*</code> files in <code>$spool</code>. Do not start F1 upload until confirmed.</p>
-  <p><strong>Solution:</strong> Contact GLIF team for datafix. Use <code>HIGHVAL_EXTRACT_one_digit_less</code> after fix.</p>
-</section>
-
-<section id="br098a">
-  <h3 class="section-title">Checkrc of BR098A</h3>
-  <div class="timestamp">Logged on: 7/19/23, 1:04 AM</div>
-  <p><strong>Analysis:</strong> Loan accounts exceeded specified tier limits causing RC=8.</p>
-  <p><strong>Solution:</strong> Check logs and streams, then kill checkrc and split the report.</p>
-</section>
-
-<section id="inspection">
-  <h3 class="section-title">Procedure for Inspection Charges</h3>
-  <div class="timestamp">Dated: 15–16 March 2015</div>
-  <p><strong>Steps:</strong> Backup CSIB and CSCL tables, truncate them, process EOD, delete non-98022 event records from CSIB, run <code>cs0099</code>, then set up and run <code>cs0100ms</code> across all apps.</p>
-</section>
-
-  </main>
-</body>
-</html>
+                        }
+                        echo "</tr>";
+                }
+        }
