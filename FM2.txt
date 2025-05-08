@@ -1,130 +1,59 @@
-bha=`cat /home/monitorp/pace/CARDS/PORTAL.CARD|head -11|tail -1`
-tf_server_name=`ssh sbibupld@${bha} " hostname " | tr [:lower:] [:upper:]`
-dt2=`cut -c 15-16 /fns/id/r/data/file/MFLAGS``cut -c 13-14 /fns/id/r/data/file/MFLAGS``cut -c 9-12 /fns/id/r/data/file/MFLAGS`
-dt1=`cut -c 15-16 /fns/id/r/data/file/MFLAGS``cut -c 13-14 /fns/id/r/data/file/MFLAGS``cut -c 9-12 /fns/id/r/data/file/MFLAGS`
-dt=`cat /fns/id/r/data/file/MFLAGS|cut -c 9-16`
-tim=`date|cut -c 12-16`
->$HOME/pace/TF_pend
->$HOME/pace/TF_proc
-cd /fns/id/r/spool/Interfaces/BATCH-UPLOADS
-ls ???_?????_????????_??????_${dt1}_*.txt|cut -c -3 > $HOME/pace/TF_pend1 2> /dev/null
+function status_queue(){
+    // Read and process the data file
+    $data1 = explode("\n", str_replace("NQKE", "-1", shell_exec("cat " . $this->currpath . "status_queue_8app.txt." . $this->datecrr . " | grep -v VV3Q")));
 
-cd /fns/id/r/spool/Interfaces/BATCH-UPLOADS-TEMP
-ls ???_?????_????????_??????_${dt1}_*.txt|cut -c -3 > $HOME/pace/TF_pend2 2> /dev/null
+    // Check for blank data
+    if(parent::checkblank($data1)) { 
+        echo parent::checkblank($data1);
+        return;
+    }
 
-cd /fns/id/r/spool/Interfaces/BATCH-UPLOADS-TEMP-1
-ls ???_?????_????????_??????_${dt1}_*.txt|cut -c -3 > $HOME/pace/TF_pendT1 2> /dev/null
+    $data = $this->throwRed($data1, ',');
 
-cd /fns/id/r/spool/Interfaces/BATCH-UPLOADS-TEMP-2
-ls ???_?????_????????_??????_${dt1}_*.txt|cut -c -3 > $HOME/pace/TF_pendT2 2> /dev/null
+    // Output HTML table rows
+    foreach ($data as $key2 => $value2) {
+        $queueArray = explode(",", $value2);
+        echo "<tr>";
 
-cd /fns/id/r/spool/Interfaces/BATCH-UPLOADS-TEMP-3
-ls ???_?????_????????_??????_${dt1}_*.txt|cut -c -3 > $HOME/pace/TF_pendT3 2> /dev/null
+        foreach ($queueArray as $k2 => $v2) {
+            if($k2 == '0'){
+                $linkreplica = "window.open('queuereplica.php?queue=" . urlencode($v2) . "&&date=" . $this->datecrr . "','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                echo "<th><a onclick=\"$linkreplica\">$v2</a></th>";
+            }
+            elseif($v2 == 'NQKE' ||  $v2 == -1){
+                echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
+            }
+            elseif($k2 > '0' && $v2 >= '1' && $v2 < '100'){
+                echo "<td title='$v2'>0</td>";
+            }
+            elseif($k2 > '0' && $v2 >= '100' && $v2 < '500'){
+                echo "<td title='$v2'>0</td>";
+            }
+            elseif($k2 > '0' && $v2 >= '500'){
+                echo "<td class='bg-red-active beep-on-load'>$v2</td>";
+            }
+            else{
+                echo "<td>$v2</td>";
+            }
+        }
 
+        echo "</tr>";
+    }
 
-cd /fns/id/r/spool/Interfaces/BATCH-UPLOADS-5
-ls ???_?????_????????_??????_${dt1}_*.txt|cut -c -3 > $HOME/pace/TF_pend3 2> /dev/null
+    // Beep audio and script to play on load if red alert values exist
+    echo <<<EOD
+<audio id="beep-audio" src="beep.mp3" preload="auto"></audio>
+<script>
+    window.addEventListener('load', function() {
+        var beepCells = document.querySelectorAll('.beep-on-load');
+        if (beepCells.length > 0) {
+            var beep = document.getElementById('beep-audio');
+            if (beep) beep.play().catch(function(e) {
+                console.log("Beep blocked by browser: " + e);
+            });
+        }
+    });
+</script>
+EOD;
+}
 
-cd /fns/id/r/spool/Interfaces/NEFT/NEFT-BULK-UPLOAD-FILES
-ls ???_?????_$dt1*.txt|cut -c -3 > $HOME/pace/TF_pend4 2> /dev/null
-cd /fns/id/r/spool/Interfaces/RTGS/RTGS-BULK-UPLOAD-FILES/
-ls ???_?????_$dt1*.txt|cut -c -3 > $HOME/pace/TF_pend5 2> /dev/null
-
-
-cat $HOME/pace/TF_pend1 $HOME/pace/TF_pend2  $HOME/pace/TF_pendT1 $HOME/pace/TF_pendT2 $HOME/pace/TF_pendT3 $HOME/pace/TF_pend3 $HOME/pace/TF_pend4 $HOME/pace/TF_pend5 > $HOME/pace/TF_pend
-cd /fns/id/r/spool/Interfaces/BATCH-UPLOADS/BATCH-UPLOADS-ARCHIVE
-ls ???_?????_????????_??????_${dt1}_*.txt|cut -c -3 >> $HOME/pace/TF_proc 2> /dev/null
-cd /fns/id/r/spool/BULK/BULKARCHIVES
-ls ???_*${dt1}_???.???|cut -c -3 >> $HOME/pace/TF_proc 2> /dev/null
-cd /fns/id/r/spool/Interfaces/NEFT/NEFT-BULK-REPORT-FILES/EXTRACT-ARCHIVE
-ls ???_?????_$dt1*.TXT|cut -c -3 >> $HOME/pace/TF_proc 2> /dev/null
-
-cd /fns/id/r/spool/Interfaces/RTGS/RTGS-BULK-REPORT-FILES/EXTRACT-ARCHIVE
-ls ???_?????_$dt1*.TXT|cut -c -3 >> $HOME/pace/TF_proc 2> /dev/null
-
-cd /fns/id/r/spool/Interfaces/BATCH-UPLOADS/BATCH-UPLOADS-ARCHIVE
-ls CIS*${dt1}_???.txt CIB*${dt1}_???.txt >> $HOME/pace/TF_proc 2> /dev/null
-
-ssh -n sbibupld@$bha "cd /sbi/INTERFACES/BATCH-UPLOADS-M;ls -lrt *$dt2*|wc -l;">$HOME/pace/bhaga1.txt
-ssh -n sbibupld@$bha "cd /sbi/INTERFACES/BATCH-UPLOADS-S2-1;ls -lrt *$dt2*|wc -l;">>$HOME/pace/bhaga1.txt
-ssh -n sbibupld@$bha "cd /sbi/INTERFACES/BATCH-UPLOADS-S2-2;ls -lrt *$dt2*|wc -l;">>$HOME/pace/bhaga1.txt
-ssh -n sbibupld@$bha "cd /sbi/INTERFACES/BATCH-UPLOADS-S2-3;ls -lrt *$dt2*|wc -l;">>$HOME/pace/bhaga1.txt
-ssh -n sbibupld@$bha "cd /sbi/INTERFACES/BATCH-UPLOADS-S2-4;ls -lrt *$dt2*|wc -l;">>$HOME/pace/bhaga1.txt
-ssh -n sbibupld@$bha "cd /sbi/INTERFACES/BATCH-UPLOADS-S3-1;ls -lrt *$dt2*|wc -l;">>$HOME/pace/bhaga1.txt
-ssh -n sbibupld@$bha "cd /sbi/INTERFACES/BATCH-UPLOADS-S3-2;ls -lrt *$dt2*|wc -l;">>$HOME/pace/bhaga1.txt
-ssh -n sbibupld@$bha "cd /sbi/INTERFACES/BATCH-UPLOADS-S3-3;ls -lrt *$dt2*|wc -l;">>$HOME/pace/bhaga1.txt
-ssh -n sbibupld@$bha "cd /sbi/INTERFACES/BATCH-UPLOADS-S3-4;ls -lrt *$dt2*|wc -l;">>$HOME/pace/bhaga1.txt
-
-ssh -n sbibupld@$bha "bdf /sbi/INTERFACES| tail -1" >$HOME/pace/bhaga_space_2.txt
-bhaga_interfaces_space=`awk '{print $4}' $HOME/pace/bhaga_space_2.txt`
-
-pen=`awk '{print $1}' $HOME/pace/bhaga1.txt |addup`
-echo $pen > $HOME/pace/bhaga.txt
-ssh -n sbibupld@$bha "ps -ef|grep "/home/scripts/ftpuploads.pl"|grep -v grep|wc -l;">$HOME/pace/bhaga_ftp.txt
-bh_ftp=`echo "stopped"`
-if [ `cat $HOME/pace/bhaga_ftp.txt` -eq 2 ]
-then
-bh_ftp=`echo "running"`
-fi
-ssh -n sbibupld@$bha "bdf /archives/sbib24|tail -1" >$HOME/pace/bhaga_space.txt
-bhaga_ftp=`cat $HOME/pace/bhaga_ftp.txt|awk '{print $1}'`
-bhaga_pend=`cat $HOME/pace/bhaga.txt|awk '{print $1}'`
-bhaga_space1=`awk '{print $1}' $HOME/pace/bhaga_space.txt`
-bhaga_space=`echo "sc=2;$bhaga_space1/1000000"|bc`
-bhaga_space_used1=`awk '{print $2}' $HOME/pace/bhaga_space.txt`
-bhaga_space_used=`echo "sc=2;$bhaga_space_used1/1000000"|bc`
-bhaga_space_avail1=`awk '{print $3}' $HOME/pace/bhaga_space.txt`
-bhaga_space_avail=`echo "sc=2;$bhaga_space_avail1/1000000"|bc`
-bhaga_space_used_per=`awk '{print $4}' $HOME/pace/bhaga_space.txt`
-
-
-cd $spool/Interfaces/BATCH-UPLOADS/TRICKLE-FEED-REPORTS
-last=`ls -lrt ???_?????_$dt1* 2> /dev/null | tail -1 | awk '{print $8}'`
->$HOME/pace/tf_new.txt
->$HOME/pace/tf_old.txt
-
-t1=`cat $sysin/officeDb.in|grep BATCH-UPLOADS|grep TIME|cut -d "=" -f8|cut -c 1-2`
-t2=`cat $sysin/officeDb.in|grep BATCH-UPLOADS|grep TIME|cut -d "=" -f8|cut -c 3-4`
-tt=`echo $t1`:`echo $t2`
-cnt=0
-for i in `cat $HOME/pace/tf_newfile`
-do
-cnt=`expr $cnt + 1`
-echo "$cnt $i `grep -c $i $HOME/pace/TF_proc` `grep -c $i $HOME/pace/TF_pend`" >> $HOME/pace/tf_new.txt
-done
-cnt=0
-for j in `cat $HOME/pace/tf_oldfile`
-do
-cnt=`expr $cnt + 1`
-echo "$cnt $j `grep -c $j $HOME/pace/TF_proc` `grep -c $j $HOME/pace/TF_pend`" >> $HOME/pace/tf_old.txt
-done
-cat $HOME/pace/tf_new.txt > $HOME/pace/tf_new.txt1
-echo "Girija `date|awk '{print $4}'|cut -c 1-5` `ps -fufnsonlid|grep tfdrtrig|grep -v grep|awk '{print $5}'|cut -c 1-5|sort -n|head -1` `echo $tt` `ps -ef|grep -w TFMainproc|grep -v grep|wc -l` `echo $last` "> $HOME/pace/tf_stat_s3.txt
-cd $HOME/pace
-g1=`wc -l $HOME/pace/TF_proc|awk '{print $1}'`
-g2=`wc -l $HOME/pace/TF_pend2|awk '{print $1}'`
-g3=`wc -l $HOME/pace/TF_pendT1|awk '{print $1}'`
-g4=`wc -l $HOME/pace/TF_pendT2|awk '{print $1}'`
-g5=`wc -l $HOME/pace/TF_pendT3|awk '{print $1}'`
-
-g6=`wc -l $HOME/pace/TF_pend3|awk '{print $1}'`
-g7=`wc -l $HOME/pace/TF_pend1|awk '{print $1}'`
-g8=`wc -l $HOME/pace/TF_pend|awk '{print $1}'`
-
-echo "Girija $g1 $g2 $g3 $g4 $g5 $g6 $g7 $g8" > tf_tot_s3.txt
-
-echo "Total Pending file in ${tf_server_name}:$bhaga_pend"> $HOME/pace/tf_bhaga.txt
-echo "Total Space at /archives in ${tf_server_name}:$bhaga_space">> $HOME/pace/tf_bhaga.txt
-echo "Used Space at /archives in ${tf_server_name}:$bhaga_space_used">> $HOME/pace/tf_bhaga.txt
-echo "Available Space at /archives in ${tf_server_name}:$bhaga_space_avail">> $HOME/pace/tf_bhaga.txt
-echo "Used Space in % at /archives in ${tf_server_name}:$bhaga_space_used_per">> $HOME/pace/tf_bhaga.txt
-echo "${tf_server_name} FTP Job:$bh_ftp" >> $HOME/pace/tf_bhaga.txt
-echo "Used space in % at /sbi/INTERFACES in ${tf_server_name}:$bhaga_interfaces_space" >> $HOME/pace/tf_bhaga.txt
-
-
-#ftc.sh $HOME/pace/trickle_s3.txt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/trickle_s3.txt.$dt
-ftc.sh $HOME/pace/tf_new.txt1 /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_new_s3.txt1.$dt
-ftc.sh $HOME/pace/tf_stat_s3.txt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_stat_s3.txt.$dt
-ftc.sh $HOME/pace/tf_old.txt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_old_s3.txt.$dt
-ftc.sh $HOME/pace/tf_tot_s3.txt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_tot_s3.txt.$dt
-ftc.sh $HOME/pace/tf_bhaga.txt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_bhaga.txt.$dt
