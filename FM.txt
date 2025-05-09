@@ -1,51 +1,62 @@
-        function status_queue(){
-        //      $data = file("../../ApplnMonitor/status_queue_8app.txt");
-                $data1 = explode("\n", str_replace("NQKE","-1",shell_exec("cat ".$this->currpath."status_queue_8app.txt.".$this->datecrr."|grep -v VV3Q")));
-        //      $data1 = explode("\n", file_get_contents($this->currpath."status_queue_8app.txt_prasad"));
-                if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
-                $data = $this->throwRed($data1,',');
-                foreach ($data as $key2 => $value2){
-                        $queueArray = explode(",",$value2);
-                        echo "<tr>";
-                        foreach ($queueArray as $k2 => $v2){
-                                /*if($queueArray[0]=='GLAQ'){
-                                        if($k2 == '0'){
-                                                $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                                                echo "<th><a onclick=$linkreplica>".$v2."</a></th>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '1' && $v2 < '1000'){
-                                                echo "<td date-toggle='tooltip' title='$v2'>0</td>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '1000'){
-                                                echo "<td style='color:white;background-color:red;'>".$v2."</td>";
-                                        }
-                                        else{
-                                                echo "<td>".$v2."</td>";
-                                        }
-                                }
-                                else{*/
-                                        if($k2 == '0'){
-                                                $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                                                echo "<th><a onclick=$linkreplica>".$v2."</a></th>";
-                                        }
-                                        elseif($v2 == 'NQKE' ||  $v2 == -1){
-                                                echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '1' && $v2 < '100'){
-                                                echo "<td title='$v2'>0</td>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '100' && $v2 < '500'){
-                                                echo "<td title='$v2'>0</td>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '500'){
-                                                echo "<td class='bg-red-active'>".$v2."</td>";
-                                        }
-                                        else{
-                                                echo "<td>".$v2."</td>";
-                                        }
-                                //}
+function status_queue() {
+    // Read and process the file content
+    $data1 = explode("\n", str_replace("NQKE", "-1", shell_exec("cat " . $this->currpath . "status_queue_8app.txt." . $this->datecrr . " | grep -v VV3Q")));
 
-                        }
-                        echo "</tr>";
-                }
+    if (parent::checkblank($data1)) {
+        echo parent::checkblank($data1);
+    }
+
+    $data = $this->throwRed($data1, ',');
+
+    $beepNeeded = false; // Flag to trigger beep only if a high value exists
+
+    foreach ($data as $key2 => $value2) {
+        $queueArray = explode(",", $value2);
+        echo "<tr>";
+
+        foreach ($queueArray as $k2 => $v2) {
+            if ($k2 == '0') {
+                $linkreplica = "window.open('queuereplica.php?queue=" . urlencode($v2) . "&&date=" . $this->datecrr . "','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                echo "<th><a onclick=\"$linkreplica\">$v2</a></th>";
+            } elseif ($v2 == 'NQKE' || $v2 == -1) {
+                echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
+            } elseif ($k2 > '0' && $v2 >= 1 && $v2 < 100) {
+                echo "<td title='$v2'>0</td>";
+            } elseif ($k2 > '0' && $v2 >= 100 && $v2 < 500) {
+                echo "<td title='$v2'>0</td>";
+            } elseif ($k2 > '0' && $v2 >= 500) {
+                echo "<td class='beep-on-load'>$v2</td>";
+                $beepNeeded = true;
+            } else {
+                echo "<td>$v2</td>";
+            }
         }
+
+        echo "</tr>";
+    }
+
+    // If beep is needed, embed audio and JS
+    if ($beepNeeded) {
+        echo <<<EOD
+<audio id="beepSound" src="beep.mp3" preload="auto"></audio>
+<script>
+    window.addEventListener('load', function () {
+        const beepCells = document.querySelectorAll('.beep-on-load');
+        if (beepCells.length > 0) {
+            const beep = document.getElementById('beepSound');
+            beep.play().catch(function () {
+                // Fallback button in case autoplay is blocked
+                const btn = document.createElement('button');
+                btn.textContent = 'Click to hear alert';
+                btn.onclick = function () {
+                    beep.play();
+                    btn.remove();
+                };
+                document.body.appendChild(btn);
+            });
+        }
+    });
+</script>
+EOD;
+    }
+}
