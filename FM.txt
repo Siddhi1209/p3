@@ -23,7 +23,7 @@ function status_queue() {
             } elseif ($k2 > '0' && $v2 >= 100 && $v2 < 500) {
                 echo "<td title='$v2'>0</td>";
             } elseif ($k2 > '0' && $v2 >= 500) {
-                echo "<td class='beep-on-load' style='background-color:red; color:white;'>$v2</td>";
+                echo "<td style='background-color:red; color:white;' class='beep-on-load'>$v2</td>";
                 $beepNeeded = true;
             } else {
                 echo "<td>$v2</td>";
@@ -33,20 +33,20 @@ function status_queue() {
         echo "</tr>";
     }
 
-    // Inject audio and repeating beep if needed
     if ($beepNeeded) {
         echo "<audio id='beepSound' src='beep.mp3' preload='auto'></audio>";
         echo "<script>
-                window.addEventListener('load', function () {
-                    var beep = document.getElementById('beepSound');
-                    if (document.querySelectorAll('.beep-on-load').length > 0) {
-                        setInterval(function () {
-                            beep.play().catch(function (e) {
-                                console.log('Autoplay blocked: ' + e.message);
-                            });
-                        }, 5000);
-                    }
-                });
-              </script>";
+            var beepInterval;
+            function startBeeping() {
+                var beep = document.getElementById('beepSound');
+                beepInterval = setInterval(function () {
+                    beep.play().catch(function (e) {
+                        console.log('Autoplay blocked: ' + e.message);
+                    });
+                }, 5000);
+            }
+
+            window.addEventListener('load', startBeeping);
+        </script>";
     }
 }
