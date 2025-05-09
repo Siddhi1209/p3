@@ -1,5 +1,4 @@
 function status_queue() {
-    // Read and process the file content
     $data1 = explode("\n", str_replace("NQKE", "-1", shell_exec("cat " . $this->currpath . "status_queue_8app.txt." . $this->datecrr . " | grep -v VV3Q")));
 
     if (parent::checkblank($data1)) {
@@ -7,7 +6,7 @@ function status_queue() {
     }
 
     $data = $this->throwRed($data1, ',');
-    $beepNeeded = false; // Flag to play beep if any value ≥ 500 exists
+    $beepNeeded = false;
 
     foreach ($data as $key2 => $value2) {
         $queueArray = explode(",", $value2);
@@ -34,18 +33,16 @@ function status_queue() {
         echo "</tr>";
     }
 
-    // If a beep is needed, include audio and autoplay script
+    // Output audio and script if beep is needed
     if ($beepNeeded) {
-        echo <<<EOD
-<audio id="beepSound" src="beep.mp3" preload="auto"></audio>
-<script>
-    window.addEventListener('load', function () {
-        const beep = document.getElementById('beepSound');
-        beep.play().catch(function (e) {
-            console.log("Autoplay blocked: " + e.message);
-        });
-    });
-</script>
-EOD;
+        echo "<audio id='beepSound' src='beep.mp3' preload='auto'></audio>";
+        echo "<script>
+                window.addEventListener('load', function () {
+                    var beep = document.getElementById('beepSound');
+                    beep.play().catch(function (e) {
+                        console.log('Autoplay blocked: ' + e.message);
+                    });
+                });
+              </script>";
     }
 }
