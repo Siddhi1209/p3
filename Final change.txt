@@ -1,71 +1,55 @@
-<?php
-error_reporting(1);
-$server_file = file("card_folder/prcard.txt");
-$drserver_file = file("card_folder/drcard.txt");
-$nrserver_file = file("card_folder/nrcard.txt");
-$site = file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/DR_CHECK");
-?><!DOCTYPE html><html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Server Virtual IP/PHYSICAL IP/NAME</title>
-    <meta http-equiv="refresh" content="5"><?php include("../includes/header_uppercp.php"); ?>
-<link href="../swal/swal.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+function status_queue() {
+    $data1 = explode("\n", str_replace("NQKE", "-1", shell_exec("cat " . $this->currpath . "status_queue_8app.txt." . $this->datecrr . " | grep -v VV3Q")));
 
-<style>
-    /* Apply background image with blur effect */
-    body {
-        margin: 0;
-        padding: 0;
-        position: relative;
-        background: url('/pages/background.png') no-repeat center center fixed;
-        background-size: cover;
+    if (parent::checkblank($data1)) {
+        echo parent::checkblank($data1);
     }
-    
-    /* Blurred overlay */
-    body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: url('/pages/background.png') no-repeat center center fixed;
-        background-size: cover;
-        filter: blur(10px);
-        z-index: 0;
+
+    $data = $this->throwRed($data1, ',');
+    $beepNeeded = false;
+
+    foreach ($data as $key2 => $value2) {
+        $queueArray = explode(",", $value2);
+        echo "<tr>";
+
+        foreach ($queueArray as $k2 => $v2) {
+            if ($k2 == '0') {
+                $linkreplica = "window.open('queuereplica.php?queue=" . urlencode($v2) . "&&date=" . $this->datecrr . "','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                echo "<th><a onclick=\"$linkreplica\">$v2</a></th>";
+            } elseif ($v2 == 'NQKE' || $v2 == -1) {
+                echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
+            } elseif ($k2 > '0' && $v2 >= 1 && $v2 < 100) {
+                echo "<td title='$v2'>0</td>";
+            } elseif ($k2 > '0' && $v2 >= 100 && $v2 < 500) {
+                echo "<td title='$v2'>0</td>";
+            } elseif ($k2 > '0' && $v2 >= 500) {
+                echo "<td class='beep-on-load' style='background-color:red; color:white;'>$v2</td>";
+                $beepNeeded = true;
+            } else {
+                echo "<td>$v2</td>";
+            }
+        }
+
+        echo "</tr>";
     }
-    
-    /* Ensure popup stays on top */
-    .swal-modal {
-        z-index: 10000;
-        background-color: rgba(255, 255, 255, 0.9); /* Slight transparency */
+
+    // Add audio and repeat beep if needed
+    if ($beepNeeded) {
+        echo "<audio id='beepSound' src='beep.mp3' preload='auto'></audio>";
+        echo "<script>
+            var beep = document.getElementById('beepSound');
+            beep.play().catch(function (e) {
+                console.log('First beep blocked: ' + e.message);
+            });
+
+            setInterval(function () {
+                var beep = document.getElementById('beepSound');
+                beep.pause();
+                beep.currentTime = 0;
+                beep.play().catch(function (e) {
+                    console.log('Repeated beep blocked: ' + e.message);
+                });
+            }, 10000);
+        </script>";
     }
-</style>
-
-</head>
-<body class="skin-blue sidebar-collapse"><script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="../swal/swal.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
-
-<script>
-    $(document).ready(function () {
-        swal({
-            title: "CBS ANNUAL CLOSING ACTIVITY IS IN PROGRESS!!",
-            text: "CBS UNDER MAINTENANCE !!!",
-            icon: "info",
-            button: false,
-            className: "green-bg",
-            closeOnClickOutside: false
-        });
-
-        setTimeout(function () {
-            window.close();
-        }, 200000); // Close window after 200 seconds
-
-        setTimeout(function () {
-            location.reload();
-        }, 10000); // Refresh page after 10 seconds
-    });
-</script>
-
-</body>
-</html>
+}
