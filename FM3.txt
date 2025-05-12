@@ -1,3 +1,4 @@
+
 function status_queue() {
     $data1 = explode("\n", str_replace("NQKE", "-1", shell_exec("cat " . $this->currpath . "status_queue_8app.txt." . $this->datecrr . " | grep -v VV3Q")));
 
@@ -6,7 +7,9 @@ function status_queue() {
     }
 
     $data = $this->throwRed($data1, ',');
-    $beepNeeded = false;
+
+    // Audio tag included always
+    echo "<audio id='beepSound' src='beep.mp3' preload='auto'></audio>";
 
     foreach ($data as $key2 => $value2) {
         $queueArray = explode(",", $value2);
@@ -24,7 +27,6 @@ function status_queue() {
                 echo "<td title='$v2'>0</td>";
             } elseif ($k2 > '0' && $v2 >= 500) {
                 echo "<td class='beep-on-load' style='background-color:red; color:white;'>$v2</td>";
-                $beepNeeded = true;
             } else {
                 echo "<td>$v2</td>";
             }
@@ -33,16 +35,38 @@ function status_queue() {
         echo "</tr>";
     }
 
-    // Output audio and script if beep is needed
-    if ($beepNeeded) {
-        echo "<audio id='beepSound' src='beep.mp3' preload='auto'></audio>";
-        echo "<script>
-                window.addEventListener('load', function () {
-                    var beep = document.getElementById('beepSound');
-                    beep.play().catch(function (e) {
-                        console.log('Autoplay blocked: ' + e.message);
-                    });
-                });
-              </script>";
-    }
+    // JavaScript for continuous beep
+    echo "<script>
+        var beepInterval = null;
+
+        function playBeep() {
+            var beep = document.getElementById('beepSound');
+            beep.pause();
+            beep.currentTime = 0;
+            beep.play().catch(function (e) {
+                console.log('Autoplay blocked: ' + e.message);
+            });
+        }
+
+        function checkAndBeep() {
+            var hasHighValue = document.querySelectorAll('.beep-on-load').length > 0;
+
+            if (hasHighValue) {
+                if (!beepInterval) {
+                    beepInterval = setInterval(playBeep, 10000); // every 10s
+                    playBeep(); // immediate beep
+                }
+            } else {
+                if (beepInterval) {
+                    clearInterval(beepInterval);
+                    beepInterval = null;
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            checkAndBeep();
+            setInterval(checkAndBeep, 5000); // check every 5s
+        });
+    </script>";
 }
