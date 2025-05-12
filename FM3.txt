@@ -1,102 +1,48 @@
+function status_queue() {
+    $data1 = explode("\n", str_replace("NQKE", "-1", shell_exec("cat " . $this->currpath . "status_queue_8app.txt." . $this->datecrr . " | grep -v VV3Q")));
 
-Add in monitorExternal
+    if (parent::checkblank($data1)) {
+        echo parent::checkblank($data1);
+    }
 
-<?php
-$task_status_file = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/task_status";
-$task_status = file_exists($task_status_file) ? trim(file_get_contents($task_status_file)) : "stop";
-echo $task_status;
-?>
+    $data = $this->throwRed($data1, ',');
+    $beepNeeded = false;
 
+    foreach ($data as $key2 => $value2) {
+        $queueArray = explode(",", $value2);
+        echo "<tr>";
 
-
-You should add the provided code in smart_krish.php in the following way:
-
-1. Inside the <head> section
-Add this CSS and jQuery library before </head> to style and enable the pop-up functionality.
-
-html
-Copy
-Edit
-    <style>
-        #taskPopup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            background-color: red;
-            color: white;
-            text-align: center;
-            padding: 20px;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 10px;
-            z-index: 1000;
-        }
-        #closePopup {
-            background-color: white;
-            color: red;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-    </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-2. Inside the <body> section
-Add this HTML anywhere inside the <body> tag (preferably right before </body>).
-
-html
-Copy
-Edit
-    <div id="taskPopup">
-        CBS ANNUAL CLOSING ACTIVITY IS IN PROGRESS...
-        <br>
-        <button id="closePopup">Close</button>
-    </div>
-3. Before </body> tag
-Add this JavaScript to handle the pop-up logic at the end of the <body> section, before </body>.
-
-html
-Copy
-Edit
-    <script>
-        function checkTaskStatus() {
-            $.ajax({
-                url: 'monitorExternalFile1.php',
-                method: 'GET',
-                success: function(response) {
-                    if (response.trim() === 'start') {
-                        $("#taskPopup").fadeIn();
-                    } else {
-                        $("#taskPopup").fadeOut();
-                    }
-                }
-            });
+        foreach ($queueArray as $k2 => $v2) {
+            if ($k2 == '0') {
+                $linkreplica = "window.open('queuereplica.php?queue=" . urlencode($v2) . "&&date=" . $this->datecrr . "','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                echo "<th><a onclick=\"$linkreplica\">$v2</a></th>";
+            } elseif ($v2 == 'NQKE' || $v2 == -1) {
+                echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
+            } elseif ($k2 > '0' && $v2 >= 1 && $v2 < 100) {
+                echo "<td title='$v2'>0</td>";
+            } elseif ($k2 > '0' && $v2 >= 100 && $v2 < 500) {
+                echo "<td title='$v2'>0</td>";
+            } elseif ($k2 > '0' && $v2 >= 500) {
+                echo "<td class='beep-on-load' style='background-color:red; color:white;'>$v2</td>";
+                $beepNeeded = true;
+            } else {
+                echo "<td>$v2</td>";
+            }
         }
 
-        $(document).ready(function() {
-            checkTaskStatus();
-            setInterval(checkTaskStatus, 5000);
-            $("#closePopup").click(function() {
-                $("#taskPopup").fadeOut();
-            });
-        });
-    </script>
-Final Placement in smart_krish.php
-CSS & jQuery → Inside <head> ... </head>
+        echo "</tr>";
+    }
 
-HTML pop-up → Inside <body> ... </body>
-
-JavaScript → Before closing </body> tag
-
-After adding these, your pop-up will appear/disappear based on task_status.txt. Let me know if you need further adjustments! 😊
-
-
-
-
-
-
-
+    // Output audio and script if beep is needed
+    if ($beepNeeded) {
+        echo "<audio id='beepSound' src='beep.mp3' preload='auto'></audio>";
+        echo "<script>
+                window.addEventListener('load', function () {
+                    var beep = document.getElementById('beepSound');
+                    beep.play().catch(function (e) {
+                        console.log('Autoplay blocked: ' + e.message);
+                    });
+                });
+              </script>";
+    }
+}
