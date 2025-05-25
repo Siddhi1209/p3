@@ -1,50 +1,49 @@
-#!/bin/bash
+Incident Timeline and Actions Taken
 
-# Ask user for job name
-read -p "Enter job name (e.g., sj_POST_SI): " JOB_NAME
+1. 03:53 – Queue Buildup Observed
+During the pre re-sync call, a queue buildup was observed across multiple queues on all applications. Initial attempts to increase the queues were unsuccessful as the queues were getting aborted.
 
-# Temporary files
-TEMP_FILE=$(mktemp)
-FAILED_JOBS="failed_jobs.txt"
+2. 03:55 – Database Session Issue Identified
+Upon investigation at the database level, it was found that applications were unable to establish sessions. Node eviction was detected on Node 4, and login attempts to Node 4 were unsuccessful.
 
-# Function to get job and its dependencies
-get_dependencies() {
-    job=$1
-    echo "$job" >> "$TEMP_FILE"
-    # Extract job dependencies using autorep
-    autorep -q -J "$job" | grep -i 'Condition' |
-    grep -o '[a-zA-Z0-9_\.]\+' | grep -v 'success' | grep -v 'failure' >> "$TEMP_FILE"
-}
+3. 04:00 – Node 4 Issue Confirmed
+Further verification confirmed access issues with Node 4. This node was assigned to App10, App11, and App16.
 
-# Collect job and its dependencies
-> "$TEMP_FILE"
-get_dependencies "$JOB_NAME"
+4. 04:08 – 04:10 – Gateways Stopped
+To isolate the issue, gateways for App10, App11, and App16 were stopped.
 
-# Remove duplicates
-sort -u "$TEMP_FILE" -o "$TEMP_FILE"
+5. 04:12 onwards – Replica Redistribution
+Replicas were increased on other servers to balance the load; however, the issue persisted.
 
-# Check statuses
-> "$FAILED_JOBS"
-while read -r job; do
-    STATUS=$(autostatus -j "$job")
+6. 04:30 – DB Switch Decision
+A decision was made to revert the DB switch from Day to Ref, but due to REFPR (pre re-sync) being unavailable, the switch was carried out on the NR Reference.
 
-    if [[ "$STATUS" != "SU" ]]; then
-        if [[ "$STATUS" == "INACTIVE" ]]; then
-            echo "$job : INACTIVE (Job not enabled or scheduled)" >> "$FAILED_JOBS"
-        else
-            echo "$job : $STATUS" >> "$FAILED_JOBS"
-        fi
-    fi
-done < "$TEMP_FILE"
+7. 04:35 – 04:40 – DB Pointing Changed
+DB pointing was updated accordingly, and the DB switch from Day to Ref was initiated.
 
-# Final output
-if [[ -s "$FAILED_JOBS" ]]; then
-    echo "Some jobs did not run successfully or are inactive."
-    echo "Check the report: $FAILED_JOBS"
-else
-    echo "All jobs and dependent jobs ran successfully in AutoSys."
-    rm "$FAILED_JOBS"
-fi
+8. 04:44 – 04:59 – DB Switch Executed
+The switch from Day to Ref was completed during this time window.
 
-# Cleanup
-rm "$TEMP_FILE"
+9. Post Switch – Queue Error Persisted
+After the DB switch, queues were increased across multiple applications, but the error “INITIALISATION ERROR RUN ABORTED” was still encountered.
+
+10. 04:50 – 04:55 – DB Links Rechecked
+DB links and pointings were reviewed again, and it was found that the DBA team had not updated the pointing to NR Reference on their end.
+
+11. 05:02 – 05:05 – DBA Fix and Queue Restoration
+After the DBA team corrected the pointing, queues were increased again and started functioning properly. Manual queue increases across all applications were carried out from 05:02 to 05:35.
+
+12. 05:26 – Node 4 Restored
+Node 4 (server 10.0.20.54) was reported up.
+
+13. 05:37 – 05:40 – Gateways Restarted
+Gateways on App10, App11, and App16 were restarted.
+
+14. 05:45 – 05:50 – Post EOD Backup Call
+Post End-of-Day (EOD) backup call was completed.
+
+15. 05:56 – 06:07 – DB Switch Back to Day
+DB switch from Ref to Day was carried out successfully.
+
+16. 06:09 – Start of Day (SOD) Initiated
+SOD operations began
