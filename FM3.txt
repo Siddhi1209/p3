@@ -1,72 +1,95 @@
-
-function status_queue() {
-    $data1 = explode("\n", str_replace("NQKE", "-1", shell_exec("cat " . $this->currpath . "status_queue_8app.txt." . $this->datecrr . " | grep -v VV3Q")));
-
-    if (parent::checkblank($data1)) {
-        echo parent::checkblank($data1);
-    }
-
-    $data = $this->throwRed($data1, ',');
-
-    // Audio tag included always
-    echo "<audio id='beepSound' src='beep.mp3' preload='auto'></audio>";
-
-    foreach ($data as $key2 => $value2) {
-        $queueArray = explode(",", $value2);
-        echo "<tr>";
-
-        foreach ($queueArray as $k2 => $v2) {
-            if ($k2 == '0') {
-                $linkreplica = "window.open('queuereplica.php?queue=" . urlencode($v2) . "&&date=" . $this->datecrr . "','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                echo "<th><a onclick=\"$linkreplica\">$v2</a></th>";
-            } elseif ($v2 == 'NQKE' || $v2 == -1) {
-                echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
-            } elseif ($k2 > '0' && $v2 >= 1 && $v2 < 100) {
-                echo "<td title='$v2'>0</td>";
-            } elseif ($k2 > '0' && $v2 >= 100 && $v2 < 500) {
-                echo "<td title='$v2'>0</td>";
-            } elseif ($k2 > '0' && $v2 >= 500) {
-                echo "<td class='beep-on-load' style='background-color:red; color:white;'>$v2</td>";
-            } else {
-                echo "<td>$v2</td>";
-            }
-        }
-
-        echo "</tr>";
-    }
-
-    // JavaScript for continuous beep
-    echo "<script>
-        var beepInterval = null;
-
-        function playBeep() {
-            var beep = document.getElementById('beepSound');
-            beep.pause();
-            beep.currentTime = 0;
-            beep.play().catch(function (e) {
-                console.log('Autoplay blocked: ' + e.message);
-            });
-        }
-
-        function checkAndBeep() {
-            var hasHighValue = document.querySelectorAll('.beep-on-load').length > 0;
-
-            if (hasHighValue) {
-                if (!beepInterval) {
-                    beepInterval = setInterval(playBeep, 10000); // every 10s
-                    playBeep(); // immediate beep
+ function Total_trickle_1(){
+                $data1 = explode("\n", trim(file_get_contents($this->currpath."TRICKLEFEED_MASTER.txt_".$this->datecrr)));
+                $data2 = explode(",",shell_exec("cat ".$this->currpath."TRICKLEFEED_MASTER.txt_".$this->datecrr." | tail -1"));
+                //$data = explode("\n", trim(file_get_contents($this->currpath."tf_master_sort")));
+                //$data = file("../../Tricklefeed/tf_stat.txt");
+                //if(parent::checkblank($data)){ echo parent::checkblank($data);}
+                $data = $this->throwRed($data1,',');
+                foreach ($data1 as $line_num => $line) {
+                        $var = explode(",",$line);
+                        if( $line_num == 0 ){
+                                echo "<tr>";
+                                foreach($data2 as $key =>$value){
+                                        if($key == 0){
+                                                echo "<td class='text-center' style='color:darkblue;font-weight:bold;'>".str_replace("ZZ","",$value)."</td>";
+                                        }
+                                        elseif($key > 0 && ($key%2) == 0 && $value > 0){
+                                                echo "<td class='text-center' style='background-color:red;color:white;'>".$value."</td>";
+                                        }
+                                        elseif($key > 0 && ($key%2) != 0 && $value > 0){
+                                                echo "<td class='text-center' style='background-color:green;color:white;'>".$value."</td>";
+                                        }
+                                        else{
+                                                echo "<td class='text-center' style='color:darkblue;font-weight:bold;'>".$value."</td>";
+                                        }
+                                }
+                                echo "</tr>";
+                        }
+                        echo "<tr>";
+                        foreach ($var as $k3 => $v3) {
+                                        if($k3 == 0){
+                                                echo "<th class='text-center'>".$v3."</th>";
+                                        }
+                                        else {
+                                                if($k3 > 0 && ($k3%2) == 0 && $v3 > 0 ){
+                                                echo "<td  class='bg-red text-center' onclick='getAging(this);'>".$v3."</td>";
+                                                }
+                                                elseif($k3 > 0 && $v3 > 0 ){
+                                                        echo "<td class='bg-green text-center'>".$v3."</td>";
+                                                }
+                                                else{
+                                                        echo "<td class='text-center'>".$v3."</td>";
+                                                }
+                                                /*else{
+                                                        echo "<td  class='text-center'  style='color:green;'><small class='label label-success'>".$v3."</small></td>";
+                                                }*/
+                                        }
+                        }
+                        echo "</tr>";
                 }
-            } else {
-                if (beepInterval) {
-                    clearInterval(beepInterval);
-                    beepInterval = null;
-                }
-            }
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            checkAndBeep();
-            setInterval(checkAndBeep, 5000); // check every 5s
-        });
-    </script>";
-}
+                function Total_trickle_1_tail(){
+                $data2 = explode(",",shell_exec("cat ".$this->currpath."TRICKLEFEED_MASTER.txt_".$this->datecrr." | tail -1"));
+                echo "<tr>";
+                foreach($data2 as $key=>$value){
+                        if($key == '0'){
+                                echo "<th style='background-color:#cdc;color:black;' class='text-center'>TOTAL</th>";
+                        }
+                        else{
+                                echo "<td class='text-center' style='font-weight:bold;'>".$value."</td>";
+                        }
+
+		      }
+                }
+                echo "</tr>";
+        }
+        function Total_trickle_db(){
+                $con = oci_connect("MONITORP","password","opdb");
+                $serverarr = array('i' => 'SUTLEJ', 'I' => 'GANGA', 'a' => 'SHARDA', 'b' => 'GIRIJA', 'c' => 'JHELUM', 'd' => 'JAMAUNA', 'e' => 'BHARAGVI', 'f' => 'MANDOVI', 'g' => 'TERNA');
+                $totalArr = array();
+                $mainData = array();
+                $sql = oci_parse($con,"select DISTINCT(UPLD_TYP) as fileTp from tfmt where PENDING_COUNT != '0' or PROCESSED_COUNT != '' ");
+                //$sql = oci_parse($con,"select * from tfmt where PENDING_COUNT != '0' or PROCESSED_COUNT != '' order by TIME DESC");
+                oci_execute($sql);
+                while($res=oci_fetch_assoc($sql)){
+                        $x = $res['FILETP'];
+                        foreach($serverarr as $keys => $datasl){
+                                $fetchData = oci_parse($con,"select * from (select * from tfmt where UPLD_TYP = '$x' and DQPTYPE = '$keys' and ( PENDING_COUNT != '0' or PROCESSED_COUNT != '' ) order by TIME desc) where rownum < 2 ");
+                                oci_execute($fetchData);
+                                $arrSdata=oci_fetch_assoc($fetchData);
+                                if(oci_num_rows($fetchData) == 1){
+                                        array_push($mainData,$arrSdata['DQPTYPE'],$arrSdata['PROCESSED_COUNT'],$arrSdata['PENDING_COUNT'],$arrSdata['TIME']);
+                                }
+                                if($keys == 'g'){
+                                        array_push($mainData,$x);
+                                }
+                        }
+                        $totalArr[] = $mainData;
+                        unset($mainData);
+                        $mainData = array();
+                }
+                return $totalArr;
+        }
+				
+						
