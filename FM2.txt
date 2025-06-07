@@ -1,49 +1,456 @@
-Incident Timeline and Actions Taken
+<?php
+        include("../config.php");
+        //session_start();
+        //if(isset($_SESSION['admin_id'])){
+                $getDDcrr = $_GET['date'];
+                $mldate = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+                if(empty($getDDcrr)){
+                        $crdate  = $mldate;
+                }
+                else{
+                        $crdate  = $getDDcrr;
+                }
 
-1. 03:53 – Queue Buildup Observed
-During the pre re-sync call, a queue buildup was observed across multiple queues on all applications. Initial attempts to increase the queues were unsuccessful as the queues were getting aborted.
+                if(isset($_POST['stringUrl'])){
+                        $filename = $_POST['stringUrl'];
+                        $tableIndex = $_POST['tableIndex'];
+                        $FinalDataT = $trickelfeed->pendingTrickel($tableIndex,$filename);
+                        echo $FinalDataT; exit();
+                }
+                if(isset($_POST['key']) && $_POST['key'] == 'ConsoRefresh'){
+                        $datF = $trickelfeed->pendingConsoTrickel();
+                        echo $datF; exit();
+                }
+                if(isset($_POST['key']) && $_POST['key'] == '888'){
+                        echo $trickelfeed->Total_trickle_1(); exit();
+                }
+                if(isset($_POST['key']) && $_POST['key'] == '999'){
+                        $i = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_i.txt","_");
+                        $I = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_I.txt","_");
+                        $a = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_a.txt","_");
+                        $b = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_b.txt","_");
+                        $c = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_c.txt","_");
+                        $d = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_d.txt","_");
+                        $e = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_e.txt","_");
+                        $f = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_f.txt","_");
+                        $g = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_g.txt","_");
+                        $h = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_h.txt","_");
+                        $j = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_j.txt","_");
+                        $k = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_k.txt","_");
+                        $m = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_m.txt","_");
+                        $n = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_n.txt","_");
+                        $p = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_p.txt","_");
+                        $q = timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tf_pen_pro_q.txt","_");
 
-2. 03:55 – Database Session Issue Identified
-Upon investigation at the database level, it was found that applications were unable to establish sessions. Node eviction was detected on Node 4, and login attempts to Node 4 were unsuccessful.
+                        echo json_encode(array($i,$I,$a,$b,$c,$d,$e,$f,$g,$h,$j,$k,$m,$n,$p,$q));
+                        exit();
+                }
 
-3. 04:00 – Node 4 Issue Confirmed
-Further verification confirmed access issues with Node 4. This node was assigned to App10, App11, and App16.
+?>
+<!DOCTYPE html>
+<html>
+<head>
+        <meta charset="UTF-8">
+    <title><?php echo ucwords($_SESSION['UserName']); ?> | Trickle Feed Monitoring</title>
+        <?php   include("../includes/header_uppercp.php");  ?>
+        <script>
+        /*function show_trickle_data() {
+                        var datadate = "<?php echo $crdate; ?>";
+                        var data1 = 'tricklediv.php?date='+datadate;
+                        $('#trickle').load(data1).hide().fadeIn(200);
+                }
 
-4. 04:08 – 04:10 – Gateways Stopped
-To isolate the issue, gateways for App10, App11, and App16 were stopped.
+        setInterval('show_trickle_data()', 6000);*/
+        </script>
+        <style>
+                /*@keyframes example {
+                        0%  {background-color: yellow;}
+                        25%  {background-color: pink;}
+                }
+                .uptype {
+                        background-color: orange;
+                        -webkit-animation-name: example; /* Safari 4.0 - 8.0 */
+                        -webkit-animation-duration: 4s; /* Safari 4.0 - 8.0 */
+                        animation-name: example;
+                        animation-duration: 4s;
+                }
+        */
 
-5. 04:12 onwards – Replica Redistribution
-Replicas were increased on other servers to balance the load; however, the issue persisted.
+        </style>
+</head>
 
-6. 04:30 – DB Switch Decision
-A decision was made to revert the DB switch from Day to Ref, but due to REFPR (pre re-sync) being unavailable, the switch was carried out on the NR Reference.
 
-7. 04:35 – 04:40 – DB Pointing Changed
-DB pointing was updated accordingly, and the DB switch from Day to Ref was initiated.
+<!-- Left side column. contains the logo and sidebar -->
+                <?php   include("../includes/headercp.php");  ?>
+                <!-- Content Wrapper. Contains page content -->
+                <style>
+                a:hover{background-color:grey !important;}
+                .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+                padding: 6px !important;
+                line-height: 0.92857143 !important;
+                vertical-align: top !important;
+                border-top: 1px solid #ddd !important;
+                }
+                body {
+                font-size: 13px !important;
+                }
+                .panel-body {
+                padding: 9px !important;
+                }
+                </style>
 
-8. 04:44 – 04:59 – DB Switch Executed
-The switch from Day to Ref was completed during this time window.
+                <div class="content-wrapper">
+                        <section class="content-header">
+                                <h1>Trickle Feed
+                                        <span style="margin-left:2%;"><a class="btn-primary btn-lg small-box-footer bg-red-active" onclick="window.open('trickle_sum.php?date=<?php echo $crdate; ?>','','height=900, width=1400,scrollbars=yes,resizable=yes' );"><font color="white"><b>Trickle Feed Summary</b></font></a></span>
+                                        <span style="margin-left:2%;"><a class="btn-primary btn-lg small-box-footer bg-red-active" onclick="window.open('trickle_sum.php?date=<?php echo $crdate; ?>#second_link','','height=600, width=1200,scrollbars=yes,resizable=yes' );"><font color="white"><b>Processed Summary</b></font></a>
+                                        <div class="btn-group" style="margin-left:2%;">
+                                                <button type="button" class="btn btn-danger">Links</button>
+                                                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  style="height:34px;">
+                                                <span class="caret"></span>
+                                                <span class="sr-only">Toggle Dropdown</span>
+                                                </button>
+                                          <ul class="dropdown-menu">
+                                                <li><a onclick="window.open('<?php echo $hostname;?>/cgi-bin/trials/bip/data/TESTING/tffileall.cgi?mldate=<?php echo $crdate; ?>','','height=600, width=600,scrollbars=yes,resizable=yes' );">Trickle feed file Status</a></li>
+                                                <li role="separator" class="divider"></li>
+                                                <li><a onclick="window.open('<?php echo $hostname;?>/cgi-bin/trials/bip/data/MISC/dbt_nft_trickle_feed_pso.cgi','','height=600, width=600,scrollbars=yes,resizable=yes' );"> NFT_10521</a></li>
+                                                <li role="separator" class="divider"></li>
+                                                <li><a onclick="window.open('<?php echo $hostname;?>/cgi-bin/trials/bip/data/MISC/cmp_trickle_feed.cgi','','height=600, width=600,scrollbars=yes,resizable=yes' );"> CMP_04266</a></li>
+                                          </ul>
+                                        </div>
+                                        <span style="margin-left:2%;"><a href="smartfeed_tickel.php" class="btn-primary btn-lg small-box-footer bg-red-active"><font color="white"><b>SMARTFEEDS</b></font></a></span>
+                                        <span style="margin-left:2%;" class="btn-primary btn-lg small-box-footer bg-blue-active cosoPendActive"><font color="white"><b>Consolidated Pendency</b></font></span>
+                                </h1>
+                        </section>
+                        <style>
+                                .inner{ padding: 5% 0% 4% 0%;}
+                                .small-box { margin-bottom:3px !important; }
+                                p { font-size: 20px !important; }
+                        </style>
+                <div >
+                        <div class="row" id="DivPend" style="margin-top:10px; display:none;">
+                                <div class="col-md-12">
+                                  <div class="panel panel-primary">
+                                                <div class="panel-heading bg-aqua-active">
+                                                        <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php //echo timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/TRIC_FIN_DATA.txt.","");?></span>
+                                                        <span style="font-size:20px;">PENDENCY REPORT OF SERVER </span>
+                                                </div>
+                                          <div class="panel-body table-responsive">
+                                                <table class="table table-bordered">
+                                                        <thead>
+                                                                <tr>
+                                                                        <th class="text-center uptype" style="color:white;" >Upload Type</th>
+                                                                        <th class="text-center" style="background-color:#FF0000;color: whitesmoke;">0-30 Min</th>
+                                                                        <th class="text-center" style="background-color:#EF0000;color: whitesmoke;">30-60 Min</th>
+                                                                        <th class="text-center" style="background-color:#DF0000;color: whitesmoke;">1-2 Hrs</th>
+                                                                        <th class="text-center" style="background-color:#CF0000;color: whitesmoke;">2-3 Hrs</th>
+                                                                        <th class="text-center" style="background-color:#BF0000;color: whitesmoke;">3-4 Hrs</th>
+                                                                        <th class="text-center" style="background-color:#AF0000;color: whitesmoke;">>4 Hrs</th>
+                                                                        <th class="text-center" >Total Count</th>
+                                                                        <th class="text-center" >No of Records</th>
+                                                                        <th class="text-center" >Speed of Rec/secs</th>
+                                                                        <th class="text-center" >Estimated Time (Min)</th>
+                                                                </tr>
+                                                        </thead>
+                                                        <tbody  id="FetchPend"></tbody>
+                                                </table>
+                                        </div>
+                                  </div>
+                                </div>
+                        </div>
+                        <div class="row" id="DivConsoPend" style="margin-top:10px; display:none;">
+                                <div class="col-md-12">
+                                  <div class="panel panel-primary">
+                                                <div class="panel-heading bg-aqua-active">
+                                                        <span style="font-size:20px;">PENDENCY REPORT OF All Files </span>
+                                                </div>
+                                          <div class="panel-body table-responsive">
+                                                <table class="table table-bordered">
+                                                        <thead>
+                                                                <tr>
+                                                                        <th class="text-center uptype" style="color:white;" >Server Name</th>
+                                                                        <th class="text-center uptype" style="color:white;">Upload Type</th>
+                                                                        <th class="text-center" style="background-color:#FF0000;color: whitesmoke;">0-30 Min</th>
+                                                                        <th class="text-center" style="background-color:#EF0000;color: whitesmoke;">30-60 Min</th>
+                                                                        <th class="text-center" style="background-color:#DF0000;color: whitesmoke;">1-2 Hrs</th>
+                                                                        <th class="text-center" style="background-color:#CF0000;color: whitesmoke;">2-3 Hrs</th>
+                                                                        <th class="text-center" style="background-color:#BF0000;color: whitesmoke;">3-4 Hrs</th>
+                                                                        <th class="text-center" style="background-color:#AF0000;color: whitesmoke;">>4 Hrs</th>
+                                                                        <th class="text-center" >Total Count</th>
+                                                                        <th class="text-center" >No of Records</th>
+                                                                        <th class="text-center" >Speed of Rec/secs</th>
+                                                                        <th class="text-center" >Estimated Time (Min)</th>
+                                                                </tr>
+                                                        </thead>
+                                                        <tbody  id="FetchConsoPend"></tbody>
+                                                </table>
+                                        </div>
+                                  </div>
+                                </div>
+                        </div>
+                        <div class="row" id="trickle" style="margin-top:10px;">
+                                <div class="col-md-12">
+                                  <div class="col-md-12">
+                                                  <div class="panel panel-primary">
+                                                                <div class="panel-heading bg-purple-active">
+                                                                        <!--<span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/TRICKLEFEED_MASTER.txt","_"); ?></span>-->
+                                                                        <span style="font-size:20px;">TRICKLE FEED MASTER TABLE</span>
+                                                                        <span style="float:right;color:#232323"><input type="search" name="ser" placeholder = "Type File Name For Search"/></span>
+                                                                </div>
+                                                          <div class="panel-body table-responsive">
+                                                                <table class="table table-bordered table-hover dataFetch" id="example">
+                                                                        <thead>
+                                                                                <tr>
+                                                                                        <th style="border:2px solid black;" rowspan="2">File Type</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="i">APP1</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="I">APP2</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="a">APP3</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="b">APP4</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="c">APP5</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="d">APP6</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="e">APP7</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="f">APP8</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="g">APP9</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="h">APP10</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="j">APP11</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="k">APP12</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="m">APP13</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="n">APP14</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="p">APP15</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="q">APP16</th>
 
-9. Post Switch – Queue Error Persisted
-After the DB switch, queues were increased across multiple applications, but the error “INITIALISATION ERROR RUN ABORTED” was still encountered.
 
-10. 04:50 – 04:55 – DB Links Rechecked
-DB links and pointings were reviewed again, and it was found that the DBA team had not updated the pointing to NR Reference on their end.
+                                                                                </tr>
+                                                                                <tr>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                                <?php echo $trickelfeed->Total_trickle_1(); ?>
+                                                                        </tbody>
+                                                                        <tfoot style="background-color:#cdc;">
+                                                                                <tr>
+                                                                                        <th style="border:2px solid black;" rowspan="2">File Type</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP1</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP2</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP3</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP4</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP5</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP6</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP7</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP8</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP9</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP10</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP11</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP12</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP13</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP14</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP15</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2">APP16</th>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Proc</th>
+                                                                                        <th style="border:2px solid black;" class="text-center" colspan="1">Pen</th>
+                                                                                </tr>
+                                                                        </tfoot>
+                                                                </table>
+                                                        </div>
+                                                  </div>
+                                                </div>
+                                        </div>
+                                </div>
+                        </div>
+                </div>
+                <script>
+                        $(document).ready(function(){
+                                $("#DivConsoPend").hide();
+                                $(".cosoPendActive").click( function(){
+                                        $("#DivConsoPend").toggle();
+                                         $.ajax({
+                                                type: "POST",
+                                                data: "key=ConsoRefresh",
+                                                url: "TrickleFeedNew.php",
+                                                success: function(html) {
+                                                        $("#FetchConsoPend").html(html);
+                                           }
+                                        });
+                                })
+                                setInterval(function() {
+                                        //$(".newrow").empty();
+                                         var xv = 'key=888';
+                                         var xd = 'key=999';
+                                         $.ajax({
+                                                type: "POST",
+                                                data: xv,
+                                                url: window.location.href,
+                                                success: function(html) {
+                                                        $(".dataFetch tbody").html(html);
+                                           }
+                                        });
+                                        $.ajax({
+                                                type: "POST",
+                                                data: xd,
+                                                url: "TrickleFeedNew.php",
+                                                success: function(html) {
+                                                        var x = JSON.parse(html);
+                                                        console.log(x);
+                                                        $("#i").empty().append('APP1<span style="color:red">('+x[0]+')</span>');
+                                                        $("#I").empty().append('APP2<span style="color:red">('+x[1]+')</span>');
+                                                        $("#a").empty().append('APP3<span style="color:red">('+x[2]+')</span>');
+                                                        $("#b").empty().append('APP4<span style="color:red">('+x[3]+')</span>');
+                                                        $("#c").empty().append('APP5<span style="color:red">('+x[4]+')</span>');
+                                                        $("#d").empty().append('APP6<span style="color:red">('+x[5]+')</span>');
+                                                        $("#e").empty().append('APP7<span style="color:red">('+x[6]+')</span>');
+                                                        $("#f").empty().append('APP8<span style="color:red">('+x[7]+')</span>');
+                                                        $("#g").empty().append('APP9<span style="color:red">('+x[8]+')</span>');
+                                                        $("#h").empty().append('APP10<span style="color:red">('+x[9]+')</span>');
+                                                        $("#j").empty().append('APP11<span style="color:red">('+x[10]+')</span>');
+                                                        $("#k").empty().append('APP12<span style="color:red">('+x[11]+')</span>');
+                                                        $("#m").empty().append('APP13<span style="color:red">('+x[12]+')</span>');
+                                                        $("#n").empty().append('APP14<span style="color:red">('+x[13]+')</span>');
+                                                        $("#p").empty().append('APP15<span style="color:red">('+x[14]+')</span>');
+                                                        $("#q").empty().append('APP16<span style="color:red">('+x[15]+')</span>');
+                                           }
+                                        });
+                                }, 10000);
+                                /*setInterval(function() {
+                                        var result = [];
+                                        $('.dataFetch tr').each(function(){
+                                                $('td', this).each(function(index, val){
+                                                        if(!result[index]) result[index] = 0;
+                                                  result[index] += parseInt($(val).text());
+                                                });
+                                        });
+                                        $('.dataFetch tbody').append('<tr class="newrow"><th class="text-center" style="color: darkblue;">Total</th></tr>');
+                                        $(result).each(function(){
+                                                $('.newrow').last().append('<td class="text-center" style="color: darkblue;">'+this+'</td>')
+                                        });
+                                }, 5000);*/
+                        });
+                        function getAging(element){
+                                var x = "stringUrl="+$(element).parent().siblings(":first").html()+"&tableIndex="+$(element).closest("td").index();
+                                $.ajax({
+                                        type: "POST",
+                                        url: window.location.href,
+                                        data: x,
+                                        success: function(d){
+                                                var j = JSON.parse(d);
+                                                $('.uptype').css("background-color",getRandom())
+                                                if(d != 'null'){
+                                                        $("#DivPend").show();
+                                                        $("#FetchPend").empty();
+                                                        $("#FetchPend").append("<tr>");
+                                                        for(var i=0;i<j.length;i++){
+                                                                if( i == 0){
+                                                                        $("#FetchPend").append("<td class='text-center'>"+j[i]+"</td>");
+                                                                }
+                                                                else{
+                                                                        $("#FetchPend").append("<td class='text-center'>"+j[i]+"</td>");
+                                                                }
+                                                        }
+                                                        $("#FetchPend").append("</tr>");
+                                                }
+                                                else {
+                                                        $("#DivPend").hide();
+                                                }
+                                        }
+                                });
+                        }
+                        function getRandom(){
+                                var letr = '0123456789ABCDEF';
+                                var color = '#';
+                                for(var i=0;i<6;i++){
+                                        color +=letr[Math.floor(Math.random() * 16)];
+                                }
+                                return color;
+                        }
+                        $("[name=ser]").on("keyup",function(){
+                                $("#example>tbody>tr").each(function(i,v){
+                                        if($("[name=ser]").val() != ''){
+                                                if( $(this).find("th:first").text().indexOf($("[name=ser]").val()) == 0 ){
+                                                        $("#example>tbody>tr").eq(i).show();
+                                                }
+                                                else{
+                                                        $("#example>tbody>tr").eq(i).hide();
+                                                }
+                                        }
+                                        else{
+                                                $("#example>tbody>tr").eq(i).show();
+                                        }
+                                });
+                        });
 
-11. 05:02 – 05:05 – DBA Fix and Queue Restoration
-After the DBA team corrected the pointing, queues were increased again and started functioning properly. Manual queue increases across all applications were carried out from 05:02 to 05:35.
 
-12. 05:26 – Node 4 Restored
-Node 4 (server 10.0.20.54) was reported up.
-
-13. 05:37 – 05:40 – Gateways Restarted
-Gateways on App10, App11, and App16 were restarted.
-
-14. 05:45 – 05:50 – Post EOD Backup Call
-Post End-of-Day (EOD) backup call was completed.
-
-15. 05:56 – 06:07 – DB Switch Back to Day
-DB switch from Ref to Day was carried out successfully.
-
-16. 06:09 – Start of Day (SOD) Initiated
-SOD operations began
+                </script>
+        <?php   include("../includes/footercp.php");  ?>
+        </div>
+</body>
+</html>
+<?php
+/*      }
+        else {
+                $err="Un-Authenticated Access Try Again!!";
+                header("location:../index.php?status=err=$err");
+        }*/
+?>
