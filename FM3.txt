@@ -1,21 +1,157 @@
-On 15-06-2025 Intermittent queue buildup was observed.
-predominatly on BLT queue and for some time on CIF,DP4,DEPQ and DP9Q accross multiple servers.
-As Interest Rate Change Activity was scheduled on night at 15-06-2025, there was early brach cut off.
 
-REGION_SWITCH_DAY_TO_NIGHT job was completed  at 21:39:47.
+Here is a formal and structured Incident Report based on your input, formatted as per industry best practices. You can copy this into your incident tracker, share it with stakeholders, or modify as needed for internal reporting:
 
-Before switching the region to night BLT queue were increased to 100 on each server. 
-Still after Region switch to night intermediate queue buildup was observed across multiple application servers.
 
-Immediate action taken: 8 queues were increased accross each app. it was observed that the queues were stuck.
-upon investigation it was 
-identified that there were 1800 plus blocking sessions.
-Blocking sessions pid details were shared bu dba team.
+---
 
-Action taken by team blocked sessions were killed and pid's were disabled in database level.
+🔴 INCIDENT REPORT
 
-During queue buildup it was also observed that cdc team was syncing PR reference server to night db. Night 
-db was being used for syncing and by us also for transactions.
-This resulted in high memory utilization on night db.
- After switching the db to reference server queue buildup was resolved.
-it lasted from 21:40 to 22:25
+Incident Title:
+
+Intermittent Queue Buildup on BLT and Associated Queues Across Multiple Servers
+
+Incident Date:
+
+15th June 2025
+
+Incident Timeframe:
+
+Start Time: 21:40 IST
+End Time: 22:25 IST
+Duration: 45 minutes
+
+
+---
+
+🧾 Summary:
+
+On the night of 15th June 2025, intermittent queue buildup was observed across multiple application servers. The issue was predominantly impacting the BLT queue, with additional impact on CIF, DP4, DEPQ, and DP9Q queues.
+
+This coincided with the scheduled Interest Rate Change Activity, for which an early branch cutoff was initiated and the REGION_SWITCH_DAY_TO_NIGHT job was completed at 21:39:47 IST.
+
+Despite increasing the BLT queues to 100 per server before the region switch, queue buildup continued post switch.
+
+
+---
+
+⚙️ Systems/Components Affected:
+
+Application Queues: BLT, CIF, DP4, DEPQ, DP9Q
+
+Multiple Application Servers
+
+Database: Night DB
+
+
+
+---
+
+🔍 Root Cause:
+
+High Number of Blocking Sessions:
+
+Investigation revealed 1800+ blocking sessions in the database.
+
+The blocked process IDs (PIDs) were shared by the DBA team.
+
+These sessions led to the queues getting stuck and not processing further transactions.
+
+
+Database Resource Contention:
+
+Simultaneously, the CDC team was syncing the PR Reference Server to the Night DB.
+
+This caused high memory utilization on the Night DB, which was also handling application transactions.
+
+The concurrent load from CDC sync and application traffic degraded database performance.
+
+
+
+
+---
+
+🛠️ Immediate Actions Taken:
+
+1. Queue Scaling:
+
+Increased 8 queues per application server to manage the buildup.
+
+However, queues remained stuck due to database blocking.
+
+
+
+2. Database Investigation and Resolution:
+
+DBA team identified blocking sessions and shared PID details.
+
+All identified blocking sessions were terminated, and PIDs disabled at the database level.
+
+
+
+3. Database Load Redirection:
+
+After identifying resource contention, the DB load was switched from Night DB to the Reference Server.
+
+This stabilized memory usage and cleared the queue buildup.
+
+
+
+
+
+---
+
+✅ Resolution Summary:
+
+Blocking sessions were terminated and disabled.
+
+Night DB load was redirected to Reference DB.
+
+All queues resumed normal processing.
+
+Incident resolved by 22:25 IST.
+
+
+
+---
+
+📌 Preventive and Corrective Actions:
+
+Action Item	Description	Owner	Target Date
+
+Blocking Session Monitoring	Implement automated alerts for high blocking session counts during critical jobs	DB Team	30-June-2025
+Resource Planning	Coordinate with CDC team to avoid concurrent DB sync during planned production load	App + CDC Teams	Immediate
+Pre-Activity Checklist	Include DB health & CDC sync checks in Interest Rate Change pre-checklist	Ops Team	25-June-2025
+Queue Behavior Analysis	Review current queue threshold limits under DB latency scenarios	Dev Team	05-July-2025
+
+
+
+---
+
+👥 Teams Involved:
+
+Application Support Team
+
+DBA Team
+
+CDC Team
+
+Infra Monitoring Team
+
+
+
+---
+
+🧾 Approval & Review:
+
+Name	Designation	Approval/Comments
+
+[Insert Name]	Incident Manager	[Pending/Approved]
+[Insert Name]	DBA Lead	[Pending/Approved]
+[Insert Name]	Application Head	[Pending/Approved]
+
+
+
+---
+
+Let me know if you'd like this report in PDF, Word, or email format, or if you'd like help with the PowerPoint deck for incident review meetings.
+
