@@ -1,98 +1,92 @@
 
-Here is a formal and structured Incident Report based on your input, formatted as per industry best practices. You can copy this into your incident tracker, share it with stakeholders, or modify as needed for internal reporting:
+Here is the chronological sequence of events for the 15-06-2025 Intermittent Queue Buildup Incident, clearly structured step by step:
 
 
 ---
 
-🔴 INCIDENT REPORT
+🕒 Chronological Timeline of Events
 
-Incident Title:
+1. Before 21:30 IST – Pre-Switch Preparations:
 
-Intermittent Queue Buildup on BLT and Associated Queues Across Multiple Servers
+Scheduled activity: Interest Rate Change planned for the night of 15th June 2025.
 
-Incident Date:
+Due to this, an early branch cutoff was initiated.
 
-15th June 2025
-
-Incident Timeframe:
-
-Start Time: 21:40 IST
-End Time: 22:25 IST
-Duration: 45 minutes
-
-
----
-
-🧾 Summary:
-
-On the night of 15th June 2025, intermittent queue buildup was observed across multiple application servers. The issue was predominantly impacting the BLT queue, with additional impact on CIF, DP4, DEPQ, and DP9Q queues.
-
-This coincided with the scheduled Interest Rate Change Activity, for which an early branch cutoff was initiated and the REGION_SWITCH_DAY_TO_NIGHT job was completed at 21:39:47 IST.
-
-Despite increasing the BLT queues to 100 per server before the region switch, queue buildup continued post switch.
-
-
----
-
-⚙️ Systems/Components Affected:
-
-Application Queues: BLT, CIF, DP4, DEPQ, DP9Q
-
-Multiple Application Servers
-
-Database: Night DB
+BLT queues were scaled to 100 on each application server in anticipation of increased load.
 
 
 
----
+2. 21:39:47 IST – Region Switch Completed:
 
-🔍 Root Cause:
+REGION_SWITCH_DAY_TO_NIGHT job completed successfully.
 
-High Number of Blocking Sessions:
-
-Investigation revealed 1800+ blocking sessions in the database.
-
-The blocked process IDs (PIDs) were shared by the DBA team.
-
-These sessions led to the queues getting stuck and not processing further transactions.
-
-
-Database Resource Contention:
-
-Simultaneously, the CDC team was syncing the PR Reference Server to the Night DB.
-
-This caused high memory utilization on the Night DB, which was also handling application transactions.
-
-The concurrent load from CDC sync and application traffic degraded database performance.
+Region officially switched to Night mode.
 
 
 
+3. ~21:40 IST – Queue Buildup Begins:
 
----
+Intermittent queue buildup observed on multiple application servers.
 
-🛠️ Immediate Actions Taken:
+Predominantly affected: BLT queue.
 
-1. Queue Scaling:
-
-Increased 8 queues per application server to manage the buildup.
-
-However, queues remained stuck due to database blocking.
+Other impacted queues: CIF, DP4, DEPQ, DP9Q.
 
 
 
-2. Database Investigation and Resolution:
+4. 21:45 IST – First-Level Actions Initiated:
 
-DBA team identified blocking sessions and shared PID details.
+Immediate scaling: 8 queues increased per application server.
 
-All identified blocking sessions were terminated, and PIDs disabled at the database level.
+Queues still not processing – suspected to be stuck.
 
 
 
-3. Database Load Redirection:
+5. 21:50 IST – Investigation Started:
 
-After identifying resource contention, the DB load was switched from Night DB to the Reference Server.
+Observed abnormal queue behavior and application slowness.
 
-This stabilized memory usage and cleared the queue buildup.
+Blocking sessions suspected at the database level.
+
+
+
+6. 21:55 IST – Blocking Sessions Confirmed:
+
+DBA team confirmed ~1800+ blocking sessions.
+
+PID details shared for the blocked database processes.
+
+
+
+7. 22:00 IST – Blocking Sessions Cleared:
+
+Blocking sessions were killed.
+
+Corresponding PIDs were disabled at the database level.
+
+
+
+8. 22:05 IST – Additional Issue Identified:
+
+CDC team was syncing the PR Reference Server to Night DB.
+
+This caused high memory utilization on Night DB, further slowing queue processing.
+
+
+
+9. 22:10 IST – Database Load Redirected:
+
+Transaction load was switched from Night DB to Reference Server.
+
+Memory pressure on Night DB reduced.
+
+
+
+10. 22:25 IST – Issue Resolved:
+
+Queue processing normalized across all application servers.
+
+No further blocking sessions or memory issues reported.
 
 
 
@@ -100,58 +94,12 @@ This stabilized memory usage and cleared the queue buildup.
 
 ---
 
-✅ Resolution Summary:
+⏱️ Total Duration of Impact:
 
-Blocking sessions were terminated and disabled.
-
-Night DB load was redirected to Reference DB.
-
-All queues resumed normal processing.
-
-Incident resolved by 22:25 IST.
-
+~45 minutes (From 21:40 IST to 22:25 IST)
 
 
 ---
 
-📌 Preventive and Corrective Actions:
-
-Action Item	Description	Owner	Target Date
-
-Blocking Session Monitoring	Implement automated alerts for high blocking session counts during critical jobs	DB Team	30-June-2025
-Resource Planning	Coordinate with CDC team to avoid concurrent DB sync during planned production load	App + CDC Teams	Immediate
-Pre-Activity Checklist	Include DB health & CDC sync checks in Interest Rate Change pre-checklist	Ops Team	25-June-2025
-Queue Behavior Analysis	Review current queue threshold limits under DB latency scenarios	Dev Team	05-July-2025
-
-
-
----
-
-👥 Teams Involved:
-
-Application Support Team
-
-DBA Team
-
-CDC Team
-
-Infra Monitoring Team
-
-
-
----
-
-🧾 Approval & Review:
-
-Name	Designation	Approval/Comments
-
-[Insert Name]	Incident Manager	[Pending/Approved]
-[Insert Name]	DBA Lead	[Pending/Approved]
-[Insert Name]	Application Head	[Pending/Approved]
-
-
-
----
-
-Let me know if you'd like this report in PDF, Word, or email format, or if you'd like help with the PowerPoint deck for incident review meetings.
+Let me know if you want this timeline in a Gantt chart, Excel format, or included in an incident presentation slide.
 
