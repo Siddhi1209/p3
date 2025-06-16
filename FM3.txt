@@ -1,95 +1,21 @@
- function Total_trickle_1(){
-                $data1 = explode("\n", trim(file_get_contents($this->currpath."TRICKLEFEED_MASTER.txt_".$this->datecrr)));
-                $data2 = explode(",",shell_exec("cat ".$this->currpath."TRICKLEFEED_MASTER.txt_".$this->datecrr." | tail -1"));
-                //$data = explode("\n", trim(file_get_contents($this->currpath."tf_master_sort")));
-                //$data = file("../../Tricklefeed/tf_stat.txt");
-                //if(parent::checkblank($data)){ echo parent::checkblank($data);}
-                $data = $this->throwRed($data1,',');
-                foreach ($data1 as $line_num => $line) {
-                        $var = explode(",",$line);
-                        if( $line_num == 0 ){
-                                echo "<tr>";
-                                foreach($data2 as $key =>$value){
-                                        if($key == 0){
-                                                echo "<td class='text-center' style='color:darkblue;font-weight:bold;'>".str_replace("ZZ","",$value)."</td>";
-                                        }
-                                        elseif($key > 0 && ($key%2) == 0 && $value > 0){
-                                                echo "<td class='text-center' style='background-color:red;color:white;'>".$value."</td>";
-                                        }
-                                        elseif($key > 0 && ($key%2) != 0 && $value > 0){
-                                                echo "<td class='text-center' style='background-color:green;color:white;'>".$value."</td>";
-                                        }
-                                        else{
-                                                echo "<td class='text-center' style='color:darkblue;font-weight:bold;'>".$value."</td>";
-                                        }
-                                }
-                                echo "</tr>";
-                        }
-                        echo "<tr>";
-                        foreach ($var as $k3 => $v3) {
-                                        if($k3 == 0){
-                                                echo "<th class='text-center'>".$v3."</th>";
-                                        }
-                                        else {
-                                                if($k3 > 0 && ($k3%2) == 0 && $v3 > 0 ){
-                                                echo "<td  class='bg-red text-center' onclick='getAging(this);'>".$v3."</td>";
-                                                }
-                                                elseif($k3 > 0 && $v3 > 0 ){
-                                                        echo "<td class='bg-green text-center'>".$v3."</td>";
-                                                }
-                                                else{
-                                                        echo "<td class='text-center'>".$v3."</td>";
-                                                }
-                                                /*else{
-                                                        echo "<td  class='text-center'  style='color:green;'><small class='label label-success'>".$v3."</small></td>";
-                                                }*/
-                                        }
-                        }
-                        echo "</tr>";
-                }
-        }
+On 15-06-2025 Intermittent queue buildup was observed.
+predominatly on BLT queue and for some time on CIF,DP4,DEPQ and DP9Q accross multiple servers.
+As Interest Rate Change Activity was scheduled on night at 15-06-2025, there was early brach cut off.
 
-                function Total_trickle_1_tail(){
-                $data2 = explode(",",shell_exec("cat ".$this->currpath."TRICKLEFEED_MASTER.txt_".$this->datecrr." | tail -1"));
-                echo "<tr>";
-                foreach($data2 as $key=>$value){
-                        if($key == '0'){
-                                echo "<th style='background-color:#cdc;color:black;' class='text-center'>TOTAL</th>";
-                        }
-                        else{
-                                echo "<td class='text-center' style='font-weight:bold;'>".$value."</td>";
-                        }
+REGION_SWITCH_DAY_TO_NIGHT job was completed  at 21:39:47.
 
-		      }
-                }
-                echo "</tr>";
-        }
-        function Total_trickle_db(){
-                $con = oci_connect("MONITORP","password","opdb");
-                $serverarr = array('i' => 'SUTLEJ', 'I' => 'GANGA', 'a' => 'SHARDA', 'b' => 'GIRIJA', 'c' => 'JHELUM', 'd' => 'JAMAUNA', 'e' => 'BHARAGVI', 'f' => 'MANDOVI', 'g' => 'TERNA');
-                $totalArr = array();
-                $mainData = array();
-                $sql = oci_parse($con,"select DISTINCT(UPLD_TYP) as fileTp from tfmt where PENDING_COUNT != '0' or PROCESSED_COUNT != '' ");
-                //$sql = oci_parse($con,"select * from tfmt where PENDING_COUNT != '0' or PROCESSED_COUNT != '' order by TIME DESC");
-                oci_execute($sql);
-                while($res=oci_fetch_assoc($sql)){
-                        $x = $res['FILETP'];
-                        foreach($serverarr as $keys => $datasl){
-                                $fetchData = oci_parse($con,"select * from (select * from tfmt where UPLD_TYP = '$x' and DQPTYPE = '$keys' and ( PENDING_COUNT != '0' or PROCESSED_COUNT != '' ) order by TIME desc) where rownum < 2 ");
-                                oci_execute($fetchData);
-                                $arrSdata=oci_fetch_assoc($fetchData);
-                                if(oci_num_rows($fetchData) == 1){
-                                        array_push($mainData,$arrSdata['DQPTYPE'],$arrSdata['PROCESSED_COUNT'],$arrSdata['PENDING_COUNT'],$arrSdata['TIME']);
-                                }
-                                if($keys == 'g'){
-                                        array_push($mainData,$x);
-                                }
-                        }
-                        $totalArr[] = $mainData;
-                        unset($mainData);
-                        $mainData = array();
-                }
-                return $totalArr;
-        }
-				
-						
+Before switching the region to night BLT queue were increased to 100 on each server. 
+Still after Region switch to night intermediate queue buildup was observed across multiple application servers.
+
+Immediate action taken: 8 queues were increased accross each app. it was observed that the queues were stuck.
+upon investigation it was 
+identified that there were 1800 plus blocking sessions.
+Blocking sessions pid details were shared bu dba team.
+
+Action taken by team blocked sessions were killed and pid's were disabled in database level.
+
+During queue buildup it was also observed that cdc team was syncing PR reference server to night db. Night 
+db was being used for syncing and by us also for transactions.
+This resulted in high memory utilization on night db.
+ After switching the db to reference server queue buildup was resolved.
+it lasted from 21:40 to 22:25
