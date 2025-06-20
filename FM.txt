@@ -1,64 +1,27 @@
-function status_queue() {
-    $data1 = explode("\n", str_replace("NQKE", "-1", shell_exec("cat " . $this->currpath . "status_queue_8app.txt." . $this->datecrr . " | grep -v VV3Q")));
+#!/bin/bash
 
-    if (parent::checkblank($data1)) {
-        echo parent::checkblank($data1);
-    }
+# Define directories
+PENDING_DIR="/fns/id/r/spool/Interfaces/BATCH-UPLOADS-SF-5"
+PROCESSED_DIR="/fns/id/r/spool/Interfaces/BATCH-UPLOADS-SF-5/TRICKLE-FEED-REPORTS"
 
-    $data = $this->throwRed($data1, ',');
-    echo "<audio id='beepSound' src='beep.mp3' preload='auto'></audio>"; // audio element outside loop
+# Initialize counters
+pns_proc=0; pns_pend=0
+hsl_proc=0; hsl_pend=0
+nat_proc=0; nat_pend=0
 
-    foreach ($data as $key2 => $value2) {
-        $queueArray = explode(",", $value2);
-        echo "<tr>";
+# Count processed files
+pns_proc=$(ls ${PROCESSED_DIR}/PNS* 2>/dev/null | wc -l)
+hsl_proc=$(ls ${PROCESSED_DIR}/HSL* 2>/dev/null | wc -l)
+nat_proc=$(ls ${PROCESSED_DIR}/NAT* 2>/dev/null | wc -l)
 
-        foreach ($queueArray as $k2 => $v2) {
-            if ($k2 == '0') {
-                $linkreplica = "window.open('queuereplica.php?queue=" . urlencode($v2) . "&&date=" . $this->datecrr . "','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                echo "<th><a onclick=\"$linkreplica\">$v2</a></th>";
-            } elseif ($v2 == 'NQKE' || $v2 == -1) {
-                echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
-            } elseif ($k2 > '0' && $v2 >= 1 && $v2 < 100) {
-                echo "<td title='$v2'>0</td>";
-            } elseif ($k2 > '0' && $v2 >= 100 && $v2 < 500) {
-                echo "<td title='$v2'>0</td>";
-            } elseif ($k2 > '0' && $v2 >= 500) {
-                echo "<td style='background-color:red; color:white;' class='beep-on-load'>$v2</td>";
-            } else {
-                echo "<td>$v2</td>";
-            }
-        }
+# Count pending files
+pns_pend=$(ls ${PENDING_DIR}/PNS* 2>/dev/null | wc -l)
+hsl_pend=$(ls ${PENDING_DIR}/HSL* 2>/dev/null | wc -l)
+nat_pend=$(ls ${PENDING_DIR}/NAT* 2>/dev/null | wc -l)
 
-        echo "</tr>";
-    }
+# Calculate totals
+total_proc=$((pns_proc + hsl_proc + nat_proc))
+total_pend=$((pns_pend + hsl_pend + nat_pend))
 
-    // JavaScript to handle periodic beep
-    echo "<script>
-        var beepInterval;
-
-        function checkAndBeep() {
-            var hasHighValue = document.querySelectorAll('.beep-on-load').length > 0;
-            var beep = document.getElementById('beepSound');
-
-            if (hasHighValue) {
-                if (!beepInterval) {
-                    beepInterval = setInterval(function () {
-                        beep.play().catch(function (e) {
-                            console.log('Autoplay blocked: ' + e.message);
-                        });
-                    }, 10000); // beep every 10 seconds
-                }
-            } else {
-                if (beepInterval) {
-                    clearInterval(beepInterval);
-                    beepInterval = null;
-                }
-            }
-        }
-
-        window.addEventListener('load', function () {
-            checkAndBeep();
-            setInterval(checkAndBeep, 5000); // check every 5 seconds
-        });
-    </script>";
-}
+# Output in requested format: PNS_proc,PNS_pend,HSL_proc,HSL_pend,NAT_proc,NAT_pend,TOTAL_proc,TOTAL_pend
+echo "${pns_proc},${pns_pend},${hsl_proc},${hsl_pend},${nat_proc},${nat_pend},${total_proc},${total_pend}"
