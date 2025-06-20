@@ -1,51 +1,35 @@
 
 #!/bin/bash
 
-# Extract YYYYMMDD from MFLAGS
-mflags_path="/fns/id/r/data/file/MFLAGS"
-mdate=$(cut -c 9-16 "$mflags_path")  # 20250620
+# Step 1: Get date from MFLAGS file (YYYYMMDD)
+mflags_date=$(cut -c 9-16 /fns/id/r/data/file/MFLAGS)
 
-# Format for filename suffix
-dat=$mdate
+# Step 2: Convert to DDMMYYYY for file name pattern
+dd=${mflags_date:6:2}
+mm=${mflags_date:4:2}
+yyyy=${mflags_date:0:4}
+filedate="${dd}${mm}${yyyy}"   # Example: 20062025
 
-# Format for `touch` and `date -d`
-midnight_date=$(date -d "${mdate}" '+%Y-%m-%d 00:00:00')
-
-# Directories
+# Step 3: Set directory paths
 PENDING_DIR="/fns/id/r/spool/Interfaces/BATCH-UPLOADS-SF-5"
 PROCESSED_DIR="/fns/id/r/spool/Interfaces/BATCH-UPLOADS-SF-5/TRICKLE-FEED-REPORTS"
-
-# Output file
 OUT_FILE="/tmp/trickle_sf.txt"
 
-# Initialize counters
-pns_proc=0; pns_pend=0
-hsl_proc=0; hsl_pend=0
-nat_proc=0; nat_pend=0
+# Step 4: Count files with today's filedate
+pns_proc=$(find "$PROCESSED_DIR" -type f -name "PNS*${filedate}*" 2>/dev/null | wc -l)
+hsl_proc=$(find "$PROCESSED_DIR" -type f -name "HSL*${filedate}*" 2>/dev/null | wc -l)
+nat_proc=$(find "$PROCESSED_DIR" -type f -name "NAT*${filedate}*" 2>/dev/null | wc -l)
 
-# Reference file with MFLAGS date at midnight
-today_file=$(mktemp)
-touch -d "$midnight_date" "$today_file"
+pns_pend=$(find "$PENDING_DIR" -type f -name "PNS*${filedate}*" 2>/dev/null | wc -l)
+hsl_pend=$(find "$PENDING_DIR" -type f -name "HSL*${filedate}*" 2>/dev/null | wc -l)
+nat_pend=$(find "$PENDING_DIR" -type f -name "NAT*${filedate}*" 2>/dev/null | wc -l)
 
-# --- PROCESSED COUNT BASED ON MFLAGS TIMESTAMP ---
-pns_proc=$(find "$PROCESSED_DIR" -type f -newer "$today_file" -name "PNS*" 2>/dev/null | wc -l)
-hsl_proc=$(find "$PROCESSED_DIR" -type f -newer "$today_file" -name "HSL*" 2>/dev/null | wc -l)
-nat_proc=$(find "$PROCESSED_DIR" -type f -newer "$today_file" -name "NAT*" 2>/dev/null | wc -l)
-
-# --- PENDING COUNT BASED ON MFLAGS TIMESTAMP ---
-pns_pend=$(find "$PENDING_DIR" -type f -newer "$today_file" -name "PNS*" 2>/dev/null | wc -l)
-hsl_pend=$(find "$PENDING_DIR" -type f -newer "$today_file" -name "HSL*" 2>/dev/null | wc -l)
-nat_pend=$(find "$PENDING_DIR" -type f -newer "$today_file" -name "NAT*" 2>/dev/null | wc -l)
-
-# Remove temp file
-rm -f "$today_file"
-
-# Totals
+# Step 5: Total counts
 total_proc=$((pns_proc + hsl_proc + nat_proc))
 total_pend=$((pns_pend + hsl_pend + nat_pend))
 
-# Save to file
+# Step 6: Save to output file
 echo "${pns_proc},${pns_pend},${hsl_proc},${hsl_pend},${nat_proc},${nat_pend},${total_proc},${total_pend}" > "$OUT_FILE"
 
-# Send to portal
-ftc.sh "$OUT_FILE" "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/trickle_sf.txt.txt_${dat}"
+# Step 7: Send file to portal server using ftc.sh
+ftc.sh "$OUT_FILE" "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/trickle_sf.txt.txt_${mflags_date}"
