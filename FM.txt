@@ -1,11 +1,108 @@
-Issue :  ELM queue abort during night mode processing of CBS
 
-Initial  Analysis : It has been analyzed that transactions are accessing RBGL table in night mode to fetch data for BGL accounts and RBGL table in night mode is empty and no data is available for processing of transaction.
-As a part of bulk promotion NDVP IR 24010183 it has been observed logic of card file read is replaced with RBGL table read so issue is observed
+Here is a professionally structured Root Cause Analysis (RCA) Report based on your input:
 
-Queue buildup timings : 00:54:00 - 04:00:00.
-Impacted queues :EML Queue.
 
-Solution :
-It is advised to insert data into night mode RBGL table from day mode RBGL table. using command " insert into rbgl ( select * from rbgl@MASTER_1_LINK.SBI_BANCS);".
-After inserting RBGL day data into night table, we are receiving transactions in ELM queue and processing successfully.
+---
+
+Root Cause Analysis (RCA) Report
+
+Issue Title:
+ELM Queue Abort During Night Mode Processing of CBS
+
+
+---
+
+Date of Incident:
+15-06-2025 (Assumed based on night mode context; please update if needed)
+
+Time of Impact:
+00:54:00 to 04:00:00
+
+Impacted System/Module:
+Core Banking System (CBS) – ELM Queue
+
+Impacted Queues:
+
+ELM Queue
+
+
+
+---
+
+Issue Description:
+
+During the night mode processing window, the ELM queue experienced aborts and transaction failures. This disruption impacted transaction flow and processing within CBS.
+
+
+---
+
+Initial Analysis:
+
+Upon investigation, it was identified that transactions during night mode were attempting to access the RBGL table to fetch data related to BGL (Branch General Ledger) accounts. However, the RBGL table in night mode was found to be empty, resulting in transaction aborts.
+
+This anomaly was introduced during the bulk promotion of NDVP IR 24010183, where the logic to read from the Card File was replaced with a direct read from the RBGL table. The dependency on the RBGL table, which lacked data in night mode, caused the issue.
+
+
+---
+
+Root Cause:
+
+The absence of required data in the RBGL table during night mode. Specifically:
+
+Logic changed in IR 24010183 replaced card file access with RBGL table read.
+
+No data population was present in the night mode version of the RBGL table.
+
+The system did not account for the absence of data in night mode, resulting in ELM queue transaction failures.
+
+
+
+---
+
+Resolution and Fix Applied:
+
+To resolve the issue, data was replicated from the day mode RBGL table to the night mode version using the following SQL command:
+
+insert into rbgl 
+(select * from rbgl@MASTER_1_LINK.SBI_BANCS);
+
+Post this data insertion, the ELM queue started receiving and processing transactions successfully without any further aborts.
+
+
+---
+
+Corrective Actions Taken:
+
+1. Data from day mode RBGL table inserted into night mode table.
+
+
+2. Queue processing was monitored and verified for stability post-fix.
+
+
+
+
+---
+
+Preventive Actions / Recommendations:
+
+Review all IRs (like 24010183) involving changes to critical data access logic for night mode compatibility.
+
+Establish a validation mechanism to ensure necessary data availability in night mode environments.
+
+Automate the RBGL table sync from day to night mode during EOD processes.
+
+Include night mode data verification in regression test plans for future promotions.
+
+
+
+---
+
+Status:
+
+Closed – Issue resolved through manual data population into RBGL night mode table. No further aborts observed.
+
+
+---
+
+Let me know if you'd like this in Word or PDF format, or want to include log entries, escalation details, or affected transaction IDs.
+
