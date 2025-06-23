@@ -1,27 +1,11 @@
-#!/bin/bash
+Issue :  ELM queue abort during night mode processing of CBS
 
-# Define directories
-PENDING_DIR="/fns/id/r/spool/Interfaces/BATCH-UPLOADS-SF-5"
-PROCESSED_DIR="/fns/id/r/spool/Interfaces/BATCH-UPLOADS-SF-5/TRICKLE-FEED-REPORTS"
+Initial  Analysis : It has been analyzed that transactions are accessing RBGL table in night mode to fetch data for BGL accounts and RBGL table in night mode is empty and no data is available for processing of transaction.
+As a part of bulk promotion NDVP IR 24010183 it has been observed logic of card file read is replaced with RBGL table read so issue is observed
 
-# Initialize counters
-pns_proc=0; pns_pend=0
-hsl_proc=0; hsl_pend=0
-nat_proc=0; nat_pend=0
+Queue buildup timings : 00:54:00 - 04:00:00.
+Impacted queues :EML Queue.
 
-# Count processed files
-pns_proc=$(ls ${PROCESSED_DIR}/PNS* 2>/dev/null | wc -l)
-hsl_proc=$(ls ${PROCESSED_DIR}/HSL* 2>/dev/null | wc -l)
-nat_proc=$(ls ${PROCESSED_DIR}/NAT* 2>/dev/null | wc -l)
-
-# Count pending files
-pns_pend=$(ls ${PENDING_DIR}/PNS* 2>/dev/null | wc -l)
-hsl_pend=$(ls ${PENDING_DIR}/HSL* 2>/dev/null | wc -l)
-nat_pend=$(ls ${PENDING_DIR}/NAT* 2>/dev/null | wc -l)
-
-# Calculate totals
-total_proc=$((pns_proc + hsl_proc + nat_proc))
-total_pend=$((pns_pend + hsl_pend + nat_pend))
-
-# Output in requested format: PNS_proc,PNS_pend,HSL_proc,HSL_pend,NAT_proc,NAT_pend,TOTAL_proc,TOTAL_pend
-echo "${pns_proc},${pns_pend},${hsl_proc},${hsl_pend},${nat_proc},${nat_pend},${total_proc},${total_pend}"
+Solution :
+It is advised to insert data into night mode RBGL table from day mode RBGL table. using command " insert into rbgl ( select * from rbgl@MASTER_1_LINK.SBI_BANCS);".
+After inserting RBGL day data into night table, we are receiving transactions in ELM queue and processing successfully.
