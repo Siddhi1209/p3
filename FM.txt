@@ -1,108 +1,67 @@
+#select count(distinct BRCH_NO) from telm where SOC_NO='003' and SIGN_ON_DATE='28032020' and SIGNON_FLAG='Y';
+#select count(distinct TELLER_NO) from telm where SOC_NO='003' and SIGN_ON_DATE='28032020' and SIGNON_FLAG='Y';
+#while :
+#do
+        currtime1=`date +%H`
+        currtime2=`date +%H%M`
+        if [ $currtime1 -ge 7 -a $currtime2 -le 1215 ]
+        then
+                homepath='/home/monitorp/pace'
+                mailfile='branch_teller_timewisemail.txt'
+                currdate1=`date +%d%m%Y`
+                currdate=`date +%d-%m-%Y`
+                currtime=`date +%H:%M`
 
-Here is a professionally structured Root Cause Analysis (RCA) Report based on your input:
-
-
----
-
-Root Cause Analysis (RCA) Report
-
-Issue Title:
-ELM Queue Abort During Night Mode Processing of CBS
-
-
----
-
-Date of Incident:
-15-06-2025 (Assumed based on night mode context; please update if needed)
-
-Time of Impact:
-00:54:00 to 04:00:00
-
-Impacted System/Module:
-Core Banking System (CBS) – ELM Queue
-
-Impacted Queues:
-
-ELM Queue
+                branch1=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD << EOF
+                set pages 0;
+                set timing off
+                --select count(distinct BRCH_NO) from telm where SOC_NO='003' and SIGN_ON_DATE='$currdate1' and SIGNON_FLAG='Y';
+                select count(1) from (select substr(bm.keY_1,-5) "BR_CODE",bm.CIRCLE_CODE ,bm.BR_NAME "BR_NAME", st.DESCRIPTION "STATE", bm.rbi_dist_code "DISTRICT",bp.DESCRIPTION "DESCRIPTION" from brhm bm,brtp bp,stat st where bp.br_type=bm.br_type and st.STATE_CITY_CODE=bm.STATE_CODE and substr (bm.key_1,-5) in (select distinct BRCH_NO from telm t where BRCH_NO in (select substr(KEY_1,-5) from brhm where br_type not in ('19','23','18','24','22','17','28') and LIVE_FLAG='Y' and STAT<>'99' and SIGN_ON_DATE='$currdate1' and SIGNON_FLAG='Y'))) t1 left join rbid on nvl(lpad(trim(t1.DISTRICT),3,'0'),'###')=rbid.rbidist_code;
+                --select COUNT(t1.BR_CODE) from (select substr(bm.keY_1,-5) "BR_CODE",bm.CIRCLE_CODE ,bm.BR_NAME "BR_NAME",st.DESCRIPTION "STATE", bm.rbi_dist_code "DISTRICT",bp.DESCRIPTION "DESCRIPTION" from brhm bm,brtp bp,stat st where bp.br_type=bm.br_type and bm.live_flag='Y' and bm.signon_date='$currdate1' and st.STATE_CITY_CODE=bm.STATE_CODE and bm.BR_TYPE not in ('19','23','18','24','22','17')) t1 left join rbid on nvl(lpad(trim(t1.DISTRICT),3,'0'),'###')=rbid.rbidist_code order by t1.BR_CODE;
+                exit;
+                EOF`
+                branchcount=`echo $branch1|sed 's/^  *//'`
 
 
+                teller1=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD << EOF
+                set pages 0;
+                set timing off
+                --select count(distinct TELLER_NO) from telm where SOC_NO='003' and SIGN_ON_DATE='$currdate1' and SIGNON_FLAG='Y';
+                select count(1) from telm t where BRCH_NO in (select substr(KEY_1,-5) from brhm where br_type not in ('19','23','18','24','22','17','28') and LIVE_FLAG='Y') and STAT<>'99' and SIGN_ON_DATE='$currdate1' and SIGNON_FLAG='Y';
+                exit;
+                EOF`
+                tellercount=`echo $teller1|sed 's/^  *//'`
 
----
+                echo $currdate,$currtime,$branchcount,$tellercount>>$homepath/branch_teller_conso.txt.$currdate1
 
-Issue Description:
+                ###MAIL Start
 
-During the night mode processing window, the ELM queue experienced aborts and transaction failures. This disruption impacted transaction flow and processing within CBS.
+                        cat $homepath/branch_mail_header_cmit.txt>$homepath/$mailfile
+                        echo "Subject: Branches/Teller Count of $currdate">>$homepath/$mailfile
+                        cat $homepath/branch_mail_upper.txt>>$homepath/$mailfile
+                        for line in `cat $homepath/branch_teller_conso.txt.$currdate1`
+                        do
+                        datefirst=`echo $line|awk -F ',' '{print $1}'`
+                        timesecond=`echo $line|awk -F ',' '{print $2}'`
+                        branchthird=`echo $line|awk -F ',' '{print $3}'`
+                        tellerfourth=`echo $line|awk -F ',' '{print $4}'`
+                                echo "<tr>">>$homepath/$mailfile
+                                        echo "<td class='text-center'>"$datefirst"</td>">>$homepath/$mailfile
+                                        echo "<td class='text-center'>"$timesecond"</td>">>$homepath/$mailfile
+                                        echo "<td class='text-center'>"$branchthird"</td>">>$homepath/$mailfile
+                                        echo "<td class='text-center'>"$tellerfourth"</td>">>$homepath/$mailfile
+                                echo "</tr>">>$homepath/$mailfile
+                        done
+                        cat $homepath/branch_mail_lower.txt>>$homepath/$mailfile
+                        cat $homepath/branchteam_logo.txt>>$homepath/$mailfile
 
+                ####MAIL End
 
----
-
-Initial Analysis:
-
-Upon investigation, it was identified that transactions during night mode were attempting to access the RBGL table to fetch data related to BGL (Branch General Ledger) accounts. However, the RBGL table in night mode was found to be empty, resulting in transaction aborts.
-
-This anomaly was introduced during the bulk promotion of NDVP IR 24010183, where the logic to read from the Card File was replaced with a direct read from the RBGL table. The dependency on the RBGL table, which lacked data in night mode, caused the issue.
-
-
----
-
-Root Cause:
-
-The absence of required data in the RBGL table during night mode. Specifically:
-
-Logic changed in IR 24010183 replaced card file access with RBGL table read.
-
-No data population was present in the night mode version of the RBGL table.
-
-The system did not account for the absence of data in night mode, resulting in ELM queue transaction failures.
-
-
-
----
-
-Resolution and Fix Applied:
-
-To resolve the issue, data was replicated from the day mode RBGL table to the night mode version using the following SQL command:
-
-insert into rbgl 
-(select * from rbgl@MASTER_1_LINK.SBI_BANCS);
-
-Post this data insertion, the ELM queue started receiving and processing transactions successfully without any further aborts.
-
-
----
-
-Corrective Actions Taken:
-
-1. Data from day mode RBGL table inserted into night mode table.
-
-
-2. Queue processing was monitored and verified for stability post-fix.
-
-
-
-
----
-
-Preventive Actions / Recommendations:
-
-Review all IRs (like 24010183) involving changes to critical data access logic for night mode compatibility.
-
-Establish a validation mechanism to ensure necessary data availability in night mode environments.
-
-Automate the RBGL table sync from day to night mode during EOD processes.
-
-Include night mode data verification in regression test plans for future promotions.
-
-
-
----
-
-Status:
-
-Closed – Issue resolved through manual data population into RBGL night mode table. No further aborts observed.
-
-
----
-
-Let me know if you'd like this in Word or PDF format, or want to include log entries, escalation details, or affected transaction IDs.
-
+        #       scp -P 2321 $homepath/$mailfile 10.0.40.8:/var/www/html/pace/Online_portal/pages/mail/test.html
+        #       scp -P 2322 $homepath/branch_teller_conso.txt.$currdate1 rptftp@10.0.40.4:/sbi_report_data/config/web/new/.
+                $homepath/sendmail.sh $mailfile
+        else
+                echo "Mail Time Yet Not Reached/Exceeded(07-12)"
+        fi
+        #sleep 1800
+#done
