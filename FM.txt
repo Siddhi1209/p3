@@ -3,24 +3,38 @@ $banner_path = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt";
 $ban2_path   = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Ban2.txt";
 
 $Banner = explode("\n", trim(file_get_contents($banner_path)));
+$message_main = '';
+$message_below = '';
 
 switch ($Banner[0]) {
     case "11":
-        // Read Ban2.txt only in case 11
-        $ban2_text = (file_exists($ban2_path)) ? trim(file_get_contents($ban2_path)) : '';
-        $message_text = $ban2_text . "\nREGION SWITCH IS GOING TO START IN APPROX 5 MINUTES";
+        $message_main = 'REGION SWITCH IS GOING TO START IN APPROX 5 MINUTES';
+        $message_below = (file_exists($ban2_path)) ? trim(file_get_contents($ban2_path)) : '';
         break;
 
     case "00":
-        $message_text = '';
+        $message_main = '';
+        $message_below = '';
         break;
 
     default:
-        $message_text = 'NA';
+        $message_main = 'NA';
+        $message_below = '';
         break;
 }
 
-<div class="blink" style="white-space: pre-line; font-weight: bold; font-size: 18px; color: red;">
-    <?php echo nl2br(htmlentities($message_text)); ?>
-</div>
 
+
+
+<div style="text-align: center; margin-top: 20px;">
+    <?php if (!empty($message_main)): ?>
+        <div class="blink" style="font-size: 20px; font-weight: bold; color: red;">
+            <?php echo htmlentities($message_main); ?>
+        </div>
+        <?php if (!empty($message_below)): ?>
+            <div style="font-size: 16px; color: black; margin-top: 5px; display: inline-block;">
+                <?php echo htmlentities($message_below); ?>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+</div>
