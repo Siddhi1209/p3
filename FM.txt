@@ -1,40 +1,27 @@
 
-$banner_path = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt";
-$ban2_path   = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Ban2.txt";
+Dear [Approver's Name],
 
-$Banner = explode("\n", trim(file_get_contents($banner_path)));
-$message_main = '';
-$message_below = '';
+This is to inform you that the Region Switch banner script has been updated, and I am seeking approval for the same.
 
-switch ($Banner[0]) {
-    case "11":
-        $message_main = 'REGION SWITCH IS GOING TO START IN APPROX 5 MINUTES';
-        $message_below = (file_exists($ban2_path)) ? trim(file_get_contents($ban2_path)) : '';
-        break;
+**Summary of Changes:**
 
-    case "00":
-        $message_main = '';
-        $message_below = '';
-        break;
+1. The banner display condition has been modified:
+   - Earlier: The script checked for job `REGION_BOUNCE` to determine banner state.
+   - Now: It monitors the `AUTO_CHECK_DAY_SOD` job.
+   - If `AUTO_CHECK_DAY_SOD` is running (`RU`), the banner shows the message:  
+     "REGION SWITCH IS GOING TO START IN APPROX 5 MINUTES".
 
-    default:
-        $message_main = 'NA';
-        $message_below = '';
-        break;
-}
+2. An additional timestamp line has been introduced:
+   - When the banner condition is met, a secondary file `Ban2.txt` logs the job start time.
+   - This message (e.g., “Pop up getting displayed : 8:42:00”) is also displayed on the portal **below** the main region switch message.
 
+3. If the `REGION_BOUNCE` job is running, the banner will display nothing (value "00").
 
+Requesting your kind approval for these changes.
 
+Please let me know if any further details are required.
 
-<div style="text-align: center; margin-top: 20px;">
-    <?php if (!empty($message_main)): ?>
-        <div class="blink" style="font-size: 20px; font-weight: bold; color: red;">
-            <?php echo htmlentities($message_main); ?>
-        </div>
-        <?php if (!empty($message_below)): ?>
-            <div style="font-size: 16px; color: black; margin-top: 5px; display: inline-block;">
-                <?php echo htmlentities($message_below); ?>
-            </div>
-        <?php endif; ?>
-    <?php endif; ?>
-</div>
+Regards,  
+[Your Full Name]  
+[Your Team / Department]  
+[Your Contact Info]
