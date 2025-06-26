@@ -1,35 +1,13 @@
+$Banner=explode("\n",trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt")));
+                switch($Banner[0]) {
 
-#!/bin/bash
-
-# Step 1: Get date from MFLAGS file (YYYYMMDD)
-mflags_date=$(cut -c 9-16 /fns/id/r/data/file/MFLAGS)
-
-# Step 2: Convert to DDMMYYYY for file name pattern
-dd=${mflags_date:6:2}
-mm=${mflags_date:4:2}
-yyyy=${mflags_date:0:4}
-filedate="${dd}${mm}${yyyy}"   # Example: 20062025
-
-# Step 3: Set directory paths
-PENDING_DIR="/fns/id/r/spool/Interfaces/BATCH-UPLOADS-SF-5"
-PROCESSED_DIR="/fns/id/r/spool/Interfaces/BATCH-UPLOADS-SF-5/TRICKLE-FEED-REPORTS"
-OUT_FILE="/tmp/trickle_sf.txt"
-
-# Step 4: Count files with today's filedate
-pns_proc=$(find "$PROCESSED_DIR" -type f -name "PNS*${filedate}*" 2>/dev/null | wc -l)
-hsl_proc=$(find "$PROCESSED_DIR" -type f -name "HSL*${filedate}*" 2>/dev/null | wc -l)
-nat_proc=$(find "$PROCESSED_DIR" -type f -name "NAT*${filedate}*" 2>/dev/null | wc -l)
-
-pns_pend=$(find "$PENDING_DIR" -type f -name "PNS*${filedate}*" 2>/dev/null | wc -l)
-hsl_pend=$(find "$PENDING_DIR" -type f -name "HSL*${filedate}*" 2>/dev/null | wc -l)
-nat_pend=$(find "$PENDING_DIR" -type f -name "NAT*${filedate}*" 2>/dev/null | wc -l)
-
-# Step 5: Total counts
-total_proc=$((pns_proc + hsl_proc + nat_proc))
-total_pend=$((pns_pend + hsl_pend + nat_pend))
-
-# Step 6: Save to output file
-echo "${pns_proc},${pns_pend},${hsl_proc},${hsl_pend},${nat_proc},${nat_pend},${total_proc},${total_pend}" > "$OUT_FILE"
-
-# Step 7: Send file to portal server using ftc.sh
-ftc.sh "$OUT_FILE" "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/trickle_sf.txt.txt_${mflags_date}"
+                        case "11":
+                                $message_text='REGION SWITCH IS GOING TO START IN APPROX 5 MINUTES';
+                                break;
+                        case "00":
+                                $message_text='';
+                                break;
+                        default:
+                                $message_text='NA';
+                                break;
+                }
