@@ -1,4 +1,3 @@
-
 #!/bin/sh
 
 loop_timer=5
@@ -14,33 +13,33 @@ do
     AUTO_CHECK_STATUS=$(autorep -sj ${AUTO_CHECK_JOB} -l0 | awk '{print $5}' | grep RU)
     REGION_BOUNCE_STATUS=$(autorep -sj ${REGION_BOUNCE_JOB} -l0 | awk '{print $5}' | grep RU)
 
-    if [ "${AUTO_CHECK_STATUS}" = "RU" ]; then
+    if [ "$AUTO_CHECK_STATUS" = "RU" ]; then
         echo "11" > "$BANNER_FILE"
         cat "$BANNER_FILE"
         loop_timer=$(expr $loop_timer - 1)
 
-        # Get and write popup time
-        START_TIME=$(autorep -sj ${AUTO_CHECK_JOB} -l0 | awk '/^[0-9]{2}\/[0-9]{2}\/[0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2}/ { print $2; exit }')
+        # Extract time and write message
+        START_TIME=$(autorep -sj ${AUTO_CHECK_JOB} -l0 | grep -Eo '[0-9]{2}:[0-9]{2}:[0-9]{2}' | head -1)
         echo "Pop up displayed at :$START_TIME" > "$BAN2_FILE"
 
         # Send Ban2.txt to portal
         ftc.sh "$BAN2_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Ban2.txt
         ftc.sh_dr "$BAN2_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Ban2.txt
 
-    elif [ "${REGION_BOUNCE_STATUS}" = "RU" ]; then
+    elif [ "$REGION_BOUNCE_STATUS" = "RU" ]; then
         echo "00" > "$BANNER_FILE"
     else
         echo "Neither job is running."
     fi
 
-    # Send BANNER to portal always
+    # Transfer BANNER file every loop
     cd /home/readonly/pace
     ftc.sh "$BANNER_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt
     ftc.sh_dr "$BANNER_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt
 
     # Exit condition
     TPM_JOB_SLEEP=$(autorep -sj TPM_pre_sleep -l0 | awk '{print $5}' | grep RU)
-    if [ "${TPM_JOB_SLEEP}" = "RU" ]; then
+    if [ "$TPM_JOB_SLEEP" = "RU" ]; then
         exit 0
     fi
 
