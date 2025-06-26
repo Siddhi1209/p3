@@ -1,6 +1,36 @@
-Make a unix shell script to monitor 3 types of files PNS,HSL,NAT on showerfeed server.
-in showerfeed server if files are present in /fns/id/r/spool/Interfaces/BATCH-UPLOADS-SF-5
-directory they are pending. if files are present in /fns/id/r/spool/Interfaces/BATCH-UPLOADS-SF-5/TRICKLE-FEED-REPORTS
-directory the files are processed.
-i want the script to provide me data in PNS number of files processed,pending followed by
-HSL and NAT. i just want numbers sepaarted by commas. for ex- 2,3,0,0,1,2
+
+#!/bin/sh
+loop_timer=5
+while :
+do
+    BANNER_FILE="/home/readonly/pace/BANNER"
+    AUTO_CHECK_JOB="AUTO_CHECK_DAY_SOD"
+    REGION_BOUNCE_JOB="REGION_BOUNCE"
+
+    # Get job statuses
+    AUTO_CHECK_STATUS=$(autorep -sj ${AUTO_CHECK_JOB} -l0 | awk '{print $5}' | grep RU)
+    REGION_BOUNCE_STATUS=$(autorep -sj ${REGION_BOUNCE_JOB} -l0 | awk '{print $5}' | grep RU)
+
+    if [ "${AUTO_CHECK_STATUS}" = "RU" ]; then
+        echo "11" > "$BANNER_FILE"
+        cat "$BANNER_FILE"
+        loop_timer=$(expr $loop_timer - 1)
+    elif [ "${REGION_BOUNCE_STATUS}" = "RU" ]; then
+        echo "00" > "$BANNER_FILE"
+    else
+        # If neither job is running, do nothing or keep previous BANNER state
+        echo "Neither job is running."
+    fi
+
+    cd /home/readonly/pace
+    ftc.sh "$BANNER_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt
+    ftc.sh_dr "$BANNER_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt
+
+    # Check for exit condition
+    TPM_JOB_SLEEP=$(autorep -sj TPM_pre_sleep -l0 | awk '{print $5}' | grep RU)
+    if [ "${TPM_JOB_SLEEP}" = "RU" ]; then
+        exit 0
+    fi
+
+    sleep 60
+done
