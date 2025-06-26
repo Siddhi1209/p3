@@ -1,34 +1,21 @@
-#!/bin/sh
-loop_timer=5
-while :
-do
-JOB_NAME=REGION_BOUNCE
-#BANNER='/home/readonly/pace/BANNER'
 
-JOB_STATUS=`autorep -sj ${JOB_NAME} -l0 | awk '{print $5}' |grep RU`
+$banner_path = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt";
+$ban2_path   = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Ban2.txt";
 
-echo $JOB_STATUS
-if [ "${JOB_STATUS}" = "RU"  ]; then
-        echo "11 " > /home/readonly/pace/BANNER
-#       echo "$loop_timer " >> /home/readonly/pace/BANNER
-        cat /home/readonly/pace/BANNER
-        loop_timer=`expr $loop_timer  - 1`
-else
-        echo "00" >/home/readonly/pace/BANNER
+$Banner = explode("\n", trim(file_get_contents($banner_path)));
 
-fi
-cd /home/readonly/pace
-ftc.sh /home/readonly/pace/BANNER /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt
-ftc.sh_dr /home/readonly/pace/BANNER /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt
-sleep 60
-tpm_job_sleep=`autorep -sj TPM_pre_sleep  -l0 | awk '{print $5}' |grep RU`
-if [  "${tpm_job_sleep}" = "RU"  ]
-then
-exit 0;
-fi
-done
+switch ($Banner[0]) {
+    case "11":
+        // Read Ban2.txt only in case 11
+        $ban2_text = (file_exists($ban2_path)) ? trim(file_get_contents($ban2_path)) : '';
+        $message_text = $ban2_text . "\nREGION SWITCH IS GOING TO START IN APPROX 5 MINUTES";
+        break;
 
+    case "00":
+        $message_text = '';
+        break;
 
-i want to change the condition is this script. This script should echo 11, if the job AUTO_CHECK_DAY_SOD is in running state and
-echo 00 if the job REGION_BOUNCE becomes in Running state. and same as the previus script it should append
- 11 and 00 in BANNER file and send it to portal server.
+    default:
+        $message_text = 'NA';
+        break;
+}
