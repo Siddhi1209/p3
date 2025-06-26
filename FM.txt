@@ -19,3 +19,8 @@ switch ($Banner[0]) {
         $message_text = 'NA';
         break;
 }
+
+<div class="blink" style="white-space: pre-line; font-weight: bold; font-size: 18px; color: red;">
+    <?php echo nl2br(htmlentities($message_text)); ?>
+</div>
+
