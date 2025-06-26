@@ -1,55 +1,48 @@
-function status_queue() {
-    $data1 = explode("\n", str_replace("NQKE", "-1", shell_exec("cat " . $this->currpath . "status_queue_8app.txt." . $this->datecrr . " | grep -v VV3Q")));
 
-    if (parent::checkblank($data1)) {
-        echo parent::checkblank($data1);
-    }
+#!/bin/sh
 
-    $data = $this->throwRed($data1, ',');
-    $beepNeeded = false;
+loop_timer=5
 
-    foreach ($data as $key2 => $value2) {
-        $queueArray = explode(",", $value2);
-        echo "<tr>";
+while :
+do
+    BANNER_FILE="/home/readonly/pace/BANNER"
+    BAN2_FILE="/home/readonly/pace/Ban2.txt"
+    AUTO_CHECK_JOB="AUTO_CHECK_DAY_SOD"
+    REGION_BOUNCE_JOB="REGION_BOUNCE"
 
-        foreach ($queueArray as $k2 => $v2) {
-            if ($k2 == '0') {
-                $linkreplica = "window.open('queuereplica.php?queue=" . urlencode($v2) . "&&date=" . $this->datecrr . "','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                echo "<th><a onclick=\"$linkreplica\">$v2</a></th>";
-            } elseif ($v2 == 'NQKE' || $v2 == -1) {
-                echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
-            } elseif ($k2 > '0' && $v2 >= 1 && $v2 < 100) {
-                echo "<td title='$v2'>0</td>";
-            } elseif ($k2 > '0' && $v2 >= 100 && $v2 < 500) {
-                echo "<td title='$v2'>0</td>";
-            } elseif ($k2 > '0' && $v2 >= 500) {
-                echo "<td class='beep-on-load' style='background-color:red; color:white;'>$v2</td>";
-                $beepNeeded = true;
-            } else {
-                echo "<td>$v2</td>";
-            }
-        }
+    # Get job statuses
+    AUTO_CHECK_STATUS=$(autorep -sj ${AUTO_CHECK_JOB} -l0 | awk '{print $5}' | grep RU)
+    REGION_BOUNCE_STATUS=$(autorep -sj ${REGION_BOUNCE_JOB} -l0 | awk '{print $5}' | grep RU)
 
-        echo "</tr>";
-    }
+    if [ "${AUTO_CHECK_STATUS}" = "RU" ]; then
+        echo "11" > "$BANNER_FILE"
+        cat "$BANNER_FILE"
+        loop_timer=$(expr $loop_timer - 1)
 
-    // Add audio and repeat beep if needed
-    if ($beepNeeded) {
-        echo "<audio id='beepSound' src='beep.mp3' preload='auto'></audio>";
-        echo "<script>
-            var beep = document.getElementById('beepSound');
-            beep.play().catch(function (e) {
-                console.log('First beep blocked: ' + e.message);
-            });
+        # Get and write popup time
+        START_TIME=$(autorep -sj ${AUTO_CHECK_JOB} -l0 | awk '/^[0-9]{2}\/[0-9]{2}\/[0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2}/ { print $2; exit }')
+        echo "Pop up displayed at :$START_TIME" > "$BAN2_FILE"
 
-            setInterval(function () {
-                var beep = document.getElementById('beepSound');
-                beep.pause();
-                beep.currentTime = 0;
-                beep.play().catch(function (e) {
-                    console.log('Repeated beep blocked: ' + e.message);
-                });
-            }, 10000);
-        </script>";
-    }
-}
+        # Send Ban2.txt to portal
+        ftc.sh "$BAN2_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Ban2.txt
+        ftc.sh_dr "$BAN2_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Ban2.txt
+
+    elif [ "${REGION_BOUNCE_STATUS}" = "RU" ]; then
+        echo "00" > "$BANNER_FILE"
+    else
+        echo "Neither job is running."
+    fi
+
+    # Send BANNER to portal always
+    cd /home/readonly/pace
+    ftc.sh "$BANNER_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt
+    ftc.sh_dr "$BANNER_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt
+
+    # Exit condition
+    TPM_JOB_SLEEP=$(autorep -sj TPM_pre_sleep -l0 | awk '{print $5}' | grep RU)
+    if [ "${TPM_JOB_SLEEP}" = "RU" ]; then
+        exit 0
+    fi
+
+    sleep 60
+done
