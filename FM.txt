@@ -1,27 +1,53 @@
 
-Dear [Approver's Name],
+#!/bin/sh
+cd /home/readonly/pace/
+curr_date=`date +%m/%d/%Y`
+while :
+do
+    BANNER_FILE="/home/readonly/pace/BANNER"
+    AUTO_CHECK_JOB="SOD"
+    REGION_BOUNCE_JOB="REGION_SWITCH_NIGHT_TO_DAY"
+    BAN2_FILE="/home/readonly/pace/Ban2.txt"
 
-This is to inform you that the Region Switch banner script has been updated, and I am seeking approval for the same.
+    # Get job statuses
+    AUTO_CHECK_STATUS=`autorep -sj ${AUTO_CHECK_JOB} -l0 | awk '{print $6}' | grep RU | tr -d ' '`
+    REGION_BOUNCE_STATUS=`autorep -sj ${REGION_BOUNCE_JOB} -l0 | awk '{print $6}' | grep SU | tr -d ' '`
+    job_dt=`autorep -sj ${REGION_BOUNCE_JOB} -l0 | awk '{print $2}' | tail -1`
+    job_dt1=`autorep -sj ${AUTO_CHECK_JOB} -l0 | awk '{print $2}' | tail -1`
 
-**Summary of Changes:**
 
-1. The banner display condition has been modified:
-   - Earlier: The script checked for job `REGION_BOUNCE` to determine banner state.
-   - Now: It monitors the `AUTO_CHECK_DAY_SOD` job.
-   - If `AUTO_CHECK_DAY_SOD` is running (`RU`), the banner shows the message:  
-     "REGION SWITCH IS GOING TO START IN APPROX 5 MINUTES".
+    if [ ! -z "${AUTO_CHECK_STATUS}" ]; then
 
-2. An additional timestamp line has been introduced:
-   - When the banner condition is met, a secondary file `Ban2.txt` logs the job start time.
-   - This message (e.g., “Pop up getting displayed : 8:42:00”) is also displayed on the portal **below** the main region switch message.
+        if [ "${AUTO_CHECK_STATUS}" = "RU" -a "${job_dt1}" = "${curr_date}" -o "${AUTO_CHECK_STATUS}" = "SU" -a "${job_dt1}" = "${curr_date}" ];then
+                    echo "11" > "$BANNER_FILE"
+                    cat "$BANNER_FILE"
+        else
+                if [ "${REGION_BOUNCE_STATUS}" = "SU" -a "${curr_date}" = "${job_dt}" ]; then
+                echo "00" > "$BANNER_FILE"
+                fi
+        fi
+   else
+                if [ "${REGION_BOUNCE_STATUS}" = "SU" -a "${curr_date}" = "${job_dt}" ]; then
+                echo "00" > "$BANNER_FILE"
+                fi
+    fi
 
-3. If the `REGION_BOUNCE` job is running, the banner will display nothing (value "00").
 
-Requesting your kind approval for these changes.
+        START_TIME=`autorep -sj ${AUTO_CHECK_JOB} -l0  | awk -F ' ' '{print $3}' | grep -Ev 'Last|_____'| tail -1`
+        echo "Pop up displayed at :$START_TIME" > "$BAN2_FILE"
 
-Please let me know if any further details are required.
+    ftc.sh "$BAN2_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Ban2.txt
+    ftc.sh_dr "$BAN2_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Ban2.txt
 
-Regards,  
-[Your Full Name]  
-[Your Team / Department]  
-[Your Contact Info]
+    ftc.sh "$BANNER_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt
+    ftc.sh_dr "$BANNER_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt
+
+    sleep 10
+
+    # Check for exit condition
+    TPM_JOB_SLEEP=`autorep -sj TPM_pre_sleep -l0 |grep "$curr_date"| awk '{print $6}' | grep SU`
+    if [ "${TPM_JOB_SLEEP}" = "SU" ]; then
+        exit 0
+    fi
+done
+
