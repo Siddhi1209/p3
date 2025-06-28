@@ -15,27 +15,20 @@ do
     job_dt=`autorep -sj ${REGION_BOUNCE_JOB} -l0 | awk '{print $2}' | tail -1`
     job_dt1=`autorep -sj ${AUTO_CHECK_JOB} -l0 | awk '{print $2}' | tail -1`
 
-
     if [ ! -z "${AUTO_CHECK_STATUS}" ]; then
-
-       
-                    echo "11" > "$BANNER_FILE"
-                    cat "$BANNER_FILE"
-        else
-                if [ "${REGION_BOUNCE_STATUS}" = "SU" -a "${curr_date}" = "${job_dt}" ]; then
-                echo "00" > "$BANNER_FILE"
-                fi
+        echo "11" > "$BANNER_FILE"
+        cat "$BANNER_FILE"
+    else
+        if [ "${REGION_BOUNCE_STATUS}" = "SU" -a "${curr_date}" = "${job_dt}" ]; then
+            echo "00" > "$BANNER_FILE"
         fi
-   else
-                if [ "${REGION_BOUNCE_STATUS}" = "SU" -a "${curr_date}" = "${job_dt}" ]; then
-                echo "00" > "$BANNER_FILE"
-                fi
     fi
 
-        if [ "${AUTO_CHECK_STATUS}" = "RU" -a "${job_dt1}" = "${curr_date}" -o "${AUTO_CHECK_STATUS}" = "SU" -a "${job_dt1}" = "${curr_date}" ];then
-        START_TIME=`autorep -sj ${AUTO_CHECK_JOB} -l0  | awk -F ' ' '{print $3}' | grep -Ev 'Last|_____'| tail -1`
+    if [ "${AUTO_CHECK_STATUS}" = "RU" -a "${job_dt1}" = "${curr_date}" -o "${AUTO_CHECK_STATUS}" = "SU" -a "${job_dt1}" = "${curr_date}" ]; then
+        START_TIME=`autorep -sj ${AUTO_CHECK_JOB} -l0  | awk -F ' ' '{print $3}' | grep -Ev 'Last|_____' | tail -1`
         echo "Pop up displayed at :$START_TIME" > "$BAN2_FILE"
-        fi
+    fi
+
     ftc.sh "$BAN2_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Ban2.txt
     ftc.sh_dr "$BAN2_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Ban2.txt
 
@@ -45,17 +38,8 @@ do
     sleep 10
 
     # Check for exit condition
-    TPM_JOB_SLEEP=`autorep -sj TPM_pre_sleep -l0 |grep "$curr_date"| awk '{print $6}' | grep SU`
+    TPM_JOB_SLEEP=`autorep -sj TPM_pre_sleep -l0 | grep "$curr_date" | awk '{print $6}' | grep SU`
     if [ "${TPM_JOB_SLEEP}" = "SU" ]; then
         exit 0
     fi
 done
-
------------------------------------------------------------
-
-output error
-+ cd /home/readonly/pace/
-Region_Bounce_Banner.sh[2]: /home/readonly/pace/^M:  not found
-+ + date +%m/%d/%Y
-curr_date=06/28/2025
-Region_Bounce_Banner.sh[3]: syntax error at line 48 : `if' unmatched
