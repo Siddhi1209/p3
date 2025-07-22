@@ -1,26 +1,131 @@
-#!/bin/bash
+<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 queue_btn" data-step=18 data-intro="View Details of Main Queues and Replica with Buildup And PID Details">
+                                                                        <div class="box box-primary box-solid">
+                                                                                <div class="box-header bg-tcs-active text-center">
+                                                                                        <h3 class="box-title">Queue Buildup</h3>
+                                                                                        <?php
+                                                                                      $tpmtime=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_".$crdate.".txt");
+                                                                                      $tpm_starttime=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/start_time_".$crdate.".txt");
+                                                                                      $tpmtimestamp=shell_exec("ls -lrt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_".$crdate.".txt|awk '{print $6,$7,$8}'");
+                                                                                      $checktpmrunning=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpmStatus.txt");
+                                                                                      $tpm_scp_time=shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.".$crdate."|tail -1");
+                                                                                      $tpm_total_file=explode("\n",file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.".$crdate));
+                                                                                      $missingTPMSeq = array();
+                                                                                      $missing_count = 0;
+                                                                                      $tpm_button= " ";
+                                                                                      foreach(array_filter($tpm_total_file) as $key => $value){
+                                                                                              $data=explode("|",trim($tpm_total_file[$key]));
+                                                                                              if (trim($data[0]) == '1'){
 
-# Date folder
-DATE_FOLDER="20250630"
+                                                                                              }
+                                                                                              else {
+                                                                                                      $missing_count=$missing_count+1;
+                                                                                                      array_push($missingTPMSeq,$data);
+                                                                                              }
+                                                                                      }
+                                                                                      if($missing_count > 0){
+                                                                                              $tpm_button="<button class='glow' data-toggle='modal' data-target='#tpm_modal' style='background-color:red;color:white'>TPM Alert</button>";
+                                                                                      }
+                                                                                      else{
+                                                                                              $tpm_button= "";
+                                                                                              //$tpm_button="<button class='glow' data-toggle='modal' data-target='#tpm_modal' style='background-color:red;color:white'>TPM Alert</button>";
+                                                                                      }
+                                                                                      array_pop($missingTPMSeq);
+                                                                                      $tpmstatus_check = strpos(trim($checktpmrunning), 'terna');
+                                                                                      if ( strpos(trim($checktpmrunning), 'terna' ) == true ) {
+                                                                                              $tpm_running_from = 'PR';
+                                                                                      }
+                                                                                      elseif(strpos(trim($checktpmrunning), 'MIZO' ) == true) {
+                                                                                              $tpm_running_from = 'NR';
+                                                                                      }
+                                                                                      elseif(strpos(trim($checktpmrunning), 'ARASALAR' ) == true) {
+                                                                                              $tpm_running_from = 'DR';
+                                                                                      }
+                                                                                      else{
+                                                                                              $tpm_running_from = '';
+                                                                                      }
 
-# Path to your branch list file
-BRANCH_FILE="branches_list.txt"
+                                                                                      $tpm_scp_data=explode("|",$tpm_scp_time);
+                                                                                      $removeColon_tpm_scp_time=str_replace(":","",trim($tpm_scp_data[2]));
+                                                                                      $removedColon_tpm_scp_time=strtotime($removeColon_tpm_scp_time);
+                                                                                      $_tpmTime = $yummy->timeUpdatedTpm("tpmStatus.txt.",".");
+                                                                                      $removeColonTPM = str_replace(":","",trim($_tpmTime));
+                                                                                      $removeColonTimes = strtotime($removeColonTPM);
+                                                                                      $currtimes=strtotime(date("Ymd Hi"));
+                                                                                      $scp_difftimes=$currtimes-$removedColon_tpm_scp_time;
+                                                                                      $difftimes=$currtimes-$removeColonTimes;
 
-# Output FTP list file
-FTP_LIST="ftp_list.txt"
+                                                                                      if(intval($scp_difftimes)>3600){
+                                                                                              $FinalScpTime = "<span style='background-color:red;color:white' class='glow' title='SFTP has not been done since last 1 Hour'>".trim($tpm_scp_data[2])."</span>";
+                                                                                      }
+                                                                                      else{
+                                                                                              $FinalScpTime = "<span style='color:#fff'>".trim($tpm_scp_data[2])."</span>";
+                                                                                      }
+                                                                                      if(intval($difftimes)>600){
+                                                                                              $finalTpmTime = "<span style='background-color:red;color:white' class='glow' title='TPM Not Updated since last 10 mintues'>".trim($_tpmTime)."</span>";
+                                                                                      }
+                                                                                      else{
+                                                                                              $finalTpmTime = "<span style='color:#fff'>".trim($_tpmTime)."</span>";
+                                                                                      }
+                                                                                      $TPM_timesubstr=substr($tpmtime,0,2);
+                                                                                      $TPM_timesubstr2=substr($tpmtime,2,2);
+                                                                                      $TPM_timestampsubstr=substr($tpmtimestamp,0,2);
+                                                                                      $TPM_timestampsubstr2=substr($tpmtimestamp,2,2);
+                                                                                      $TPM_start_time_hr=substr($tpm_starttime,0,2);
+                                                                                      $TPM_start_time_min=substr($tpm_starttime,2,2);
 
-# Clean previous list if exists
-> "$FTP_LIST"
+                                                                                        ?>
+                                                                                                        <span style="float:left;font-size:14px;" class="btn btn-xs btn-success">
+                                                                                                                <?php
+                                                                                                                        //echo "TPM : ".$TPM_start_time_hr.":".$TPM_start_time_min."  |  "."Running on : ".$tpm_running_from." | ".$finalTpmTime." | SFTP : ".$FinalScpTime." | Files : ".$tpm_scp_data[0]." ".$tpm_button;
+                                                                                                                        //echo "TPM : ".$TPM_start_time_hr.":".$TPM_start_time_min."  |  "."Running on : ".$tpm_running_from." | SFTP : ".$FinalScpTime." | Files : ".$tpm_scp_data[0]." ".$tpm_button;
+                                                                                                                        echo "TPM Running on : ".$tpm_running_from." | SFTP : ".$FinalScpTime." | Tar Files : ".$tpm_scp_data[0]." ".$tpm_button;
+                                                                                                                ?>
+                                                                                                        </span>
+                                                                                        <span class="queuetimepop" style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("status_queue_8app.txt",".");?></span>
+                                                                                        <div class="box-tools pull-right">
+                                                                                        </div>
+                                                                                </div>
+                                                                                <div class="panel-body table-responsive hehe">
+                                                                                        <table class="table table-bordered table-striped text-center">
+                                                                                                <thead>
+                                                                                                        <tr>
+                                                                                                                <th>Queue Name</th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_i.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">M </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_I.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S1 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_a.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S2 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_b.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S3 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_c.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S4 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_d.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S5 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_e.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S6 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_f.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S7 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_g.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S8</a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_h.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S9</a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_j.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S10</a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_k.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S11</a></th>
+<th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_m.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S12</a></th>
+<th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_m.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S13</a></th>
+<th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_m.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S14</a></th>
+<th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_m.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S15</a></th>
+                                                                                                        </tr>
+                                                                                                </thead>
+                                                                                                <tbody class="queueappend" style="font-size:15px;">
+                                                                                                        <?php
+                                                                                                                $buildup_flag=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/buildup_flag.txt");
+                                                                                                                if($buildup_flag == "0"){
+                                                                                                                        $aplnMonior->status_queue();
+                                                                                                                }
+                                                                                                                else{
+                                                                                                                        $aplnMonior->status_queue1();
+                                                                                                                }
+                                                                                                        ?>
+                                                                                                </tbody>
+                                                                                        </table>
+                                                                                </div>
+                                                                        <!-- BUTTON to Remove Queue Buildup from Portal > Redirects to admin.php Username: root Password: *2020#Sep -->
+                                                                        <button onclick="document.getElementById('id01').style.display='block'" style="width:auto;float:right;"><span class="glyphicon glyphicon-eye-open"></span></button>
+                                                                        </div>
+                                                                </div>
+                                                        </div>
+                                                </div>
 
-while read -r BRANCH; do
-    # Construct source file path
-    SRC_PATH="/ftparea/sbi/F1/locations/${BRANCH}/cglreports/${DATE_FOLDER}/${BRANCH}.NPF.${DATE_FOLDER}"
-
-    # Construct destination relative path (as per example format)
-    DEST_PATH="locations/b${BRANCH}/reports/${DATE_FOLDER}/${BRANCH}.NPF"
-
-    # Append line to FTP list
-    echo "CREP7 ${SRC_PATH} ${DEST_PATH}" >> "$FTP_LIST"
-done < "$BRANCH_FILE"
-
-echo "FTP list created in $FTP_LIST"
+												
