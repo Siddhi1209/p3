@@ -1,16 +1,45 @@
-the file 20460.NPF.20250630 is present branch wise in below mentioned path. 20460 is a branch 
-each branch has branch wise path same as the path mentioned below. braches_list.txt file has all the braches 
-for which file has to be sent.
+while :
+do
+cls
+$HOME/utils/get_queue_buildup $( awk '{print $2}' $card/GATEWAYQ.card | xargs )
+        sed 's/ /,/' $HOME/queue_buildup_${BANCS_DQPTYPE}.out > $HOME/queue_buildup_${BANCS_DQPTYPE}.txt
+>queue_heading.txt_temp
+        cat $HOME/queue_buildup_${BANCS_DQPTYPE}.txt | cut -d "," -f1 | awk 'BEGIN { OFS="," }{print}'|sed 's/$/,/g'|xargs >>queue_heading.txt_temp
+>queue_heading.txt
+        sed -e 's/,$//' -e 's/^/TIME,/g' queue_heading.txt_temp >>queue_heading.txt
+if [ "$BANCS_DQPTYPE" = "$MASTER_DQPTYPE" ]
+then
+sed 's/ /,/' $HOME/queue_buildup_${BANCS_DQPTYPE}.out > $HOME/queue_buildup_${BANCS_DQPTYPE}.txt
+else
+cat $HOME/queue_buildup_${BANCS_DQPTYPE}.out|awk '{print $NF}'> $HOME/queue_buildup_${BANCS_DQPTYPE}.txt
+fi
 
-/ftparea/sbi/F1/locations/20460/cglreports/20250630
+cat $HOME/queue_buildup_${BANCS_DQPTYPE}.out|awk '{print $NF}'> $HOME/queue_buildup.txt
+dt=`cat $data/file/MFLAGS|cut -c 9-16`
+echo "`date|awk '{print $4}'`" > $HOME/t11
+#echo `cat $HOME/queue_buildup.txt` >$HOME/val1
+cat $HOME/queue_buildup.txt|xargs|sed 's/ /,/g' >$HOME/val1
+if [ -f $data/PRODSUPP/ONLINE/pace_buildup.txt.$dt ];then
+paste -d "," $HOME/t11 $HOME/val1 >> $data/PRODSUPP/ONLINE/pace_buildup.txt.$dt
+else
+        paste -d "," $HOME/t11 $HOME/val1 >> $data/PRODSUPP/ONLINE/pace_buildup.txt.$dt
+        cat queue_heading.txt $data/PRODSUPP/ONLINE/pace_buildup.txt.$dt >$data/PRODSUPP/ONLINE/pace_buildup.txt
+        mv $data/PRODSUPP/ONLINE/pace_buildup.txt $data/PRODSUPP/ONLINE/pace_buildup.txt.$dt
+fi
+sed 's/NQKE/0/g' $HOME/val1 > $HOME/val2
+sed 's/,/+/g' $HOME/val2 > $HOME/val3
+bup=`cat $HOME/val3 | bc`
+if [ -f $data/PRODSUPP/ONLINE/pace_buildup_100.txt.$dt ];then
+        if [ $bup -gt 100 ];then
+                paste -d "," $HOME/t11 $HOME/val1 >> $data/PRODSUPP/ONLINE/pace_buildup_100.txt.$dt
+                #paste -d " " $HOME/t11 $HOME/val1 >> $data/PRODSUPP/ONLINE/pace_buildup_100.txt.$dt
+        fi
+else
+        cat queue_heading.txt > $data/PRODSUPP/ONLINE/pace_buildup_100.txt.$dt
+fi
 
-destination is CREP7 below mentioned path :
-/PriorityReports/INPUT/REPORTS/locations/b20460/reports/20250630
-
-in the above mentioned destination path branch will be different for aech branch as per
-braches_list.txt
-
-make ftp list as below.
-sample:
-
-REPPTL5 /fns/id/r/spool/DAILY_STATEMENT_FILES/20240924/AKREQ/Hanging_Cash_Transaction_Report_16332_13512925.ID_AKREQ9_ID.txt.gz locations/b16332/reports/20180806/Transaction_Reports/Hanging_Cash_Transaction_Report_16332_13512925.ID
+$HOME/utils/ftc.sh $HOME/queue_buildup_${BANCS_DQPTYPE}.txt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/queue_buildup_${BANCS_DQPTYPE}.txt.$dt
+$HOME/utils/ftc.sh $data/PRODSUPP/ONLINE/pace_buildup_100.txt.$dt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/production_history/queue/online/pace_buildup_${BANCS_DQPTYPE}.txt.$dt
+#$HOME/utils/ftc.sh $data/PRODSUPP/ONLINE/pace_buildup.txt.$dt /production_history/queue/online/pace_buildup_${BANCS_DQPTYPE}.txt.$dt
+sleep 10
+done
