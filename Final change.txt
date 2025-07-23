@@ -1,47 +1,47 @@
-#!/bin/sh
+<div class="row">
+                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 context_block">
+                                                                <div class="panel panel-primary">
+                                                                        <div class="panel-heading bg-tcs-active"><a title="Burj Khalifa(Q Buildup MRI)" target="_blank" href="IG_heat/buildup_gapplot.php?dqp=ALL&region=online&date=<?php echo date("Y-m-d",strtotime($crdate)); ?>" style="float:left;text-decoration:none;"><i style="color:white;" class="fa fa-rss"></i></a>
+                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("bncr0004_pace_8app.txt",".");?></span>
+                                                                                System Context Block
+                                                                        </div>
+                                                                        <div class="panel-body table-responsive" style="">
+                                                                                <table class="table table-bordered table-striped">
+                                                                                        <thead>
+                                                                                                <tr>
+                                                                                                        <th>Context Block Fields</th>
+                                                                                                        <th>Master</th>
+                                                                                                        <th>Slave1</th>
+                                                                                                        <th>Slave2</th>
+                                                                                                        <th>Slave3</th>
+                                                                                                        <th>Slave4</th>
+                                                                                                        <th>Slave5</th>
+                                                                                                        <th>Slave6</th>
+                                                                                                        <th>Slave7</th>
+                                                                                                        <th>Slave8</th>
+                                                                                                        <th>Slave9</th>
+                                                                                                        <th>Slave10</th>
+                                                                                                        <th>Slave11</th>
+                                                                                                        <th>Slave12</th>
+                                                                                                        <th>Slave13</th>
+                                                                                                        <th>Slave14</th>
+                                                                                                        <th>Slave15</th>
+                                                                                                </tr>
+                                                                                        </thead>
+                                                                                        <tbody>
+                                                                                        <?php
+                                                                                                        $yummy->sys_utl6();
+                                                                                                ?>
+                                                                                        </tbody>
+                                                                                </table>
+                                                                        </div>
+                                                                </div>
+                                                        </div>
+function sys_utl6(){
+                $data3 = explode("\n", file_get_contents($this->currpath."bncr0004_pace_8app.txt.".$this->datecrr));
+                if(parent::checkblank($data3)){ echo parent::checkblank($data3);}
+                //$data3 = file("../../SystemUtilization/bncr0004.txt");
 
-loop_timer=5
-
-while :
-do
-    BANNER_FILE="/home/readonly/pace/BANNER"
-    BAN2_FILE="/home/readonly/pace/Ban2.txt"
-    AUTO_CHECK_JOB="AUTO_CHECK_DAY_SOD"
-    REGION_BOUNCE_JOB="REGION_BOUNCE"
-
-    # Get job statuses
-    AUTO_CHECK_STATUS=$(autorep -sj ${AUTO_CHECK_JOB} -l0 | awk '{print $5}' | grep RU)
-    REGION_BOUNCE_STATUS=$(autorep -sj ${REGION_BOUNCE_JOB} -l0 | awk '{print $5}' | grep RU)
-
-    if [ "$AUTO_CHECK_STATUS" = "RU" ]; then
-        echo "11" > "$BANNER_FILE"
-        cat "$BANNER_FILE"
-        loop_timer=$(expr $loop_timer - 1)
-
-        # Extract time and write message
-        START_TIME=$(autorep -sj ${AUTO_CHECK_JOB} -l0 | grep -Eo '[0-9]{2}:[0-9]{2}:[0-9]{2}' | head -1)
-        echo "Pop up displayed at :$START_TIME" > "$BAN2_FILE"
-
-        # Send Ban2.txt to portal
-        ftc.sh "$BAN2_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Ban2.txt
-        ftc.sh_dr "$BAN2_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Ban2.txt
-
-    elif [ "$REGION_BOUNCE_STATUS" = "RU" ]; then
-        echo "00" > "$BANNER_FILE"
-    else
-        echo "Neither job is running."
-    fi
-
-    # Transfer BANNER file every loop
-    cd /home/readonly/pace
-    ftc.sh "$BANNER_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt
-    ftc.sh_dr "$BANNER_FILE" /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/BANNER.txt
-
-    # Exit condition
-    TPM_JOB_SLEEP=$(autorep -sj TPM_pre_sleep -l0 | awk '{print $5}' | grep RU)
-    if [ "$TPM_JOB_SLEEP" = "RU" ]; then
-        exit 0
-    fi
-
-    sleep 60
-done
+                foreach ($data3 as $line_num => $line) {
+                        $var = explode(":",$line);
+                        echo "<tr>";
