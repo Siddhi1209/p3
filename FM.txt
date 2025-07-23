@@ -1,45 +1,1053 @@
-while :
-do
-cls
-$HOME/utils/get_queue_buildup $( awk '{print $2}' $card/GATEWAYQ.card | xargs )
-        sed 's/ /,/' $HOME/queue_buildup_${BANCS_DQPTYPE}.out > $HOME/queue_buildup_${BANCS_DQPTYPE}.txt
->queue_heading.txt_temp
-        cat $HOME/queue_buildup_${BANCS_DQPTYPE}.txt | cut -d "," -f1 | awk 'BEGIN { OFS="," }{print}'|sed 's/$/,/g'|xargs >>queue_heading.txt_temp
->queue_heading.txt
-        sed -e 's/,$//' -e 's/^/TIME,/g' queue_heading.txt_temp >>queue_heading.txt
-if [ "$BANCS_DQPTYPE" = "$MASTER_DQPTYPE" ]
-then
-sed 's/ /,/' $HOME/queue_buildup_${BANCS_DQPTYPE}.out > $HOME/queue_buildup_${BANCS_DQPTYPE}.txt
-else
-cat $HOME/queue_buildup_${BANCS_DQPTYPE}.out|awk '{print $NF}'> $HOME/queue_buildup_${BANCS_DQPTYPE}.txt
-fi
+<div class="content-wrapper">
+                        <div id="myModal3" class="modal fade" role="dialog">
+                          <div class="modal-dialog modal-lg">
+                                <?php
+                                        $getBrekUPTps = file_get_contents ("/opt/hpws/apache/cgi-bin/trials/bip/data/EOD/tps_breakup_8apps.txt.".$crdate);
+                                        $hightTest = explode(",",$getBrekUPTps);
+                                ?>
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                  <div class="modal-body text-center">
+                                        <div class="row">
+                                                <div class="col-md-3"><span class="btn btn-danger">Branch Server :- <?php echo $hightTest[0];?></span></div>
+                                                <div class="col-md-3"><span class="btn btn-danger">Internet Banking:- <?php echo $hightTest[1];?></span></div>
+                                                <div class="col-md-3"><span class="btn btn-danger">ATM:- <?php echo $hightTest[2];?></span></div>
+                                        </div>
+                                  </div>
+                                </div>
 
-cat $HOME/queue_buildup_${BANCS_DQPTYPE}.out|awk '{print $NF}'> $HOME/queue_buildup.txt
-dt=`cat $data/file/MFLAGS|cut -c 9-16`
-echo "`date|awk '{print $4}'`" > $HOME/t11
-#echo `cat $HOME/queue_buildup.txt` >$HOME/val1
-cat $HOME/queue_buildup.txt|xargs|sed 's/ /,/g' >$HOME/val1
-if [ -f $data/PRODSUPP/ONLINE/pace_buildup.txt.$dt ];then
-paste -d "," $HOME/t11 $HOME/val1 >> $data/PRODSUPP/ONLINE/pace_buildup.txt.$dt
-else
-        paste -d "," $HOME/t11 $HOME/val1 >> $data/PRODSUPP/ONLINE/pace_buildup.txt.$dt
-        cat queue_heading.txt $data/PRODSUPP/ONLINE/pace_buildup.txt.$dt >$data/PRODSUPP/ONLINE/pace_buildup.txt
-        mv $data/PRODSUPP/ONLINE/pace_buildup.txt $data/PRODSUPP/ONLINE/pace_buildup.txt.$dt
-fi
-sed 's/NQKE/0/g' $HOME/val1 > $HOME/val2
-sed 's/,/+/g' $HOME/val2 > $HOME/val3
-bup=`cat $HOME/val3 | bc`
-if [ -f $data/PRODSUPP/ONLINE/pace_buildup_100.txt.$dt ];then
-        if [ $bup -gt 100 ];then
-                paste -d "," $HOME/t11 $HOME/val1 >> $data/PRODSUPP/ONLINE/pace_buildup_100.txt.$dt
-                #paste -d " " $HOME/t11 $HOME/val1 >> $data/PRODSUPP/ONLINE/pace_buildup_100.txt.$dt
-        fi
-else
-        cat queue_heading.txt > $data/PRODSUPP/ONLINE/pace_buildup_100.txt.$dt
-fi
+                          </div>
+                        </div>
+                        <?php
+                                $mldate = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+                                $dateyear=trim(substr($crdate,0,4));
+                                $dateyearmonth=trim(substr($crdate,0,6));
+                                $prevdate=date("Ymd",strtotime("-1 day",strtotime($crdate)));
+                                $nextdate=date("Ymd",strtotime("+1 day",strtotime($crdate)));
+                                if($mldate == $crdate){
+                                        $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/EOD/";
+                                        $currpathtesting = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING";
+                                }
+                                else{
+                                        $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/EOD/".$dateyear."/".$dateyearmonth."/".$crdate."/";
+                                        $currpathtesting = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/".$dateyear."/".$dateyearmonth."/".$crdate."/";
+                                }
+                                // $datecurrurl=$_GET["date"];
+                                //echo substr($datecurrurl,0,4);
+                                $peaktpsdata = explode("at",file_get_contents($currpath."/night_peak_tps.".$crdate));
+                                $peaktpsdatatime = date("H:i:s",strtotime(date("Ymd")." ".$peaktpsdata[1]));
+                                $tpsdata = shell_exec("cat $currpath/tps_count_now.txt.".$crdate);
+                                $loggapdata1=trim(shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/loggap.txt|grep 'Total Gaps till now'|awk -F ':' '{print $2}'"));
+                                $loggapdatadr=shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/loggap_dr.txt|grep 'Total Gaps till now'|awk -F ':' '{print $2}'");
+                                $smsne_status = trim(shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/smsne_night.txt|wc -l"));
+                                if($smsne_status > 0){
+                                        $classglow_smsne="glow";
+                                }
+                                //echo "cat $currpathtesting loggap.txt|grep 'Total Gaps till now'|awk -F ':' '{print $2}'";
+                        ?>
+                        <!--<span class="btn btn-danger">SBI-CBS EOD Monitoring Dashboard</span>-->
+                        <section class="content-header">
+                                <ul class="btn-group mainnav" style="margin-left:-40px;">
+                                        <!--<li class="hassubs"><a style="background-color:#db8b0b;border-radius: 6px;"  class="" onclick="window.open('repost_eod.php?date=<?php echo $crdate; ?>','','height=900, width=600,scrollbars=yes,resizable=yes' );">Repost Details</a></li>-->
+                                        <li class="hassubs"><a style="background-color:#03675a;border-radius: 6px;" target="_blank" href="https://10.0.6.125:8080/eodtree" class=""><i class="fa fa-tree"></i> EODTREE</a></li>
+                                        <li class="hassubs"><a style="background-color:#00a7d0;border-radius: 6px;" class="tpscurr"><i class="fa fa-line-chart"></i> TPS : <?php  echo $tpsdata; ?></a></li>
+                                        <!--<li class="hassubs"><a href="#" style="background-color:#db8b0b;border-radius: 6px;" class="peaktps ">Peak TPS :<?php echo $peaktpsdata[0]." at ".$peaktpsdatatime; ?></a></li>
+                                        <li class="hassubs"><a style="background-color:#d33724;border-radius: 6px;" href="#"  data-toggle="modal" data-target="#myModal3"  class=""  >TPS BREAKUP</a></li>-->
+                                        <li class="hassubs"><a class="" style="background-color:#d07a00;border-radius: 6px;cursor:pointer;" onclick="window.open('/pace/Online_portal/pages/txn_desc.php','','height=600, width=1200,scrollbars=yes,resizable=yes' );">TxN Matrix</a></li>
+                                        <li class="hassubs"><a class="" style="background-color:#db8b0b;border-radius: 6px;cursor:pointer;" onclick="window.open('legends.php','','height=600, width=600,scrollbars=yes,resizable=yes' );">Legends</a></li>
+                                        <li class="hassubs" ><a class="loggapnr" style="border-radius: 6px;background-color:#00a7d0;cursor:pointer;" onclick="window.open('loggap.php','','height=1000, width=1200,scrollbars=yes,resizable=yes' );">Log Gap(NR/DR):<?php echo $loggapdata1."/".$loggapdatadr;?></a></li>
+                                        <li class="hassubs"><a class="" style="background-color:green;border-radius: 6px;" onclick="window.open('/pace/Online_portal/pages/eodallfiles.php','','height=600, width=1200,scrollbars=yes,resizable=yes' );">All Files</a></li>
+                                        <li class="hassubs"><a class="" style="background-color:maroon;color:white;border-radius: 6px;cursor:pointer" onclick="window.open('/pace/Online_portal/pages/milestone.php','','height=900, width=700,scrollbars=yes,resizable=yes' );">Milestone Details</a></li>
+                                        <li class="hassubs"><a style="background-color:green;border-radius: 6px;" title="Gateway Port Error !!" onclick="window.open('gateway_matrix.php?date=<?php echo $crdate;?>','_blank');" class=" channelmatrix ">Channel Matrix HIVE</a></li>
+                                        <li class="hassubs sms_noti"><a style="border-radius: 6px;background-color:#381460;cursor:pointer;" onclick="window.open('notificationengine_night.php?date=<?php echo $crdate; ?>','','height=950, width=1000,scrollbars=yes,resizable=yes' );" class="<?php echo $classglow_smsne;?>">SMSNE</a></li>
+                                        <li class="hassubs bg-navy"><a style="border-radius: 6px;cursor:pointer;"  class="kcusage" onclick="window.open('kcusage.php','','height=950, width=1600,scrollbars=yes,resizable=yes' );" >KCusage</a></li>
+                                        <!--<li class="hassubs bg-purple"><a style="border-radius: 6px;cursor:pointer;"  onclick="window.open('eoyeod.php','','height=950, width=1600,scrollbars=yes,resizable=yes' );" >EOD Signal Details</a></li>-->
+                                        <!--<li class="hassubs"><a style="background-color:green;border-radius: 6px;" title="EOD Signal Details" onclick="window.open(''eoyeod.php','','height=950, width=1600,scrollbars=yes,resizable=yes' );" >EOD Signal Details</a></li>-->
+                                        <!--<li class="hassubs"><a class="" style="background-color:maroon;color:white;border-radius: 6px;cursor:pointer" onclick="window.open('   /pace/Online_portal/pages/endofyearflow.php','','height=900, width=1123,scrollbars=yes,resizable=yes' );">SBI EOY FLOW</a></li>-->
+                                <ul>
 
-$HOME/utils/ftc.sh $HOME/queue_buildup_${BANCS_DQPTYPE}.txt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/queue_buildup_${BANCS_DQPTYPE}.txt.$dt
-$HOME/utils/ftc.sh $data/PRODSUPP/ONLINE/pace_buildup_100.txt.$dt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/production_history/queue/online/pace_buildup_${BANCS_DQPTYPE}.txt.$dt
-#$HOME/utils/ftc.sh $data/PRODSUPP/ONLINE/pace_buildup.txt.$dt /production_history/queue/online/pace_buildup_${BANCS_DQPTYPE}.txt.$dt
-sleep 10
-done
+                        </section>
+
+
+
+
+
+                        <section class="content">
+
+                                <div class="row">
+                                        <div class="col-xs-12">
+                                                <div class="box">
+                                                        <div class="box-body">
+                                                                                <!--Table 1-->
+
+                                                                                <!--
+                                                                                <div class="row" >
+                                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="background-color:#efebe9; border-radius: 6px; font-family: garamond; ">
+
+                                                                                                <br>
+                                                                                                <span style="font-size:40px; ">
+                                                                                                        <b>
+
+                                                                                                        <p style="color:#7e57c2; text-align: center;">
+                                                                                                                CBS ANNUAL CLOSING ACTIVITY IS IN PROGRESS... &nbsp &nbsp &nbsp
+                                                                                                        </p>
+                                                                                                        </b>
+                                                                                                </span>
+                                                                                        </div>
+                                                                                        <div>
+                                                                                                <span>
+                                                                                                        &nbsp
+                                                                                                </span>
+                                                                                        </div>
+                                                                                </div>
+                                                                                -->
+                                                                                <div class="row">
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                                                <div class="row">
+                                                                                                        <div class="col-md-12">
+                                                                                                                <div class="panel panel-primary">
+                                                                                                                        <div class="panel-heading bg-purple">
+                                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("gateway_night_9apps.txt",".");?></span>
+                                                                                                                                Gateways and Jobs
+                                                                                                                        </div>
+                                                                                                                        <div class="panel-body table-responsive">
+                                                                                                                                <table class="table table-bordered table-striped text-center">
+                                                                                                                                        <thead>
+                                                                                                                                                <tr>
+                                                                                                                                                        <th>Job Name</th>
+                                                                                                                                                        <th>M</th>
+                                                                                                                                                        <th>S1</th>
+                                                                                                                                                        <th>S2</th>
+                                                                                                                                                        <th>S3</th>
+                                                                                                                                                        <th>S4</th>
+                                                                                                                                                        <th>S5</th>
+                                                                                                                                                        <th>S6</th>
+                                                                                                                                                        <th>S7</th>
+                                                                                                                                                        <th>S8</th>
+                                                                                                                                                        <th>S9</th>
+                                                                                                                                                        <th>S10</th>
+                                                                                                                                                        <th>S11</th>
+                                                                                                                                                        <th>S12</th>
+                                                                                                                                                        <th>S13</th>
+                                                                                                                                                        <th>S14</th>
+                                                                                                                                                        <th>S15</th>
+                                                                                                                                                </tr>
+                                                                                                                                        </thead>
+                                                                                                                                        <tbody>
+                                                                                                                                        <?php
+                                                                                                                                                        $eod->gateway_queue();
+                                                                                                                                        ?>
+                                                                                                                                        </tbody>
+                                                                                                                                </table>
+                                                                                                                                <div>
+                                                                                                                                        <span style="float:right;background-color:white;color:black;" class="btn btn-sm btn-primary">
+                                                                                                                                                <i style="color:green" class='fa fa-check'></i> Running
+                                                                                                                                                <i style="color:red" class='fa fa-close'></i> Not Running
+                                                                                                                                                <i style="color:#f39c12" class='fa fa-fw fa-warning'></i> Not Updating
+                                                                                                                                                <i style="color:black" class='fa fa-minus'></i> NA
+                                                                                                                                        </span>
+                                                                                                                                </div>
+                                                                                                                        </div>
+                                                                                                                </div>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                                <div class="row">
+                                                                                                        <div class="col-md-12">
+                                                                                                                <div class="panel panel-primary">
+                                                                                                                        <div class="panel-heading bg-aqua">
+                                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("space_9apps.txt",".");?></span>
+                                                                                                                                Space Utilization of (D)ay ,(C)ontrol and (N)ight
+                                                                                                                        </div>
+                                                                                                                        <div class="panel-body table-responsive">
+                                                                                                                                <table class="table table-bordered table-striped text-center">
+                                                                                                                                        <thead>
+                                                                                                                                                <tr>
+                                                                                                                                                        <th>Server</th>
+                                                                                                                                                        <th>Data(D)</th>
+                                                                                                                                                        <th>Spool(D)</th>
+                                                                                                                                                        <th>Sysout(D)</th>
+                                                                                                                                                        <th>Tmp</th>
+                                                                                                                                                        <th>Home</th>
+                                                                                                                                                        <th>Sys(C)</th>
+                                                                                                                                                        <th>Sys(N)</th>
+                                                                                                                                                        <th>Spool(N)</th>
+                                                                                                                                                        <th>Spool(C)</th>
+                                                                                                                                                        <th>Ftparea</th>
+                                                                                                                                                        <th>Var</th>
+                                                                                                                                                </tr>
+                                                                                                                                        </thead>
+                                                                                                                                        <tbody>
+                                                                                                                                        <?php
+                                                                                                                                                        $eod->space_utiliztion();
+                                                                                                                                                ?>
+                                                                                                                                        </tbody>
+                                                                                                                                </table>
+                                                                                                                        </div>
+                                                                                                                </div>
+                                                                                                        </div>
+
+                                                                                                </div>
+                                                                                        </div>
+                                                                                        <!--Table 2-->
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                                                <div class="panel panel-primary">
+                                                                                                        <div class="panel-heading bg-green">
+                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("status_queue_9apps.txt",".");?></span>
+                                                                                                                Queue Buildup Details
+                                                                                        <a title="Burj Khalifa(Q Buildup MRI)" target="_blank" href="IG_heat/buildup_gapplot.php?dqp=ALL&region=eod&date=<?php echo date("Y-m-d",strtotime($crdate)); ?>" style="float:left;text-decoration:none;"><i style="color:white;" class="fa fa-rss"></i></a>
+                                                                                                        </div>
+                                                                                                        <div class="panel-body table-adjust" style="height: 68vh !important;"  >
+                                                                                                                <table class="table table-bordered table-responsive table-striped text-center">
+                                                                                                                        <thead>
+                                                                                                                                <tr>
+                                                                                                                                        <th style="width:93px;">Queue Name</th>
+                                                                                                                                        <th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_i.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">M </a></th>
+                                                                                                                                        <th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_I.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S1 </a></th>
+                                                                                                                                        <th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_a.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S2 </a></th>
+                                                                                                                                        <th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_b.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S3</a></th>
+                                                                                                                                        <th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_c.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S4</a></th>
+                                                                                                                                        <th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_d.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S5</a></th>
+                                                                                                                                        <th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_e.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S6</a></th>
+                                                                                                                                        <th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_f.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S7</a></th>
+                                                                                                                                        <th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_g.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S8</a></th>
+                                                                                                                                        <th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_h.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S9</a></th>
+                                                                                                                                        <th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_j.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S10</a></th>
+                                                                                                                                        <th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_k.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S11</a></th>
+                                                                                                                                        <th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_m.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S12</a></th>
+
+<th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_n.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S13</a>:</th>
+<th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_p.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S14</a></th>
+<th><a onclick="window.open('eod_queue_buildup_details.php?date=<?php echo $crdate; ?>&&flag=pace_buildup_q.txt','','height=800, width=1800,scrollbars=yes,resizable=yes' );">S15</a></th>
+
+
+                                                                                                                                </tr>
+                                                                                                                        </thead>
+                                                                                                                        <tbody>
+                                                                                                                        <?php
+                                                                                                                                $eod->night_queue1();
+                                                                                                                        ?>
+                                                                                                                        </tbody>
+                                                                                                                </table>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                </div>
+                                                                                <div class="row">
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                                                <div class="panel panel-primary" >
+                                                                                                        <div class="panel-heading bg-purple-active">
+                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo shell_exec("ls -lrt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/SBI_autosys_space_utilization.txt.".date('Ymd')."|awk '{print $6,$7,$8}'");?></span>
+                                                                                                                Important mountpoints for autosys server(abref/sbibkpnr/repapp1)
+                                                                                                        </div>
+                                                                                                        <div class="panel-body table-responsive">
+                                                                                                                <table class="table table-bordered table-striped">
+                                                                                                                        <thead>
+                                                                                                                                <tr>
+                                                                                                                                        <th class="text-center">/home(%)</th>
+                                                                                                                                        <th class="text-center">/opt(%)</th>
+                                                                                                                                        <th class="text-center">/tmp(%)</th>
+                                                                                                                                        <th class="text-center">/autosys_db(%)</th>
+                                                                                                                                        <th class="text-center">/autosys_database(%)</th>
+                                                                                                                                        <th class="text-center">/usr(%)</th>
+                                                                                                                                        <th class="text-center">/var(%)</th>
+                                                                                                                                        <th class="text-center">/home_autosys(%)</th>
+                                                                                                                                </tr>
+                                                                                                                        </thead>
+                                                                                                                        <tbody>
+                                                                                                                        <?php
+                                                                                                                                $eod->sbi_autosys();
+                                                                                                                        ?>
+                                                                                                                        </tbody>
+                                                                                                                </table>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                                                <div class="small-box bg-tcs-active">
+                                                                                                        <div class="inner">
+                                                                                                          <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $eod->timeUpdated("neft_inout_night_processing.txt",".");?></span>
+                                                                                                          <h4><?php echo $gateway;?>NEFT Night Processing Count</h4>
+                                                                                                                <div class="table-responsive">
+                                                                                                                        <table class="table table-bordered table-striped">
+                                                                                                                                <thead>
+                                                                                                                                        <tr>
+                                                                                                                                                <th style="border:2px solid black;color:black;" class="text-center">OutGoing</th>
+                                                                                                                                                <th style="border:2px solid black;color:black;" class="text-center">Incoming</th>
+                                                                                                                                        </tr>
+                                                                                                                                </thead>
+                                                                                                                                <tbody>
+                                                                                                                                        <tr>
+                                                                                                                                                <?php $eod->neft_night();?>
+                                                                                                                                        </tr>
+                                                                                                                                </tbody>
+                                                                                                                        </table>
+                                                                                                                </div>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                </div>
+                                                                                <!--Table 3-->
+                                                                <div class="row">
+                                                                        <div class="col-lg-4">
+                                                                                <div class="small-box bg-green-active">
+                                                                                        <div class="inner">
+                                                                                        <span style="float:right;font-size:1.125em;"><img src="loading-bubbles.svg"><?php echo $eod->timeUpdated("rtgs.txt",".");?></span>
+                                                                                        <h4><a href="#" data-toggle="modal" data-target="#myModal6" style="color:#fff;">RTGS Incoming </a></h4>
+                                                                                                <div class="table-responsive">
+                                                                                                        <table class="table table-bordered table-striped text-center" style="height:75px;">
+                                                                                                                <thead>
+                                                                                                                        <th>Time</th>
+                                                                                                                        <th class="bg-red-active">Pending</th>
+                                                                                                                        <th class="bg-aqua-active">Reversal</th>
+                                                                                                                        <th class="bg-green-active">Processed</th>
+                                                                                                                        <th class="bg-navy">UNPR</th>
+                                                                                                                </thead>
+                                                                                                                <tbody>
+                                                                                                                        <?php
+                                                                                                                                $eod->rtgss_s(2);
+                                                                                                                        ?>
+                                                                                                                </tbody>
+                                                                                                        </table>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
+
+                                                                        <div class="col-lg-4">
+                                                                                <div class="small-box bg-green-active">
+                                                                                        <div class="inner">
+                                                                                        <span style="float:right;font-size:1.125em;"><img src="loading-bubbles.svg"><?php echo $eod->timeUpdated("rtgs.txt",".");?></span>
+                                                                                                <h4>RTGS Outgoing</h4>
+                                                                                                <div class="table-responsive">
+                                                                                                        <table class="table table-bordered table-striped text-center" style="height:75px;">
+                                                                                                                <thead>
+                                                                                                                        <th>Time</th>
+                                                                                                                        <th class="bg-red-active">Pending</th>
+                                                                                                                        <th class="bg-navy-active">Wait</th>
+                                                                                                                        <th class="bg-aqua-active">Return</th>
+                                                                                                                        <th class="bg-green-active">Processed</th>
+                                                                                                                        <th class="bg-navy">UNPR</th>
+                                                                                                                </thead>
+                                                                                                                <tbody>
+                                                                                                                        <?php
+                                                                                                                                $eod->rtgss_s(0);
+                                                                                                                        ?>
+                                                                                                                </tbody>
+                                                                                                        </table>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
+                                                                        <div class="col-lg-4">
+                                                                                <div class="panel panel-primary">
+                                                                                        <div class="panel-heading bg-green-active">
+                                                                                           RTGS Terminal Queue Error
+                                                                                                <span style="float:right;font-size:1.125em;"><img src="loading-bubbles.svg"><?php echo $eod->timeUpdated("error_status_RTGS.txt","_");?></span>
+                                                                                        </div>
+                                                                                        <div class="panel-body table-responsive">
+                                                                                                <table class="table table-bordered table-striped">
+                                                                                                        <tbody>
+                                                                                                                <?php $eod->rtgs_error();?>
+                                                                                                        </tbody>
+                                                                                                </table>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
+                                                                </div>
+
+
+
+
+
+
+
+
+
+                                                                                <div class="row">
+                                                                                        <div class="col-md-12" >
+                                                                                                <div class="panel panel-primary">
+                                                                                                        <div class="panel-heading bg-navy">
+                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("IN0800_details_9apps.txt",".");?></span>
+                                                                                                                IN0800 Status
+                                                                                                        </div>
+                                                                                                        <div class="panel-body table-responsive" >
+                                                                                                                <table class="table table-bordered table-striped text-center">
+                                                                                                                        <thead>
+                                                                                                                                <tr>
+                                                                                                                                        <th>Server</th>
+                                                                                                                                        <th>Start Time</th>
+                                                                                                                                        <th>Current Time</th>
+                                                                                                                                        <th>Duration</th>
+                                                                                                                                        <th>Last Update</th>
+                                                                                                                                        <th>End Time</th>
+                                                                                                                                        <th>Total Record</th>
+                                                                                                                                        <th>Record Processed</th>
+                                                                                                                                        <th>Record Pending</th>
+                                                                                                                                        <th>Speed(/Sec)</th>
+                                                                                                                                        <th>Percentage Complete</th>
+                                                                                                                                        <th>Running</th>
+                                                                                                                                        <th>Completed</th>
+                                                                                                                                        <th>No of RC > 0</th>
+                                                                                                                                </tr>
+                                                                                                                        </thead>
+                                                                                                                        <tbody>
+                                                                                                                        <?php
+                                                                                                                                        $eod->injobs();
+                                                                                                                                ?>
+                                                                                                                        </tbody>
+                                                                                                                </table>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                </div>
+                                                                                <!-- Table 4-->
+                                                                                <div class="row">
+                                                                                        <div class="col-md-12">
+                                                                                                <div class="panel panel-primary">
+                                                                                                        <div class="panel-heading bg-orange-active">
+                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("BR0501_details_9apps.txt",".");?></span>
+                                                                                                                BR0501 Status
+                                                                                                        </div>
+                                                                                                        <div class="panel-body table-responsive" >
+                                                                                                                <table class="table table-bordered table-striped text-center" >
+                                                                                                                        <thead>
+                                                                                                                                <tr>
+                                                                                                                                        <th>Server</th>
+                                                                                                                                        <th>Start Time</th>
+                                                                                                                                        <th>Current Time</th>
+                                                                                                                                        <th>Duration</th>
+                                                                                                                                        <th>Last Update</th>
+                                                                                                                                        <th>End Time</th>
+                                                                                                                                        <th>Total Record</th>
+                                                                                                                                        <th>Record Processed</th>
+                                                                                                                                        <th>Record Pending</th>
+                                                                                                                                        <th>Speed</th>
+                                                                                                                                        <th>Percentage Complete</th>
+                                                                                                                                        <th>Running</th>
+                                                                                                                                        <th>Completed</th>
+                                                                                                                                        <th>No of RC > 0</th>
+                                                                                                                                </tr>
+                                                                                                                        </thead>
+                                                                                                                        <tbody>
+                                                                                                                        <?php
+                                                                                                                                        $eod->brjobs();
+                                                                                                                                ?>
+                                                                                                                        </tbody>
+                                                                                                                </table>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                </div>
+                                                                        <div class="row">
+                                                                                <div class="col-md-12" style="padding:0px !important;">
+                                                                                        <div class="col-md-4">
+                                                                                          <div class="panel panel-primary">
+                                                                                                        <div class="panel-heading sync bg-navy-active">
+                                                                                                                <span style="float:right;font-size:10px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("jobs_m.txt",".");?></span>
+                                                                                                                 M Active Jobs
+                                                                                                        </div>
+                                                                                                 <div class="panel-body table-responsive active-jobs-height">
+                                                                                                        <table class="table table-bordered table-striped text-center" >
+                                                                                                                <thead>
+                                                                                                                        <tr>
+                                                                                                                                <th>Server</th>
+                                                                                                                                <th>No of Stream</th>
+                                                                                                                        </tr>
+                                                                                                                </thead>
+                                                                                                                <tbody>
+                                                                                                                <?php
+                                                                                                                                $eod->activejobs("m");
+                                                                                                                ?>
+                                                                                                                </tbody>
+                                                                                                        </table>
+                                                                                                </div>
+                                                                                          </div>
+                                                                                  </div>
+                                                                                        <div class="col-md-4">
+                                                                                                <div class="panel panel-primary">
+                                                                                                        <div class="panel-heading sync bg-navy-active">
+                                                                                                                <span style="float:right;font-size:10px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("jobs_s1.txt",".");?></span>
+                                                                                                                 S1 Active Jobs
+                                                                                                        </div>
+                                                                                                         <div class="panel-body table-responsive active-jobs-height" >
+                                                                                                                <table class="table table-bordered table-striped text-center" >
+                                                                                                                        <thead>
+                                                                                                                                <tr>
+                                                                                                                                        <th>Server</th>
+                                                                                                                                        <th>No of Stream</th>
+                                                                                                                                </tr>
+                                                                                                                        </thead>
+                                                                                                                        <tbody>
+                                                                                                                        <?php
+                                                                                                                                        $eod->activejobs("s1");
+                                                                                                                        ?>
+                                                                                                                        </tbody>
+                                                                                                                </table>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                        <div class="col-md-4">
+                                                                                                <div class="panel panel-primary">
+                                                                                                        <div class="panel-heading sync bg-navy-active">
+                                                                                                                <span style="float:right;font-size:10px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("jobs_s2.txt",".");?></span>
+                                                                                                                 S2 Active Jobs
+                                                                                                        </div>
+                                                                                                        <div class="panel-body table-responsive active-jobs-height">
+                                                                                                                <table class="table table-bordered table-striped text-center" >
+                                                                                                                        <thead>
+                                                                                                                                <tr>
+                                                                                                                                        <th>Server</th>
+                                                                                                                                        <th>No of Stream</th>
+                                                                                                                                </tr>
+                                                                                                                        </thead>
+                                                                                                                        <tbody>
+                                                                                                                        <?php
+                                                                                                                                        $eod->activejobs("s2");
+                                                                                                                        ?>
+                                                                                                                        </tbody>
+                                                                                                                </table>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                                <div class="col-md-4">
+                                                                                                        <div class="panel panel-primary">
+                                                                                                                <div class="panel-heading sync bg-navy-active">
+                                                                                                                        <span style="float:right;font-size:10px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("jobs_s3.txt",".");?></span>
+                                                                                                                         S3 Active Jobs
+                                                                                                                </div>
+                                                                                                         <div class="panel-body table-responsive active-jobs-height">
+                                                                                                                <table class="table table-bordered table-striped text-center" >
+                                                                                                                        <thead>
+                                                                                                                                <tr>
+                                                                                                                                        <th>Server</th>
+                                                                                                                                        <th>No of Stream</th>
+                                                                                                                                </tr>
+                                                                                                                        </thead>
+                                                                                                                        <tbody>
+                                                                                                                        <?php
+                                                                                                                                        $eod->activejobs("s3");
+                                                                                                                        ?>
+                                                                                                                        </tbody>
+                                                                                                                </table>
+                                                                                                        </div>
+                                                                                                 </div>
+                                                                                                </div>
+                                                                                                <div class="col-md-4">
+                                                                                                        <div class="panel panel-primary">
+                                                                                                                <div class="panel-heading sync bg-navy-active">
+                                                                                                                        <span style="float:right;font-size:10px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("jobs_s4.txt",".");?></span>
+                                                                                                                         S4 Active Jobs
+                                                                                                                </div>
+                                                                                                                <div class="panel-body table-responsive active-jobs-height">
+                                                                                                                        <table class="table table-bordered table-striped text-center" >
+                                                                                                                                <thead>
+                                                                                                                                        <tr>
+                                                                                                                                                <th>Server</th>
+                                                                                                                                                <th>No of Stream</th>
+                                                                                                                                        </tr>
+                                                                                                                                </thead>
+                                                                                                                                <tbody>
+                                                                                                                                <?php
+                                                                                                                                                $eod->activejobs("s4");
+                                                                                                                                ?>
+                                                                                                                                </tbody>
+                                                                                                                        </table>
+                                                                                                                </div>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                                <div class="col-md-4">
+                                                                                                        <div class="panel panel-primary">
+                                                                                                                <div class="panel-heading sync bg-navy-active">
+                                                                                                                        <span style="float:right;font-size:10px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("jobs_s5.txt",".");?></span>
+                                                                                                                         S5 Active Jobs
+                                                                                                                </div>
+                                                                                                                <div class="panel-body table-responsive active-jobs-height">
+                                                                                                                        <table class="table table-bordered table-striped text-center" >
+                                                                                                                                <thead>
+                                                                                                                                        <tr>
+                                                                                                                                                <th>Server</th>
+                                                                                                                                                <th>No of Stream</th>
+                                                                                                                                        </tr>
+                                                                                                                                </thead>
+                                                                                                                                <tbody>
+                                                                                                                                <?php
+                                                                                                                                                $eod->activejobs("s5");
+                                                                                                                                ?>
+                                                                                                                                </tbody>
+                                                                                                                        </table>
+                                                                                                                </div>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                                <div class="col-md-4">
+                                                                                                        <div class="panel panel-primary">
+                                                                                                                <div class="panel-heading sync bg-navy-active">
+                                                                                                                        <span style="float:right;font-size:10px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("jobs_s6.txt",".");?></span>
+                                                                                                                         S6 Active Jobs
+                                                                                                                </div>
+                                                                                                                <div class="panel-body table-responsive active-jobs-height">
+                                                                                                                        <table class="table table-bordered table-striped text-center" >
+                                                                                                                                <thead>
+                                                                                                                                        <tr>
+                                                                                                                                                <th>Server</th>
+                                                                                                                                                <th>No of Stream</th>
+                                                                                                                                        </tr>
+                                                                                                                                </thead>
+                                                                                                                                <tbody>
+                                                                                                                                <?php
+                                                                                                                                                $eod->activejobs("s6");
+                                                                                                                                ?>
+                                                                                                                                </tbody>
+                                                                                                                        </table>
+                                                                                                                </div>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                                <div class="col-md-4">
+                                                                                                        <div class="panel panel-primary">
+                                                                                                                <div class="panel-heading sync bg-navy-active">
+                                                                                                                        <span style="float:right;font-size:10px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("jobs_s7.txt",".");?></span>
+                                                                                                                         S7 Active Jobs
+                                                                                                                </div>
+                                                                                                                <div class="panel-body table-responsive active-jobs-height">
+                                                                                                                        <table class="table table-bordered table-striped text-center" >
+                                                                                                                                <thead>
+                                                                                                                                        <tr>
+                                                                                                                                                <th>Server</th>
+                                                                                                                                                <th>No of Stream</th>
+                                                                                                                                        </tr>
+                                                                                                                                </thead>
+                                                                                                                                <tbody>
+                                                                                                                                <?php
+                                                                                                                                                $eod->activejobs("s7");
+                                                                                                                                ?>
+                                                                                                                                </tbody>
+                                                                                                                        </table>
+                                                                                                                </div>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                                <div class="col-md-4">
+                                                                                                        <div class="panel panel-primary">
+                                                                                                                <div class="panel-heading sync bg-navy-active">
+                                                                                                                        <span style="float:right;font-size:12px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("jobs_s8.txt",".");?></span>
+                                                                                                                         S8 Active Jobs
+                                                                                                                </div>
+                                                                                                                <div class="panel-body table-responsive active-jobs-height">
+                                                                                                                        <table class="table table-bordered table-striped text-center" >
+                                                                                                                                <thead>
+                                                                                                                                        <tr>
+                                                                                                                                                <th>Server</th>
+                                                                                                                                                <th>No of Stream</th>
+                                                                                                                                        </tr>
+                                                                                                                                </thead>
+                                                                                                                                <tbody>
+                                                                                                                                <?php
+                                                                                                                                                $eod->activejobs("s8");
+                                                                                                                                ?>
+                                                                                                                                </tbody>
+                                                                                                                        </table>
+                                                                                                                </div>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                        <div class="col-md-4">
+                                                                                                <div class="panel panel-primary">
+                                                                                                        <div class="panel-heading sync bg-navy-active">
+                                                                                                                <span style="float:right;font-size:12px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("sync_n.txt",".");?></span>
+                                                                                                                 Sync Table Stat
+                                                                                                        </div>
+                                                                                                        <div class="panel-body table-responsive active-jobs-height">
+                                                                                                                <table class="table table-bordered table-striped text-center" >
+                                                                                                                        <thead>
+                                                                                                                                <tr>
+                                                                                                                                        <th>Jobs</th>
+                                                                                                                                        <th>DQPtype</th>
+                                                                                                                                </tr>
+                                                                                                                        </thead>
+                                                                                                                        <tbody>
+                                                                                                                        <?php
+                                                                                                                                        $eod->sync_table();
+                                                                                                                        ?>
+                                                                                                                        </tbody>
+                                                                                                                </table>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
+                                                                                <!-- Table 5-->
+                                                                                <div class="row">
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                                          <div class="panel panel-primary">
+                                                                                                        <div class="panel-heading bg-red">
+                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("eod_imp_9apps.txt",".");?></span>
+                                                                                                                Important Jobs
+                                                                                                        </div>
+                                                                                                 <div class="panel-body table-responsive" >
+                                                                                                        <table class="table table-bordered table-striped text-center">
+                                                                                                                <thead>
+                                                                                                                        <tr>
+                                                                                                                                <th>Server</th>
+                                                                                                                                <th><a onclick="window.open('/cgi-bin/trials/bip/data/EOD/alljobs_m.cgi?mldate=<?php echo $crdate;?> ','',' height=900, width=900,scrollbars=yes,resizable=yes' );">Sutlej  </a></th>
+                                                                                                                                <th><a onclick="window.open('/cgi-bin/trials/bip/data/EOD/alljobs_s1.cgi?mldate=<?php echo $crdate; ?>','','height=900, width=900,scrollbars=yes,resizable=yes' );">Ganga </a></th>
+                                                                                                                                <th><a onclick="window.open('/cgi-bin/trials/bip/data/EOD/alljobs_s2.cgi?mldate=<?php echo $crdate; ?>','','height=900, width=900,scrollbars=yes,resizable=yes' );">Sharda </a></th>
+                                                                                                                                <th><a onclick="window.open('/cgi-bin/trials/bip/data/EOD/alljobs_s3.cgi?mldate=<?php echo $crdate; ?>','','height=900, width=900,scrollbars=yes,resizable=yes' );">Girija</a></th>
+                                                                                                                                <th><a onclick="window.open('/cgi-bin/trials/bip/data/EOD/alljobs_s4.cgi?mldate=<?php echo $crdate; ?>','','height=900, width=900,scrollbars=yes,resizable=yes' );">Jhelum</a></th>
+                                                                                                                                <th><a onclick="window.open('/cgi-bin/trials/bip/data/EOD/alljobs_s5.cgi?mldate=<?php echo $crdate; ?>','','height=900, width=900,scrollbars=yes,resizable=yes' );">Jamuna</a></th>
+                                                                                                                                <th><a onclick="window.open('/cgi-bin/trials/bip/data/EOD/alljobs_s6.cgi?mldate=<?php echo $crdate; ?>','','height=900, width=900,scrollbars=yes,resizable=yes' );">Bhargavi </a></th>
+                                                                                                                                <th><a onclick="window.open('/cgi-bin/trials/bip/data/EOD/alljobs_s7.cgi?mldate=<?php echo $crdate; ?>','','height=900, width=900,scrollbars=yes,resizable=yes' );">Mandovi </a></th>
+                                                                                                                                <th><a onclick="window.open('/cgi-bin/trials/bip/data/EOD/alljobs_s8.cgi?mldate=<?php echo $crdate; ?>','','height=900, width=900,scrollbars=yes,resizable=yes' );">Terna</a></th>
+                                                                                                                        </tr>
+                                                                                                                </thead>
+                                                                                                                <tbody>
+                                                                                                                <?php
+                                                                                                                                $eod->impjobs();
+                                                                                                                        ?>
+                                                                                                                </tbody>
+                                                                                                        </table>
+                                                                                                </div>
+                                                                                          </div>
+                                                                                        </div>
+                                                                                        <!-- Table 6-->
+                                                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
+                                                                                          <div class="panel panel-primary">
+                                                                                                        <div class="panel-heading bg-green-active">
+                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php //echo $eod->timeUpdated("single_job_stat.txt",".");?></span>
+                                                                                                                NEERA Single Stream Jobs
+                                                                                                        </div>
+                                                                                                 <div class="panel-body table-responsive" >
+                                                                                                        <table class="table table-bordered table-striped text-center" >
+                                                                                                                <thead>
+                                                                                                                        <tr>
+                                                                                                                                <th>Jobs</th>
+                                                                                                                                <th>Status</th>
+                                                                                                                        </tr>
+                                                                                                                </thead>
+                                                                                                                <tbody>
+                                                                                                                <?php
+                                                                                                                                //$eod->neerajobs();
+                                                                                                                        ?>
+                                                                                                                </tbody>
+                                                                                                        </table>
+                                                                                                </div>
+                                                                                          </div>
+                                                                                        </div>
+
+                                                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6 high_resource_replica">
+                                                                                                <div class="panel panel-primary">
+                                                                                                        <div class="panel-heading bg-tcs-active">
+                                                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $eod->timeUpdated("top_8apps_night.txt",".");?></span>
+                                                                                                                High Resources Consuming Replicas
+                                                                                                        </div>
+                                                                                                        <div class="panel-body table-responsive table-autoscroll" style="height:342px;">
+                                                                                                                <table class="table table-bordered table-striped text-center">
+                                                                                                                        <thead>
+                                                                                                                        <tr>
+                                                                                                                                <th>Server(Time)</th>
+                                                                                                                                <th>Replica</th>
+                                                                                                                                <th>Modified(TXN)</th>
+                                                                                                                                <th>PID(CPU)</th>
+                                                                                                                        </tr>
+                                                                                                                        </thead>
+                                                                                                                        <tbody>
+                                                                                                                        <?php
+                                                                                                                                $eod->high_resource();
+                                                                                                                        ?>
+                                                                                                                        </tbody>
+                                                                                                                </table>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                        </div>
+                                                                                        <!--<div class="col-md-6 transDrop1" >
+                                                                                                                <div class="panel panel-primary">
+                                                                                                                        <div class="panel-heading bg-red-active" >
+                                                                                                                                Transaction Drop Count and TimeOut
+                                                                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $eod->timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/total_fi_nonfi_trn_drop_8apps.txt",".");?></span>
+                                                                                                                        </div>
+                                                                                                                        <div class="panel-body table-responsive">
+                                                                                                                                <table class="table table-bordered table-striped">
+                                                                                                                                                <thead>
+                                                                                                                                                        <tr>
+                                                                                                                                                                <th class="text-center">Name</th>
+                                                                                                                                                                <th class="text-center">Mas</th>
+                                                                                                                                                                <th class="text-center">Sla1</th>
+                                                                                                                                                                <th class="text-center">Sla2</th>
+                                                                                                                                                                <th class="text-center">Sla3</th>
+                                                                                                                                                                <th class="text-center">Sla4</th>
+                                                                                                                                                                <th class="text-center">Sla5</th>
+                                                                                                                                                                <th class="text-center">Sla6</th>
+                                                                                                                                                                <th class="text-center">Sla7</th>
+                                                                                                                                                                <th class="text-center">Sla8</th>
+                                                                                                                                                                <th class="text-center">Tot</th>
+                                                                                                                                                        </tr>
+                                                                                                                                                </thead>
+                                                                                                                                                <tbody>
+                                                                                                                                                <?php
+                                                                                                                                                                //echo $eod->trns_dr_count();
+                                                                                                                                                        ?>
+                                                                                                                                                </tbody>
+                                                                                                                                </table>
+                                                                                                                        </div>
+                                                                                                                </div>
+                                                                                                        </div>-->
+                                                                                </div>
+<!-- Table 9-->
+                                                                                                <div class="row">
+                                                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                                                          <div class="panel panel-primary">
+                                                                                                                        <div class="panel-heading bg-aqua-active">
+                                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("err_conn.txt",".");?></span>
+                                                                                                                                Neera Server
+                                                                                                                        </div>
+                                                                                                                  <div class="panel-body table-responsive">
+                                                                                                                        <table class="table table-bordered table-striped text-center">
+                                                                                                                                <thead>
+                                                                                                                                        <tr>
+                                                                                                                                                <th>SERVER</th>
+                                                                                                                                                <th>SQL CONNECTIVITY</th>
+                                                                                                                                                <th>SY0080,SY0004,SY0005 STAT</th>
+                                                                                                                                                <th>RC STATUS</th>
+                                                                                                                                                <th>ORACLE ERROR STATUS (TMP)</th>
+                                                                                                                                        </tr>
+                                                                                                                                </thead>
+                                                                                                                                <tbody>
+                                                                                                                                <?php
+                                                                                                                                                $eod->neera_server();
+                                                                                                                                        ?>
+                                                                                                                                </tbody>
+                                                                                                                        </table>
+                                                                                                                </div>
+                                                                                                          </div>
+                                                                                                        </div>
+
+                                                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                                                                <div class="panel panel-primary">
+                                                                                                                        <div class="panel-heading bg-purple-active">
+                                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo shell_exec("ls -lrt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/B24_TXN_DT_app1.txt.".$mldate."| awk '{ print $6,$7,$8 }'");?></span>
+                                                                                                                                T-TXN/D-TXN Count
+                                                                                                                                <button class="bg-yellow-active" onclick="document.getElementById('id01').style.display='block'" style="width:auto;"><span class="glyphicon glyphicon-eye-open"></span></button>
+                                                                                                                        </div>
+                                                                                                                        <div class="panel-body table-responsive">
+                                                                                                                                <table class="table table-bordered table-striped">
+                                                                                                                                        <thead>
+                                                                                                                                                <tr>
+                                                                                                                                                        <th class="text-center">Name</th>
+                                                                                                                                                        <th class="text-center">Master</th>
+                                                                                                                                                        <th class="text-center">Slave1</th>
+                                                                                                                                                        <th class="text-center">Slave2</th>
+                                                                                                                                                        <th class="text-center">Slave3</th>
+                                                                                                                                                        <th class="text-center">Slave4</th>
+                                                                                                                                                        <th class="text-center">Slave5</th>
+                                                                                                                                                        <th class="text-center">Slave6</th>
+                                                                                                                                                        <th class="text-center">Slave7</th>
+                                                                                                                                                        <th class="text-center">Slave8</th>
+                                                                                                                                                </tr>
+                                                                                                                                        </thead>
+                                                                                                                                        <tbody>
+                                                                                                                                        <?php
+                                                                                                                                                echo $eod->trns_dr_count_night();
+                                                                                                                                        ?>
+                                                                                                                                        </tbody>
+                                                                                                                                </table>
+                                                                                                                        </div>
+                                                                                                                </div>
+                                                                                                        </div>
+                                                                                        </div>
+                                                                                <!-- Table 7-->
+                                                                                <div class="row">
+                                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                                          <div class="panel panel-primary">
+                                                                                                        <div class="panel-heading bg-purple-active">
+                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("multi_job_stat.txt",".");?></span>
+                                                                                                                NEERA Multistream Jobs
+                                                                                                        </div>
+                                                                                                  <div class="panel-body table-responsive">
+                                                                                                        <table class="table table-bordered table-striped text-center">
+                                                                                                                <thead>
+                                                                                                                        <tr>
+                                                                                                                                <th>Jobs</th>
+                                                                                                                                <th>No Of Stream</th>
+                                                                                                                                <th>Stream Completed RC=0</th>
+                                                                                                                                <th>Status</th>
+                                                                                                                        </tr>
+                                                                                                                </thead>
+                                                                                                                <tbody>
+                                                                                                                <?php
+                                                                                                                                $eod->multistream();
+                                                                                                                        ?>
+                                                                                                                </tbody>
+                                                                                                        </table>
+                                                                                                </div>
+                                                                                          </div>
+                                                                                        </div>
+                                                                                                <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                                                        <div class="panel panel-primary">
+                                                                                                                        <div class="panel-heading bg-teal-active">
+                                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("space_refnr.txt",".");?></span>
+                                                                                                                                Neera Space
+                                                                                                                        </div>
+                                                                                                                  <div class="panel-body table-responsive">
+                                                                                                                        <table class="table table-bordered table-striped text-center">
+                                                                                                                                <thead>
+                                                                                                                                        <tr>
+                                                                                                                                                <th>SERVER</th>
+                                                                                                                                                <th>DATA</th>
+                                                                                                                                                <th>SPOOL</th>
+                                                                                                                                                <th>SYSOUT</th>
+                                                                                                                                                <th>TMP</th>
+                                                                                                                                                <th>HOME</th>
+                                                                                                                                                <th>FTPAREA</th>
+                                                                                                                                                <th>OPT</th>
+                                                                                                                                                <th>VAR</th>
+                                                                                                                                        </tr>
+                                                                                                                                </thead>
+                                                                                                                                <tbody>
+                                                                                                                                <?php
+                                                                                                                                                $eod->neera_space();
+                                                                                                                                        ?>
+                                                                                                                                </tbody>
+                                                                                                                        </table>
+                                                                                                                </div>
+                                                                                                          </div>
+                                                                                                  </div>
+                                                                                          </div>
+
+                                                                                                <div class="row">
+                                                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                                                          <div class="panel panel-primary">
+                                                                                                                        <div class="panel-heading bg-navy-active">
+                                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("atmib.txt",".");?></span>
+                                                                                                                                 ATM & INB Summary
+                                                                                                                        </div>
+                                                                                                                 <div class="panel-body table-responsive">
+                                                                                                                        <table class="table table-bordered table-striped text-center" >
+                                                                                                                                <thead>
+                                                                                                                                        <tr>
+                                                                                                                                                <th>Time</th>
+                                                                                                                                                <th>Online Count</th>
+                                                                                                                                                <th>Offline Count</th>
+                                                                                                                                                <th>Offline(%)</th>
+                                                                                                                                                <th>Total Financial</th>
+                                                                                                                                                <th>Successful (inbs)</th>
+                                                                                                                                                <th>Failed (inbs)</th>
+                                                                                                                                                <th>Pending (iben)</th>
+                                                                                                                                        </tr>
+                                                                                                                                </thead>
+                                                                                                                                <tbody>
+                                                                                                                                <?php
+                                                                                                                                                $data= file("atmib.txt.".$crdate);
+                                                                                                                                                foreach ($data as $key2 => $value2) {
+                                                                                                                                                $v2= explode(" ",$value2);
+                                                                                                                                                echo "<tr>";
+                                                                                                                                                foreach ($v2 as $k2 => $v3) {
+                                                                                                                                                        echo "<th style='color:#1f3f92;' class='text-center'>".$v3."</th>";
+                                                                                                                                                }
+                                                                                                                                                echo "</tr>";
+                                                                                                                                                }
+                                                                                                                                ?>
+                                                                                                                                </tbody>
+                                                                                                                        </table>
+                                                                                                                </div>
+                                                                                                          </div>
+                                                                                                        </div>
+                                                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                                                          <div class="panel panel-primary">
+                                                                                                                        <div class="panel-heading bg-red">
+                                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("eod_imp_9apps.txt",".");?></span>
+                                                                                                                                EOD Job Timings & Analysis(Click Each <b style="color:black">Server</b> To Know More)
+                                                                                                                        </div>
+                                                                                                                 <div class="panel-body table-responsive" >
+                                                                                                                        <table class="table table-bordered table-striped text-center">
+                                                                                                                                <thead>
+                                                                                                                                        <tr>
+                                                                                                                                                <th><span class="btn btn-success btn-xs" ><a style="color:white;" onclick="window.open('eod_job_summary.php?date=<?php echo $crdate; ?>&&server=i','',' height=900, width=1150,scrollbars=yes,resizable=yes' );">Sutlej  </a></span></th>
+                                                                                                                                                <th><span class="btn btn-primary btn-xs" ><a style="color:white;" onclick="window.open('eod_job_summary.php?date=<?php echo $crdate; ?>&&server=I','','height=900, width=1150,scrollbars=yes,resizable=yes' );">Ganga </a></span></th>
+                                                                                                                                                <th><span class="btn btn-success btn-xs" ><a style="color:white;" onclick="window.open('eod_job_summary.php?date=<?php echo $crdate; ?>&&server=a','','height=900, width=1150,scrollbars=yes,resizable=yes' );">Sharda </a></span></th>
+                                                                                                                                                <th><span class="btn btn-primary btn-xs" ><a style="color:white;" onclick="window.open('eod_job_summary.php?date=<?php echo $crdate; ?>&&server=b','','height=900, width=1150,scrollbars=yes,resizable=yes' );">Girija</a></span></th>
+                                                                                                                                                <th><span class="btn btn-success btn-xs" ><a style="color:white;" onclick="window.open('eod_job_summary.php?date=<?php echo $crdate; ?>&&server=c','','height=900, width=1150,scrollbars=yes,resizable=yes' );">Jhelum</a></span></th>
+                                                                                                                                                <th><span class="btn btn-primary btn-xs" ><a style="color:white;" onclick="window.open('eod_job_summary.php?date=<?php echo $crdate; ?>&&server=d','','height=900, width=1150,scrollbars=yes,resizable=yes' );">Jamuna</a></span></th>
+                                                                                                                                                <th><span class="btn btn-success btn-xs" ><a style="color:white;" onclick="window.open('eod_job_summary.php?date=<?php echo $crdate; ?>&&server=e','','height=900, width=1150,scrollbars=yes,resizable=yes' );">Bhargavi </a></span></th>
+                                                                                                                                                <th><span class="btn btn-primary btn-xs" ><a style="color:white;" onclick="window.open('eod_job_summary.php?date=<?php echo $crdate; ?>&&server=f','','height=900, width=1150,scrollbars=yes,resizable=yes' );">Mandovi </a></span></th>
+                                                                                                                                                <th><span class="btn btn-success btn-xs" ><a style="color:white;" onclick="window.open('eod_job_summary.php?date=<?php echo $crdate; ?>&&server=g','','height=900, width=1150,scrollbars=yes,resizable=yes' );">Terna</a></span></th>
+                                                                                                                                        </tr>
+                                                                                                                                </thead>
+                                                                                                                        </table>
+                                                                                                                </div>
+                                                                                                          </div>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                                <div class="row">
+                                                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                                                                <div class="panel panel-primary">
+                                                                                                                        <div class="panel-heading bg-navy-active">
+                                                                                                                                AUTOSYS CLOG (LAST 20) [Long Running and LHO Ignored]
+                                                                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $eod->timeUpdated("clog_details.txt",".");?></span>
+                                                                                                                        </div>
+                                                                                                                        <div class="panel-body table-responsive table-autoscroll" style="max-height: 410px !important;">
+                                                                                                                                <table class="table table-bordered table-striped">
+                                                                                                                                        <thead>
+                                                                                                                                                <tr>
+                                                                                                                                                        <th class="text-center">MM/DD/YYYY HH:mm:ss</th>
+                                                                                                                                                        <th class="text-center">STATUS/EVENT</th>
+                                                                                                                                                        <th class="text-center">JOB</th>
+                                                                                                                                                        <th class="text-center">STATUS/EVENT</th>
+                                                                                                                                                        <th class="text-center">EXITCODE</th>
+                                                                                                                                                </tr>
+                                                                                                                                        </thead>
+                                                                                                                                        <tbody>
+                                                                                                                                        <?php
+                                                                                                                                                $eod->clog_details();
+                                                                                                                                        ?>
+                                                                                                                                        </tbody>
+                                                                                                                                </table>
+                                                                                                                        </div>
+                                                                                                                </div>
+                                                                                                        </div>
+                                                                                                        <!--start-->
+                                                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                                                                <div class="panel panel-primary">
+                                                                                                                        <div class="panel-heading bg-navy-active">
+                                                                                                                                RTGS Pending Files
+                                                                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $eod->timeUpdated("clog_details.txt",".");?></span>
+                                                                                                                        </div>
+                                                                                                                        <div class="panel-body table-responsive table-autoscroll" style="max-height: 410px !important;">
+                                                                                                                                <table class="table table-bordered table-striped">
+                                                                                                                                        <thead>
+                                                                                                                                                <tr>
+                                                                                                                                                        <th class="text-center">File</th>
+                                                                                                                                                        <th class="text-center">M</th>
+                                                                                                                                                        <th class="text-center">S1</th>
+                                                                                                                                                        <th class="text-center">S2</th>
+                                                                                                                                                        <th class="text-center">S3</th>
+                                                                                                                                                        <th class="text-center">S4</th>
+                                                                                                                                                        <th class="text-center">S5</th>
+                                                                                                                                                        <th class="text-center">S6</th>
+                                                                                                                                                        <th class="text-center">S7</th>
+                                                                                                                                                        <th class="text-center">S8</th>
+                                                                                                                                                        <th class="text-center">S9</th>
+                                                                                                                                                        <th class="text-center">S10</th>
+                                                                                                                                                        <th class="text-center">S11</th>
+                                                                                                                                                </tr>
+                                                                                                                                        </thead>
+                                                                                                                                        <tbody>
+                                                                                                                                        <?php
+                                                                                                                                                $eod->rtgs_pending_files();
+                                                                                                                                        ?>
+                                                                                                                                        </tbody>
+                                                                                                                                </table>
+                                                                                                                        </div>
+                                                                                                                </div>
+                                                                                                        </div>
+                                                                                                        <!--end-->
+                                                                                                </div>
+
+
+
+
+
+
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
+                                                                                <!--Table Ends-->
+                                                                        </div>
+                                                                </div>
+
+																
