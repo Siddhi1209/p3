@@ -1,10 +1,11 @@
-public function timeUpdatedContextBlock() {
-    $filePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/bncr0004_pace_8app.txt." . $this->datecrr;
+DAY SYSTEM DATE  :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724
+NIGHT SYSTEM DATE:20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724
+REGION MODE      :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY
+DB IN USE        :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band
+OPERATIONAL FLAG :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY
+PROCESS FLAG     :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK
+REPOST FLAG      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK
+SECONDRY UPDATE  :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING
+BATCH RECAL      :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING
 
-    if (file_exists($filePath)) {
-        $timestamp = filemtime($filePath);
-        return date("d M Y H:i:s", $timestamp);
-    } else {
-        return "Not Available";
-    }
-}
+
