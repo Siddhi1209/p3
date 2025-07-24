@@ -1,44 +1,10 @@
-<!-- 🆕 System Context Block -->
-<div class="row">
-    <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 context_block">
-        <div class="panel panel-primary">
-            <div class="panel-heading bg-tcs-active">
-                <a title="System Context Monitor" target="_blank" href="IG_heat/buildup_gapplot.php?dqp=ALL&region=online&date=<?php echo date('Y-m-d', strtotime($crdate)); ?>" style="float:left;text-decoration:none;">
-                    <i style="color:white;" class="fa fa-rss"></i>
-                </a>
-                <span style="float:right;font-size:18px;">
-                    <img src="loading-bubbles.svg"><?php echo $eod->timeUpdated("bncr0004_pace_8app.txt.","."); ?>
-                </span>
-                System Context Block
-            </div>
-            <div class="panel-body table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>Context Block Fields</th>
-                            <th>Master</th>
-                            <th>Slave1</th>
-                            <th>Slave2</th>
-                            <th>Slave3</th>
-                            <th>Slave4</th>
-                            <th>Slave5</th>
-                            <th>Slave6</th>
-                            <th>Slave7</th>
-                            <th>Slave8</th>
-                            <th>Slave9</th>
-                            <th>Slave10</th>
-                            <th>Slave11</th>
-                            <th>Slave12</th>
-                            <th>Slave13</th>
-                            <th>Slave14</th>
-                            <th>Slave15</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $eod->sys_utl6(); ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+public function timeUpdatedContextBlock() {
+    $filePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/bncr0004_pace_8app.txt." . $this->datecrr;
+
+    if (file_exists($filePath)) {
+        $timestamp = filemtime($filePath);
+        return date("d M Y H:i:s", $timestamp);
+    } else {
+        return "Not Available";
+    }
+}
