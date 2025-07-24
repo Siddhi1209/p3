@@ -1,11 +1,20 @@
-DAY SYSTEM DATE  :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724
-NIGHT SYSTEM DATE:20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724       :20250724
-REGION MODE      :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY            :DAY
-DB IN USE        :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band       :i012band
-OPERATIONAL FLAG :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY          :READY
-PROCESS FLAG     :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK         :SOD-OK
-REPOST FLAG      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK      :REPOST-OK
-SECONDRY UPDATE  :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING
-BATCH RECAL      :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING        :RUNNING
-
-
+<style>
+.blink-red {
+    background-color: red;
+    color: white;
+    animation: blinker 1s linear infinite;
+    font-weight: bold;
+    text-align: center;
+}
+.green-ok {
+    background-color: green;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
+</style>
