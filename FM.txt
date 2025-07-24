@@ -1,17 +1,38 @@
 public function sys_utl6() {
-            $filePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/bncr0004_pace_8app.txt.".$this->datecrr;
-            if (!file_exists($filePath)) {
-                echo "<tr><td colspan='17' class='text-center'>System Context file not found.</td></tr>";
-                return;
-             }
-             $data = explode("\n", file_get_contents($filePath));
-             foreach ($data as $line) {
-                 if (trim($line) == "") continue;
-                 $cols = explode(":", $line);
-                 echo "<tr>";
-                 for ($i = 0; $i < 17; $i++) {
-                 echo "<td>" . (isset($cols[$i]) ? trim($cols[$i]) : "") . "</td>";
-                 }
-                 echo "</tr>";
-              }
+    $filePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/bncr0004_pace_8app.txt." . $this->datecrr;
+
+    if (!file_exists($filePath)) {
+        echo "<tr><td colspan='17' class='text-center'>System Context file not found.</td></tr>";
+        return;
+    }
+
+    $data = explode("\n", file_get_contents($filePath));
+
+    foreach ($data as $line) {
+        if (trim($line) == "") continue;
+
+        $cols = explode(":", $line);
+        $fieldName = isset($cols[0]) ? trim($cols[0]) : "";
+        echo "<tr>";
+
+        // 🔷 First column is the field name
+        echo "<th>" . $fieldName . "</th>";
+
+        for ($i = 1; $i <= 16; $i++) {
+            $value = isset($cols[$i]) ? trim($cols[$i]) : "";
+
+            // 🔴 Apply blinking red if OPERATIONAL FLAG is not READY
+            if (strtoupper($fieldName) == "OPERATIONAL FLAG") {
+                if (strtoupper($value) !== "READY") {
+                    echo "<td class='blink-red'>" . $value . "</td>";
+                } else {
+                    echo "<td class='green-ok'>" . $value . "</td>";
+                }
+            } else {
+                echo "<td>" . $value . "</td>";
             }
+        }
+
+        echo "</tr>";
+    }
+}
