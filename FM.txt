@@ -1,20 +1,17 @@
-<style>
-.blink-red {
-    background-color: red;
-    color: white;
-    animation: blinker 1s linear infinite;
-    font-weight: bold;
-    text-align: center;
-}
-.green-ok {
-    background-color: green;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-}
-@keyframes blinker {
-    50% {
-        opacity: 0;
-    }
-}
-</style>
+public function sys_utl6() {
+            $filePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/bncr0004_pace_8app.txt.".$this->datecrr;
+            if (!file_exists($filePath)) {
+                echo "<tr><td colspan='17' class='text-center'>System Context file not found.</td></tr>";
+                return;
+             }
+             $data = explode("\n", file_get_contents($filePath));
+             foreach ($data as $line) {
+                 if (trim($line) == "") continue;
+                 $cols = explode(":", $line);
+                 echo "<tr>";
+                 for ($i = 0; $i < 17; $i++) {
+                 echo "<td>" . (isset($cols[$i]) ? trim($cols[$i]) : "") . "</td>";
+                 }
+                 echo "</tr>";
+              }
+            }
