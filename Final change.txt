@@ -1,138 +1,108 @@
-                                                                                        <h3 class="box-title">Queue Buildup</h3>
-                                                                                        <?php
-                                                                                                
-                                                                                                $tpmtime=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_".$crdate.".txt");
-                                                                                                $tpm_starttime=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/start_time_".$crdate.".txt");
-                                                                                                $tpmtimestamp=shell_exec("ls -lrt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_".$crdate.".txt|awk '{print $6,$7,$8}'");
-                                                                                                $checktpmrunning=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpmStatus.txt");
-                                                                                                $tpm_scp_time=shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.".$crdate."|tail -1");
-                                                                                                $tpm_total_file=explode("\n",file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.".$crdate));
-                                                                                                $missingTPMSeq = array();
-                                                                                                $missing_count = 0;
-                                                                                                $tpm_button= " ";
-                                                                                                foreach(array_filter($tpm_total_file) as $key => $value){
-                                                                                                        $data=explode("|",trim($tpm_total_file[$key]));
-                                                                                                        if (trim($data[0]) == '1'){
+<h3 class="box-title">Queue Buildup</h3>
+<?php
+    function safe_read($path) {
+        return file_exists($path) ? trim(file_get_contents($path)) : '';
+    }
 
-                                                                                                        }
-                                                                                                        else {
-                                                                                                                $missing_count=$missing_count+1;
-                                                                                                                array_push($missingTPMSeq,$data);
-                                                                                                        }
-                                                                                                }
-                                                                                                if($missing_count > 0){
-                                                                                                        $tpm_button="<button class='glow' data-toggle='modal' data-target='#tpm_modal' style='background-color:red;color:white'>TPM Alert</button>";
-                                                                                                }
-                                                                                                else{
-                                                                                                        $tpm_button= "";
-                                                                                                        //$tpm_button="<button class='glow' data-toggle='modal' data-target='#tpm_modal' style='background-color:red;color:white'>TPM Alert</button>";
-                                                                                                }
-                                                                                                array_pop($missingTPMSeq);
-                                                                                                $tpmstatus_check = strpos(trim($checktpmrunning), 'terna');
-                                                                                                if ( strpos(trim($checktpmrunning), 'terna' ) == true ) {
-                                                                                                        $tpm_running_from = 'PR';
-                                                                                                }
-                                                                                                elseif(strpos(trim($checktpmrunning), 'MIZO' ) == true) {
-                                                                                                        $tpm_running_from = 'NR';
-                                                                                                }
-                                                                                                elseif(strpos(trim($checktpmrunning), 'ARASALAR' ) == true) {
-                                                                                                        $tpm_running_from = 'DR';
-                                                                                                }
-                                                                                                else{
-                                                                                                        $tpm_running_from = '';
-                                                                                                }
+    function safe_read_lines($path) {
+        return file_exists($path) ? explode("\n", trim(file_get_contents($path))) : [];
+    }
 
-                                                                                                $tpm_scp_data=explode("|",$tpm_scp_time);
-                                                                                                $removeColon_tpm_scp_time=str_replace(":","",trim($tpm_scp_data[2]));
-                                                                                                $removedColon_tpm_scp_time=strtotime($removeColon_tpm_scp_time);
-                                                                                                $_tpmTime = $yummy->timeUpdatedTpm("tpmStatus.txt.",".");
-                                                                                                $removeColonTPM = str_replace(":","",trim($_tpmTime));
-                                                                                                $removeColonTimes = strtotime($removeColonTPM);
-                                                                                                $currtimes=strtotime(date("Ymd Hi"));
-                                                                                                $scp_difftimes=$currtimes-$removedColon_tpm_scp_time;
-                                                                                                $difftimes=$currtimes-$removeColonTimes;
+    $check_path = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_$crdate.txt";
+    $start_time_path = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/start_time_$crdate.txt";
+    $tpmtime = safe_read($check_path);
+    $tpm_starttime = safe_read($start_time_path);
+    $tpmtimestamp = shell_exec("ls -lrt $check_path | awk '{print $6,$7,$8}'");
 
-                                                                                                if(intval($scp_difftimes)>3600){
-                                                                                                        //$FinalScpTime = "<span style='background-color:red;color:white' class='glow' title='SFTP has not been done since last 1 Hour'>".trim($tpm_scp_data[2])."</span>";
-                                                                                                        $FinalScpTime = "<span style='color:#fff'>".trim($tpm_scp_data[2])."</span>";
-                                                                                                }
-                                                                                                else{
-                                                                                                        //$FinalScpTime = "<span style='color:#fff'>".trim($tpm_scp_data[2])."</span>";
-                                                                                                        $FinalScpTime = "<span style='color:#fff'>".trim($tpm_scp_data[2])."</span>";
-                                                                                                }
-                                                                                                if(intval($difftimes)>600){
-                                                                                                        $finalTpmTime = "<span style='background-color:red;color:white' class='glow' title='TPM Not Updated since last 10 mintues'>".trim($_tpmTime)."</span>";
-                                                                                                }
-                                                                                                else{
-                                                                                                        $finalTpmTime = "<span style='color:#fff'>".trim($_tpmTime)."</span>";
-                                                                                                }
-                                                                                                $TPM_timesubstr=substr($tpmtime,0,2);
-                                                                                                $TPM_timesubstr2=substr($tpmtime,2,2);
-                                                                                                $TPM_timestampsubstr=substr($tpmtimestamp,0,2);
-                                                                                                $TPM_timestampsubstr2=substr($tpmtimestamp,2,2);
-                                                                                                $TPM_start_time_hr=substr($tpm_starttime,0,2);
-                                                                                                $TPM_start_time_min=substr($tpm_starttime,2,2);
+    $checktpmrunning = safe_read("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpmStatus.txt");
+    $tpm_scp_time = shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.$crdate | tail -1");
+    $tpm_total_file = safe_read_lines("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.$crdate");
 
-                                                                                        ?>
+    $missingTPMSeq = [];
+    $missing_count = 0;
+    $tpm_button = "";
 
-                                                                                                        <span style="float:left;font-size:14px;" class="btn btn-xs btn-success">
-                                                                                                                <!--a onclick="window.open('TPMmonitorfile.php?date=<?php echo $crdate;?>,'','height=1000, width=1900,scrollbars=yes,resizable=yes');"-->
-                                                                                                                <a class="btn btn-sm" style="float:left" onclick="window.open('TPMmonitorfile.php?date=<?php echo $crdate;?>','','height=900, width=1400,scrollbars=yes,resizable=yes' );">
-                                                                                                                <?php
-                                                                                                                        //echo "TPM : ".$TPM_start_time_hr.":".$TPM_start_time_min."  |  "."Running on : ".$tpm_running_from." | ".$finalTpmTime." | SFTP : ".$FinalScpTime." | Files : ".$tpm_scp_data[0]." ".$tpm_button;
-                                                                                                                        //echo "TPM : ".$TPM_start_time_hr.":".$TPM_start_time_min."  |  "."Running on : ".$tpm_running_from." | SFTP : ".$FinalScpTime." | Files : ".$tpm_scp_data[0]." ".$tpm_button;
-                                                                                                                        echo "TPM Running on : ".$tpm_running_from." | SFTP : ".$FinalScpTime." | Tar Files : ".$tpm_scp_data[0]." ".$tpm_button;
-                                                                                                                        //echo "TPM : ".$TPM_start_time_hr.":".$TPM_start_time_min."  |  "."Running on : ".$tpm_running_from;
-                                                                                                                ?>
-                                                                                                                </a>
-                                                                                                        </span>
+    foreach (array_filter($tpm_total_file) as $value) {
+        $data = explode("|", trim($value));
+        if (trim($data[0]) != '1') {
+            $missing_count++;
+            array_push($missingTPMSeq, $data);
+        }
+    }
 
-                                                                                        <span class="queuetimepop" style="float:right;font-size:18px;"><img src="loading-bubbles.svg">
-                                                                                                <?php echo $yummy->timeUpdated("status_queue_8app.txt.false",".");?>
-                                                                                        </span>
+    if ($missing_count > 0) {
+        $tpm_button = "<button class='glow' data-toggle='modal' data-target='#tpm_modal' style='background-color:red;color:white'>TPM Alert</button>";
+    }
 
-                                                                                        <div class="box-tools pull-right">
-                                                                                        </div>
-                                                                                </div>
-                                                                                <div class="panel-body table-responsive hehe">
-                                                                                        <table class="table table-bordered table-striped text-center">
-                                                                                                <thead>
-                                                                                                        <tr>
-                                                                                                                <th>Queue Name</th>
-                                                                                                                <th>M</a></th>
-                                                                                                                <th>S1</a></th>
-                                                                                                                <th>S2</a></th>
-                                                                                                                <th>S3</a></th>
-                                                                                                                <th>S4</a></th>
-                                                                                                                <th>S5</a></th>
-                                                                                                                <th>S6</a></th>
-                                                                                                                <th>S7</a></th>
-                                                                                                                <th>S8</a></th>
-                                                                                                                <th>S9</a></th>
-                                                                                                                <th>S10</a></th>
-                                                                                                                <th>S11</a></th>
-                                                                                                                <th>S12</a></th>
-                                                                                                                <th>S13</a></th>
-                                                                                                                <th>S14</a></th>
-                                                                                                                <th>S15</a></th>
+    array_pop($missingTPMSeq);
 
+    $tpm_running_from = '';
+    if (stripos($checktpmrunning, 'terna') !== false) {
+        $tpm_running_from = 'PR';
+    } elseif (stripos($checktpmrunning, 'MIZO') !== false) {
+        $tpm_running_from = 'NR';
+    } elseif (stripos($checktpmrunning, 'ARASALAR') !== false) {
+        $tpm_running_from = 'DR';
+    }
 
-                                                                                                        </tr>
-                                                                                                </thead>
-                                                                                                <tbody class="queueappend" style="font-size:15px;">
-                                                                                                        <?php
-                                                                                                                $buildup_flag=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/buildup_flag.txt");
-                                                                                                                if($buildup_flag == "0"){
-                                                                                                                        $aplnMonior->status_queue();
-                                                                                                                }
-                                                                                                                else{
-                                                                                                                        $aplnMonior->status_queue1();
-                                                                                                                }
-                                                                                                        ?>
-                                                                                                </tbody>
-                                                                                        </table>
-                                                                                </div>
-                                                                        </div>
-                                                                </div>
-                                                        </div>
-                                                </div>
+    $tpm_scp_data = explode("|", $tpm_scp_time);
+    $removeColon_tpm_scp_time = isset($tpm_scp_data[2]) ? strtotime(str_replace(":", "", trim($tpm_scp_data[2]))) : 0;
+
+    $_tpmTime = $yummy->timeUpdatedTpm("tpmStatus.txt.", ".");
+    $removeColonTPM = strtotime(str_replace(":", "", trim($_tpmTime)));
+    $currtimes = strtotime(date("Ymd Hi"));
+    $scp_difftimes = $currtimes - $removeColon_tpm_scp_time;
+    $difftimes = $currtimes - $removeColonTPM;
+
+    $FinalScpTime = "<span style='color:#fff'>" . (isset($tpm_scp_data[2]) ? trim($tpm_scp_data[2]) : "N/A") . "</span>";
+    if ($scp_difftimes > 3600) {
+        $FinalScpTime = "<span style='color:#fff'>" . (isset($tpm_scp_data[2]) ? trim($tpm_scp_data[2]) : "N/A") . "</span>";
+    }
+
+    $finalTpmTime = "<span style='color:#fff'>" . trim($_tpmTime) . "</span>";
+    if ($difftimes > 600) {
+        $finalTpmTime = "<span style='background-color:red;color:white' class='glow' title='TPM Not Updated since last 10 minutes'>" . trim($_tpmTime) . "</span>";
+    }
+
+    $TPM_start_time_hr = substr($tpm_starttime, 0, 2);
+    $TPM_start_time_min = substr($tpm_starttime, 2, 2);
+?>
+
+<span style="float:left;font-size:14px;" class="btn btn-xs btn-success">
+    <a class="btn btn-sm" style="float:left"
+        onclick="window.open('TPMmonitorfile.php?date=<?php echo $crdate;?>','','height=900, width=1400,scrollbars=yes,resizable=yes' );">
+        <?php
+            echo "TPM Running on : $tpm_running_from | SFTP : $FinalScpTime | Tar Files : " . ($tpm_scp_data[0] ?? "N/A") . " $tpm_button";
+        ?>
+    </a>
+</span>
+
+<span class="queuetimepop" style="float:right;font-size:18px;"><img src="loading-bubbles.svg">
+    <?php echo $yummy->timeUpdated("status_queue_8app.txt.false", ".");?>
+</span>
+
+<div class="box-tools pull-right"></div>
+
+</div>
+<div class="panel-body table-responsive hehe">
+    <table class="table table-bordered table-striped text-center">
+        <thead>
+            <tr>
+                <th>Queue Name</th>
+                <?php for ($i = 0; $i <= 15; $i++): ?>
+                    <th><?php echo $i == 0 ? "M" : "S$i"; ?></th>
+                <?php endfor; ?>
+            </tr>
+        </thead>
+        <tbody class="queueappend" style="font-size:15px;">
+            <?php
+                $buildup_flag = safe_read("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/buildup_flag.txt");
+                if ($buildup_flag == "0") {
+                    $aplnMonior->status_queue();
+                } else {
+                    $aplnMonior->status_queue1();
+                }
+            ?>
+        </tbody>
+    </table>
+</div>
