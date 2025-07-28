@@ -1,47 +1,136 @@
-<div class="row">
-                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 context_block">
-                                                                <div class="panel panel-primary">
-                                                                        <div class="panel-heading bg-tcs-active"><a title="Burj Khalifa(Q Buildup MRI)" target="_blank" href="IG_heat/buildup_gapplot.php?dqp=ALL&region=online&date=<?php echo date("Y-m-d",strtotime($crdate)); ?>" style="float:left;text-decoration:none;"><i style="color:white;" class="fa fa-rss"></i></a>
-                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("bncr0004_pace_8app.txt",".");?></span>
-                                                                                System Context Block
-                                                                        </div>
-                                                                        <div class="panel-body table-responsive" style="">
-                                                                                <table class="table table-bordered table-striped">
-                                                                                        <thead>
-                                                                                                <tr>
-                                                                                                        <th>Context Block Fields</th>
-                                                                                                        <th>Master</th>
-                                                                                                        <th>Slave1</th>
-                                                                                                        <th>Slave2</th>
-                                                                                                        <th>Slave3</th>
-                                                                                                        <th>Slave4</th>
-                                                                                                        <th>Slave5</th>
-                                                                                                        <th>Slave6</th>
-                                                                                                        <th>Slave7</th>
-                                                                                                        <th>Slave8</th>
-                                                                                                        <th>Slave9</th>
-                                                                                                        <th>Slave10</th>
-                                                                                                        <th>Slave11</th>
-                                                                                                        <th>Slave12</th>
-                                                                                                        <th>Slave13</th>
-                                                                                                        <th>Slave14</th>
-                                                                                                        <th>Slave15</th>
-                                                                                                </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-                                                                                        <?php
-                                                                                                        $yummy->sys_utl6();
-                                                                                                ?>
-                                                                                        </tbody>
-                                                                                </table>
-                                                                        </div>
-                                                                </div>
-                                                        </div>
-function sys_utl6(){
-                $data3 = explode("\n", file_get_contents($this->currpath."bncr0004_pace_8app.txt.".$this->datecrr));
-                if(parent::checkblank($data3)){ echo parent::checkblank($data3);}
-                //$data3 = file("../../SystemUtilization/bncr0004.txt");
 
-                foreach ($data3 as $line_num => $line) {
-                        $var = explode(":",$line);
+        function gateway(){
+        //$data = file("../../ApplnMonitor/gateway.txt_8app.txt");
+        //ls gateway_*.txt.20210219|grep -v yono|sort|xargs paste -d ','
+        $data = explode("\n", trim(file_get_contents($this->currpath."gateway.txt_8app.".$this->datecrr)));
+      //  $data1 = explode("\n", file_get_contents($this->currpath."status_queue_8app.txt_prasad"));
+        #$data = explode("\n", trim(file_get_contents($this->currpath."gateway.txt_8app.20231218")));
+        //$data = explode("\n", trim(shell_exec("ls ".$this->currpath."gateway_*.txt.".$this->datecrr."|grep -v yono|sort|xargs paste -d ','")));
+        $datayono = file($this->currpath."gateway_yono.txt_8app.".$this->datecrr);
+        //$datayono = explode("\n", trim(shell_exec("ls ".$this->currpath."gateway_*.txt.".$this->datecrr."|grep yono|sort|xargs paste -d ','")));
+        $data1 = array_pad(explode("\n", trim(file_get_contents($this->singlepath."Server_Status.txt"))),9,0);
+        //Also array fill(position,9-postion can be used,0) cab be used
+        $data2 = trim(file_get_contents($this->currpath."onl_re_status.txt_".$this->datecrr));
+
+        #$data2 = trim(file_get_contents($this->currpath."onl_re_status_bkp.txt"));
+        $dataserver='Connectivity,'.implode(",",$data1);
+        $checkrc='Misc Job,'.$data2;
+        $serverarray = array('job name','m','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13','s14','s15');
+        array_pop($data);
+        $data=array_merge($data,$datayono);
+        array_push($data,$dataserver,$checkrc);
+        //print_r($data);
+                if(parent::checkblank($data)){echo parent::checkblank($data);}
+                foreach ($data as $line_num => $line){
+                        $var = explode(",",$line);
                         echo "<tr>";
+                        foreach ($var as $k3 => $v3){
+                                $vall = strtoupper(trim($v3));
+                                $linkRC="window.open('checkrc.php?servername=".$serverarray[$k3]."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                                if($var[0]=='MR Gateway'){
+                                        $linkTCP="window.open('maxtcp.php?servername=".$serverarray[$k3]."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                                }
+                                else{
+                                        $linkTCP="";
+                                }
+                                if($k3 == '0'){
+                                        $gateway_type=explode(" ",$v3);
+                                        $link="window.open('gatewaymore.php?type=".$gateway_type[0]."&&date=".$_GET['date']."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                                        echo "<th><a onclick=$link>".$v3."</a></th>";
+                                }
+                                elseif($var[0]=="TF Gateway" && $k3!=3 ){
+                                        echo "<td style='color:black;'><i class='fa fa-minus'></i></td>";
+                                }
+                                elseif($k3 > '0' && $vall == 'RUNNING') {
+                                        echo "<td style='color:green;'><i class='fa fa-check'></i></td>";
+                                }
+                                //remove
+                                elseif($k3 > '0' && $vall == 'MAXTCP') {
+                                        echo "<td><i style='color:red;'class='fa fa-bolt'></i></td>";
+                                }
+                                elseif($k3 > '0' && $vall == 'NOT RUNNING') {
+                                        //echo "<td style='color:green;'><i class='fa fa-check'></i></td>";
+                                        //echo "<td class='glow' style='color:white;' onclick=$linkTCP><i class='fa fa-close'></i></td>";
+                                        echo "<td onclick=$linkTCP><i class='fa fa-close' style='color:red;'></i></td>";
+                                }
+                                elseif($k3 > '0' && stristr($vall,'NOT UPDATING')) {
+                                        echo "<td style='color:#f39c12;'><i class='fa fa-fw fa-warning'></i></td>";
+                                        //echo "<td style='color:green;'><i class='fa fa-check'></i></td>";
+                                }
+                                elseif($k3 > '0' && $vall == 'NOT ENCRYPTED') {
+                                        echo "<td style='color:navy;'><i class='fa fa-fw fa-chain-broken'></i></td>";
+
+                                }
+                                elseif($k3 > '0' && $vall == 'RC RUNNING') {
+                                        echo "<td class='glow' style='color:white;' onclick=$linkRC>Check RC</td>";
+                                       // echo "<td style='color:#fff;background-color:#38ada9;'>NONE</td>";
+                                }
+                                elseif($k3 > '0' && stristr($vall, 'ERROR')) {
+                                        echo "<td class='glow' date-toggle='tooltip' style='color:white;' title='$vall'>ERROR</td>";
+                                }
+                                elseif($k3 > '0' && stristr($vall, 'NO TXN')) {
+                                        echo "<td class='glow' date-toggle='tooltip' title='$vall'><i class='fa fa-exclamation'></td>";
+                                }
+                                elseif($k3 > '0' && stristr($vall, 'UTP TXN')) {
+                                        echo "<td  style='color:white;'><i title='To check if it is false or not goto monitorp/pace and fire utptxn.sh <gateway_name -- b24|atm|mr|inb>' class='fa fa-bell' style='color:red;'></td>";
+                                }
+                                elseif($k3 > '0' && stristr($vall, 'TIMESTAMP FREEZED')) {
+                                        echo "<td class='glow' date-toggle='tooltip' title='$vall' style='color:white;'><i class='fa fa-ban'></td>";
+                                }
+                                elseif($k3 > '0' && stristr($vall, 'ABORT')) {
+                                        echo "<td class='glow' date-toggle='tooltip' title='$vall' style='color:white;'>".$vall."</td>";
+                                }
+                                elseif($k3 > '0' && $vall == 'NO CHECK RC') {
+                                        echo "<td style='color:#fff;background-color:#38ada9;'>NONE</td>";
+                                }
+                                elseif($k3 > '0' && ($vall == 'NA'||$vall == "SUNDAY")) {
+                                        echo "<td style='color:black;'><i class='fa fa-minus'></i></td>";
+                                }
+                                elseif($line_num == 16 && trim($vall) == 'Y') {
+                                        echo "<td title='Server Up' style='color:green;'><i class='fa fa-fw fa-check'></i></td>";
+                                }
+                                elseif($line_num == 16 && trim($vall) == 'N') {
+                                        echo "<td class='glow'><i class='fa fa-fw fa-close'></i></td>";
+                                }
+                                elseif($line_num == 16 && trim($var[$k3]) == 0) {
+                                        echo "<td><i title='Not updating' style='color:#f39c12;' class='fa fa-fw fa-warning'></i></td>";
+                                }
+                                /*To be removed on 16-12-2020 7pm(below else if loop.If not removed severe consequnces)
+                                elseif($line_num == 17){
+                                        $link="window.open('rcdetails.php?servername=".$serverarray[$k3-1]."','','height=800,width=600,scrollbars=yes,resizable=yes');";
+                                        echo "<td onclick=$link title='".$vall."' style='cursor:pointer;color:green;'><i class='fa fa-fw fa-check'></i></td>";
+                                }
+                                //Remove upper part  !!!!*/
+                                elseif($line_num == 17 && trim($vall) == 0){
+                                        $link="window.open('rcdetails.php?servername=".$serverarray[$k3]."','','height=800,width=600,scrollbars=yes,resizable=yes');";
+                                        //echo "<td onclick=$link title='".$vall."' style='cursor:pointer;color:green;'><i class='fa fa-fw fa-check'></i></td>";
+                                        echo "<td title='Server Up' style='color:green;'><i class='fa fa-fw fa-check'></i></td>";
+                                }
+                                elseif($line_num == 17 && trim($vall) > 0){
+                                        $link="window.open('rcdetails.php?servername=".$serverarray[$k3]."','','height=800,width=600,scrollbars=yes,resizable=yes');";
+                                        echo "<td onclick=$link style='cursor:pointer;' class='glow text-center' title='".$vall."'><i style='color:white;' class='fa fa-fw fa-close'></i></td>";
+                                        //echo "<td onclick=$link style='cursor:pointer;' class='text-center' title='".$vall."'><i style='color:green;' class='fa fa-fw fa-close'></i></td>";
+                                        //echo "<td title='Server Up' style='color:green;'><i class='fa fa-fw fa-check'></i></td>";
+                                }
+                                elseif($line_num == 17 && trim($vall)== -1){
+                                        $link="window.open('rcdetails.php?servername=".$serverarray[$k3]."','','height=800,width=600,scrollbars=yes,resizable=yes');";
+                                        echo "<td onclick=$link style='cursor:pointer;' class='text-center' title='".$vall."'><i style='color:#f39c12;' class='fa fa-fw fa-warning'></i></td>";
+                                }elseif($line_num == 11 && strpos(trim($vall),":")){
+                                        $removeColon = str_replace(":","",trim($vall));
+                                        $removeColonTime = strtotime($removeColon);
+                                        $currtime=strtotime(date("Ymd Hi"));
+                                        $difftime=$currtime-$removeColonTime;
+                                        if(intval($difftime)>600){
+                                        echo "<td style='background-color:#EAB543;color:#000'>".trim($vall)."</td>";
+                                        }
+                                        else{
+                                        echo "<td style='color:#000'>".trim($vall)."</td>";
+                                        }
+                                }
+                                else{
+                                        echo "<td>".trim($vall)."</td>";
+                                }
+                        }
+                        echo "</tr>";
+                }
+        }
