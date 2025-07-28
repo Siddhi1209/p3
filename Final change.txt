@@ -1,102 +1,138 @@
-function gateway() {
-    date_default_timezone_set('Asia/Kolkata');
-    $date = $this->datecrr;
+                                                                                        <h3 class="box-title">Queue Buildup</h3>
+                                                                                        <?php
+                                                                                                
+                                                                                                $tpmtime=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_".$crdate.".txt");
+                                                                                                $tpm_starttime=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/start_time_".$crdate.".txt");
+                                                                                                $tpmtimestamp=shell_exec("ls -lrt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_".$crdate.".txt|awk '{print $6,$7,$8}'");
+                                                                                                $checktpmrunning=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpmStatus.txt");
+                                                                                                $tpm_scp_time=shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.".$crdate."|tail -1");
+                                                                                                $tpm_total_file=explode("\n",file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.".$crdate));
+                                                                                                $missingTPMSeq = array();
+                                                                                                $missing_count = 0;
+                                                                                                $tpm_button= " ";
+                                                                                                foreach(array_filter($tpm_total_file) as $key => $value){
+                                                                                                        $data=explode("|",trim($tpm_total_file[$key]));
+                                                                                                        if (trim($data[0]) == '1'){
 
-    $mainFilePath = $this->currpath . "gateway.txt_8app." . $date;
-    $yonoFilePath = $this->currpath . "gateway_yono.txt_8app." . $date;
-    $serverStatusPath = $this->singlepath . "Server_Status.txt";
-    $onlReStatusPath = $this->currpath . "onl_re_status.txt_" . $date;
+                                                                                                        }
+                                                                                                        else {
+                                                                                                                $missing_count=$missing_count+1;
+                                                                                                                array_push($missingTPMSeq,$data);
+                                                                                                        }
+                                                                                                }
+                                                                                                if($missing_count > 0){
+                                                                                                        $tpm_button="<button class='glow' data-toggle='modal' data-target='#tpm_modal' style='background-color:red;color:white'>TPM Alert</button>";
+                                                                                                }
+                                                                                                else{
+                                                                                                        $tpm_button= "";
+                                                                                                        //$tpm_button="<button class='glow' data-toggle='modal' data-target='#tpm_modal' style='background-color:red;color:white'>TPM Alert</button>";
+                                                                                                }
+                                                                                                array_pop($missingTPMSeq);
+                                                                                                $tpmstatus_check = strpos(trim($checktpmrunning), 'terna');
+                                                                                                if ( strpos(trim($checktpmrunning), 'terna' ) == true ) {
+                                                                                                        $tpm_running_from = 'PR';
+                                                                                                }
+                                                                                                elseif(strpos(trim($checktpmrunning), 'MIZO' ) == true) {
+                                                                                                        $tpm_running_from = 'NR';
+                                                                                                }
+                                                                                                elseif(strpos(trim($checktpmrunning), 'ARASALAR' ) == true) {
+                                                                                                        $tpm_running_from = 'DR';
+                                                                                                }
+                                                                                                else{
+                                                                                                        $tpm_running_from = '';
+                                                                                                }
 
-    $data = file_exists($mainFilePath) ? explode("\n", trim(@file_get_contents($mainFilePath))) : [];
-    $datayono = file_exists($yonoFilePath) ? @file($yonoFilePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
-    $data1 = file_exists($serverStatusPath) ? array_pad(explode("\n", trim(@file_get_contents($serverStatusPath))), 9, 0) : array_fill(0, 9, 0);
-    $data2 = file_exists($onlReStatusPath) ? trim(@file_get_contents($onlReStatusPath)) : "0";
+                                                                                                $tpm_scp_data=explode("|",$tpm_scp_time);
+                                                                                                $removeColon_tpm_scp_time=str_replace(":","",trim($tpm_scp_data[2]));
+                                                                                                $removedColon_tpm_scp_time=strtotime($removeColon_tpm_scp_time);
+                                                                                                $_tpmTime = $yummy->timeUpdatedTpm("tpmStatus.txt.",".");
+                                                                                                $removeColonTPM = str_replace(":","",trim($_tpmTime));
+                                                                                                $removeColonTimes = strtotime($removeColonTPM);
+                                                                                                $currtimes=strtotime(date("Ymd Hi"));
+                                                                                                $scp_difftimes=$currtimes-$removedColon_tpm_scp_time;
+                                                                                                $difftimes=$currtimes-$removeColonTimes;
 
-    $dataserver = 'Connectivity,' . implode(",", $data1);
-    $checkrc = 'Misc Job,' . $data2;
+                                                                                                if(intval($scp_difftimes)>3600){
+                                                                                                        //$FinalScpTime = "<span style='background-color:red;color:white' class='glow' title='SFTP has not been done since last 1 Hour'>".trim($tpm_scp_data[2])."</span>";
+                                                                                                        $FinalScpTime = "<span style='color:#fff'>".trim($tpm_scp_data[2])."</span>";
+                                                                                                }
+                                                                                                else{
+                                                                                                        //$FinalScpTime = "<span style='color:#fff'>".trim($tpm_scp_data[2])."</span>";
+                                                                                                        $FinalScpTime = "<span style='color:#fff'>".trim($tpm_scp_data[2])."</span>";
+                                                                                                }
+                                                                                                if(intval($difftimes)>600){
+                                                                                                        $finalTpmTime = "<span style='background-color:red;color:white' class='glow' title='TPM Not Updated since last 10 mintues'>".trim($_tpmTime)."</span>";
+                                                                                                }
+                                                                                                else{
+                                                                                                        $finalTpmTime = "<span style='color:#fff'>".trim($_tpmTime)."</span>";
+                                                                                                }
+                                                                                                $TPM_timesubstr=substr($tpmtime,0,2);
+                                                                                                $TPM_timesubstr2=substr($tpmtime,2,2);
+                                                                                                $TPM_timestampsubstr=substr($tpmtimestamp,0,2);
+                                                                                                $TPM_timestampsubstr2=substr($tpmtimestamp,2,2);
+                                                                                                $TPM_start_time_hr=substr($tpm_starttime,0,2);
+                                                                                                $TPM_start_time_min=substr($tpm_starttime,2,2);
 
-    $serverarray = array('job name', 'm', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', 's11', 's12', 's13', 's14', 's15');
+                                                                                        ?>
 
-    array_pop($data); // Remove last empty line if any
-    $data = array_merge($data, $datayono);
-    array_push($data, $dataserver, $checkrc);
+                                                                                                        <span style="float:left;font-size:14px;" class="btn btn-xs btn-success">
+                                                                                                                <!--a onclick="window.open('TPMmonitorfile.php?date=<?php echo $crdate;?>,'','height=1000, width=1900,scrollbars=yes,resizable=yes');"-->
+                                                                                                                <a class="btn btn-sm" style="float:left" onclick="window.open('TPMmonitorfile.php?date=<?php echo $crdate;?>','','height=900, width=1400,scrollbars=yes,resizable=yes' );">
+                                                                                                                <?php
+                                                                                                                        //echo "TPM : ".$TPM_start_time_hr.":".$TPM_start_time_min."  |  "."Running on : ".$tpm_running_from." | ".$finalTpmTime." | SFTP : ".$FinalScpTime." | Files : ".$tpm_scp_data[0]." ".$tpm_button;
+                                                                                                                        //echo "TPM : ".$TPM_start_time_hr.":".$TPM_start_time_min."  |  "."Running on : ".$tpm_running_from." | SFTP : ".$FinalScpTime." | Files : ".$tpm_scp_data[0]." ".$tpm_button;
+                                                                                                                        echo "TPM Running on : ".$tpm_running_from." | SFTP : ".$FinalScpTime." | Tar Files : ".$tpm_scp_data[0]." ".$tpm_button;
+                                                                                                                        //echo "TPM : ".$TPM_start_time_hr.":".$TPM_start_time_min."  |  "."Running on : ".$tpm_running_from;
+                                                                                                                ?>
+                                                                                                                </a>
+                                                                                                        </span>
 
-    if (parent::checkblank($data)) {
-        echo parent::checkblank($data);
-    }
+                                                                                        <span class="queuetimepop" style="float:right;font-size:18px;"><img src="loading-bubbles.svg">
+                                                                                                <?php echo $yummy->timeUpdated("status_queue_8app.txt.false",".");?>
+                                                                                        </span>
 
-    foreach ($data as $line_num => $line) {
-        $var = explode(",", $line);
-        echo "<tr>";
-        foreach ($var as $k3 => $v3) {
-            $vall = strtoupper(trim($v3 ?? ''));
-            $server = $serverarray[$k3] ?? 'UNKNOWN';
+                                                                                        <div class="box-tools pull-right">
+                                                                                        </div>
+                                                                                </div>
+                                                                                <div class="panel-body table-responsive hehe">
+                                                                                        <table class="table table-bordered table-striped text-center">
+                                                                                                <thead>
+                                                                                                        <tr>
+                                                                                                                <th>Queue Name</th>
+                                                                                                                <th>M</a></th>
+                                                                                                                <th>S1</a></th>
+                                                                                                                <th>S2</a></th>
+                                                                                                                <th>S3</a></th>
+                                                                                                                <th>S4</a></th>
+                                                                                                                <th>S5</a></th>
+                                                                                                                <th>S6</a></th>
+                                                                                                                <th>S7</a></th>
+                                                                                                                <th>S8</a></th>
+                                                                                                                <th>S9</a></th>
+                                                                                                                <th>S10</a></th>
+                                                                                                                <th>S11</a></th>
+                                                                                                                <th>S12</a></th>
+                                                                                                                <th>S13</a></th>
+                                                                                                                <th>S14</a></th>
+                                                                                                                <th>S15</a></th>
 
-            $linkRC = "window.open('checkrc.php?servername=$server','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-            $linkTCP = ($var[0] ?? '') === 'MR Gateway' ? "window.open('maxtcp.php?servername=$server','','height=800,width=1400,scrollbars=yes,resizable=yes');" : "";
 
-            if ($k3 == 0) {
-                $gateway_type = explode(" ", $v3);
-                $dateParam = $_GET['date'] ?? $date;
-                $link = "window.open('gatewaymore.php?type={$gateway_type[0]}&&date={$dateParam}','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                echo "<th><a onclick=\"$link\">" . htmlspecialchars($v3) . "</a></th>";
-            } elseif (($var[0] ?? '') === "TF Gateway" && $k3 != 3) {
-                echo "<td style='color:black;'><i class='fa fa-minus'></i></td>";
-            } elseif ($k3 > 0 && $vall === 'RUNNING') {
-                echo "<td style='color:green;'><i class='fa fa-check'></i></td>";
-            } elseif ($k3 > 0 && $vall === 'MAXTCP') {
-                echo "<td><i style='color:red;' class='fa fa-bolt'></i></td>";
-            } elseif ($k3 > 0 && $vall === 'NOT RUNNING') {
-                echo "<td onclick=\"$linkTCP\"><i class='fa fa-close' style='color:red;'></i></td>";
-            } elseif ($k3 > 0 && str_contains($vall, 'NOT UPDATING')) {
-                echo "<td style='color:#f39c12;'><i class='fa fa-fw fa-warning'></i></td>";
-            } elseif ($k3 > 0 && $vall === 'NOT ENCRYPTED') {
-                echo "<td style='color:navy;'><i class='fa fa-fw fa-chain-broken'></i></td>";
-            } elseif ($k3 > 0 && $vall === 'RC RUNNING') {
-                echo "<td class='glow' style='color:white;' onclick=\"$linkRC\">Check RC</td>";
-            } elseif ($k3 > 0 && str_contains($vall, 'ERROR')) {
-                echo "<td class='glow' title=\"$vall\" style='color:white;'>ERROR</td>";
-            } elseif ($k3 > 0 && str_contains($vall, 'NO TXN')) {
-                echo "<td class='glow' title=\"$vall\"><i class='fa fa-exclamation'></i></td>";
-            } elseif ($k3 > 0 && str_contains($vall, 'UTP TXN')) {
-                echo "<td style='color:white;'><i title='To check if it is false or not goto monitorp/pace and fire utptxn.sh <gateway_name -- b24|atm|mr|inb>' class='fa fa-bell' style='color:red;'></i></td>";
-            } elseif ($k3 > 0 && str_contains($vall, 'TIMESTAMP FREEZED')) {
-                echo "<td class='glow' title=\"$vall\" style='color:white;'><i class='fa fa-ban'></i></td>";
-            } elseif ($k3 > 0 && str_contains($vall, 'ABORT')) {
-                echo "<td class='glow' title=\"$vall\" style='color:white;'>$vall</td>";
-            } elseif ($k3 > 0 && ($vall === 'NO CHECK RC')) {
-                echo "<td style='color:#fff;background-color:#38ada9;'>NONE</td>";
-            } elseif ($k3 > 0 && ($vall === 'NA' || $vall === 'SUNDAY')) {
-                echo "<td style='color:black;'><i class='fa fa-minus'></i></td>";
-            } elseif ($line_num == 16 && $vall === 'Y') {
-                echo "<td title='Server Up' style='color:green;'><i class='fa fa-fw fa-check'></i></td>";
-            } elseif ($line_num == 16 && $vall === 'N') {
-                echo "<td class='glow'><i class='fa fa-fw fa-close'></i></td>";
-            } elseif ($line_num == 16 && $vall == '0') {
-                echo "<td><i title='Not updating' style='color:#f39c12;' class='fa fa-fw fa-warning'></i></td>";
-            } elseif ($line_num == 17 && $vall == '0') {
-                $link = "window.open('rcdetails.php?servername=$server','','height=800,width=600,scrollbars=yes,resizable=yes');";
-                echo "<td title='Server Up' style='color:green;'><i class='fa fa-fw fa-check'></i></td>";
-            } elseif ($line_num == 17 && is_numeric($vall) && $vall > 0) {
-                $link = "window.open('rcdetails.php?servername=$server','','height=800,width=600,scrollbars=yes,resizable=yes');";
-                echo "<td onclick=\"$link\" style='cursor:pointer;' class='glow text-center' title=\"$vall\"><i style='color:white;' class='fa fa-fw fa-close'></i></td>";
-            } elseif ($line_num == 17 && $vall == '-1') {
-                $link = "window.open('rcdetails.php?servername=$server','','height=800,width=600,scrollbars=yes,resizable=yes');";
-                echo "<td onclick=\"$link\" style='cursor:pointer;' class='text-center' title=\"$vall\"><i style='color:#f39c12;' class='fa fa-fw fa-warning'></i></td>";
-            } elseif ($line_num == 11 && str_contains(trim($vall), ":")) {
-                $removeColon = str_replace(":", "", trim($vall));
-                $removeColonTime = strtotime($removeColon);
-                $currtime = strtotime(date("Ymd Hi"));
-                $difftime = $currtime - $removeColonTime;
-                if ($difftime > 600) {
-                    echo "<td style='background-color:#EAB543;color:#000'>" . htmlspecialchars($vall) . "</td>";
-                } else {
-                    echo "<td style='color:#000'>" . htmlspecialchars($vall) . "</td>";
-                }
-            } else {
-                echo "<td>" . htmlspecialchars($vall) . "</td>";
-            }
-        }
-        echo "</tr>";
-    }
-}
+                                                                                                        </tr>
+                                                                                                </thead>
+                                                                                                <tbody class="queueappend" style="font-size:15px;">
+                                                                                                        <?php
+                                                                                                                $buildup_flag=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/buildup_flag.txt");
+                                                                                                                if($buildup_flag == "0"){
+                                                                                                                        $aplnMonior->status_queue();
+                                                                                                                }
+                                                                                                                else{
+                                                                                                                        $aplnMonior->status_queue1();
+                                                                                                                }
+                                                                                                        ?>
+                                                                                                </tbody>
+                                                                                        </table>
+                                                                                </div>
+                                                                        </div>
+                                                                </div>
+                                                        </div>
+                                                </div>
