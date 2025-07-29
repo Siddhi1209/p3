@@ -1,3 +1,4 @@
+
    <?php
                 /*$sys_stat = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/sys_stat1.txt"));
                 if($_GET['date'] == '' && $sys_stat == 'N'){
