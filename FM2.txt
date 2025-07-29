@@ -1,5 +1,14 @@
 
 
+
+<div class="row">
+  <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 queue_btn" data-step=18 data-intro="View Details of Main Queues and Replica with Buildup And PID Details">
+    <div class="box box-primary box-solid">
+      <div class="box-header bg-tcs-active text-center">
+        <h3 class="box-title">Queue Buildup</h3>
+
+<div class="panel-body hehe" style="padding-right:10px;">
+  <div style="max-height: 500px; overflow-y: auto;">
 <?php
                 /*$sys_stat = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/sys_stat1.txt"));
                 if($_GET['date'] == '' && $sys_stat == 'N'){
@@ -91,7 +100,6 @@
                                                                                                         <?php $aplnMonior->gateway(); ?>
                                                                                           </tbody>
                                                                                         </table>
-</div>
                                                                                         <div >
                                                                                                 <span style="float:right;background-color:white;color:black;cursor:default;" class="btn btn-sm btn-primary legends_btn">
                                                                                                         <!--<span class="na_btn"><i style="color:black" class='fa fa-fw fa-minus'></i>NA</span>-->
@@ -227,7 +235,6 @@
 </div>
 </div>
 </div>
-</div>
                                                         <?php
                                                                 $rtgs_slowness_details=$rtgs->rtgs_slowness();
                                                                 $rtgs_slowness=explode("|",$rtgs->rtgs_slowness());
@@ -272,7 +279,6 @@
                                                                                                 ?>
                                                                                                 </tbody>
                                                                                         </table>
-</div>
                                                                                         <div class="col-md-12">
                                                                                                 <?php $rtgs->nat_sfmq();?>
                                                                                         </div>
@@ -311,7 +317,6 @@
                                                                                                 ?>
                                                                                                 </tbody>
                                                                                         </table>
-</div>
                                                                                         <div >
                                                                                                 <span style="float:right;background-color:white;color:black;cursor:default;" class="btn btn-sm btn-primary legends_btn">
                                                                                                         <span class="na_btn"><i style="color:black" class='fa fa-fw fa-minus'></i>NA</span>
@@ -346,7 +351,6 @@
                                                                                                         <?php $rtgs->schl_transaction();?>
                                                                                                 </tbody>
                                                                                         </table>
-</div>
                                                                                 </div>
                                                                         </div>
                                                                 </div>
@@ -382,7 +386,6 @@
                                                                                         ?>
                                                                                         </tbody>
                                                                                 </table>
-</div>
                                                                         </div>
                                                                   </div>
                                                                 </div>-->
@@ -414,7 +417,6 @@
                                                                                                                         </tr>
                                                                                                                 </tbody>
                                                                                                         </table>
-</div>
                                                                                                 </div>
                                                                                         </div>
                                                                                 </div>
@@ -441,7 +443,6 @@
                                                                                                                         ?>
                                                                                                                 </tbody>
                                                                                                         </table>
-</div>
                                                                                                 </div>
                                                                                         </div>
                                                                                 </div>
@@ -490,7 +491,6 @@
                                                                                                                         ?>
                                                                                                                 </tbody>
                                                                                                   </table>
-</div>
                                                                                                 </div>
                                                                                         </div>
                                                                                         <a class="small-box-footer" id="readButton1" onclick="myFunction2()" style="display:block;">
@@ -518,7 +518,6 @@
                                                                                                                 ?>
                                                                                                         </tbody>
                                                                                                 </table>
-</div>
                                                                                         </div>
                                                                                 </div>
                                                                         </div>-->
@@ -536,7 +535,6 @@
                                                                                                                 <?php //$rtgs->nat_sfmq();?>
                                                                                                         </tbody>
                                                                                                 </table>
-</div>
                                                                                         </div>
                                                                                 </div>
                                                                         </div>-->
@@ -568,7 +566,6 @@
                                                                                                                         </tr>
                                                                                                                 </tbody>
                                                                                                         </table>
-</div>
                                                                                                 </div>
                                                                                         </div>
                                                                                 </div>
@@ -595,7 +592,6 @@
                                                                                                                         ?>
                                                                                                                 </tbody>
                                                                                                         </table>
-</div>
                                                                                                 </div>
                                                                                         </div>
                                                                                 </div>
@@ -627,7 +623,6 @@
                                                                                                         ?>
                                                                                                         </tbody>
                                                                                                 </table>
-</div>
                                                                                         </div>
                                                                                 </div>
                                                                         </div>
@@ -655,7 +650,6 @@
                                                                                                                 ?>
                                                                                                         </tbody>
                                                                                                 </table>
-</div>
                                                                                         </div>
                                                                                 </div>
                                                                         </div>
@@ -690,7 +684,6 @@
                                                                                                                 ?>
                                                                                                         </tbody>
                                                                                                 </table>
-</div>
                                                                                         </div>
                                                                           </div>
                                                                         </div>
@@ -713,7 +706,6 @@
                                                                                                                 <?php echo msl::mithi_space();?>
                                                                                                         </tbody>
                                                                                                 </table>
-</div>
                                                                                         </div>
                                                                                 </div>
                                                                         </div>-->
@@ -737,7 +729,6 @@
                                                                                                                 <?php echo msl::intermdiate_server_space();?>
                                                                                                         </tbody>
                                                                                                 </table>
-</div>
                                                                                         </div>
                                                                                 </div>
                                                                         </div>-->
@@ -760,7 +751,6 @@
                                                                                                                 <?php echo msl::dcog_server_space_util();?>
                                                                                                         </tbody>
                                                                                                 </table>
-</div>
                                                                                         </div>
                                                                                 </div>
                                                                         </div>-->
@@ -801,7 +791,6 @@
                                                                                                                 </tr>
                                                                                                         </tbody>
                                                                                                 </table>
-</div>
                                                                                         </div>
                                                                                 </div>
                                                                         </div>-->
@@ -860,7 +849,6 @@
                                                                                                         ?>
                                                                                                         </tbody>
                                                                                                 </table>
-</div>
                                                                                         </div>
                                                                                 </div>
                                                                         </div>-->
@@ -900,7 +888,6 @@
                                                                                                                 ?>
                                                                                                         </tbody>
                                                                                                 </table>
-</div>
                                                                                         </div>
                                                                                 </div>
                                                                         </div>-->
@@ -961,7 +948,6 @@
                                                                                                                 <?php echo $trickelfeed->Total_trickle_1(); ?>
                                                                                                         </tbody>
                                                                                                 </table>
-</div>
                                                                                         </div>
                                                                                 </div>
                                                                         </div>
@@ -1001,7 +987,6 @@
                                                                                                                 </tr>
                                                                                                         </tbody>
                                                                                                 </table>
-</div>
                                                                                         </div>
                                                                                 </div>
                                                                         </div>
@@ -1042,7 +1027,6 @@
                                                                                                         ?>
                                                                                                 </tbody>
                                                                                         </table>
-</div>
                                                                                 </div>
                                                                         </div>
                                                                 </div>
@@ -1096,7 +1080,6 @@
                                                                                                 ?>
                                                                                                 </tbody>
                                                                                         </table>
-</div>
                                                                                 </div>
                                                                         </div>
                                         </div>
@@ -1133,7 +1116,6 @@
                                                                                                         ?>
                                                                                                 </tbody>
                                                                                         </table>
-</div>
                                                                                 </div>
                                                                         </div>
                                                                 </div>-->
@@ -1186,7 +1168,6 @@
                                                                                                 ?>
                                                                                         </tbody>
                                                                                 </table>
-</div>
                                                                         </div>
                                                                 </div>
                                                         </div>
@@ -1218,7 +1199,6 @@
                                                                                         ?>
                                                                                 </tbody>
                                                                         </table>
-</div>
                                                                 </div>
                                                           </div>
                                                         </div>-->
@@ -1248,7 +1228,6 @@
                                                                                         ?>
                                                                                         </tbody>
                                                                                 </table>
-</div>
                                                                         </div>
                                                                 </div>
                                                         </div>
@@ -1276,7 +1255,6 @@
                                                                                 ?>
                                                                                 </tbody>
                                                                         </table>
-</div>
                                                                 </div>
                                                           </div>
                                                         </div>
@@ -1309,7 +1287,6 @@
                                                                                                 </tr>
                                                                                         </tbody>
                                                                                   </table>
-</div>
                                                                         </div>
                                                                 </div>
                                                           </div>
@@ -1354,7 +1331,6 @@
                                                                                                         </tr>
                                                                                                 </tbody>
                                                                                   </table>
-</div>
                                                                                 </div>
                                                                         </div>
                                                                 </div>
@@ -1371,7 +1347,6 @@
                                                                                         <?php $rtgs->mismatch();        ?>
                                                                                 </tbody>
                                                                           </table>
-</div>
                                                                         </div>
                                                                 </div>
                                                           </div>
@@ -1421,7 +1396,6 @@
                                                                                                 ?>
                                                                                         </tbody>
                                                                                 </table>
-</div>
                                                                         </div>
                                                                 </div>
                                                         </div>
@@ -1447,7 +1421,6 @@
                                                                                         ?>
                                                                                         </tbody>
                                                                                 </table>
-</div>
                                                                         </div>
                                                                 </div>
                                                         </div>-->
@@ -1484,7 +1457,6 @@
                                                                                                 ?>
                                                                                         </tbody>
                                                                                 </table>
-</div>
                                                                         </div>
                                                                 </div>
                                                         </div>
@@ -1508,7 +1480,6 @@
                                                                                         ?>
                                                                                         </tbody>
                                                                                 </table>
-</div>
                                                                         </div>
                                                                 </div>
                                                         </div>-->
@@ -1545,7 +1516,6 @@
                                                                                                 ?>
                                                                                         </tbody>
                                                                                 </table>
-</div>
                                                                         </div>
                                                                 </div>
                                                         </div>-->
@@ -1582,7 +1552,6 @@
                                                                                 ?>
                                                                                 </tbody>
                                                                         </table>
-</div>
                                                                 </div>
                                                         </div>
                                                 </div>-->
@@ -1613,7 +1582,6 @@
                                                                                 ?>
                                                                         </tbody>
                                                                 </table>
-</div>
                                                         </div>
                                                   </div>
                                                 </div>
@@ -1640,7 +1608,6 @@
                                                                                         ?>
                                                                                 </tbody>
                                                                         </table>
-</div>
                                                                 </div>
                                                         </div>
                                                 </div>-->
@@ -1659,7 +1626,6 @@
                                                                                 ?>
                                                                                 </tbody>
                                                                         </table>
-</div>
                                                                 </div>
                                                         </div>
                                                 </div>-->
@@ -1698,7 +1664,6 @@
                                                                                                 ?>
                                                                                                 </tbody>
                                                                                         </table>
-</div>
                                                                                 </div>
                                                                         </div>
                                         </div>-->
@@ -1707,7 +1672,9 @@
                                 </div>
                         </div>
                 </div>
-        </div>
-</section>
+  </div>
+</div> <!-- End of panel-body and scroll div -->
 
-</div> <!-- col-lg-6 -->
+    </div> <!-- End of box -->
+  </div> <!-- End of column -->
+</div> <!-- End of row -->
