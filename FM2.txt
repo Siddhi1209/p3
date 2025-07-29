@@ -1,4 +1,4 @@
- <?php
+  <?php
                 /*$sys_stat = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/sys_stat1.txt"));
                 if($_GET['date'] == '' && $sys_stat == 'N'){
                         echo "<script>window.location.href='eod.php';</script>";
@@ -198,8 +198,9 @@
 <div class="box-tools pull-right"></div>
 
 </div>
-<div class="panel-body table-responsive hehe">
-    <table class="table table-bordered table-striped text-center">
+<div class="panel-body hehe" style="padding-right:10px;">
+<div style="max-height: 500px; overflow-y: auto;">
+    <table class="table table-bordered table-striped text-center" >
         <thead>
             <tr>
                 <th>Queue Name</th>
@@ -219,6 +220,8 @@
             ?>
         </tbody>
     </table>
+</div>
+</div>
 </div>
                                                         <?php
                                                                 $rtgs_slowness_details=$rtgs->rtgs_slowness();
@@ -1659,4 +1662,3 @@
                 </div>
         </div>
 </section>
-
