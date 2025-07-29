@@ -1,5 +1,4 @@
 
-
 function night_queue1() {
     $data1 = explode("\n", file_get_contents($this->currpath."status_queue_9apps.txt.".$this->datecrr));
 
