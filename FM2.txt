@@ -1,109 +1,44 @@
+while :
+do
+cls
+path=/fns/id/r/data/PRODSUPP/EOD
+$HOME/utils/get_queue_buildup $( awk '{print $2}' $card/GATEWAYQ.card | xargs )
+        sed 's/ /,/' $HOME/queue_buildup_${BANCS_DQPTYPE}.out > $HOME/queue_buildup_${BANCS_DQPTYPE}.txt
+>queue_heading.txt_temp
+        cat $HOME/queue_buildup_${BANCS_DQPTYPE}.txt | cut -d "," -f1 | awk 'BEGIN { OFS="," }{print}'|sed 's/$/,/g'|xargs >>queue_heading.txt_temp
+>queue_heading.txt
+        sed -e 's/,$//' -e 's/^/TIME,/g' queue_heading.txt_temp >>queue_heading.txt
+if [ "$BANCS_DQPTYPE" = "$MASTER_DQPTYPE" ]
+then
+sed 's/ /,/' $HOME/queue_buildup_${BANCS_DQPTYPE}.out > $HOME/queue_buildup_${BANCS_DQPTYPE}.txt
+else
+cat $HOME/queue_buildup_${BANCS_DQPTYPE}.out|awk '{print $NF}'> $HOME/queue_buildup_${BANCS_DQPTYPE}.txt
+fi
 
-<div>
- <h3 class="box-title">
-  Queue Buildup
- </h3>
- <?php
-    function safe_read($path) {
-        return file_exists($path) ? trim(file_get_contents($path)) : '';
-    }
 
-    function safe_read_lines($path) {
-        return file_exists($path) ? explode("\n", trim(file_get_contents($path))) : [];
-    }
-
-    $check_path = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_$crdate.txt";
-    $start_time_path = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/start_time_$crdate.txt";
-    $tpmtime = safe_read($check_path);
-    $tpm_starttime = safe_read($start_time_path);
-    $tpmtimestamp = shell_exec("ls -lrt $check_path | awk '{print $6,$7,$8}'");
-
-    $checktpmrunning = safe_read("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpmStatus.txt");
-    $tpm_scp_time = shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.$crdate | tail -1");
-    $tpm_total_file = safe_read_lines("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.$crdate");
-
-    $missingTPMSeq = [];
-    $missing_count = 0;
-    $tpm_button = "";
-
-    foreach (array_filter($tpm_total_file) as $value) {
-        $data = explode("|", trim($value));
-        if (trim($data[0]) != '1') {
-            $missing_count++;
-            array_push($missingTPMSeq, $data);
-        }
-    }
-
-    if ($missing_count >
- 0) {
-        $tpm_button = "
- <button class="glow" data-target="#tpm_modal" data-toggle="modal" style="background-color:red;color:white">
-  TPM Alert
- </button>
- ";
-    }
-
-    array_pop($missingTPMSeq);
-
-    $tpm_running_from = '';
-    if (stripos($checktpmrunning, 'terna') !== false) {
-        $tpm_running_from = 'PR';
-    } elseif (stripos($checktpmrunning, 'MIZO') !== false) {
-        $tpm_running_from = 'NR';
-    } elseif (stripos($checktpmrunning, 'ARASALAR') !== false) {
-        $tpm_running_from = 'DR';
-    }
-
-    $tpm_scp_data = explode("|", $tpm_scp_time);
-    $removeColon_tpm_scp_time = isset($tpm_scp_data[2]) ? strtotime(str_replace(":", "", trim($tpm_scp_data[2]))) : 0;
-
-    $_tpmTime = $yummy-&gt;timeUpdatedTpm("tpmStatus.txt.", ".");
-    $removeColonTPM = strtotime(str_replace(":", "", trim($_tpmTime)));
-    $currtimes = strtotime(date("Ymd Hi"));
-    $scp_difftimes = $currtimes - $removeColon_tpm_scp_time;
-    $difftimes = $currtimes - $removeColonTPM;
-
-    $FinalScpTime = "
- <span style="color:#fff">
-  " . (isset($tpm_scp_data[2]) ? trim($tpm_scp_data[2]) : "N/A") . "
- </span>
- ";
-    if ($scp_difftimes &gt; 3600) {
-        $FinalScpTime = "
- <span style="color:#fff">
-  " . (isset($tpm_scp_data[2]) ? trim($tpm_scp_data[2]) : "N/A") . "
- </span>
- ";
-    }
-
-    $finalTpmTime = "
- <span style="color:#fff">
-  " . trim($_tpmTime) . "
- </span>
- ";
-    if ($difftimes &gt; 600) {
-        $finalTpmTime = "
- <span class="glow" style="background-color:red;color:white" title="TPM Not Updated since last 10 minutes">
-  " . trim($_tpmTime) . "
- </span>
- ";
-    }
-
-    $TPM_start_time_hr = substr($tpm_starttime, 0, 2);
-    $TPM_start_time_min = substr($tpm_starttime, 2, 2);
-?&gt;
- <span class="btn btn-xs btn-success" style="float:left;font-size:14px;">
-  <a class="btn btn-sm" onclick="window.open('TPMmonitorfile.php?date=&lt;?php echo $crdate;?&gt;','','height=900, width=1400,scrollbars=yes,resizable=yes' );" style="float:left">
-   <?php
-            echo "TPM Running on : $tpm_running_from | SFTP : $FinalScpTime | Tar Files : " . ($tpm_scp_data[0] ?? "N/A") . " $tpm_button";
-        ?>
-  </a>
- </span>
- <span class="queuetimepop" style="float:right;font-size:18px;">
-  <img src="loading-bubbles.svg"/>
-  <?php echo $yummy->
-  timeUpdated("status_queue_8app.txt.false", ".");?&gt;
- </span>
- <div class="box-tools pull-right">
- </div>
-</div>
+cat $HOME/queue_buildup_${BANCS_DQPTYPE}.out|awk '{print $NF}'> $HOME/queue_buildup.txt
+dt=`cat /fns/id/r/data/file/MFLAGS|cut -c 9-16`
+echo "`date|awk '{print $4}'`" > $HOME/t11
+#echo `cat $HOME/queue_buildup.txt` >$HOME/val1
+cat $HOME/queue_buildup.txt|xargs|sed 's/ /,/g' >$HOME/val1
+if [ -f $path/pace_buildup.txt.$dt ];then
+paste -d "," $HOME/t11 $HOME/val1 >> $path/pace_buildup.txt.$dt
+else
+        paste -d "," $HOME/t11 $HOME/val1 >> $path/pace_buildup.txt.$dt
+        cat queue_heading.txt $path/pace_buildup.txt.$dt >$path/pace_buildup.txt
+        mv $path/pace_buildup.txt $path/pace_buildup.txt.$dt
+fi
+sed 's/NQKE/0/g' $HOME/val1 > $HOME/val2
+sed 's/,/+/g' $HOME/val2 > $HOME/val3
+bup=`cat $HOME/val3 | bc`
+if [ -f $path/pace_buildup_100.txt.$dt ];then
+        if [ $bup -gt 100 ];then
+                paste -d "," $HOME/t11 $HOME/val1 >> $path/pace_buildup_100.txt.$dt
+        fi
+else
+        cat queue_heading.txt > $path/pace_buildup_100.txt.$dt
+fi
+$HOME/utils/ftc.sh $HOME/queue_buildup_${BANCS_DQPTYPE}.txt /opt/hpws/apache/cgi-bin/trials/bip/data/EOD/queue_buildup_${BANCS_DQPTYPE}.txt.$dt
+$HOME/utils/ftc.sh $path/pace_buildup_100.txt.$dt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/production_history/queue/eod/pace_buildup_${BANCS_DQPTYPE}.txt.$dt
+sleep 10
+done
