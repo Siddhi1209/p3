@@ -1,15 +1,4 @@
-
-
-
-<div class="row">
-  <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 queue_btn" data-step=18 data-intro="View Details of Main Queues and Replica with Buildup And PID Details">
-    <div class="box box-primary box-solid">
-      <div class="box-header bg-tcs-active text-center">
-        <h3 class="box-title">Queue Buildup</h3>
-
-<div class="panel-body hehe" style="padding-right:10px;">
-  <div style="max-height: 500px; overflow-y: auto;">
-<?php
+   <?php
                 /*$sys_stat = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/sys_stat1.txt"));
                 if($_GET['date'] == '' && $sys_stat == 'N'){
                         echo "<script>window.location.href='eod.php';</script>";
@@ -209,32 +198,33 @@
 <div class="box-tools pull-right"></div>
 
 </div>
-<div class="panel-body hehe" style="padding-right:10px;">
-<div style="max-height: 500px; overflow-y: auto;">
-    <table class="table table-bordered table-striped text-center" >
-        <thead>
-            <tr>
-                <th>Queue Name</th>
-                <?php for ($i = 0; $i <= 15; $i++): ?>
-                    <th><?php echo $i == 0 ? "M" : "S$i"; ?></th>
-                <?php endfor; ?>
-            </tr>
-        </thead>
-        <tbody class="queueappend" style="font-size:15px;">
-            <?php
-                $buildup_flag = safe_read("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/buildup_flag.txt");
-                if ($buildup_flag == "0") {
-                    $aplnMonior->status_queue();
-                } else {
-                    $aplnMonior->status_queue1();
-                }
-            ?>
-        </tbody>
-    </table>
-</div>
-</div>
-</div>
-</div>
+                                                                <div class="panel-body hehe" style="padding-right:10px;">
+                                                                <div style="max-height: 500px; overflow-y: auto;">
+                                                                    <table class="table table-bordered table-striped text-center" >
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Queue Name</th>
+                                                                                <?php for ($i = 0; $i <= 15; $i++): ?>
+                                                                                    <th><?php echo $i == 0 ? "M" : "S$i"; ?></th>
+                                                                                <?php endfor; ?>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody class="queueappend" style="font-size:15px;">
+                                                                            <?php
+                                                                                $buildup_flag = safe_read("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/buildup_flag.txt");
+                                                                                if ($buildup_flag == "0") {
+                                                                                    $aplnMonior->status_queue();
+                                                                                } else {
+                                                                                    $aplnMonior->status_queue1();
+                                                                                }
+                                                                            ?>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                                </div>
+                                                                </div>
+
+
                                                         <?php
                                                                 $rtgs_slowness_details=$rtgs->rtgs_slowness();
                                                                 $rtgs_slowness=explode("|",$rtgs->rtgs_slowness());
@@ -286,6 +276,7 @@
                                                                         </div>-->
 <!--Commenting for CommandCenter-->
 <!--Relocation for Command Center-->
+
                                                 <div class="col-md-12">
                                                                         <div class="panel panel-primary">
                                                                                 <div class="panel-heading bg-tcs-active">
@@ -1672,9 +1663,5 @@
                                 </div>
                         </div>
                 </div>
-  </div>
-</div> <!-- End of panel-body and scroll div -->
-
-    </div> <!-- End of box -->
-  </div> <!-- End of column -->
-</div> <!-- End of row -->
+        </div>
+</section>
