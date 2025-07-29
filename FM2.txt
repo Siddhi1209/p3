@@ -1,3 +1,9 @@
+<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 queue_btn" data-step=18 data-intro="View Details of Main Queues and Replica with Buildup And PID Details">
+                                                                        <div class="box box-primary box-solid">
+                                                                                <div class="box-header bg-tcs-active text-center">
+
+                                                                                        <h3 class="box-title">Queue Buildup</h3>
+
 <?php
     function safe_read($path) {
         return file_exists($path) ? trim(file_get_contents($path)) : '';
