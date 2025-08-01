@@ -1,8 +1,6 @@
-    <?php
-
-error_reporting(0);
+<?php
                 //header('Location: https://10.0.6.125:8080/under_construction/');
-                //header('Location: https://10.176.29.189:9090/pace/Online_portal/pages/smart_external.php');
+                //header('Location: https://10.176.29.189:9090/pace/Online_portal/pages/smart.php');
                 session_start();
                 //if($_SESSION['portal'] !="Smartmonitor"){
                 //      header('location:../login.php');
@@ -296,7 +294,7 @@ if($portal_ip=='10.176.29.189'){
 <body class="skin-blue sidebar-collapse" oncontextmenu="return false;" id="canvas" >
         <div class="wrapper">
                 <header class="main-header" id="myheader" style="min-width: 173vw;">
-                        <a href="smart.php" title="Smart Monitoring and Reporting tool By TATA Consultancy Services Developed By CBS-PSO Team." class="logo bg-black-active welcomepso"><img src="../img/smart_logo_2016_small.jpg" alt="TCS logo" style="background-color:#fff;margin-left:-30px;margin-top:-43px;width:245px;height:135px;"></a>
+                        <a href="smart_dcog.php" title="Smart Monitoring and Reporting tool By TATA Consultancy Services Developed By CBS-PSO Team." class="logo bg-black-active welcomepso"><img src="../img/smart_logo_2016_small.jpg" alt="TCS logo" style="background-color:#fff;margin-left:-30px;margin-top:-43px;width:245px;height:135px;"></a>
                         <nav class="navbar navbar-static-top bg-black-active" role="navigation" style="height:40px;!important">
                                 <a href="#" class="sidebar-toggle bg-aqua-active" data-toggle="offcanvas" role="button">
                                         <span class="sr-only">Toggle navigation</span>
@@ -415,22 +413,21 @@ if($portal_ip=='10.176.29.189'){
                 <div class="content-wrapper">
                         <section class="content-header">
                         <ul class="btn-group mainnav" style="margin-left:-40px;">
-                                <li class="hassubs branches_telm"><a title="Branches Logged In" style="background-color:#db8b0b;border-radius: 6px;" target="_blank" href="branchlist.php"><i class="fa fa-university"></i><span class="brancheslogged"> <b><?php echo msl::app_stat1();?></b> </span></a></li>
-                                <li class="hassubs teller_telm"><a onclick="window.open('teller_graph.php','','height=950, width=1000,scrollbars=yes,resizable=yes' );" title="No of Teller Logged" style="background-color:#555299;border-radius: 6px;"><i class="fa fa-users"></i><span class="tellerlogged"> <b><?php echo msl::app_stat_teller();?> </b></span></a></li>
-                                <!--<li class="hassubs"><a href="#" title="ImageDB"  class="noCursor imageDB <?php echo $classglow;?>" style="border-radius: 6px;<?php echo $classcolor;?>"><?php echo "ImageDB ".$icon;?></a></li>-->
+                                <li class="hassubs branches_telm"><a title="Branches Logged In" style="background-color:#db8b0b;border-radius: 6px;" target="_blank" href="branchlist.php"><i class="fa fa-university"></i><span class="brancheslogged"><b> <?php echo msl::app_stat1();?> </b></span></a></li>
+                                <li class="hassubs teller_telm"><a onclick="window.open('teller_graph.php','','height=950, width=1000,scrollbars=yes,resizable=yes' );" title="No of Teller Logged" style="background-color:#555299;border-radius: 6px;"><i class="fa fa-users"></i><span class="tellerlogged"><b> <?php echo msl::app_stat_teller();?> </b></span></a></li>
 
+                                        <li><a onclick="window.open('progressCBS.html','','height=300, width=1800,scrollbars=yes,resizable=yes' );" class="bg-green" style="border-radius: 6px;"><font color="white"><b> CBS FLOW </b></font></a></li>
 
-                                <!--<li class="hassubs"><a onclick="window.open('tpmtps.php?date=<?php echo $crdate;?>','','height=900, width=1200,scrollbars=yes,resizable=yes' );" style="background-color:#00a7d0;border-radius: 6px;" class="tpscurr tps_btn">--><!--TPS : <?php echo trim(shell_exec("cat ".$currpath."tps_all_8apps.".$crdate."|awk '{print $1}'")); ?>--><!--|Max : <?php echo $tpsdata[0]."at ".$peaktime; ?>--></a>
-                                        <!--<ul class="dropdown">-->
+                                <li class="hassubs"><a href="#" title="ImageDB"  class="noCursor imageDB <?php echo $classglow;?>" style="border-radius: 6px;<?php echo $classcolor;?>"><?php echo "ImageDB ".$icon;?></a></li>
+                                <li class="hassubs"><a onclick="window.open('tpmtps.php?date=<?php echo $crdate;?>','','height=900, width=1200,scrollbars=yes,resizable=yes' );" style="background-color:#00a7d0;border-radius: 6px;" class="tpscurr tps_btn">TPS : <?php echo trim(shell_exec("cat ".$currpath."tps_all_8apps.".$crdate."|awk '{print $1}'")); ?>|Max : <?php echo $tpsdata[0]."at ".$peaktime; ?></a>
+                                        <ul class="dropdown">
                                                 <!--<li class="subs"><a href="#"  data-toggle="modal" data-target="#myModal3" class="tpsbreakup" style="background-color:#555299;border-radius: 6px;">TPS Breakup</a></li>-->
-                                                <!--<li class="subs" ><a href="#"  data-toggle="modal" data-target="#myModal2"  style="background-color:#555299;border-radius: 6px;">Compare Tps </a></li>-->
+                                                <li class="subs" ><a href="#"  data-toggle="modal" data-target="#myModal2"  style="background-color:#555299;border-radius: 6px;">Compare Tps </a></li>
                                                 <!--<li class="subs" ><a href="#"  data-toggle="modal" data-target="#myModalpeaktps"  style="background-color:#555299;border-radius: 6px;">Peak Tps </a></li>-->
-                                        <!--</ul>-->
-                                <!--</li>-->
+                                        </ul>
+                                </li>
 
-                                <!--<li class="hassubs"><a href="#"  data-toggle="modal" data-target="#myModalpeaktps"  style="background-color:#555299;border-radius: 6px;">Peak TPS WEEK</a></li>-->
-
-                                <li><a onclick="window.open('progressCBS.html','','height=300, width=1800,scrollbars=yes,resizable=yes' );" class="bg-green" style="border-radius: 6px;"><font color="white"><b> CBS FLOW </b></font></a></li>
+                                <li class="hassubs"><a href="#"  data-toggle="modal" data-target="#myModalpeaktps"  style="background-color:#555299;border-radius: 6px;">Peak TPS WEEK</a></li>
 
                                 <li class="hassubs"><a onclick="window.open('txn_desc.php','','height=600, width=1200,scrollbars=yes,resizable=yes' );" class="bg-green" style="border-radius: 6px;"><font color="white">TxN Desc</font></a></li>
                                 <?php
@@ -440,7 +437,7 @@ if($portal_ip=='10.176.29.189'){
                                 <?php } */?>
                                 <li class="hassubs all_files"><a onclick="window.open('allfiles.php','','height=900, width=1500,scrollbars=yes,resizable=yes' );" title="All files location and data" style="background-color:#00a7d0;border-radius: 6px;cursor:pointer" >All Files </a></li>
                                 <!--<li class="hassubs progress_day"><a onclick="window.open('progress_day.php?date=<?php echo $crdate ; ?>','','height=600, width=1500,scrollbars=yes,resizable=yes' );" style="background-color:#008d4c;border-radius: 6px;cursor:pointer" title="All Progress through the Day">Progress Throughout</a></li>-->
-                                <li class="hassubs progress_day"><a onclick="window.open('branch_teller_interval.php?date=<?php echo $crdate ; ?>','','height=600, width=1500,scrollbars=yes,resizable=yes' );" style="background-color:#008d4c;border-radius: 6px;cursor:pointer" title="Branch Teller Interval">Branch Teller Interval</a></li>
+                                <li class="hassubs progress_day"><a onclick="window.open('branch_teller_interval.php?date=<?php echo $crdate ; ?>','','height=600, width=1500,scrollbars=yes,resizable=yes' );" style="background-color:#008d4c;border-radius: 6px;cursor:pointer" title="Branch Teller Interval">Branch Teller Interval</a></li>-
                                 <li class="hassubs milestone_det"><a class="" style="background-color:#6ab04c;color:white;border-radius: 6px;cursor:pointer" onclick="window.open('/pace/Online_portal/pages/milestone.php','','height=950, width=1920,scrollbars=yes,resizable=yes' );">Milestone Details</a></li>
                                 <!--<li class="hassubs lotusupi_det" ><a href="#" style="background-color:blue;border-radius: 6px;">Graphs</a>
                                         <ul class="dropdown">
@@ -472,7 +469,7 @@ if($portal_ip=='10.176.29.189'){
                                         </a>
                                 </li>
                                 <li class="hassubs legends"><a class="" style="background-color:#db8b0b;border-radius: 6px;cursor:pointer" onclick="window.open('legends.php','','height=700, width=1700,scrollbars=yes,resizable=yes' );">Legends</a></li>
-                                <!--<li class="hassubs sms_noti"><a style="border-radius: 6px;background-color:#381460;cursor:pointer;" onclick="window.open('notificationengine.php','','height=950, width=1000,scrollbars=yes,resizable=yes' );" class=" smsne_class <?php echo $classglow_smsne;?>">SMSNE</a></li>-->
+                                <li class="hassubs sms_noti"><a style="border-radius: 6px;background-color:#381460;cursor:pointer;" onclick="window.open('notificationengine.php','','height=950, width=1000,scrollbars=yes,resizable=yes' );" class=" smsne_class <?php echo $classglow_smsne;?>">SMSNE</a></li>
                                 <!--<li class="hassubs log_gap" ><a class="loggapnr" style="border-radius: 6px;background-color:#00a7d0;cursor:pointer;" onclick="window.open('loggap.php','','height=1000, width=1200,scrollbars=yes,resizable=yes' );">Log Gap(NR/DR):<?php echo $loggapdata1."/".$loggapdatadr;?></a></li>
                                 <li class="hassubs showefeed_det"><a onclick="window.open('SFDQ_queue.php?date=<?php echo $_GET['date']?>','','height=800,width=1600,scrollbars=yes,resizable=yes');window.open('shfeed_requested_job.php','','height=900,width=800,scrollbars=yes,resizable=yes')" title="Showerfeed Status" class="noCursor class_showerfeed <?php echo $classglow_showerfeed;?>" style="border-radius: 6px;<?php echo $classcolor_showerfeed;?>"><?php echo "Shfeed ".$icon_showerfeed;?></a></li>-->
 
@@ -481,28 +478,28 @@ if($portal_ip=='10.176.29.189'){
 
                                 <!-- Reposting Count Updated Script -->
 
-                        #       <li class="hassubs neftrepostfail_utr"><a target="_blank" href="reposting_mon.php" title="Reposting Count" class="repostfail <?php echo $classglowrepostfail;?>" style="<?php echo $repostfailcolor; ?>;border-radius: 6px;"><?php echo "Reposting Status"; ?></a></li>
+                                <li class="hassubs neftrepostfail_utr"><a target="_blank" href="reposting_mon.php" title="Reposting Count" class="repostfail <?php echo $classglowrepostfail;?>" style="<?php echo $repostfailcolor; ?>;border-radius: 6px;"><?php echo "Reposting Status"; ?></a></li>
 
 
                                 <li class="hassubs neftrepostfail_utr"><a target="_blank" href="neftrepostfail.php" title="NEFT Repost Fail Count" class="repostfail <?php echo $classglowrepostfail;?>" style="<?php echo $repostfailcolor; ?>;border-radius: 6px;"><?php echo "Repost Fail:".$repostfailcount; ?></a></li>
 
                                 <!--<li class="hassubs"><a target="_blank" title="Extend Queryi [DB] password Now In All instances !!" class="btn btn-primary sqlconnection">SQL 9apps Queryi user - <?php echo $querysql;?></a></li>--->
-                                <!--<li class="hassubs"><a title="Gateway Port Error !!" style="border-radius: 6px;cursor:pointer" onclick="window.open('gateway_matrix.php?date=<?php echo $crdate;?>','_blank');" class="btn btn-success channelmatrix ">Gateway HIVE</a></li>-->
+                                <li class="hassubs"><a title="Gateway Port Error !!" style="border-radius: 6px;cursor:pointer" onclick="window.open('gateway_matrix.php?date=<?php echo $crdate;?>','_blank');" class="btn btn-success channelmatrix ">Gateway HIVE</a></li>
                                 <!--<li class="hassubs"><a class="btn btn-default bg-purple" target="_blank"  href="../../eventportal/IG_yonoupi.php">UPI/Yono Response</a></li>-->
-                                <!--<li class="hassubs bg-navy"><a style="border-radius: 6px;cursor:pointer;"  class="kcusage" onclick="window.open('kcusage.php','','height=950, width=1600,scrollbars=yes,resizable=yes' );" >KCusage</a></li>-->
+                                <li class="hassubs bg-navy"><a style="border-radius: 6px;cursor:pointer;"  class="kcusage" onclick="window.open('kcusage.php','','height=950, width=1600,scrollbars=yes,resizable=yes' );" >KCusage</a></li>
                                 <!--<li class="hassubs bg-purple"><a style="border-radius: 6px;background-color:#381460;cursor:pointer;"  onclick="window.open('eoyeod.php','','height=950, width=1600,scrollbars=yes,resizable=yes' );" >EOD Signal Details</a></li>-->
                                 <!--<li class="hassubs"><a target="_blank" href="/pace/Online_portal/tran_resp.php?dqp=i" class="btn btn-info ">Response- DqpTYPE</a></li>-->
 
-                                <!--<li class="hassubs " style="cursor:none !important;"><button type="button" class="btn-primary"><b>DEDUP Status : </b><?php echo msl::dedup();?></button></li>-->
-                                <!--<li class="hassubs bg-navy"><a style="border-radius: 6px;cursor:pointer;"  onclick="window.open('rollover.php','','height=950, width=1600,scrollbars=yes,resizable=yes' );" >Rollover and Payout</a></li>-->
+                                <li class="hassubs " style="cursor:none !important;"><button type="button" class="btn-primary"><b>DEDUP Status : </b><?php echo msl::dedup();?></button></li>
+                                <li class="hassubs bg-navy"><a style="border-radius: 6px;cursor:pointer;"  onclick="window.open('rollover.php','','height=950, width=1600,scrollbars=yes,resizable=yes' );" >Rollover and Payout</a></li>
                                 <li class="hassubs  "><a style="background-color:#6ab04c;color:white;border-radius: 6px;cursor:pointer" class="rtgsincominggateway" onclick="window.open('rtgsmultiple_credit.php','','height=950, width=1600,scrollbars=yes,resizable=yes' );" >RTGS Incoming gateway</a></li>
                                 <li class="hassubs  "><a style="background-color:#6ab04c;color:white;border-radius: 6px;cursor:pointer" class="rtgsincomingack" onclick="window.open('rtgsng_ack_in.php','','height=950, width=1600,scrollbars=yes,resizable=yes' );" >RTGS Incoming ACK C54</a></li>
                                 <!--<li class="hassubs  "><a style="background-color:#6ab04c;color:white;border-radius: 6px;cursor:pointer" class="sms_cbs_ne" onclick="window.open('sms_cbs_ne.php','','height=950, width=1600,scrollbars=yes,resizable=yes' );" >SMS PUSHED DELAY</a></li>-->
 
-                                <!--<li class="hassubs bg-navy"><a style="border-radius: 6px;cursor:pointer;"  class="MREN_query" onclick="window.open('MREN_query.php','','height=500, width=1600,scrollbars=yes,resizable=yes' );" >MREN query
-                                </a></li>-->
-                                <!--<li class="hassubs neftrepostfail_utr"><a target="_blank" href="EIS_Data.php" title="EIS Txn Count" >EIS Txn Count</a></li>-->
-                                <!--<li id="channel-txn-log-btn" class="hassubs" style="background-color:green;color:white;cursor:pointer"><a target="_blank" href="channel_txn_log.php" title="Channel Txn Log" >Channel Txn Log</a></li>-->
+                                <li class="hassubs bg-navy"><a style="border-radius: 6px;cursor:pointer;"  class="MREN_query" onclick="window.open('MREN_query.php','','height=500, width=1600,scrollbars=yes,resizable=yes' );" >MREN query
+                                </a></li>
+                                <li class="hassubs neftrepostfail_utr"><a target="_blank" href="EIS_Data.php" title="EIS Txn Count" >EIS Txn Count</a></li>
+                                <li id="channel-txn-log-btn" class="hassubs" style="background-color:green;color:white;cursor:pointer"><a target="_blank" href="channel_txn_log.php" title="Channel Txn Log" >Channel Txn Log</a></li>
                         </ul>
                         <!--TPS-->
                         <div id="id01" class="modal">
@@ -621,7 +618,7 @@ if($portal_ip=='10.176.29.189'){
                                                                 <div class="col-md-3"><span class="btn btn-danger">Branch Server :- <?php echo msl::tps_break(0);?></span></div>
                                                                 <div class="col-md-3"><span class="btn btn-danger">Internet Banking:- <?php echo msl::tps_break(1);?></span></div>
                                                                 <div class="col-md-3"><span class="btn btn-danger">ATM:- <?php echo msl::tps_break(2);?></span></div>
-                                                                <div class="col-md-3"><span class="btn btn-danger">MR:- <?php echo (trim(shell_exec("cat ".$currpath."tpmtps_all_8apps.".$crdate."|awk '{print $1}'"))." - ".msl::tps_break(2)." - ".msl::tps_break(1)." - ".msl::tps_break(0));?></span></div>
+                                                                <div class="col-md-3"><span class="btn btn-danger">MR:- <?php echo (trim(shell_exec("cat ".$currpath."tpmtps_all_8apps.".$crdate."|awk '{print $1}'")) - msl::tps_break(2) - msl::tps_break(1) - msl::tps_break(0));?></span></div>
                                                         </div><br/>
                                                         <div class="row">
                                                                 <div class="col-md-4"><span class="btn btn-danger">NR/DR Branch Server :- <?php echo msl::nr_tps_break(0);?></span></div>
@@ -961,7 +958,7 @@ if($portal_ip=='10.176.29.189'){
                                                                         </div>
                                                                 </div>
                                                                 <div id="alldiv">
-                                                                        <?php //include("monitorExternalFile.php");?>
+                                                                        <?php //include("monitorFile.php");?>
                                                                 </div>
                                                         </div>
                                                 </div>
@@ -970,7 +967,7 @@ if($portal_ip=='10.176.29.189'){
                         </section>-->
 
                         <div id="alldiv">
-                                <?php include("monitorExternalFile.php"); ?>
+                                <?php include("monitorFile_apr.php"); ?>
                         </div>
                 </div>
                         <footer class="main-footer bg-navy-active">
@@ -1646,3 +1643,6 @@ window.addEventListener("resize", (e) => {
                 $err="Un-Authenticated Access Try Again!!";
                 header("location:../index.php?status=err=$err");
         }*/
+?>
+
+
