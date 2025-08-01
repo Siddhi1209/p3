@@ -1,53 +1,41 @@
 
-<div class="col-md-12">
-    <div class="panel panel-primary">
-        <div class="panel-heading bg-tcs-active">
-            <span style="float:right;font-size:18px;">
-                <?php echo $yummy->timeUpdated("SBI_autosys_space_utilization.txt", "."); ?>
-            </span>
-            MQ Status
-        </div>
-        <div class="panel-body table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th class="text-center">Server</th>
-                        <th class="text-center">M</th>
-                        <th class="text-center">S1</th>
-                        <th class="text-center">S2</th>
-                        <th class="text-center">S3</th>
-                        <th class="text-center">S4</th>
-                        <th class="text-center">S5</th>
-                        <th class="text-center">S6</th>
-                        <th class="text-center">S7</th>
-                        <th class="text-center">S8</th>
-                        <th class="text-center">S9</th>
-                        <th class="text-center">S10</th>
-                        <th class="text-center">S11</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php echo msl::mq_status(); ?>
-                </tbody>
-            </table>
 
-            <div>
-                <span style="float:right;background-color:white;color:black;cursor:default;" class="btn btn-sm btn-primary legends_btn">
-                    <span class="na_btn">
-                        <i style="color:black" class="fa fa-fw fa-minus"></i>NA
-                    </span>
-                    <span class="running_btn">
-                        <i style="color:green" class="fa fa-check"></i>OK
-                    </span>
-                    <span class="running_btn">
-                        <i style="color:green" class="fa fa-check"></i><b> 2004 (RTGS/NEFT)</b>
-                    </span>
-                    <span class="running_btn">
-                        <i style="color:green" class="fa fa-check"></i><b> 2005 (IMPS)</b>
-                    </span>
-                </span>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Relocation for Command Center -->
+public static function mq_status() {
+    // Use today's date (or from POST/GET) to locate the file
+    $date = $_POST['date'] ?? ($_GET['date'] ?? timedisplay::dateUp());
+    $filepath = timedisplay::pathgiver() . "mq_status_12apps.txt." . $date;
+
+    // If today's file is not found
+    if (!file_exists($filepath)) {
+        echo "<tr><td colspan='13' class='text-center'>No data present for today.</td></tr>";
+        return;
+    }
+
+    // Read the file
+    $rawData = file_get_contents($filepath);
+    if ($rawData === false || trim($rawData) === "") {
+        echo "<tr><td colspan='13' class='text-center'>No data present for today.</td></tr>";
+        return;
+    }
+
+    // Process and display data
+    $data = explode("\n", trim($rawData));
+
+    foreach ($data as $line) {
+        $var = explode(",", $line);
+        echo "<tr>";
+        foreach ($var as $v3) {
+            $v3 = trim($v3);
+            if ($v3 === 'RUNNING') {
+                echo "<td class='text-center' style='color:green;'><i class='fa fa-check'></i></td>";
+            } elseif ($v3 === 'NA') {
+                echo "<td class='text-center' style='color:black;'><i class='fa fa-minus'></i></td>";
+            } elseif ($v3 === 'ERROR') {
+                echo "<td class='glow text-center' data-toggle='tooltip' style='color:white;' title='Error'>ERROR</td>";
+            } else {
+                echo "<td class='text-center bg-black'>" . htmlspecialchars($v3) . "</td>";
+            }
+        }
+        echo "</tr>";
+    }
+}
