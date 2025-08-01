@@ -1,4 +1,4 @@
-   <?php
+        <?php
                 /*$sys_stat = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/sys_stat1.txt"));
                 if($_GET['date'] == '' && $sys_stat == 'N'){
                         echo "<script>window.location.href='eod.php';</script>";
@@ -21,11 +21,9 @@
                                 $DBdecider='PR';
                                 break;
                 }
-?>
-<?php
-                error_reporting(E_ALL);
-                ini_set('display_errors' ,1);
-                ?>
+                $ftpuploadserver=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/FTP_SERVER.txt");
+        ?>
+
         <section class="content">
                 <div class="row">
                         <div class="col-xs-12">
@@ -50,7 +48,8 @@
                                                                                                 </span>
                                                                                         </div>
                                                                                 </div>
-                                                                        -->
+                                                -->
+
                                                 <div class="row">
                                                         <div class="col-md-12" style="position:relative; min-height: 1px; padding-right: 0px; padding-left: 0px;">
                                                                 <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 jobs_btn" data-step=17 data-intro="View Details Main Gateways And Misc Jobs">
@@ -58,7 +57,7 @@
                                                                                 <div class="box-header bg-tcs-active text-center">
                                                                                   <h3 class="box-title">Jobs</h3>
                                                                                   <!--<a target="_blank" href="gatewayconso.php" style="float:left" class="btn btn-xs btn-success">Gateway Consolidated</a>-->
-                                                                                  <!--<a target="_blank" href="intermediate_server_fs.php" style="float:left;margin-left:5px;" class="btn btn-xs btn-warning">Intermediate server file status</a>-->
+                                                                                  <!--trget="_blank" href="intermediate_server_fs.php" style="float:left;margin-left:5px;" class="btn btn-xs btn-warning">Intermediate server file status</a>-->
                                                                                 <span class="jobstimepop" style="float:right;font-size:18px;"><img src="loading-bubbles.svg"> <?php echo $yummy->timeUpdated("gateway.txt_8app",".");?></span>
                                                                                 </div>
                                                                                 <div class="box-body table-responsive">
@@ -82,7 +81,7 @@
                                                                                                                 <th>S13</th>
                                                                                                                 <th>S14</th>
                                                                                                                 <th>S15</th>
-                                                                                                                <?php //echo file_get_contents("server_card.php");?>
+                                                                                                                <?php// echo file_get_contents("server_card.php");?>
                                                                                                    </tr>
                                                                                           </thead>
                                                                                           <tbody class="jobsappend">
@@ -94,7 +93,7 @@
                                                                                                         <!--<span class="na_btn"><i style="color:black" class='fa fa-fw fa-minus'></i>NA</span>-->
                                                                                                         <span class="na_btn"><i style="color:black" class='fa fa-fw fa-minus'></i>NA</span>
                                                                                                         <span class="running_btn"><i style="color:green" class='fa fa-check'></i>OK</span>
-                                                                                                        <span class="noUpdating_btn"><i style="color:#f39c12" class='fa fa-fw fa-warning'></i>No Data</span>
+                                                                                                        <span class="noUpdating_btn"><i style="color:#f39c12" class='fa fa-fw fa-warning'></i>Not Updating</span>
                                                                                                         <span class="noencryption_btn"><i style="color:navy" class='fa fa-fw fa-chain-broken'></i>Not Encrypted</span>
                                                                                                         <span class="noTxn_btn"><i style="color:red" class='fa fa-fw fa-ban'></i>NO TXN</span>
                                                                                                         <span class="timeFreezed_btn"><i style="color:red" class='fa fa-fw fa-exclamation'></i>TIMESTAMP FREEZED</span>
@@ -111,147 +110,230 @@
                                                                 <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 queue_btn" data-step=18 data-intro="View Details of Main Queues and Replica with Buildup And PID Details">
                                                                         <div class="box box-primary box-solid">
                                                                                 <div class="box-header bg-tcs-active text-center">
-
                                                                                         <h3 class="box-title">Queue Buildup</h3>
                                                                                         <?php
-                                                                                            function safe_read($path) {
-                                                                                                return file_exists($path) ? trim(file_get_contents($path)) : '';
-                                                                                            }
-
-                                                                                            function safe_read_lines($path) {
-                                                                                                return file_exists($path) ? explode("\n", trim(file_get_contents($path))) : [];
-                                                                                            }
-
-                                                                                            $check_path = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_$crdate.txt";
-                                                                                            $start_time_path = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/start_time_$crdate.txt";
-                                                                                            $tpmtime = safe_read($check_path);
-                                                                                            $tpm_starttime = safe_read($start_time_path);
-                                                                                            $tpmtimestamp = shell_exec("ls -lrt $check_path | awk '{print $6,$7,$8}'");
-
-                                                                                            $checktpmrunning = safe_read("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpmStatus.txt");
-                                                                                            $tpm_scp_time = shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.$crdate | tail -1");
-                                                                                            $tpm_total_file = safe_read_lines("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.$crdate");
-
-                                                                                            $missingTPMSeq = [];
-                                                                                            $missing_count = 0;
-                                                                                            $tpm_button = "";
-
-                                                                                            foreach (array_filter($tpm_total_file) as $value) {
-                                                                                                $data = explode("|", trim($value));
-                                                                                                if (trim($data[0]) != '1') {
-                                                                                                    $missing_count++;
-                                                                                                    array_push($missingTPMSeq, $data);
+                                                                                                /*$tpmtime=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_".$crdate.".txt");
+                                                                                                $tpm_starttime=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/start_time_".$crdate.".txt");
+                                                                                                $tpmtimestamp=shell_exec("ls -lrt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_".$crdate.".txt|awk '{print $6,$7,$8}'");
+                                                                                                $checktpmrunning=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpmStatus.txt.".$crdate);
+                                                                                                $tpm_scp_time=shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.".$crdate."|tail -1");
+                                                                                                if ( strpos(trim($checktpmrunning), 'terna' ) == true ) {
+                                                                                                        $tpm_running_from = 'PR';
                                                                                                 }
-                                                                                            }
+                                                                                                elseif(strpos(trim($checktpmrunning), 'MIZO' ) == true) {
+                                                                                                        $tpm_running_from = 'NR';
+                                                                                                }
+                                                                                                else{
+                                                                                                        $tpm_running_from = 'DR';
+                                                                                                }
+                                                                                                $tpm_scp_data=explode("|",$tpm_scp_time);
+                                                                                                $removeColon_tpm_scp_time=str_replace(":","",trim($tpm_scp_data[2]));
+                                                                                                $removedColon_tpm_scp_time=strtotime($removeColon_tpm_scp_time);
+                                                                                                $_tpmTime = $yummy->timeUpdatedTpm("tpmStatus.txt.",".");
+                                                                                                $removeColonTPM = str_replace(":","",trim($_tpmTime));
+                                                                                                $removeColonTimes = strtotime($removeColonTPM);
+                                                                                                $currtimes=strtotime(date("Ymd Hi"));
+                                                                                                $scp_difftimes=$currtimes-$removedColon_tpm_scp_time;
+                                                                                                $difftimes=$currtimes-$removeColonTimes;
+                                                                                                if(intval($scp_difftimes)<=0){
+                                                                                                        $FinalScpTime = "<span style='background-color:red;color:white' class='glow' title='TPM Not Updated since last 10 mintues'>".trim($tpm_scp_data[2])."</span>";
+                                                                                                }
+                                                                                                else{
+                                                                                                        $FinalScpTime = "<span style='color:#fff'>".trim($tpm_scp_data[2])."</span>";
+                                                                                                }
+                                                                                                if(intval($difftimes)>600){
+                                                                                                $finalTpmTime = "<span style='color:#fff'>".trim($_tpmTime)."</span>";
+                                                                                                }
+                                                                                                else{
+                                                                                                $finalTpmTime = "<span style='color:#fff'>".trim($_tpmTime)."</span>";
+                                                                                                }
+                                                                                                $TPM_timesubstr=substr($tpmtime,0,2);
+                                                                                                $TPM_timesubstr2=substr($tpmtime,2,2);
+                                                                                                $TPM_timestampsubstr=substr($tpmtimestamp,0,2);
+                                                                                                $TPM_timestampsubstr2=substr($tpmtimestamp,2,2);
+                                                                                                $TPM_start_time_hr=substr($tpm_starttime,0,2);
+                                                                                                $TPM_start_time_min=substr($tpm_starttime,2,2);*/
 
-                                                                                            if ($missing_count > 0) {
-                                                                                                $tpm_button = "<button class='glow' data-toggle='modal' data-target='#tpm_modal' style='background-color:red;color:white'>TPM Alert</button>";
-                                                                                            }
 
-                                                                                            array_pop($missingTPMSeq);
+                                                                                                $tpmtime=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_".$crdate.".txt");
+                                                                                                $tpm_starttime=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/start_time_".$crdate.".txt");
+                                                                                                $tpmtimestamp=shell_exec("ls -lrt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_".$crdate.".txt|awk '{print $6,$7,$8}'");
+                                                                                                $checktpmrunning=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpmStatus.txt");
+                                                                                                $tpm_scp_time=shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.".$crdate."|tail -1");
+                                                                                                $tpm_total_file=explode("\n",file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.".$crdate));
+                                                                                                $missingTPMSeq = array();
+                                                                                                $missing_count = 0;
+                                                                                                $tpm_button= " ";
+                                                                                                foreach(array_filter($tpm_total_file) as $key => $value){
+                                                                                                        $data=explode("|",trim($tpm_total_file[$key]));
+                                                                                                        if (trim($data[0]) == '1'){
 
-                                                                                            $tpm_running_from = '';
-                                                                                            if (stripos($checktpmrunning, 'terna') !== false) {
-                                                                                                $tpm_running_from = 'PR';
-                                                                                            } elseif (stripos($checktpmrunning, 'MIZO') !== false) {
-                                                                                                $tpm_running_from = 'NR';
-                                                                                            } elseif (stripos($checktpmrunning, 'ARASALAR') !== false) {
-                                                                                                $tpm_running_from = 'DR';
-                                                                                            }
+                                                                                                        }
+                                                                                                        else {
+                                                                                                                $missing_count=$missing_count+1;
+                                                                                                                array_push($missingTPMSeq,$data);
+                                                                                                        }
+                                                                                                }
+                                                                                                if($missing_count > 0){
+                                                                                                        $tpm_button="<button class='glow' data-toggle='modal' data-target='#tpm_modal' style='background-color:red;color:white'>TPM Alert</button>";
+                                                                                                }
+                                                                                                else{
+                                                                                                        $tpm_button= "";
+                                                                                                        //$tpm_button="<button class='glow' data-toggle='modal' data-target='#tpm_modal' style='background-color:red;color:white'>TPM Alert</button>";
+                                                                                                }
+                                                                                                array_pop($missingTPMSeq);
+                                                                                                $tpmstatus_check = strpos(trim($checktpmrunning), 'terna');
+                                                                                                if ( strpos(trim($checktpmrunning), 'terna' ) == true ) {
+                                                                                                        $tpm_running_from = 'PR';
+                                                                                                }
+                                                                                                elseif(strpos(trim($checktpmrunning), 'MIZO' ) == true) {
+                                                                                                        $tpm_running_from = 'NR';
+                                                                                                }
+                                                                                                elseif(strpos(trim($checktpmrunning), 'ARASALAR' ) == true) {
+                                                                                                        $tpm_running_from = 'DR';
+                                                                                                }
+                                                                                                else{
+                                                                                                        $tpm_running_from = '';
+                                                                                                }
 
-                                                                                            $tpm_scp_data = explode("|", $tpm_scp_time);
-                                                                                            $removeColon_tpm_scp_time = isset($tpm_scp_data[2]) ? strtotime(str_replace(":", "", trim($tpm_scp_data[2]))) : 0;
+                                                                                                $tpm_scp_data=explode("|",$tpm_scp_time);
+                                                                                                $removeColon_tpm_scp_time=str_replace(":","",trim($tpm_scp_data[2]));
+                                                                                                $removedColon_tpm_scp_time=strtotime($removeColon_tpm_scp_time);
+                                                                                                $_tpmTime = $yummy->timeUpdatedTpm("tpmStatus.txt.",".");
+                                                                                                $removeColonTPM = str_replace(":","",trim($_tpmTime));
+                                                                                                $removeColonTimes = strtotime($removeColonTPM);
+                                                                                                $currtimes=strtotime(date("Ymd Hi"));
+                                                                                                $scp_difftimes=$currtimes-$removedColon_tpm_scp_time;
+                                                                                                $difftimes=$currtimes-$removeColonTimes;
 
-                                                                                            $_tpmTime = $yummy->timeUpdatedTpm("tpmStatus.txt.", ".");
-                                                                                            $removeColonTPM = strtotime(str_replace(":", "", trim($_tpmTime)));
-                                                                                            $currtimes = strtotime(date("Ymd Hi"));
-                                                                                            $scp_difftimes = $currtimes - $removeColon_tpm_scp_time;
-                                                                                            $difftimes = $currtimes - $removeColonTPM;
+                                                                                                if(intval($scp_difftimes)>3600){
+                                                                                                        $FinalScpTime = "<span style='background-color:red;color:white' class='glow' title='SFTP has not been done since last 1 Hour'>".trim($tpm_scp_data[2])."</span>";
+                                                                                                }
+                                                                                                else{
+                                                                                                        $FinalScpTime = "<span style='color:#fff'>".trim($tpm_scp_data[2])."</span>";
+                                                                                                }
+                                                                                                if(intval($difftimes)>600){
+                                                                                                        $finalTpmTime = "<span style='background-color:red;color:white' class='glow' title='TPM Not Updated since last 10 mintues'>".trim($_tpmTime)."</span>";
+                                                                                                }
+                                                                                                else{
+                                                                                                        $finalTpmTime = "<span style='color:#fff'>".trim($_tpmTime)."</span>";
+                                                                                                }
+                                                                                                $TPM_timesubstr=substr($tpmtime,0,2);
+                                                                                                $TPM_timesubstr2=substr($tpmtime,2,2);
+                                                                                                $TPM_timestampsubstr=substr($tpmtimestamp,0,2);
+                                                                                                $TPM_timestampsubstr2=substr($tpmtimestamp,2,2);
+                                                                                                $TPM_start_time_hr=substr($tpm_starttime,0,2);
+                                                                                                $TPM_start_time_min=substr($tpm_starttime,2,2);
 
-                                                                                            $FinalScpTime = "<span style='color:#fff'>" . (isset($tpm_scp_data[2]) ? trim($tpm_scp_data[2]) : "N/A") . "</span>";
-                                                                                            if ($scp_difftimes > 3600) {
-                                                                                                $FinalScpTime = "<span style='color:#fff'>" . (isset($tpm_scp_data[2]) ? trim($tpm_scp_data[2]) : "N/A") . "</span>";
-                                                                                            }
-
-                                                                                            $finalTpmTime = "<span style='color:#fff'>" . trim($_tpmTime) . "</span>";
-                                                                                            if ($difftimes > 600) {
-                                                                                                $finalTpmTime = "<span style='background-color:red;color:white' class='glow' title='TPM Not Updated since last 10 minutes'>" . trim($_tpmTime) . "</span>";
-                                                                                            }
-
-                                                                                            $TPM_start_time_hr = substr($tpm_starttime, 0, 2);
-                                                                                            $TPM_start_time_min = substr($tpm_starttime, 2, 2);
                                                                                         ?>
-
-                                                                                                         <span style="float:left;font-size:14px;" class="btn btn-xs btn-success">
-                                                                                                             <a class="btn btn-sm" style="float:left"
-                                                                                                                 onclick="window.open('TPMmonitorfile.php?date=<?php echo $crdate;?>','','height=900, width=1400,scrollbars=yes,resizable=yes' );">
-                                                                                                                 <?php
-                                                                                                                     echo "TPM Running on : $tpm_running_from | SFTP : $FinalScpTime | Tar Files : " . ($tpm_scp_data[0] ?? "N/A") . " $tpm_button";
-                                                                                                                 ?>
-                                                                                                             </a>
-                                                                                                         </span>
-
-                                                                                        <span class="queuetimepop" style="float:right;font-size:18px;"><img src="loading-bubbles.svg">
-                                                                                            <?php echo $yummy->timeUpdated("status_queue_8app.txt.false", ".");?>
-                                                                                        </span>
-
-                                                                                        <div class="box-tools pull-right"></div>
-
+                                                                                                        <span style="float:left;font-size:14px;" class="btn btn-xs btn-success">
+                                                                                                                <?php
+                                                                                                                        //echo "TPM : ".$TPM_start_time_hr.":".$TPM_start_time_min."  |  "."Running on : ".$tpm_running_from." | ".$finalTpmTime." | SFTP : ".$FinalScpTime." | Files : ".$tpm_scp_data[0]." ".$tpm_button;
+                                                                                                                        //echo "TPM : ".$TPM_start_time_hr.":".$TPM_start_time_min."  |  "."Running on : ".$tpm_running_from." | SFTP : ".$FinalScpTime." | Files : ".$tpm_scp_data[0]." ".$tpm_button;
+                                                                                                                        echo "TPM Running on : ".$tpm_running_from." | SFTP : ".$FinalScpTime." | Tar Files : ".$tpm_scp_data[0]." ".$tpm_button;
+                                                                                                                ?>
+                                                                                                        </span>
+                                                                                        <span class="queuetimepop" style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("status_queue_8app.txt",".");?></span>
+                                                                                        <div class="box-tools pull-right">
                                                                                         </div>
-                                                                <div class="panel-body hehe" style="padding-right:10px;">
-                                                                     <div style="max-height: 500px; overflow-y: auto;">
-                                                                         <table class="table table-bordered table-striped text-center" >
-                                                                             <thead>
-                                                                                 <tr>
-                                                                                     <th>Queue Name</th>
-                                                                                     <?php for ($i = 0; $i <= 15; $i++): ?>
-                                                                                         <th><?php echo $i == 0 ? "M" : "S$i"; ?></th>
-                                                                                     <?php endfor; ?>
-                                                                                 </tr>
-                                                                             </thead>
-                                                                             <tbody class="queueappend" style="font-size:15px;">
-                                                                                 <?php
-                                                                                     $buildup_flag = safe_read("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/buildup_flag.txt");
-                                                                                     if ($buildup_flag == "0") {
-                                                                                         $aplnMonior->status_queue();
-                                                                                     } else {
-                                                                                         $aplnMonior->status_queue1();
-                                                                                     }
-                                                                                 ?>
-                                                                             </tbody>
-                                                                         </table>
-                                                                     </div>
+                                                                                </div>
+                                                                                <div class="panel-body table-responsive hehe">
+                                                                                        <table class="table table-bordered table-striped text-center">
+                                                                                                <thead>
+                                                                                                        <tr>
+                                                                                                                <th>Queue Name</th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_i.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">M </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_I.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S1 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_a.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S2 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_b.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S3 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_c.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S4 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_d.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S5 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_e.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S6 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_f.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S7 </a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_g.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S8</a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_h.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S9</a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_j.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S10</a></th>
+                                                                                                                <th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_k.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S11</a></th>
+<th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_m.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S12</a></th>
+<th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_m.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S13</a></th>
+<th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_m.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S14</a></th>
+<th><a onclick="window.open('queue_buildup_details.php?date=<?php echo $crdate;?>&&flag=pace_buildup_m.txt','','height=1000, width=1900,scrollbars=yes,resizable=yes');">S15</a></th>
+                                                                                                        </tr>
+                                                                                                </thead>
+                                                                                                <tbody class="queueappend" style="font-size:15px;">
+                                                                                                        <?php
+                                                                                                                $buildup_flag=file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/buildup_flag.txt");
+                                                                                                                if($buildup_flag == "0"){
+                                                                                                                        $aplnMonior->status_queue();
+                                                                                                                }
+                                                                                                                else{
+                                                                                                                        $aplnMonior->status_queue1();
+                                                                                                                }
+                                                                                                        ?>
+                                                                                                </tbody>
+                                                                                        </table>
+                                                                                </div>
+                                                                        <!-- BUTTON to Remove Queue Buildup from Portal > Redirects to admin.php Username: root Password: *2020#Sep -->
+                                                                        <button onclick="document.getElementById('id01').style.display='block'" style="width:auto;float:right;"><span class="glyphicon glyphicon-eye-open"></span></button>
+                                                                        </div>
                                                                 </div>
-
-                                                                </div>
-                                                                </div>
-</div>
-</div>
-
-
-                                                        <?php
-                                                                $rtgs_slowness_details=$rtgs->rtgs_slowness();
-                                                                $rtgs_slowness=explode("|",$rtgs->rtgs_slowness());
-                                                                if($rtgs_slowness[1]=="Slow"){
-                                                                        $rtgs_color="navy";
-                                                                        $rtgs_comments=$rtgs_slowness[1]."(".$rtgs_slowness[0].")";
-                                                                }
-                                                                else{
-                                                                        $rtgs_color="green";
-                                                                        $rtgs_comments=$rtgs_slowness[1];
-                                                                }
-                                                        ?>
-
+                                                        </div>
+                                                </div>
                                                         <div class="row" style="position:relative; min-height: 1px; padding-right: 0px; padding-left: 0px;">
-<!--Commenting for CommandCenter-->
-                                                                <!--<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 autosys_jobs">-->
-<!--Commenting for CommandCenter-->
-                                                                <div class="col-md-6 all_rtgs" style="position:relative; min-height: 1px; padding-right: 0px; padding-left: 0px;">
-<!--Commenting for CommandCenter-->
-                                                                        <!--<div class="panel panel-primary">
+
+                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 neft_summary">
+                                                                <div class="box box-primary box-solid">
+                                                                        <div class="box-header bg-tcs-active">
+                                                                                <h2 class="box-title">OCR and NEFT (OUTGOING) / <a onclick="window.open('<?php echo $hostname;?>/cgi-bin/trials/bip/data/TESTING/8APPS/ocr_neft_summary_8apps.cgi','','height=600,width=600,scrollbars=yes,resizable=yes' );">OCR_NEFT Summary </a></h2>
+                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("ocr_neft_8apps.txt",".");?></span>
+                                                                        </div>
+                                                                        <div class="panel-body table-responsive">
+                                                                        <!-- BUTTON to Remove Queue Buildup from Portal > Redirects to admin.php Username: root Password: *2020#Sep -->
+                                                                        <!--<button onclick="document.getElementById('id01').style.display='block'" style="width:auto;"><span class="glyphicon glyphicon-eye-open"></span></button>-->
+                                                                                <table class="table table-bordered table-striped text-center">
+                                                                                        <thead>
+                                                                                                <tr>
+                                                                                                        <th style="background-color: white"></th>
+                                                                                                        <th class="bg-tcs-active"> SY0500 [ OCR ] </th>
+                                                                                                        <th colspan="13" class="bg-aqua-active"> NEFT </th>
+                                                                                                </tr>
+                                                                                                <tr>
+                                                                                                        <th >Status</th>
+                                                                                                        <th class="bg-aqua-active">Table Count</th>
+                                                                                                        <th >M</th>
+                                                                                                        <th >S1</th>
+                                                                                                        <th >S2</th>
+                                                                                                        <th >S3</th>
+                                                                                                        <th >S4</th>
+                                                                                                        <th >S5</th>
+                                                                                                        <th >S6</th>
+                                                                                                        <th >S7</th>
+                                                                                                        <th >S8</th>
+                                                                                                        <th >S9</th>
+                                                                                                        <th >S10</th>
+                                                                                                        <th >S11</th>
+                                                                                                        <th >S12</th>
+                                                                                                        <th >S13</th>
+                                                                                                        <th >S14</th>
+                                                                                                        <th >S15</th>
+                                                                                                        <th >Total</th>
+                                                                                                </tr>
+                                                                                        </thead>
+                                                                                        <tbody>
+                                                                                                <?php
+                                                                                                        $rtgs->ocr_neft_8apps();
+                                                                                                ?>
+                                                                                        </tbody>
+                                                                                </table>
+                                                                        </div>
+                                                                </div>
+                                                        </div>
+
+                                                                <!--<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 autosys_jobs">
+                                                                        <div class="panel panel-primary">
                                                                                 <div class="panel-heading bg-tcs-active">
                                                                                         <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("SBI_autosys_space_utilization.txt",".");?></span>
-                                                                                        Imp Mountpoints of autosys server(abref/sbibkpnr/repapp1)
+                                                                                        Imp Mountpoints of PR autosys server(abref/sbibkpnr/repapp1)
                                                                                 </div>
                                                                                 <div class="panel-body table-responsive">
                                                                                         <table class="table table-bordered table-striped">
@@ -277,54 +359,8 @@
                                                                                                 <?php $rtgs->nat_sfmq();?>
                                                                                         </div>
                                                                                 </div>
-                                                                        </div>-->
-<!--Commenting for CommandCenter-->
-<!--Relocation for Command Center-->
-
-                                                <div class="col-md-12">
-                                                                        <div class="panel panel-primary">
-                                                                                <div class="panel-heading bg-tcs-active">
-                                                                                        <span style="float:right;font-size:18px;"><?php echo $yummy->timeUpdated("SBI_autosys_space_utilization.txt",".");?></span>
-                                                                                        MQ Status
-                                                                                </div>
-                                                                                <div class="panel-body table-responsive">
-                                                                                        <table class="table table-bordered table-striped">
-                                                                                                <thead>
-                                                                                                        <tr>
-                                                                                                                <th class="text-center">Server</th>
-                                                                                                                <th class="text-center">M</th>
-                                                                                                                <th class="text-center">S1</th>
-                                                                                                                <th class="text-center">S2</th>
-                                                                                                                <th class="text-center">S3</th>
-                                                                                                                <th class="text-center">S4</th>
-                                                                                                                <th class="text-center">S5</th>
-                                                                                                                <th class="text-center">S6</th>
-                                                                                                                <th class="text-center">S7</th>
-                                                                                                                <th class="text-center">S8</th>
-                                                                                                                <th class="text-center">S9</th>
-                                                                                                                <th class="text-center">S10</th>
-                                                                                                                <th class="text-center">S11</th>
-                                                                                                        </tr>
-                                                                                                </thead>
-                                                                                                <tbody>
-                                                                                                <?php
-                                                                                                        echo msl::mq_status();
-                                                                                                ?>
-                                                                                                </tbody>
-                                                                                        </table>
-                                                                                        <div >
-                                                                                                <span style="float:right;background-color:white;color:black;cursor:default;" class="btn btn-sm btn-primary legends_btn">
-                                                                                                        <span class="na_btn"><i style="color:black" class='fa fa-fw fa-minus'></i>NA</span>
-                                                                                                        <span class="running_btn"><i style="color:green" class='fa fa-check'></i>OK</span>
-                                                                                                        <span class="running_btn"><i style="color:green" class='fa fa-check'></i><b> 2004 (RTGS/NEFT)</b></span>
-                                                                                                        <span class="running_btn"><i style="color:green" class='fa fa-check'></i><b> 2005 (IMPS)</b></span>
-                                                                                                </span>
-                                                                                        </div>
-                                                                                </div>
                                                                         </div>
-                                                </div>
-<!--Relocation for Command Center-->
-                                                                </div>
+                                                                </div>-->
                                                                 <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 schl_tran">
                                                                         <div class="panel panel-primary">
                                                                                 <div class="panel-heading bg-tcs-active">
@@ -384,12 +420,22 @@
                                                                         </div>
                                                                   </div>
                                                                 </div>-->
-
                                                         </div>
+                                                        <?php
+                                                                $rtgs_slowness_details=$rtgs->rtgs_slowness();
+                                                                $rtgs_slowness=explode("|",$rtgs->rtgs_slowness());
+                                                                if($rtgs_slowness[1]=="Slow"){
+                                                                        $rtgs_color="navy";
+                                                                        $rtgs_comments=$rtgs_slowness[1]."(".$rtgs_slowness[0].")";
+                                                                }
+                                                                else{
+                                                                        $rtgs_color="green";
+                                                                        $rtgs_comments=$rtgs_slowness[1];
+                                                                }
+                                                        ?>
                                                         <div class="row">
                                                                 <div class="col-md-12 all_rtgs" style="position:relative; min-height: 1px; padding-right: 0px; padding-left: 0px;">
-<!--Relocation for Command Center-->
-                                                                        <!--<div class="col-md-3">
+                                                                        <div class="col-md-4">
                                                                                 <div class="small-box bg-<?php echo $rtgs_color;?>-active">
                                                                                         <div class="inner">
                                                                                         <span style="float:right;font-size:1.125em;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("rtgs.txt",".");?></span>
@@ -415,9 +461,9 @@
                                                                                                 </div>
                                                                                         </div>
                                                                                 </div>
-                                                                        </div>-->
+                                                                        </div>
 
-                                                                        <!--<div class="col-md-3">
+                                                                        <div class="col-md-4">
                                                                                 <div class="small-box bg-green-active">
                                                                                         <div class="inner">
                                                                                         <span style="float:right;font-size:1.125em;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("rtgs.txt",".");?></span>
@@ -441,10 +487,8 @@
                                                                                                 </div>
                                                                                         </div>
                                                                                 </div>
-                                                                        </div>-->
-<!--Relocation for Command Center-->
-<!--Commenting for CommandCenter-->
-                                                                        <!--<div class="col-md-3">
+                                                                        </div>
+                                                                        <div class="col-md-4">
                                                                                 <div class="small-box bg-green-active">
                                                                                         <div class="inner">
                                                                                           <h4>RTGS ACK Incoming<span style="float:right;font-size:1.125em;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("rtgs_ack_incoming.txt",".");?></span></h4>
@@ -495,9 +539,7 @@
                                                                                                 Show Less <i class="fa fa-arrow-circle-up"></i>
                                                                                         </a>
                                                                                 </div>
-                                                                        </div>-->
-<!--Commenting for CommandCenter-->
-<!--Commenting for CommandCenter-->
+                                                                        </div>
                                                                         <!--<div class="col-lg-3 col-md-6 col-sm-6 col-xs-6 branch_teller_login">
                                                                                 <div class="box box-primary box-solid">
                                                                                         <div class="box-header bg-tcs-active">
@@ -516,7 +558,6 @@
                                                                                         </div>
                                                                                 </div>
                                                                         </div>-->
-<!--Commenting for CommandCenter-->
                                                                         <!--<div class="col-md-3">
                                                                                 <div class="panel panel-primary">
                                                                                         <div class="panel-heading bg-red-active">
@@ -535,65 +576,8 @@
                                                                         </div>-->
                                                                 </div>
                                                         </div>
+
                 <!--Table 1 done aligning till here go up-->
-                                                <div class="row" style="position:relative; min-height: 1px; padding-right: 0px; padding-left: 0px;">
-                                                                <div class="col-md-12 all_rtgs" style="position:relative; min-height: 1px; padding-right: 0px; padding-left: 0px;">
-                                                                        <div class="col-md-6">
-                                                                                <div class="small-box bg-<?php echo $rtgs_color;?>-active">
-                                                                                        <div class="inner">
-                                                                                        <span style="float:right;font-size:1.125em;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("rtgs.txt",".");?></span>
-                                                                                        <h4><a href="#" data-toggle="modal" data-target="#myModal6" style="color:#fff;">RTGS Incoming </a></h4>
-                                                                                                <div class="table-responsive">
-                                                                                                        <table class="table table-bordered table-striped text-center" style="height:75px;">
-                                                                                                                <thead>
-                                                                                                                        <th style="color:black">Time</th>
-                                                                                                                        <th style="background-color:#de7c7c">Pending</th>
-                                                                                                                        <th class="bg-aqua-active">Reversal</th>
-                                                                                                                        <th class="bg-green-active">Processed</th>
-                                                                                                                        <th style="color:black">UNPR</th>
-                                                                                                                </thead>
-                                                                                                                <tbody>
-                                                                                                                        <?php
-                                                                                                                                $rtgs->rtgss_s(2);
-                                                                                                                        ?>
-                                                                                                                        <tr>
-                                                                                                                                <td colspan=5><marquee behavior="alternate" style='font-size:15px;' direction="right"><?php echo "RTGS Is Running ".$rtgs_comments;?></marquee></td>
-                                                                                                                        </tr>
-                                                                                                                </tbody>
-                                                                                                        </table>
-                                                                                                </div>
-                                                                                        </div>
-                                                                                </div>
-                                                                        </div>
-
-                                                                        <div class="col-md-6">
-                                                                                <div class="small-box bg-green-active">
-                                                                                        <div class="inner">
-                                                                                        <span style="float:right;font-size:1.125em;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("rtgs.txt",".");?></span>
-                                                                                                <h4>RTGS Outgoing</h4>
-                                                                                                <div class="table-responsive">
-                                                                                                        <table class="table table-bordered table-striped text-center" style="height:75px;">
-                                                                                                                <thead>
-                                                                                                                        <th style="color:black">Time</th>
-                                                                                                                        <th style="background-color:#de7c7c">Pending</th>
-                                                                                                                        <th class="bg-navy-active">Wait</th>
-                                                                                                                        <th class="bg-aqua-active">Return</th>
-                                                                                                                        <th class="bg-green-active">Processed</th>
-                                                                                                                        <th style="color:black">UNPR</th>
-                                                                                                                </thead>
-                                                                                                                <tbody>
-                                                                                                                        <?php
-                                                                                                                                $rtgs->rtgss_s(0);
-                                                                                                                        ?>
-                                                                                                                </tbody>
-                                                                                                        </table>
-                                                                                                </div>
-                                                                                        </div>
-                                                                                </div>
-                                                                        </div>
-                                                                </div>
-                                                        </div>
-
                                                         <div class="row">
                                                                 <div class="col-md-12" style="position:relative; min-height: 1px; padding-right: 0px; padding-left: 0px;">
                                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6 high_resource_replica">
@@ -685,8 +669,7 @@
                                                                 </div>
                                                         </div>
                                                         <div class="row">
-<!--Commenting for CommandCenter-->
-                                                                        <!--<div class="col-lg-2 col-md-6 col-sm-6 col-xs-6">
+                                                                        <div class="col-lg-2 col-md-6 col-sm-6 col-xs-6">
                                                                                 <div class="panel panel-primary">
                                                                                         <div class="panel-heading bg-tcs-active">
                                                                                                 <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("topstat_8apps.txt",".");?></span><span class="btn btn-xs btn-info pull-left" style="cursor:pointer;" onclick="window.open('mithi_mountpoint.php','','height=800, width=600,scrollbars=yes,resizable=yes' );">More</span>Mithi Mountpoint
@@ -703,10 +686,49 @@
                                                                                                 </table>
                                                                                         </div>
                                                                                 </div>
-                                                                        </div>-->
-<!--Commenting for CommandCenter-->
-<!--Commenting for CommandCenter-->
-                                                                        <!--<div class="col-lg-4 col-md-6 col-sm-6 col-xs-6">
+                                                                        </div>
+                                                          <div class="row">
+                                                                        <div class="col-lg-2 col-md-6 col-sm-6 col-xs-6">
+                                                                                <div class="panel panel-primary">
+                                                                                        <div class="panel-heading bg-tcs-active">
+                                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("topstat_8apps.txt",".");?></span><n>NT MONITORING
+                                                                                        </div>
+                                                                                        <div class="panel-body table-responsive">
+                                                                                                <table class="table table-bordered table-striped mithi_mountpoint">
+                                                                                                        <thead>
+                                                                                                                <th class="text-center">LOG Name</th>
+                                                                                                                <th class="text-center bg-aqua-active">TIME</th>
+                                                                                                        </thead>
+                                                                                                        <tbody>
+                                                                                                                <?php echo msl::NT();?>
+                                                                                                        </tbody>
+                                                                                                </table>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
+
+                                                                     <div class="row">
+                                                                        <div class="col-lg-2 col-md-6 col-sm-6 col-xs-6">
+                                                                                <div class="panel panel-primary">
+                                                                                        <div class="panel-heading bg-tcs-active">
+                                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("topstat_8apps.txt",".");?></span><n>NX MONITORING
+                                                                                        </div>
+                                                                                        <div class="panel-body table-responsive">
+                                                                                                <table class="table table-bordered table-striped mithi_mountpoint">
+                                                                                                        <thead>
+                                                                                                                <th class="text-center">LOG Name</th>
+                                                                                                                <th class="text-center bg-aqua-active">TIME</th>
+                                                                                                        </thead>
+                                                                                                        <tbody>
+                                                                                                                <?php echo msl::NX();?>
+                                                                                                        </tbody>
+                                                                                                </table>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
+
+
+                                                                        <div class="col-lg-4 col-md-6 col-sm-6 col-xs-6">
                                                                                 <div class="panel panel-primary">
                                                                                         <div class="panel-heading bg-tcs-active">
                                                                                                 <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/space_check_median.txt","OutDate");?></span>
@@ -726,10 +748,9 @@
                                                                                                 </table>
                                                                                         </div>
                                                                                 </div>
-                                                                        </div>-->
-<!--Commenting for CommandCenter-->
-<!--Commenting for CommandCenter-->
-                                                                        <!--<div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
+                                                                        </div>
+
+                                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
                                                                                 <div class="panel panel-primary">
                                                                                         <div class="panel-heading bg-tcs-active">
                                                                                                 <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/dcog_server_space_utilisation_check.log","OutDate");?></span>
@@ -748,10 +769,8 @@
                                                                                                 </table>
                                                                                         </div>
                                                                                 </div>
-                                                                        </div>-->
-<!--Commenting for CommandCenter-->
-<!--Relocation for CommandCenter-->
-                                                                        <!--<div class="col-lg-3 col-md-6 col-sm-6 col-xs-6 showerfeed_files">
+                                                                        </div>
+                                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6 showerfeed_files">
                                                                                 <div class="panel panel-primary">
                                                                                         <div class="panel-heading bg-tcs-active">
                                                                                                 Shower Feed
@@ -788,8 +807,7 @@
                                                                                                 </table>
                                                                                         </div>
                                                                                 </div>
-                                                                        </div>-->
-<!--Relocation for CommandCenter-->
+                                                                        </div>
                                                                 </div>
                                                         <div class="row">
                                                                 <div class="col-md-12 bulk_file_tricklefeed" style="position:relative; min-height: 1px; padding-right: 0px; padding-left: 0px;">
@@ -847,8 +865,7 @@
                                                                                         </div>
                                                                                 </div>
                                                                         </div>-->
-<!--Commenting for CommandCenter-->
-                                                                        <!--<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                                                                 <div class="panel panel-primary">
                                                                                         <div class="panel-heading text-center bg-tcs-active">
                                                                                                 CCPC Details of <?php echo $crdate;?>
@@ -885,9 +902,8 @@
                                                                                                 </table>
                                                                                         </div>
                                                                                 </div>
-                                                                        </div>-->
-<!--Commenting for CommandCenter-->
-                                                                        <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
+                                                                        </div>
+                                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                                                                 <div class="panel panel-primary">
                                                                                         <div class="panel-heading bg-tcs-active">
                                                                                                 <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("TRICKLEFEED_MASTER.txt","_"); ?></span>
@@ -903,7 +919,7 @@
                                                                                                                         <th style="border:2px solid black;" class="text-center" colspan="2" id="I">APP2</th>
                                                                                                                         <th style="border:2px solid black;" class="text-center" colspan="2" id="a">APP3</th>
                                                                                                                         <th style="border:2px solid black;" class="text-center" colspan="2" id="b">APP4</th>
-                                                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="c">APP5</th>
+                                                                                                                        <th style="border:2px solid black;" class="text-center" colspan="2" id="c">APP5 </th>
                                                                                                                         <th style="border:2px solid black;" class="text-center" colspan="2" id="d">APP6</th>
                                                                                                                         <th style="border:2px solid black;" class="text-center" colspan="2" id="e">APP7</th>
                                                                                                                         <th style="border:2px solid black;" class="text-center" colspan="2" id="f">APP8</th>
@@ -946,47 +962,6 @@
                                                                                         </div>
                                                                                 </div>
                                                                         </div>
-<!--Relocation for CommandCenter-->
-                                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6 showerfeed_files">
-                                                                                <div class="panel panel-primary">
-                                                                                        <div class="panel-heading bg-tcs-active">
-                                                                                                Shower Feed
-                                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("trickle_sf.txt",".");?></span>
-                                                                                        </div>
-                                                                                        <div class="panel-body table-responsive">
-                                                                                                <table class="table table-bordered table-striped">
-                                                                                                        <thead>
-                                                                                                                <tr>
-                                                                                                                        <th class="text-center bg-navy" colspan="2">PNS</th>
-                                                                                                                        <th class="text-center bg-navy" colspan="2">HSL</th>
-                                                                                                                        <th class="text-center bg-navy" colspan="2">TOTAL</th>
-                                                                                                                </tr>
-                                                                                                                <tr>
-                                                                                                                        <th class="text-center bg-green-active" >Proc</th>
-                                                                                                                        <th class="text-center" style="background-color:#e66767;color:#fff">Pend</th>
-                                                                                                                        <th class="text-center bg-green-active" >Proc</th>
-                                                                                                                        <th class="text-center " style="background-color:#e66767;color:#fff" >Pend</th>
-                                                                                                                        <th class="text-center bg-green-active" >Proc</th>
-                                                                                                                        <th class="text-center " style="background-color:#e66767;color:#fff" >Pend</th>
-                                                                                                                </tr>
-
-                                                                                                        </thead>
-                                                                                                        <tbody>
-                                                                                                        <?php
-                                                                                                                        //$trickelfeed->trickle_sharda('trickle_sf');
-                                                                                                                        $trickelfeed->trickle_sharda('trickle_sf');
-                                                                                                                        $tellerlogged=shell_exec('cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/vvr_teller_login.txt.'.$crdate.'|grep -w "No of Teller Logged in"');
-                                                                                                                ?>
-                                                                                                                <tr>
-                                                                                                                <th colspan='6' onclick="window.open('teller_graph.php','','height=950, width=1000,scrollbars=yes,resizable=yes' );" title="No of Teller Logged in(VVR DB)" class="text-center bg-purple"><i class="fa fa-users"></i> <?php echo $tellerlogged;?></th>
-                                                                                                                </tr>
-                                                                                                        </tbody>
-                                                                                                </table>
-                                                                                        </div>
-                                                                                </div>
-                                                                        </div>
-
-<!--Relocation for CommandCenter-->
                                                                 </div>
                                                         </div>
 
@@ -1025,61 +1000,52 @@
                                                                                 </div>
                                                                         </div>
                                                                 </div>
-<!--Commenting for CommandCenter-->
-                                                                <!--<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 cbs_flow">
-                                                                        <div class="panel panel-primary">
-                                                                                <div class="panel-heading bg-tcs-active">
 
-                                                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/currFlow.seq","OutDate");?></span>
-                                                                                        <p> <a title="click here to see CBS FLOW" href="https://10.0.40.8:9090/pace/Online_portal/pages/progressCBS.html" target="_blank">CBS FLOW </a></p>
-                                                                                </div>
-                                                                                <div class="panel-body table-responsive" style="">
-                                                                                        <iframe style="border:none;width:100%;height: 11vh;overflow:hidden;" src="progressCBS.html"></iframe>
-                                                                                </div>
-                                                                        </div>
-                                                                </div>-->
-<!--Commenting for CommandCenter-->
-<!--Relocation for CommandCenter-->
-                                                <div class="col-md-6">
+                                                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 autosys_jobs">
                                                                         <div class="panel panel-primary">
                                                                                 <div class="panel-heading bg-tcs-active">
-                                                                                        <span style="float:right;font-size:18px;"><?php echo $yummy->timeUpdated("SBI_autosys_space_utilization.txt",".");?></span>
-                                                                                        RTGS Pending Files
+                                                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("SBI_autosys_space_utilization.txt",".");?></span>
+                                                                                        Imp Mountpoints of PR autosys server(abref/sbibkpnr/repapp1)
                                                                                 </div>
                                                                                 <div class="panel-body table-responsive">
                                                                                         <table class="table table-bordered table-striped">
                                                                                                 <thead>
                                                                                                         <tr>
-                                                                                                                <th class="text-center">File</th>
-                                                                                                                <th class="text-center">M</th>
-                                                                                                                <th class="text-center">S1</th>
-                                                                                                                <th class="text-center">S2</th>
-                                                                                                                <th class="text-center">S3</th>
-                                                                                                                <th class="text-center">S4</th>
-                                                                                                                <th class="text-center">S5</th>
-                                                                                                                <th class="text-center">S6</th>
-                                                                                                                <th class="text-center">S7</th>
-                                                                                                                <th class="text-center">S8</th>
-                                                                                                                <th class="text-center">S9</th>
-                                                                                                                <th class="text-center">S10</th>
-                                                                                                                <th class="text-center">S11</th>
-                                                                                                                <th class="text-center">S12</th>
-                                                                                                                <th class="text-center">S13</th>
-                                                                                                                <th class="text-center">S14</th>
-                                                                                                                <th class="text-center">S15</th>
+                                                                                                                <th style="width:110px;" class="text-center">/home</th>
+                                                                                                                <th style="width:110px;" class="text-center">/opt/CA</th>
+                                                                                                                <th style="width:110px;" class="text-center">/tmp</th>
+                                                                                                                <th style="width:110px;" class="text-center">/autosys_ab</th>
+                                                                                                                <th style="width:110px;" class="text-center">/autosys db</th>
+                                                                                                                <th style="width:110px;" class="text-center">/usr</th>
+                                                                                                                <th style="width:110px;" class="text-center">/var</th>
+                                                                                                                <th style="width:110px;" class="text-center">/home_autosys</th>
                                                                                                         </tr>
                                                                                                 </thead>
                                                                                                 <tbody>
                                                                                                 <?php
-                                                                                                        echo msl::rtgs_pending_files();
+                                                                                                        $yummy->sbi_autosys();
                                                                                                 ?>
                                                                                                 </tbody>
                                                                                         </table>
+                                                                                        <div class="col-md-12">
+                                                                                                <?php $rtgs->nat_sfmq();?>
+                                                                                        </div>
                                                                                 </div>
                                                                         </div>
-                                        </div>
+                                                                </div>
 
-<!--Relocation for CommandCenter-->
+
+                                                                <!--div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 cbs_flow">
+                                                                        <div class="panel panel-primary">
+                                                                                <div class="panel-heading bg-tcs-active">
+                                                                                        <span>CBS FLOW</span>
+                                                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo timedisplay::timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/currFlow.seq","OutDate");?></span>
+                                                                                </div>
+                                                                                <div class="panel-body table-responsive" style="" scrollable="yes">
+                                                                                        <iframe style="style=border:none;width:100%;height: 11vh;overflow:hidden;" src="progressCBS.html"></iframe>
+                                                                                </div>
+                                                                        </div>
+                                                                </div>-->
 
                                                                 <!--<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 bu5_uploads">
                                                                         <div class="panel panel-primary">
@@ -1166,7 +1132,7 @@
                                                                         </div>
                                                                 </div>
                                                         </div>
-                                                        <!--<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                                           <div class="panel panel-primary">
                                                                         <div class="panel-heading bg-tcs-active">
                                                                                 <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("queuecount_7app.txt","_");?></span>
@@ -1196,9 +1162,9 @@
                                                                         </table>
                                                                 </div>
                                                           </div>
-                                                        </div>-->
+                                                        </div>
                                                 </div>
-                                        </div>
+                                        </div>-->
                                         <!--<div class="row">
                                                 <div class="col-md-12" style="position:relative; min-height: 1px; padding-right: 0px; padding-left: 0px;">
                                                         <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
@@ -1351,20 +1317,106 @@
 
                                                 <!--OCR End boxes start-->
                                                 <div class="row">
-                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 neft_summary">
+
+                                                <div class="col-md-6">
+                                                                        <div class="panel panel-primary">
+                                                                                <div class="panel-heading bg-tcs-active">
+                                                                                        <span style="float:right;font-size:18px;"><?php echo $yummy->timeUpdated("SBI_autosys_space_utilization.txt",".");?></span>
+                                                                                        RTGS Pending Files
+                                                                                </div>
+                                                                                <div class="panel-body table-responsive">
+                                                                                        <table class="table table-bordered table-striped">
+                                                                                                <thead>
+                                                                                                        <tr>
+                                                                                                                <th class="text-center">File</th>
+                                                                                                                <th class="text-center">M</th>
+                                                                                                                <th class="text-center">S1</th>
+                                                                                                                <th class="text-center">S2</th>
+                                                                                                                <th class="text-center">S3</th>
+                                                                                                                <th class="text-center">S4</th>
+                                                                                                                <th class="text-center">S5</th>
+                                                                                                                <th class="text-center">S6</th>
+                                                                                                                <th class="text-center">S7</th>
+                                                                                                                <th class="text-center">S8</th>
+                                                                                                                <th class="text-center">S9</th>
+                                                                                                                <th class="text-center">S10</th>
+                                                                                                                <th class="text-center">S11</th>
+                                                                                                                <th class="text-center">S12</th>
+                                                                                                                <th class="text-center">S13</th>
+                                                                                                                <th class="text-center">S14</th>
+                                                                                                                <th class="text-center">S15</th>
+                                                                                                        </tr>
+                                                                                                </thead>
+                                                                                                <tbody>
+                                                                                                <?php
+                                                                                                        echo msl::rtgs_pending_files();
+                                                                                                ?>
+                                                                                                </tbody>
+                                                                                        </table>
+                                                                                </div>
+                                                                        </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                                        <div class="panel panel-primary">
+                                                                                <div class="panel-heading bg-tcs-active">
+                                                                                        <span style="float:right;font-size:18px;"><?php echo $yummy->timeUpdated("SBI_autosys_space_utilization.txt",".");?></span>
+                                                                                        MQ Status
+                                                                                </div>
+                                                                                <div class="panel-body table-responsive">
+                                                                                        <table class="table table-bordered table-striped">
+                                                                                                <thead>
+                                                                                                        <tr>
+                                                                                                                <th class="text-center">Server</th>
+                                                                                                                <th class="text-center">M</th>
+                                                                                                                <th class="text-center">S1</th>
+                                                                                                                <th class="text-center">S2</th>
+                                                                                                                <th class="text-center">S3</th>
+                                                                                                                <th class="text-center">S4</th>
+                                                                                                                <th class="text-center">S5</th>
+                                                                                                                <th class="text-center">S6</th>
+                                                                                                                <th class="text-center">S7</th>
+                                                                                                                <th class="text-center">S8</th>
+                                                                                                                <th class="text-center">S9</th>
+                                                                                                                <th class="text-center">S10</th>
+                                                                                                                <th class="text-center">S11</th>
+                                                                                                                <th class="text-center">S12</th>
+                                                                                                                <th class="text-center">S13</th>
+                                                                                                                <th class="text-center">S14</th>
+                                                                                                                <th class="text-center">S15</th>
+                                                                                                        </tr>
+                                                                                                </thead>
+                                                                                                <tbody>
+                                                                                                <?php
+                                                                                                        echo msl::mq_status();
+                                                                                                ?>
+                                                                                                </tbody>
+                                                                                        </table>
+                                                                                        <div >
+                                                                                                <span style="float:right;background-color:white;color:black;cursor:default;" class="btn btn-sm btn-primary legends_btn">
+                                                                                                        <span class="na_btn"><i style="color:black" class='fa fa-fw fa-minus'></i>NA</span>
+                                                                                                        <span class="running_btn"><i style="color:green" class='fa fa-check'></i>OK</span>
+                                                                                                        <span class="running_btn"><i style="color:green" class='fa fa-check'></i><b> 2004 (RTGS/NEFT)</b></span>
+                                                                                                        <span class="running_btn"><i style="color:green" class='fa fa-check'></i><b> 2005 (IMPS)</b></span>
+                                                                                                </span>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
+                                                </div>
+
+                                                <!--<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 neft_summary">
                                                                 <div class="box box-primary box-solid">
                                                                         <div class="box-header bg-yellow-active">
                                                                                 <h3 class="box-title">OCR and NEFT (OUTGOING) / <a onclick="window.open('<?php echo $hostname;?>/cgi-bin/trials/bip/data/TESTING/8APPS/ocr_neft_summary_8apps.cgi','','height=600,width=600,scrollbars=yes,resizable=yes' );">OCR_NEFT Summary </a></h3>
-                                                                                <button class="bg-yellow-active" onclick="document.getElementById('id01').style.display='block'" style="width:auto;"><span class="glyphicon glyphicon-eye-open"></span></button>
                                                                                 <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("ocr_neft_8apps.txt",".");?></span>
                                                                         </div>
                                                                         <div class="panel-body table-responsive">
+                                                                        <button onclick="document.getElementById('id01').style.display='block'" style="width:auto;"><span class="glyphicon glyphicon-eye-open"></span></button>
                                                                                 <table class="table table-bordered table-striped text-center">
                                                                                         <thead>
                                                                                                 <tr>
-                                                                                                        <th colspan="1"></th>
-                                                                                                        <th colspan="1">SY0500 [ OCR ]</th>
-                                                                                                        <th colspan="14">NEFT</th>
+                                                                                                        <th colspan="6">SY0500 [ OCR ]</th>
+                                                                                                        <th colspan="6">NEFT</th>
                                                                                                 </tr>
                                                                                                 <tr>
                                                                                                         <th >Status</th>
@@ -1377,11 +1429,6 @@
                                                                                                         <th >S5</th>
                                                                                                         <th >S6</th>
                                                                                                         <th >S7</th>
-                                                                                                        <th >S8</th>
-                                                                                                        <th >S9</th>
-                                                                                                        <th >S10</th>
-                                                                                                        <th >S11</th>
-                                                                                                        <th >S12</th>
                                                                                                         <th >Total</th>
                                                                                                 </tr>
                                                                                         </thead>
@@ -1393,69 +1440,7 @@
                                                                                 </table>
                                                                         </div>
                                                                 </div>
-                                                        </div>
-<!--Commenting for CommandCenter-->
-                                                        <!--<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 bhaga_status">
-                                                                <div class="box box-primary box-solid">
-                                                                        <div class="box-header bg-tcs-active">
-                                                                                <h3 class="box-title"><?php echo $trickleuploadserver;?> Status</h3><span style="float:right;font-size:18px;color:white;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("tf_bhaga.txt",".");?></span>
-                                                                                <h3 class="box-title">BRAMHA Status</h3><span style="float:right;font-size:18px;color:white;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("tf_bhaga.txt",".");?></span>
-                                        <h3 class="box-title"> PALAR STATUS</h3><span style="float:right;font-size:18px;color:white;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("tf_bhaga.txt",".");?></span>
-                                                                        </div>
-                                                                        <div class="panel-body table-responsive">
-                                                                                <table class="table table-bordered table-striped text-center">
-                                                                                        <thead>
-                                                                                                <tr>
-                                                                                                        <th style="width:500px;">Name</th>
-                                                                                                        <th>Status</th>
-                                                                                                </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-                                                                                        <?php
-                                                                                                echo msl::bhaga_stat();
-                                                                                        ?>
-                                                                                        </tbody>
-                                                                                </table>
-                                                                        </div>
-                                                                </div>
                                                         </div>-->
-<!--Commenting for CommandCenter-->
-<!--Relocation for CommandCenter-->
-                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 context_block">
-                                                                <div class="panel panel-primary">
-                                                                        <div class="panel-heading bg-tcs-active"><a title="Burj Khalifa(Q Buildup MRI)" target="_blank" href="IG_heat/buildup_gapplot.php?dqp=ALL&region=online&date=<?php echo date("Y-m-d",strtotime($crdate)); ?>" style="float:left;text-decoration:none;"><i style="color:white;" class="fa fa-rss"></i></a>
-                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("bncr0004_pace_8app.txt",".");?></span>
-                                                                                System Context Block
-                                                                        </div>
-                                                                        <div class="panel-body table-responsive" style="">
-                                                                                <table class="table table-bordered table-striped">
-                                                                                        <thead>
-                                                                                                <tr>
-                                                                                                        <th>Context Block Fields</th>
-                                                                                                        <th>M</th>
-                                                                                                        <th>S1</th>
-                                                                                                        <th>S2</th>
-                                                                                                        <th>S3</th>
-                                                                                                        <th>S4</th>
-                                                                                                        <th>S5</th>
-                                                                                                        <th>S6</th>
-                                                                                                        <th>S7</th>
-                                                                                                        <th>S8</th>
-                                                                                                        <th>S9</th>
-                                                                                                        <th>S10</th>
-                                                                                                        <th>S11</th>
-                                                                                                </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-                                                                                        <?php
-                                                                                                        $yummy->sys_utl6();
-                                                                                                ?>
-                                                                                        </tbody>
-                                                                                </table>
-                                                                        </div>
-                                                                </div>
-                                                        </div>
-<!--Relocation for CommandCenter-->
                                                         <!--<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 bhaga_status">
                                                                 <div class="box box-primary box-solid">
                                                                         <div class="box-header bg-tcs-active">
@@ -1482,8 +1467,7 @@
                                                 </div>
         <!--boxes end bulk start-->
                                         <div class="row">
-<!--Relocation for CommandCenter-->
-                                                        <!--<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 context_block">
+                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 context_block">
                                                                 <div class="panel panel-primary">
                                                                         <div class="panel-heading bg-tcs-active"><a title="Burj Khalifa(Q Buildup MRI)" target="_blank" href="IG_heat/buildup_gapplot.php?dqp=ALL&region=online&date=<?php echo date("Y-m-d",strtotime($crdate)); ?>" style="float:left;text-decoration:none;"><i style="color:white;" class="fa fa-rss"></i></a>
                                                                                 <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("bncr0004_pace_8app.txt",".");?></span>
@@ -1494,15 +1478,18 @@
                                                                                         <thead>
                                                                                                 <tr>
                                                                                                         <th>Context Block Fields</th>
-                                                                                                        <th>M</th>
-                                                                                                        <th>S1</th>
-                                                                                                        <th>S2</th>
-                                                                                                        <th>S3</th>
-                                                                                                        <th>S4</th>
-                                                                                                        <th>S5</th>
-                                                                                                        <th>S6</th>
-                                                                                                        <th>S7</th>
-                                                                                                        <th>S8</th>
+                                                                                                        <th>Master</th>
+                                                                                                        <th>Slave1</th>
+                                                                                                        <th>Slave2</th>
+                                                                                                        <th>Slave3</th>
+                                                                                                        <th>Slave4</th>
+                                                                                                        <th>Slave5</th>
+                                                                                                        <th>Slave6</th>
+                                                                                                        <th>Slave7</th>
+                                                                                                        <th>Slave8</th>
+                                                                                                        <th>Slave9</th>
+                                                                                                        <th>Slave10</th>
+                                                                                                        <th>Slave11</th>
                                                                                                 </tr>
                                                                                         </thead>
                                                                                         <tbody>
@@ -1513,8 +1500,46 @@
                                                                                 </table>
                                                                         </div>
                                                                 </div>
-                                                        </div>-->
-<!--Relocation for CommandCenter-->
+                                                        </div>
+
+                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 context_block">
+                                                                <div class="panel panel-primary">
+                                                                        <div class="panel-heading bg-tcs-active">
+                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("MITHI/glif_load_status.txt",".");?></span>
+                                                                                Mithi GLIF Loading
+                                                                        </div>
+                                                                        <div class="panel-body table-responsive" style="">
+                                                                                <table class="table table-bordered table-striped">
+                                                                                        <thead>
+                                                                                                <tr>
+                                                                                                        <th>Glif Loader</th>
+                                                                                                        <th>Production Count</th>
+                                                                                                        <th>Records Loaded</th>
+                                                                                                        <th>Status</th>
+                                                                                                        <th>Start Time</th>
+                                                                                                        <th>End Time</th>
+                                                                                                        <th>Duration(mins)</th>
+                                                                                                </tr>
+                                                                                        </thead>
+                                                                                        <tbody>
+                                                                                        <?php
+                                                                                        $data3 = explode("\n", file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MITHI/glif_load_status.txt_".$crdate));
+                                                                                        foreach ($data3 as $line_num => $line) {
+                                                                                                        $var = explode(",",$line);
+                                                                                                        echo "<tr>";
+                                                                                                        foreach ($var as $k3 => $v3) {
+                                                                                                                        echo "<td style='color:#3c8dbc;'>".$v3."</td>";
+                                                                                                        }
+                                                                                                        echo "</tr>";
+                                                                                        }
+                                                                                        ?>
+
+                                                                                        </tbody>
+                                                                                </table>
+                                                                        </div>
+                                                                </div>
+                                                        </div>
+
                                                 <!--<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="panel panel-primary">
                                                                 <div class="panel-heading bg-tcs-active"><a title="Burj Khalifa(Q Buildup MRI)" target="_blank" href="IG_heat/buildup_gapplot.php?dqp=ALL&region=online&date=<?php echo date("Y-m-d",strtotime($crdate)); ?>" style="float:left;text-decoration:none;"><i style="color:white;" class="fa fa-rss"></i></a>
@@ -1606,15 +1631,14 @@
                                                                 </div>
                                                         </div>
                                                 </div>-->
-<!--Commenting for CommandCenter-->
-                                                <!--<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 shared_memory">
+                                                <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 shared_memory">
                                                         <div class="panel panel-primary">
                                                                 <div class="panel-heading bg-tcs-active">
                                                                         Shared Memory
                                                                         <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("shared_mem.txt",".");?></span>
                                                                 </div>
-                                                                <div class="panel-body table-responsive" style="max-height:200px;">
-                                                                        <table class="table table-bordered table-striped" style="overflow-x:auto;">
+                                                                <div class="panel-body table-responsive" style="max-height:200px;!important">
+                                                                        <table class="table table-bordered table-striped" style="overflow-x:auto; !important">
                                                                                 <tbody>
                                                                                 <?php
                                                                                         $trickelfeed->shared_mem('shared_mem');
@@ -1623,12 +1647,34 @@
                                                                         </table>
                                                                 </div>
                                                         </div>
-                                                </div>-->
-<!--Commenting for CommandCenter-->
+                                                </div>
+                                                        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 bhaga_status" style="float:right;">
+                                                                <div class="box box-primary box-solid">
+                                                                        <div class="box-header bg-tcs-active">
+                                                                                <!--<h3 class="box-title"><?php echo $trickleuploadserver;?> Status</h3><span style="float:right;font-size:18px;color:white;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("tf_bhaga.txt",".");?></span>-->
+                                        <h3 class="box-title"><?php echo $ftpuploadserver;?> STATUS</h3><span style="float:right;font-size:18px;color:white;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("tf_bhaga.txt",".");?></span>
+                                                                        </div>
+                                                                        <div class="panel-body table-responsive">
+                                                                                <table class="table table-bordered table-striped text-center">
+                                                                                        <thead>
+                                                                                                <tr>
+                                                                                                        <th style="width:500px;">Name</th>
+                                                                                                        <th>Status</th>
+                                                                                                </tr>
+                                                                                        </thead>
+                                                                                        <tbody>
+                                                                                        <?php
+                                                                                                echo msl::bhaga_stat();
+                                                                                        ?>
+                                                                                        </tbody>
+                                                                                </table>
+                                                                        </div>
+                                                                </div>
+                                                        </div>
+
                                         </div>
-                                        <div class="row">
-<!--Relocation for CommandCenter-->
-                                                <!--<div class="col-md-6">
+                                        <!--<div class="row">
+                                                <div class="col-md-6">
                                                                         <div class="panel panel-primary">
                                                                                 <div class="panel-heading bg-tcs-active">
                                                                                         <span style="float:right;font-size:18px;"><?php echo $yummy->timeUpdated("SBI_autosys_space_utilization.txt",".");?></span>
@@ -1661,11 +1707,11 @@
                                                                                         </table>
                                                                                 </div>
                                                                         </div>
-                                        </div>-->
-<!--Relocation for CommandCenter-->
+                                                </div>
                                         <!-- All tables End-->
-                                </div>
+                                        </div>-->
                         </div>
                 </div>
         </div>
 </section>
+
