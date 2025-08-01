@@ -1,32 +1,5 @@
 
-function night_queue1() {
-    $data1 = explode("\n", file_get_contents($this->currpath."status_queue_9apps.txt.".$this->datecrr));
-    
-    if (parent::checkblank($data1)) {
-        echo parent::checkblank($data1);
-    }
+error in ssl file
 
-    $data = $this->throwRed($data1, ',');
-
-    foreach ($data as $key2 => $value2) {
-        $vare = explode(",", $value2);
-        echo "<tr>";
-
-        foreach ($vare as $k2 => $v2) {
-            $v2_trimmed = trim($v2);
-
-            if ($k2 == '0' && $v2_trimmed != '') {
-                $linkreplica = "window.open('queue_replica_night.php?queue=" . urlencode($v2_trimmed) . "&&date=" . $this->datecrr . "','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                echo "<th style='background-color:#1f3f92;color:white;' class='text-center'><a style='color:white;cursor:pointer;' onclick=$linkreplica>$v2_trimmed</a></th>";
-            } elseif ($k2 > '0' && is_numeric($v2_trimmed) && intval($v2_trimmed) > 500) {
-                echo "<td class='text-center' style='background-color:red;color:white;'>" . intval($v2_trimmed) . "</td>";
-            } elseif ($v2_trimmed === 'NQKE' || $v2_trimmed === '-1') {
-                echo "<td title='Unavailable or Error' style='color:white;background-color:#00c0ef;'><i class='fa fa-thumbs-down'></i></td>";
-            } else {
-                echo "<td title='$v2_trimmed' class='text-center'>" . intval($v2_trimmed) . "</td>";
-            }
-        }
-
-        echo "</tr>";
-    }
-}
+[Fri Aug 01 11:36:02.550515 2025] [php:notice] [pid 1962800] [client 10.0.6.181:58106] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, null given in /var/www/html/pace/Online_portal/includes/function_apr.php:4\nStack trace:\n#0 /var/www/html/pace/Online_portal/includes/function_apr.php(1092): datablank->checkblank(NULL)\n#1 /var/www/html/pace/Online_portal/pages/monitorExternalFile.php(1342): rtgs->mismatch()\n#2 /var/www/html/pace/Online_portal/pages/smart.php(973): include('/var/www/html/p...')\n#3 {main}\n  thrown in /var/www/html/pace/Online_portal/includes/function_apr.php on line 4, referer: https://10.0.40.9:9090/pace/Online_portal/pages/smart.php
+[Fri Aug 01 11:36:02.575275 2025] [php:notice] [pid 1963085] [client 10.0.6.181:58111] PHP Fatal error:  Uncaught TypeError: Unsupported operand types: string - string in /var/www/html/pace/Online_portal/pages/smart_dcog.php:621\nStack trace:\n#0 {main}\n  thrown in /var/www/html/pace/Online_portal/pages/smart_dcog.php on line 621, referer: https://10.0.40.9:9090/pace/Online_portal/pages/smart_dcog.php
