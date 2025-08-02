@@ -1,41 +1,23 @@
-
-
-public static function mq_status() {
-    // Use today's date (or from POST/GET) to locate the file
-    $date = $_POST['date'] ?? ($_GET['date'] ?? timedisplay::dateUp());
-    $filepath = timedisplay::pathgiver() . "mq_status_12apps.txt." . $date;
-
-    // If today's file is not found
-    if (!file_exists($filepath)) {
-        echo "<tr><td colspan='13' class='text-center'>No data present for today.</td></tr>";
-        return;
-    }
-
-    // Read the file
-    $rawData = file_get_contents($filepath);
-    if ($rawData === false || trim($rawData) === "") {
-        echo "<tr><td colspan='13' class='text-center'>No data present for today.</td></tr>";
-        return;
-    }
-
-    // Process and display data
-    $data = explode("\n", trim($rawData));
-
-    foreach ($data as $line) {
-        $var = explode(",", $line);
-        echo "<tr>";
-        foreach ($var as $v3) {
-            $v3 = trim($v3);
-            if ($v3 === 'RUNNING') {
-                echo "<td class='text-center' style='color:green;'><i class='fa fa-check'></i></td>";
-            } elseif ($v3 === 'NA') {
-                echo "<td class='text-center' style='color:black;'><i class='fa fa-minus'></i></td>";
-            } elseif ($v3 === 'ERROR') {
-                echo "<td class='glow text-center' data-toggle='tooltip' style='color:white;' title='Error'>ERROR</td>";
-            } else {
-                echo "<td class='text-center bg-black'>" . htmlspecialchars($v3) . "</td>";
-            }
+public static function mq_status(){
+        $data = explode("\n",trim(file_get_contents(timedisplay::pathgiver()."mq_status_12apps.txt.".timedisplay::dateUp())));
+        #$data = explode("\n",trim(file_get_contents(timedisplay::pathgiver()."mq_status_12apps.txt.20231208")));
+        foreach ($data as $line_num => $line){
+                $var = explode(",",$line);
+                echo "<tr>";
+                foreach ($var as $k3 => $v3){
+                        if($v3 == 'RUNNING'){
+                                echo "<td class='text-center' style='color:green;'><i class='fa fa-check'></i></td>";
+                        }
+                        elseif($v3 == 'NA'){
+                                echo "<td class='text-center' style='color:black;'><i class='fa fa-minus'></i></td>";
+                        }
+                        elseif($v3 == 'ERROR'){
+                                echo "<td class='glow text-center' date-toggle='tooltip' style='color:white;' title='$vall'>ERROR</td>";
+                        }
+                        else{
+                                echo "<td class='text-center bg-black'>".$v3."</td>";
+                        }
+                }
+                echo "</tr>";
         }
-        echo "</tr>";
-    }
 }
