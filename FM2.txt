@@ -1,23 +1,36 @@
-public static function mq_status(){
-        $data = explode("\n",trim(file_get_contents(timedisplay::pathgiver()."mq_status_12apps.txt.".timedisplay::dateUp())));
-        #$data = explode("\n",trim(file_get_contents(timedisplay::pathgiver()."mq_status_12apps.txt.20231208")));
-        foreach ($data as $line_num => $line){
-                $var = explode(",",$line);
-                echo "<tr>";
-                foreach ($var as $k3 => $v3){
-                        if($v3 == 'RUNNING'){
-                                echo "<td class='text-center' style='color:green;'><i class='fa fa-check'></i></td>";
-                        }
-                        elseif($v3 == 'NA'){
-                                echo "<td class='text-center' style='color:black;'><i class='fa fa-minus'></i></td>";
-                        }
-                        elseif($v3 == 'ERROR'){
-                                echo "<td class='glow text-center' date-toggle='tooltip' style='color:white;' title='$vall'>ERROR</td>";
-                        }
-                        else{
-                                echo "<td class='text-center bg-black'>".$v3."</td>";
-                        }
-                }
-                echo "</tr>";
+
+
+public static function mq_status() {
+    $filePath = timedisplay::pathgiver() . "mq_status_12apps.txt." . timedisplay::dateUp();
+
+    if (!file_exists($filePath)) {
+        echo "<tr><td colspan='13' class='text-center text-danger'>File not present</td></tr>";
+        return;
+    }
+
+    $content = trim(file_get_contents($filePath));
+    if (empty($content)) {
+        echo "<tr><td colspan='13' class='text-center text-warning'>File is empty</td></tr>";
+        return;
+    }
+
+    $lines = explode("\n", $content);
+
+    foreach ($lines as $line) {
+        $columns = explode(",", $line);
+        echo "<tr>";
+        foreach ($columns as $status) {
+            $status = trim($status);
+            if ($status === 'RUNNING') {
+                echo "<td class='text-center' style='color:green;'><i class='fa fa-check'></i></td>";
+            } elseif ($status === 'NA') {
+                echo "<td class='text-center' style='color:black;'><i class='fa fa-minus'></i></td>";
+            } elseif ($status === 'ERROR') {
+                echo "<td class='glow text-center' data-toggle='tooltip' style='color:white;' title='Error in MQ'>ERROR</td>";
+            } else {
+                echo "<td class='text-center bg-black'>" . htmlspecialchars($status) . "</td>";
+            }
         }
+        echo "</tr>";
+    }
 }
