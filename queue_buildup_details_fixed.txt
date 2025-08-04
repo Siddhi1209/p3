@@ -1,0 +1,115 @@
+
+<?php
+        error_reporting(1);
+        include("../config.php");
+        $mldate = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+        $getDDcrr = isset($_GET['date']) ? $_GET['date'] : date("Ymd");
+        $flag = $_GET['flag'];
+        $server = explode("_", $flag);
+        $showserver = substr($server[2], 0, 1);
+        if (empty($getDDcrr) || ($getDDcrr == $mldate)) {
+                $crdate = $mldate;
+                $repost_time = shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/reposterr.txt*".$crdate."|grep Queue-based|awk '{print $2}'|sort|head -2|tail -1");
+        } else {
+                $crdate = $getDDcrr;
+                $getyear = substr($crdate, 0, 4);
+                $getyearmonth = substr($crdate, 0, 6);
+                $repost_time = shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/$getyear/$getyearmonth/$crdate/reposterr.txt*".$crdate."|grep Queue-based|awk '{print $2}'|sort|head -2|tail -1");
+        }
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<?php echo "<META HTTP-EQUIV='CACHE-CONTROL' CONTENT='NO-CACHE'>"; ?>
+<title>Queue Buildup Details</title>
+<meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+<meta content='PSO TEAM' name='developer'>
+<link rel="stylesheet" href="../css/bootstrap.min.css" type="text/css" />
+<link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="../css/AdminLTE.min.css" type="text/css" />
+<link rel="stylesheet" href="../css/skins/_all-skins.min.css" type="text/css" />
+<link rel="stylesheet" href="../dtable/jquery.dataTables.min.css" type="text/css" >
+<link rel="stylesheet" href="../dtable/buttons.dataTables.min.css" type="text/css">
+<link rel="stylesheet" href="../dtable/fixedHeader.bootstrap.css" type="text/css">
+<link href="../swal/swal.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+<script type="text/javascript" language="javascript" src="../js/jQuery-3.3.1.min.js"></script>
+<script src="../js/bootstrap.min.js" type="text/javascript"></script>
+<script src="../js/app.min.js" type="text/javascript"></script>
+<script src="../charts/amcharts/amcharts.js" type="text/javascript"></script>
+<script src="../charts/amcharts/serial.js" type="text/javascript"></script>
+<script type="text/javascript" language="javascript" src="../dtable/jquery.dataTables.min.js"></script>
+<script type="text/javascript" language="javascript" src="../js/dataTables.fixedHeader.min.js"></script>
+<script type="text/javascript" language="javascript" src="../dtable/dataTables.buttons.min.js"></script>
+<script type="text/javascript" language="javascript" src="../dtable/jszip.min.js"></script>
+<script type="text/javascript" language="javascript" src="../dtable/pdfmake.min.js"></script>
+<script type="text/javascript" language="javascript" src="../dtable/vfs_fonts.js"></script>
+<script type="text/javascript" language="javascript" src="../dtable/buttons.html5.min.js"></script>
+<script src="../swal/swal.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
+<script type="text/javascript">
+        $(document).ready(function (){
+                swal ({
+                        title:"Don't Burden Me !",
+                        button:false,
+                        classname:"green-bg",
+                        text: "Close When Done",
+                        icon:"error",
+                        closeOnClickOutside:false,
+                        timer:2000
+                })
+                window.setTimeout(function (){
+                   window.close();
+                },200000)
+        });
+</script>
+<style>
+        a:hover{background-color:grey !important;}
+        .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+        padding: 6px;
+        line-height: 0.92857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+        }
+        body {
+        font-size: 13px !important;
+        }
+        .panel-body {
+        padding: 9px !important;
+        }
+</style>
+<?php $file = $_SERVER['PHP_SELF']; $name = basename($file); ?>
+<body class="skin-blue sidebar-collapse">
+<div class="col-md-12" style="position:relative; min-height: 1px; padding-right: 0px; padding-left: 0px;">
+        <div class="panel panel-primary" id="dis">
+                <div class="panel-heading text-center bg-red-active">
+                        <span style='float:left'>Queue Based Reposting Completed at : <?php echo $repost_time." [ ".date("Y-m-d",strtotime($crdate))." ] " ; ?></span>
+                        Queue Buildup Detailed Status <span style="color:white"><?php echo strtoupper($showserver) ; ?></span>
+                        <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i>
+                        <?php 
+                                $td = new timedisplay();
+                                echo $td->timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/production_history/queue/online/$flag", ".");
+                        ?>
+                        </span>
+                </div>
+                <div class="panel-body table-responsive">
+                        <table class="table table-bordered table-striped" id="example">
+                                <?php echo msl::queue_buildup_details($flag,0)."</br>".msl::queue_buildup_details($flag,1); ?>
+                        </table>
+                </div>
+        </div>
+</div>
+</body>
+<script type="text/javascript">
+        $(document).ready(function() {
+                $('#example').DataTable( {
+                        order: [[ 0, "desc" ]],
+                        dom: 'Bfrtip',
+                        fixedHeader:true,
+                        bSort:true,
+                        iDisplayLength:1000,
+                        bLengthChange:false,
+                        buttons: ['copyHtml5','pdfHtml5']
+                } );
+        } );
+</script>
+</html>
