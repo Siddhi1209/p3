@@ -1,11 +1,9 @@
 
-public static function dateUp() {
-    $mflag = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
-    if (!isset($_GET['date']) || trim($_GET['date']) === '') {
+$getDDcrr = (isset($_GET['date']) && $_GET['date'] !== '') ? $_GET['date'] : '';
+$mflag = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+if($getDDcrr === ''){
         $datecrr = $mflag;
-    } else {
-        $datecrr = trim($_GET['date']);
-    }
-    return $datecrr;
 }
-
+else{
+        $datecrr = $getDDcrr;
+}
