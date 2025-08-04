@@ -1,5 +1,44 @@
-
-error in ssl file
-
-[Fri Aug 01 11:36:02.550515 2025] [php:notice] [pid 1962800] [client 10.0.6.181:58106] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, null given in /var/www/html/pace/Online_portal/includes/function_apr.php:4\nStack trace:\n#0 /var/www/html/pace/Online_portal/includes/function_apr.php(1092): datablank->checkblank(NULL)\n#1 /var/www/html/pace/Online_portal/pages/monitorExternalFile.php(1342): rtgs->mismatch()\n#2 /var/www/html/pace/Online_portal/pages/smart.php(973): include('/var/www/html/p...')\n#3 {main}\n  thrown in /var/www/html/pace/Online_portal/includes/function_apr.php on line 4, referer: https://10.0.40.9:9090/pace/Online_portal/pages/smart.php
-[Fri Aug 01 11:36:02.575275 2025] [php:notice] [pid 1963085] [client 10.0.6.181:58111] PHP Fatal error:  Uncaught TypeError: Unsupported operand types: string - string in /var/www/html/pace/Online_portal/pages/smart_dcog.php:621\nStack trace:\n#0 {main}\n  thrown in /var/www/html/pace/Online_portal/pages/smart_dcog.php on line 621, referer: https://10.0.40.9:9090/pace/Online_portal/pages/smart_dcog.php
+class timedisplay{
+2522                 public static function dateUp(){
+2523                         $getDDcrr = isset($_GET['date'])?
+2524                         $_GET['date'] : date("Ymd");
+2525                         $mflag = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+2526                         if(empty($getDDcrr) && $getDDcrr == ''){
+2527                                 //$datecrr = date("Ymd");
+2528                                 $datecrr = $mflag;
+2529                         }
+2530                         else{
+2531                                 $datecrr = $getDDcrr;
+2532                         }
+2533                         return $datecrr;
+2534                 }
+2535                 public static function timeUpdated($flag,$param){
+2536                         $vay = self::dateUp();
+2537                         $x = ($param != 'OutDate') ? "ls -lrt ".$flag.$param.$vay." | awk '{ print $7,$6,$8 }'" : "ls -lrt ".$flag." | awk '{ print $7,$6,$8 }'";
+2538                         $file=shell_exec($x);
+2539                         return trim($file);
+2540                 }
+2541                 public static function pathgiver(){
+2542                         $getDDcrr = isset($_GET['date'])?
+2543                         $_GET['date'] : date("Ymd");
+2544                         $singlepath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/";
+2545                         $mflag = trim(file_get_contents($singlepath."MFLAGS_D"));
+2546                         if(empty($getDDcrr)){
+2547                                 //$this->datecrr = date("Ymd");
+2548                                 $datecrr = $mflag;
+2549                         }
+2550                         else{
+2551                                 $datecrr = $getDDcrr;
+2552                         }
+2553                         $dateyear=trim(substr($datecrr,0,4));
+2554                         $dateyearmonth=trim(substr($datecrr,0,6));
+2555                         //$currpath = $singlepath.$dateyear."/".$dateyearmonth."/".$datecrr."/";
+2556                         if($datecrr != $mflag){
+2557                                 $currpath = $singlepath.$dateyear."/".$dateyearmonth."/".$datecrr."/";
+2558                         }
+2559                         else{
+2560                                 $currpath = $singlepath;
+2561                         }
+2562                         return $currpath;
+2563                 }
+2564         }
