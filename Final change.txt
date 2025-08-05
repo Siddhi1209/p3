@@ -1,44 +1,185 @@
-class timedisplay{
-2522                 public static function dateUp(){
-2523                         $getDDcrr = isset($_GET['date'])?
-2524                         $_GET['date'] : date("Ymd");
-2525                         $mflag = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
-2526                         if(empty($getDDcrr) && $getDDcrr == ''){
-2527                                 //$datecrr = date("Ymd");
-2528                                 $datecrr = $mflag;
-2529                         }
-2530                         else{
-2531                                 $datecrr = $getDDcrr;
-2532                         }
-2533                         return $datecrr;
-2534                 }
-2535                 public static function timeUpdated($flag,$param){
-2536                         $vay = self::dateUp();
-2537                         $x = ($param != 'OutDate') ? "ls -lrt ".$flag.$param.$vay." | awk '{ print $7,$6,$8 }'" : "ls -lrt ".$flag." | awk '{ print $7,$6,$8 }'";
-2538                         $file=shell_exec($x);
-2539                         return trim($file);
-2540                 }
-2541                 public static function pathgiver(){
-2542                         $getDDcrr = isset($_GET['date'])?
-2543                         $_GET['date'] : date("Ymd");
-2544                         $singlepath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/";
-2545                         $mflag = trim(file_get_contents($singlepath."MFLAGS_D"));
-2546                         if(empty($getDDcrr)){
-2547                                 //$this->datecrr = date("Ymd");
-2548                                 $datecrr = $mflag;
-2549                         }
-2550                         else{
-2551                                 $datecrr = $getDDcrr;
-2552                         }
-2553                         $dateyear=trim(substr($datecrr,0,4));
-2554                         $dateyearmonth=trim(substr($datecrr,0,6));
-2555                         //$currpath = $singlepath.$dateyear."/".$dateyearmonth."/".$datecrr."/";
-2556                         if($datecrr != $mflag){
-2557                                 $currpath = $singlepath.$dateyear."/".$dateyearmonth."/".$datecrr."/";
-2558                         }
-2559                         else{
-2560                                 $currpath = $singlepath;
-2561                         }
-2562                         return $currpath;
-2563                 }
-2564         }
+
+#!/bin/bash
+
+inputfile="gateway_${BANCS_DQPTYPE}.txt"
+
+GENERATE_FILE() {
+    if [ ${BANCS_DQPTYPE} = ${MASTER_DQPTYPE} ]; then
+        echo "${1},${2}" >>$npdata/${inputfile}
+    else
+        echo "${2}" >>$npdata/${inputfile}
+    fi
+}
+
+DB_QUERY() {
+    export queryResult=$(sqlplus -s $ORA_LOGIN/$ORA_PASSWD << EOF
+    set feedback off
+    set head off
+    set pages 0
+    $@;
+    commit;
+    exit;
+EOF
+)
+}
+
+get_latest_log_time() {
+    # Arguments: $1 = pattern (e.g., b24.??.out.txt_*)
+    pattern="$1"
+    latest_file=$(ls -t ${pattern} 2>/dev/null | head -1)
+    if [ -n "$latest_file" ]; then
+        log_time=$(ls -l --time-style=+%H:%M "$latest_file" | awk '{print $6}')
+    else
+        log_time="00:00"
+    fi
+    echo "$log_time"
+}
+
+main() {
+    >$npdata/${inputfile}
+
+    ######################### B24 GATEWAY #########################
+    dt=$(cut -c 9-16 $ddata/file/MFLAGS)
+    gdate=$(date|cut -c5-10)
+    $npscripts/UTILITIES/check_job.sh B24
+    if [ $? -eq 0 ]; then
+        B24=$(ps -fufnsonli|grep B24GWBL|grep -v -e grep -e print|wc -l)
+        B24RE=$(grep B24REP /home/fnsonli/.profile |grep -v '#'|awk -F  '=' '{print $2}')
+        B24enc=$(ps -fufnsonli|grep B24GWBLENC|grep -v -e grep -e print|wc -l)
+        DB_QUERY "select count(1) from gtin@master_3_link where dqp_type='${BANCS_DQPTYPE}' and gateway='b24gw' and enc_flag='Y'"
+        gtin_b24enc_count=$(echo $queryResult)
+
+        cd $csysout
+        if [ $B24 -eq $B24RE ]; then
+            log_time=$(get_latest_log_time "b24.??.out.txt_*")
+            curr_T=$(date +%H:%M)
+            diff=$($npscripts/UTILITIES/getTimeDiff.pl "$log_time" "$curr_T")
+            if [ $diff -gt 300 ]; then
+                GENERATE_FILE "B24 Gateway" "NOT UPDATING"
+            else
+                if [ $B24enc -eq $gtin_b24enc_count ]; then
+                    GENERATE_FILE "B24 Gateway" "RUNNING"
+                else
+                    GENERATE_FILE "B24 Gateway" "NOT ENCRYPTED"
+                fi
+            fi
+        else
+            GENERATE_FILE "B24 Gateway" "NOT RUNNING"
+        fi
+    else
+        GENERATE_FILE "B24 Gateway" "NA"
+    fi
+
+    ######################### ATM GATEWAY #########################
+    $npscripts/UTILITIES/check_job.sh ATM
+    if [ $? -eq 0 ]; then
+        ATM=$(ps -fufnsonli|grep ATMGWBL|grep -v -e grep -e print|wc -l)
+        ATMRE=$(cat $card/atmrep_c.card | awk '{print $1}')
+        ATMenc=$(ps -fufnsonli|grep ATMGWBLENC|grep -v -e grep -e print|wc -l)
+        DB_QUERY "select count(1) from gtin where dqp_type='${BANCS_DQPTYPE}' and gateway='atm' and enc_flag='Y'"
+        gtin_atmenc_count=$(echo $queryResult)
+
+        cd $csysout
+        if [ $ATM -eq $ATMRE ]; then
+            log_time=$(get_latest_log_time "atm.??.out.txt_*")
+            curr_T=$(date +%H:%M)
+            diff=$($npscripts/UTILITIES/getTimeDiff.pl "$log_time" "$curr_T")
+            if [ $diff -gt 300 ]; then
+                GENERATE_FILE "ATM Gateway" "NOT UPDATING"
+            else
+                if [ $ATMenc -eq $gtin_atmenc_count ]; then
+                    GENERATE_FILE "ATM Gateway" "RUNNING"
+                else
+                    GENERATE_FILE "ATM Gateway" "NOT ENCRYPTED"
+                fi
+            fi
+        else
+            GENERATE_FILE "ATM Gateway" "NOT RUNNING"
+        fi
+    else
+        GENERATE_FILE "ATM Gateway" "NA"
+    fi
+
+    ######################### INB GATEWAY #########################
+    $npscripts/UTILITIES/check_job.sh INB
+    if [ $? -eq 0 ]; then
+        INB=$(ps -fufnsonli|grep INBGWBL|grep -v grep|wc -l)
+        INB1=$(ps -fufnsonlid|grep inb0000|grep -v grep|wc -l)
+        INB2=$(ps -fufnsonlid|grep ioclenq|grep -v grep|wc -l)
+        INB3=$(ps -fufnsonlid|grep pushenq|grep -v grep|wc -l)
+        INBRE=$(cat $card/inbrep.card)
+        INBenc=$(ps -fufnsonli|grep INBGWBLENC|grep -v -e grep -e print|wc -l)
+        DB_QUERY "select count(1) from gtin where dqp_type='${BANCS_DQPTYPE}' and gateway='inb' and enc_flag='Y'"
+        gtin_inbenc_count=$(echo $queryResult)
+
+        cd $csysout
+        if [ $INB -eq $INBRE ] && [ $INB1 -ge 1 ] && [ $INB2 -ge 1 ] && [ $INB3 -ge 1 ]; then
+            log_time=$(get_latest_log_time "inb.??.out.txt_*")
+            curr_T=$(date +%H:%M)
+            diff=$($npscripts/UTILITIES/getTimeDiff.pl "$log_time" "$curr_T")
+            if [ $diff -gt 300 ]; then
+                GENERATE_FILE "INB Gateway" "NOT UPDATING"
+            else
+                if [ $INBenc -eq $gtin_inbenc_count ]; then
+                    GENERATE_FILE "INB Gateway" "RUNNING"
+                else
+                    GENERATE_FILE "INB Gateway" "NOT ENCRYPTED"
+                fi
+            fi
+        else
+            GENERATE_FILE "INB Gateway" "NOT RUNNING"
+        fi
+    else
+        GENERATE_FILE "INB Gateway" "NA"
+    fi
+
+    ######################### MR GATEWAY #########################
+    $npscripts/UTILITIES/check_job.sh MR
+    if [ $? -eq 0 ]; then
+        MR=$(ps -fufnsonli|grep MRGWBL|grep -v -e grep -e print|wc -l)
+        MRRE=$(cat $card/mrrep.card)
+        logpath="/fns/i/r/sysout"
+        filelist=$(ls -lrt $logpath/mr*out* 2>/dev/null | awk '{print $9}')
+        faultylinetot=0
+        for i in $filelist; do
+            faultylines=$(tail -1000 "$i" | grep -i "Maximum limit for Active connections reached")
+            faultyline=$(echo "$faultylines" | wc -l)
+            if [ ! -z "$faultylines" ]; then
+                if [ $faultyline -ge 1 ]; then
+                    faultylinetot=$(expr $faultylinetot + $faultyline)
+                fi
+            fi
+        done
+
+        MRenc=$(ps -fufnsonli|grep MRGWBLENC|grep -v -e grep -e print|wc -l)
+        DB_QUERY "select count(1) from gtin@master_3_link where dqp_type='${BANCS_DQPTYPE}' and gateway='mr' and enc_flag='Y'"
+        gtin_mrenc_count=$(echo $queryResult)
+
+        if [ $MR -ge $MRRE ]; then
+            cd $csysout
+            log_time=$(get_latest_log_time "mr.??.out.txt_*")
+            curr_T=$(date +%H:%M)
+            diff=$($npscripts/UTILITIES/getTimeDiff.pl "$log_time" "$curr_T")
+
+            if [ $faultylinetot -ge 10 ]; then
+                GENERATE_FILE "MR Gateway" "MAXTCP"
+            else
+                if [ $diff -gt 300 ]; then
+                    GENERATE_FILE "MR Gateway" "NOT UPDATING"
+                else
+                    if [ $MRenc -eq $gtin_mrenc_count ]; then
+                        GENERATE_FILE "MR Gateway" "RUNNING"
+                    else
+                        GENERATE_FILE "MR Gateway" "NOT ENCRYPTED"
+                    fi
+                fi
+            fi
+        else
+            GENERATE_FILE "MR Gateway" "NOT RUNNING"
+        fi
+    else
+        GENERATE_FILE "MR Gateway" "NA"
+    fi
+}
+
+main
