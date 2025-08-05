@@ -1,51 +1,37 @@
-function status_queue(){
-        //      $data = file("../../ApplnMonitor/status_queue_8app.txt");
-                $data1 = explode("\n", str_replace("NQKE","-1",shell_exec("cat ".$this->currpath."status_queue_8app.txt.".$this->datecrr."|grep -v VV3Q")));
-        //      $data1 = explode("\n", file_get_contents($this->currpath."status_queue_8app.txt_prasad"));
+function night_queue1(){
+                $data1 = explode("\n", file_get_contents($this->currpath."status_queue_9apps.txt.".$this->datecrr));
+                //echo $this->currpath."status_queue_9apps.txt.".$this->datecrr;
+                //$data1 = explode("\n", file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/EOD/status_queue_9apps.txt.20190402"));
                 if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
                 $data = $this->throwRed($data1,',');
-                foreach ($data as $key2 => $value2){
-                        $queueArray = explode(",",$value2);
+                foreach ($data as $key2 => $value2) {
+                        $vare = explode(",",$value2);
                         echo "<tr>";
-                        foreach ($queueArray as $k2 => $v2){
-                                /*if($queueArray[0]=='GLAQ'){
-                                        if($k2 == '0'){
-                                                $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                                                echo "<th><a onclick=$linkreplica>".$v2."</a></th>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '1' && $v2 < '1000'){
-                                                echo "<td date-toggle='tooltip' title='$v2'>0</td>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '1000'){
-                                                echo "<td style='color:white;background-color:red;'>".$v2."</td>";
-                                        }
-                                        else{
-                                                echo "<td>".$v2."</td>";
-                                        }
+                        foreach ($vare as $k2 => $v2){
+                                if($k2 == '0' && $vare != '' ){
+                                        //echo "<th style='background-color:#1f3f92;color:white;' class='text-center'>".$v2."</th>";
+                                        $linkreplica="window.open('queue_replica_night.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                                        echo "<th style='background-color:#1f3f92;color:white;' class='text-center'><a style='color:white;cursor:pointer;' onclick=$linkreplica>".$v2."</th>";
                                 }
-                                else{*/
-                                        if($k2 == '0'){
-                                                $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                                                echo "<th><a onclick=$linkreplica>".$v2."</a></th>";
-                                        }
-                                        elseif($v2 == 'NQKE' ||  $v2 == -1){
-                                                echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '1' && $v2 < '100'){
-                                                echo "<td title='$v2'>0</td>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '100' && $v2 < '500'){
-                                                echo "<td title='$v2'>0</td>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '500'){
-                                                echo "<td class='bg-red-active'>".$v2."</td>";
-                                        }
-                                        else{
-                                                echo "<td>".$v2."</td>";
-                                        }
+                                //elseif($k2 > '0' &&  $v2 >= '1' && $v2 <= '40' && trim($v2) != 'NQKE') {
+                                //      echo "<td class='text-center' style='background-color:#db8b0b;color:white;'>".$v2."</td>";
                                 //}
-
+                                //elseif($k2 > '0' &&  $v2 > 1000 && trim($v2) != 'NQKE') {
+                                elseif ($v2_trimmed == 'NQKE' || $v2_trimmed == '-1') {
+                                    echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
+                                }
+                                elseif($k2 > '0' &&  $v2 > 500 && trim($v2) != 'NQKE') {
+                                        echo "<td class='text-center' style='background-color:red;color:white;'>".(intval($v2))."</td>";
+                                }
+                                elseif(trim($v2) == 'NQKE'){
+                                        echo "<td style='color:white;background-color:#FF0000;'><i class='fa fa-thumbs-down'></i></td>";
+                                }
+                                else {
+                                        echo "<td title='$v2' class='text-center'>0</td>";
+                                }
                         }
                         echo "</tr>";
                 }
         }
+
+		
