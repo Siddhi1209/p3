@@ -1,28 +1,8 @@
-<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 bhaga_status" style="float:right;">
-                                                                <div class="box box-primary box-solid">
-                                                                        <div class="box-header bg-tcs-active">
-                                                                                <!--<h3 class="box-title"><?php echo $trickleuploadserver;?> Status</h3><span style="float:right;font-size:18px;color:white;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("tf_bhaga.txt",".");?></span>-->
-                                        <h3 class="box-title"><?php echo $ftpuploadserver;?> STATUS</h3><span style="float:right;font-size:18px;color:white;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("tf_bhaga.txt",".");?></span>
-                                                                        </div>
-                                                                        <div class="panel-body table-responsive">
-                                                                                <table class="table table-bordered table-striped text-center">
-                                                                                        <thead>
-                                                                                                <tr>
-                                                                                                        <th style="width:500px;">Name</th>
-                                                                                                        <th>Status</th>
-                                                                                                </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-                                                                                        <?php
-                                                                                                echo msl::bhaga_stat();
-                                                                                        ?>
-                                                                                        </tbody>
-                                                                                </table>
-                                                                        </div>
-                                                                </div>
-                                                        </div>
 
-                                        </div>
+This is to inform you that the migration of the portal from the existing server 10.9.40.8 to the upgraded Linux portal server 10.9.40.9 (with upgraded PHP) has been successfully completed. All configurations and validations have been carried out, and the new server is ready for production use.
 
-										
-										
+We request your confirmation on a suitable date and time for switching the IP address from 10.9.40.9 to 10.9.40.8 in order to make the new portal live.
+
+Additionally, we request that the old portal server (10.9.40.8) be kept as-is for a certain period as a standby/fallback option to ensure business continuity in case of any unforeseen issues during the switchover.
+
+Kindly confirm your availability for the IP switch activity and your approval to retain the old portal as a standby.
