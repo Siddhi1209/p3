@@ -7,7 +7,7 @@ error_reporting(0);
                 //if($_SESSION['portal'] !="Smartmonitor"){
                 //      header('location:../login.php');
                 //}
-        require("../config_apr.php");
+        require("../config_apr_2.php");
                 //print_r($_SESSION);
                 $mldate = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
                 $sys_stat = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/sys_stat1.txt_bkp"));
