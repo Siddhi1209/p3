@@ -1,120 +1,255 @@
- <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 queue_btn" data-step=18 data-intro="View Details of Main Queues and Replica with Buildup And PID Details">
-                                                                        <div class="box box-primary box-solid">
-                                                                                <div class="box-header bg-tcs-active text-center">
 
-                                                                                        <h3 class="box-title">Queue Buildup</h3>
-                                                                                        <?php
-                                                                                            function safe_read($path) {
-                                                                                                return file_exists($path) ? trim(file_get_contents($path)) : '';
-                                                                                            }
+// get_queue_buildup.c
+// Writes queue counts to $HOME/queue_buildup_<DQP>.out
+// Also writes timestamp with microseconds to $HOME/t11 as HH:MM:SS.mmmuuu
 
-                                                                                            function safe_read_lines($path) {
-                                                                                                return file_exists($path) ? explode("\n", trim(file_get_contents($path))) : [];
-                                                                                            }
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <string.h>
+#include <time.h>
+#include <sys/time.h>
 
-                                                                                            $check_path = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_$crdate.txt";
-                                                                                            $start_time_path = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/start_time_$crdate.txt";
-                                                                                            $tpmtime = safe_read($check_path);
-                                                                                            $tpm_starttime = safe_read($start_time_path);
-                                                                                            $tpmtimestamp = shell_exec("ls -lrt $check_path | awk '{print $6,$7,$8}'");
+#define Q_OFFSET        500
+#define NUM_REGIONS     128
+#define NUM_SYSTEMS     10
+#define NUM_APPS        10
+#define NUM_QUEUES      250
+#define MAX_QUEUE_KEY   (Q_OFFSET+NUM_REGIONS*NUM_SYSTEMS*NUM_APPS*NUM_QUEUES)
 
-                                                                                            $checktpmrunning = safe_read("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpmStatus.txt");
-                                                                                            $tpm_scp_time = shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.$crdate | tail -1");
-                                                                                            $tpm_total_file = safe_read_lines("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.$crdate");
+char *queueTable[] =
+{
+    "BANCSQ","LINKINQ","LINKOUTQ","SYSSTARTQ","DJ0000Q","SY0020Q","SY0040Q","SY0050Q","SY0070Q",
+    "CDRUTHERQ","CDRDELAYQ","CDTRACERQ","SCCQ","SCCOPINQ",
+    /* A Interface queues */
+    "AT0000Q","AT0100Q","AT0110Q","AT0200Q","AT0300Q","AT0210Q",
+    /* START of IR R331 (Revert IR 18794) */
+    "EI0000Q","EI0060Q",
+    /* Five EI0060Q s added for A Gateway IR 18794 */
+    "ATINQ","ATOUTQ","ATRDELAYQ","ATRUTHERQ","ATTRACERQ","ACSQ","ACTLQ","INPUTQ","TRICKLEQ",
+    "INTERAPQ","OPQ","CONSOLEQ","SY0004Q","DEPQ","LONQ","TXPQ","CIFQ","GENQ","CASQ","PFMQ","VPIQ",
+    "SDVQ","VISQ","WBSQ","CTAQ","SBRQ","ELMQ","LIMQ","EXPQ","FN1Q","FXCQ","TDRQ","SECQ","EPSQ",
+    "SPYQ","OLRQ","ONLQ","RESPQ","SB0100Q","DP1Q","DP2Q","DP3Q","DP4Q","DP5Q","DP6Q","DP7Q",
+    "DP8Q","DP9Q","VV1Q","VV2Q","VV3Q","ARCQ","CC1Q","KCCQ","LN1Q","PF1Q","GL1Q","EQ1Q","FA1Q",
+    "NW1Q","NW2Q","NW3Q","SFDQ","GLAQ","CRCQ","BLTQ","BL1Q","DEPOPINQ","LONOPINQ","CIFOPINQ",
+    "GENOPINQ","CASOPINQ","PFMOPINQ","VISOPINQ","WBSOPINQ","CTAOPINQ","ELMOPINQ","LIMOPINQ",
+    "EXPOPINQ","FN1OPINQ","FXCOPINQ","TDROPINQ","SECOPINQ","TERMINALQ","SECMAINQ","SY3000Q",
+    "TXPOPINQ","SWIFTINQ","REPLAYQ","REPLAY01Q","REPLAY02Q","REPLAY03Q","TMMOPINQ","TMMQ",
+    "TBGOPINQ","TBGQ","PYNMAINQ","SPYOPINQ","PYIMAINQ","PYMMAINQ","PYOMAINQ","PYLMAINQ",
+    "GIRMAINQ","OLROPINQ",
+    /* Telepac queues */
+    "TPAC1","TPAC2","TPAC3","TPOST","TPCQ","TPCOPINQ","MHSQ",
+    /* Unknown */
+    "ARD0001","AIO0001","ARD0002","AIO0002","AJNL","DBDUM","DYMON","ENQRY","HWCRP","KMNGR",
+    "MAINT","NAMES","START","SUPER","TLLR1","SPARE!!!!","CHQMDQ","JSMCONSQ","JSMGENERQ","JSMNEXTQ",
+    "JSMSTARTQ","CRDEV0005","NDUMP","DIBLD","DIBRD0002","RPORT","DXLNK","DXL25W001","DXL25W002",
+    "RTLNK","RETRY","TEST","DXL25W003","DXL25W004","RTL25W001","RTL25W002","SWIFT2Q","MSETT",
+    /* Terminator */
+    NULL
+};
 
-                                                                                            $missingTPMSeq = [];
-                                                                                            $missing_count = 0;
-                                                                                            $tpm_button = "";
+char *importantQueues[] =
+{
+    "CASQ","CIFQ","CTAQ","DEPQ","DP1Q","DP2Q","DP3Q","DP4Q","DP5Q","DP6Q","DP7Q","DP8Q","DP9Q",
+    "GL1Q","EQ1Q","ELMQ","GENQ","LONQ","OLRQ","ONLQ","PF1Q","PFMQ","RESPQ","SBRQ","SDVQ","SPYQ",
+    "VPIQ","VV1Q","VV2Q","VV3Q","ARCQ","CC1Q","KCCQ","FA1Q","SFDQ","GLAQ","CRCQ","BLTQ","BL1Q",
+    /* Terminator */
+    NULL
+};
 
-                                                                                            foreach (array_filter($tpm_total_file) as $value) {
-                                                                                                $data = explode("|", trim($value));
-                                                                                                if (trim($data[0]) != '1') {
-                                                                                                    $missing_count++;
-                                                                                                    array_push($missingTPMSeq, $data);
-                                                                                                }
-                                                                                            }
+/* Start of Changes for multiplexed queues */
+char **multiplexedQueues;
+/* End of Changes for multiplexed queues */
 
-                                                                                            if ($missing_count > 0) {
-                                                                                                $tpm_button = "<button class='glow' data-toggle='modal' data-target='#tpm_modal' style='background-color:red;color:white'>TPM Alert</button>";
-                                                                                            }
+int msgCount, msgQId;
 
-                                                                                            array_pop($missingTPMSeq);
+FILE *filePointer;
+char *fileName;              // will point to fileNameBuf
+char  fileNameBuf[512];      // safe buffer for output path
 
-                                                                                            $tpm_running_from = '';
-                                                                                            if (stripos($checktpmrunning, 'terna') !== false) {
-                                                                                                $tpm_running_from = 'PR';
-                                                                                            } elseif (stripos($checktpmrunning, 'MIZO') !== false) {
-                                                                                                $tpm_running_from = 'NR';
-                                                                                            } elseif (stripos($checktpmrunning, 'ARASALAR') !== false) {
-                                                                                                $tpm_running_from = 'DR';
-                                                                                            }
+/* ---- helper: write HH:MM:SS.mmmuuu to $HOME/t11 -------------------------- */
+static void write_timestamp_full_to_t11(void) {
+    struct timeval tv;
+    struct tm tmval;
+    char path[512], buf[64];
+    FILE *fp;
+    const char *home = getenv("HOME");
+    if (!home) return;
 
-                                                                                            $tpm_scp_data = explode("|", $tpm_scp_time);
-                                                                                            $removeColon_tpm_scp_time = isset($tpm_scp_data[2]) ? strtotime(str_replace(":", "", trim($tpm_scp_data[2]))) : 0;
+    gettimeofday(&tv, NULL);           // tv_sec + tv_usec (0..999999)
+    localtime_r(&tv.tv_sec, &tmval);   // local time
 
-                                                                                            $_tpmTime = $yummy->timeUpdatedTpm("tpmStatus.txt.", ".");
-                                                                                            $removeColonTPM = strtotime(str_replace(":", "", trim($_tpmTime)));
-                                                                                            $currtimes = strtotime(date("Ymd Hi"));
-                                                                                            $scp_difftimes = $currtimes - $removeColon_tpm_scp_time;
-                                                                                            $difftimes = $currtimes - $removeColonTPM;
+    int ms = (int)(tv.tv_usec / 1000); // 0..999
+    int us = (int)(tv.tv_usec % 1000); // 0..999 (microseconds remainder beyond ms)
 
-                                                                                            $FinalScpTime = "<span style='color:#fff'>" . (isset($tpm_scp_data[2]) ? trim($tpm_scp_data[2]) : "N/A") . "</span>";
-                                                                                            if ($scp_difftimes > 3600) {
-                                                                                                $FinalScpTime = "<span style='color:#fff'>" . (isset($tpm_scp_data[2]) ? trim($tpm_scp_data[2]) : "N/A") . "</span>";
-                                                                                            }
+    snprintf(path, sizeof(path), "%s/t11", home);
+    // Format: HH:MM:SS.mmmuuu  (6 digits after the dot)
+    snprintf(buf, sizeof(buf), "%02d:%02d:%02d.%03d%03d\n",
+             tmval.tm_hour, tmval.tm_min, tmval.tm_sec, ms, us);
 
-                                                                                            $finalTpmTime = "<span style='color:#fff'>" . trim($_tpmTime) . "</span>";
-                                                                                            if ($difftimes > 600) {
-                                                                                                $finalTpmTime = "<span style='background-color:red;color:white' class='glow' title='TPM Not Updated since last 10 minutes'>" . trim($_tpmTime) . "</span>";
-                                                                                            }
+    fp = fopen(path, "w");
+    if (!fp) return;
+    fputs(buf, fp);
+    fclose(fp);
+}
 
-                                                                                            $TPM_start_time_hr = substr($tpm_starttime, 0, 2);
-                                                                                            $TPM_start_time_min = substr($tpm_starttime, 2, 2);
-                                                                                        ?>
+/* Start of Changes for multiplexed queues */
+int getMultQueIndex(char queueName[],int multQueCount){
+    int idx;
+    for(idx=1; idx < multQueCount; idx++)
+        if(!strcmp(queueName,multiplexedQueues[idx]))
+            break;
+    if(idx == multQueCount)
+        return 0;
+    else
+        return 1;
+}
+/* End of Changes for multiplexed queues */
 
-                                                                                                         <span style="float:left;font-size:14px;" class="btn btn-xs btn-success">
-                                                                                                             <a class="btn btn-sm" style="float:left"
-                                                                                                                 onclick="window.open('TPMmonitorfile.php?date=<?php echo $crdate;?>','','height=900, width=1400,scrollbars=yes,resizable=yes' );">
-                                                                                                                 <?php
-                                                                                                                     echo "TPM Running on : $tpm_running_from | SFTP : $FinalScpTime | Tar Files : " . ($tpm_scp_data[0] ?? "N/A") . " $tpm_button";
-                                                                                                                 ?>
-                                                                                                             </a>
-                                                                                                         </span>
+int getQueueIndex(char queueName[]){
+    int idx;
+    for (idx=0; queueTable[idx]!=NULL; idx++)
+        if (!strcmp(queueName,queueTable[idx]))
+            break;
+    if (queueTable[idx]==NULL)
+        return -1;
+    else
+        return idx;
+}
 
-                                                                                        <span class="queuetimepop" style="float:right;font-size:18px;"><img src="loading-bubbles.svg">
-                                                                                            <?php echo $yummy->timeUpdated("status_queue_8app.txt.false", ".");?>
-                                                                                        </span>
+int getDQPType(){
+    char *dqpPtr = getenv("BANCS_DQPTYPE");
+    int dqpType  = (int)dqpPtr[0];
+    return dqpType;
+}
 
-                                                                                        <div class="box-tools pull-right"></div>
+int getFNSSysnum(){
+    char *fnsSysnumPtr = getenv("FNS_SYSNUM");
+    int fnsSysnum      = (int)(fnsSysnumPtr[0]-'0');
+    return fnsSysnum;
+}
 
-                                                                                        </div>
-                                                                <div class="panel-body hehe" style="padding-right:10px;">
-                                                                     <div style="max-height: 500px; overflow-y: auto;">
-                                                                         <table class="table table-bordered table-striped text-center" >
-                                                                             <thead>
-                                                                                 <tr>
-                                                                                     <th>Queue Name</th>
-                                                                                     <?php for ($i = 0; $i <= 15; $i++): ?>
-                                                                                         <th><?php echo $i == 0 ? "M" : "S$i"; ?></th>
-                                                                                     <?php endfor; ?>
-                                                                                 </tr>
-                                                                             </thead>
-                                                                             <tbody class="queueappend" style="font-size:15px;">
-                                                                                 <?php
-                                                                                     $buildup_flag = safe_read("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/buildup_flag.txt");
-                                                                                     if ($buildup_flag == "0") {
-                                                                                         $aplnMonior->status_queue();
-                                                                                     } else {
-                                                                                         $aplnMonior->status_queue1();
-                                                                                     }
-                                                                                 ?>
-                                                                             </tbody>
-                                                                         </table>
-                                                                     </div>
-                                                                </div>
+int getApplNo(){
+    char *applNumPtr = getenv("BANCS_HOSTNO");
+    int applNum      = (int)(applNumPtr[0]-'0');
+    return applNum;
+}
 
-                                                                </div>
-                                                                </div>
-</div>
-</div>
+int loadQueueDetails(int queueKey){
+    struct msqid_ds msgQueueID_DS;
+
+    msgQId=msgget(queueKey, 0);
+    if (msgQId==-1)
+        return -1;
+    else{
+        if(msgctl(msgQId, IPC_STAT, &msgQueueID_DS)==-1)
+            return -2;
+        else{
+            msgCount=msgQueueID_DS.msg_qnum;
+            return 0;
+        }
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    int queueIdx, idx, idx1, flag, bancsDQPType, fnsSysnum, bancsHostno, queueKey, loadQueueRC;
+    char DQPType;
+
+    multiplexedQueues = argv;
+
+    bancsDQPType = getDQPType();
+    fnsSysnum    = getFNSSysnum();
+    bancsHostno  = getApplNo();
+
+    DQPType = (char)bancsDQPType;
+
+    /* Build $HOME/queue_buildup_<DQP>.out safely into fileNameBuf */
+    const char *home = getenv("HOME");
+    if(!home) {
+        fprintf(stderr, "HOME not set\n");
+        return -1;
+    }
+    snprintf(fileNameBuf, sizeof(fileNameBuf), "%s/queue_buildup_%c.out", home, DQPType);
+    fileName = fileNameBuf;
+
+    filePointer=fopen(fileName, "w+");
+    if(filePointer==NULL){
+        printf("\nError opening file: %s", fileName);
+        exit(-1);
+    }
+
+    /* NEW: write HH:MM:SS.mmmuuu to $HOME/t11 for the bash paste step */
+    write_timestamp_full_to_t11();
+
+    /* main loop runs for each queue present in importantQueues array */
+    for (idx=0; importantQueues[idx]!=NULL; idx++){
+        flag=0;
+
+        /* finds queue index from importantQueues */
+        queueIdx=getQueueIndex(importantQueues[idx]);
+
+        if(queueIdx==-1){
+            fprintf(filePointer, "%s NSQE\n", importantQueues[idx]);
+        } else {
+            queueKey = Q_OFFSET + queueIdx
+                       + NUM_QUEUES * (bancsHostno + NUM_APPS * (fnsSysnum + NUM_SYSTEMS * bancsDQPType));
+
+            loadQueueRC=loadQueueDetails(queueKey);
+            if(loadQueueRC==-1){
+                for (idx1=1; idx1 < argc; idx1++){
+                    if(!strcmp(importantQueues[idx],multiplexedQueues[idx1])){
+                        fprintf(filePointer, "%s B, NQKE\n",importantQueues[idx]);
+                        flag=1;
+                    }
+                }
+                if(flag==0){
+                    fprintf(filePointer, "%s\tNQKE\n", importantQueues[idx]);
+                }
+            } else if(loadQueueRC==-2){
+                fprintf(filePointer, "LDQE\n");
+            } else {
+                fprintf(filePointer, "%s\t%d\n", importantQueues[idx], msgCount);
+            }
+
+            /* Start of Changes for multiplexed queues */
+            if(getMultQueIndex(importantQueues[idx],argc)){
+                queueKey = Q_OFFSET+queueIdx+510
+                           + NUM_QUEUES * (bancsHostno + NUM_APPS * (fnsSysnum + NUM_SYSTEMS * bancsDQPType));
+                loadQueueRC=loadQueueDetails(queueKey);
+                if(loadQueueRC==-1)
+                    fprintf(filePointer, "%s A, NQKE\n",importantQueues[idx]);
+                else if(loadQueueRC==-2)
+                    fprintf (filePointer, "%s A, LDQE\n",importantQueues[idx]);
+                else
+                    fprintf(filePointer, "%s A, %d\n",importantQueues[idx], msgCount);
+
+                queueKey = Q_OFFSET+queueIdx+520
+                           + NUM_QUEUES * (bancsHostno + NUM_APPS * (fnsSysnum + NUM_SYSTEMS * bancsDQPType));
+                loadQueueRC=loadQueueDetails(queueKey);
+                if(loadQueueRC==-1)
+                    fprintf(filePointer, "%s I, NQKE\n",importantQueues[idx]);
+                else if(loadQueueRC==-2)
+                    fprintf(filePointer, "%s I, LDQE\n",importantQueues[idx]);
+                else
+                    fprintf(filePointer, "%s I, %d\n", importantQueues[idx],msgCount);
+
+                queueKey = Q_OFFSET+queueIdx+530
+                           + NUM_QUEUES * (bancsHostno + NUM_APPS * (fnsSysnum + NUM_SYSTEMS * bancsDQPType));
+                loadQueueRC=loadQueueDetails(queueKey);
+                if(loadQueueRC==-1)
+                    fprintf(filePointer, "%s M, NQKE\n",importantQueues[idx]);
+                else if(loadQueueRC==-2)
+                    fprintf(filePointer, "%s M, LDQE\n",importantQueues[idx]);
+                else
+                    fprintf(filePointer, "%s M, %d\n", importantQueues[idx],msgCount);
+            }
+            /* End of Changes for multiplexed queues */
+        }
+    }
+
+    fclose(filePointer);
+    return 0;
+}
 
