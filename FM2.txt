@@ -1,24 +1,51 @@
-Here for monitoring b24 it is comparing the time first and last log file from /fns/i/r/sysout path
-but there is a defect. for some logs Switching of log file is happening and the log is getting updated
-in the switched log file with updated Time stamp and same instance number.
-For ex: 
+ function status_queue(){
+        //      $data = file("../../ApplnMonitor/status_queue_8app.txt");
+                $data1 = explode("\n", str_replace("NQKE","-1",shell_exec("cat ".$this->currpath."status_queue_8app.txt.".$this->datecrr."|grep -v VV3Q")));
+        //      $data1 = explode("\n", file_get_contents($this->currpath."status_queue_8app.txt_prasad"));
+                if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
+                $data = $this->throwRed($data1,',');
+                foreach ($data as $key2 => $value2){
+                        $queueArray = explode(",",$value2);
+                        echo "<tr>";
+                        foreach ($queueArray as $k2 => $v2){
+                                /*if($queueArray[0]=='GLAQ'){
+                                        if($k2 == '0'){
+                                                $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                                                echo "<th><a onclick=$linkreplica>".$v2."</a></th>";
+                                        }
+                                        elseif($k2 > '0' && $v2 >= '1' && $v2 < '1000'){
+                                                echo "<td date-toggle='tooltip' title='$v2'>0</td>";
+                                        }
+                                        elseif($k2 > '0' && $v2 >= '1000'){
+                                                echo "<td style='color:white;background-color:red;'>".$v2."</td>";
+                                        }
+                                        else{
+                                                echo "<td>".$v2."</td>";
+                                        }
+                                }
+                                else{*/
+                                        if($k2 == '0'){
+                                                $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                                                echo "<th><a onclick=$linkreplica>".$v2."</a></th>";
+                                        }
+                                        elseif($v2 == 'NQKE' ||  $v2 == -1){
+                                                echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
+                                        }
+                                        elseif($k2 > '0' && $v2 >= '1' && $v2 < '99'){
+                                                echo "<td title='$v2'>0</td>";
+                                        }
+                                        elseif($k2 > '0' && $v2 >= '99' && $v2 < '500'){
+                                                echo "<td class='bg-yellow text-center'>".$v2."</td>";
+                                        }
+                                        elseif($k2 > '0' && $v2 >= '500'){
+                                                echo "<td class='bg-red-active'>".$v2."</td>";
+                                        }
+                                        else{
+                                                echo "<td>".$v2."</td>";
+                                        }
+                                //}
 
-BHARGAVI:cbsprodm:/fns/i/r/sysout:-)ls -lrt *b24.11.out.txt*
--rw-r--r--   1 fnsonli    fnsir      213892227 Aug  5 09:51 b24.11.out.txt_1
--rw-r--r--   1 fnsonli    fnsir      217053139 Aug  5 11:29 b24.11.out.txt_2
--rw-r--r--   1 fnsonli    fnsir      39545226 Aug  5 11:44 b24.11.out.txt_3
-BHARGAVI:cbsprodm:/fns/i/r/sysout:-)
-BHARGAVI:cbsprodm:/fns/i/r/sysout:-)
-BHARGAVI:cbsprodm:/fns/i/r/sysout:-)tail -f b24.11.out.txt_2
-11:29:19.605125 T-515379 tcpio_tls.c        Closed connections
-11:29:19.617020 T-515382 TCPThread_tls.c    B0508112919.597160|T515382|e|11|1 Sending response of 165 bytes to branch 99924, teller 9909999,txn 067050,Rsptxn code 060917 be_jrnl_no 183487667, fe_jrnl_no 141382100, ip 10.191.171.68
-11:29:19.621217 T-515382 tcpio_tls.c        Closed connections
-11:29:19.635404 T-515366 TCPThread_tls.c    B0508112919.598140|T515366|e|11|1 Sending response of 246 bytes to branch 10521, teller 9900002,txn 000602,Rsptxn code 000602 be_jrnl_no 183487678, fe_jrnl_no 195242000, ip 10.191.171.68
-11:29:19.638719 T-1 tcpsv_tls.c
-Transaction count value(200002)>BANCS switch frequency(200000).Also BANCS Switch Flag=Y
-,hence calling switching function
-
-11:29:19.638761 T-1 tcpsv_tls.c        Switching log file
-
-
-Here the log file is switched and updated with b24.11.out.txt_3 
+                        }
+                        echo "</tr>";
+                }
+        }
