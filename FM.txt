@@ -1,470 +1,120 @@
+ <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 queue_btn" data-step=18 data-intro="View Details of Main Queues and Replica with Buildup And PID Details">
+                                                                        <div class="box box-primary box-solid">
+                                                                                <div class="box-header bg-tcs-active text-center">
 
-inputfile="gateway_${BANCS_DQPTYPE}.txt"
+                                                                                        <h3 class="box-title">Queue Buildup</h3>
+                                                                                        <?php
+                                                                                            function safe_read($path) {
+                                                                                                return file_exists($path) ? trim(file_get_contents($path)) : '';
+                                                                                            }
 
-GENERATE_FILE(){
-    if [ ${BANCS_DQPTYPE} = ${MASTER_DQPTYPE} ]
-    then
-        echo "${1},${2}" >>$npdata/${inputfile}
-    else
-        echo "${2}" >>$npdata/${inputfile}
-    fi
-}
+                                                                                            function safe_read_lines($path) {
+                                                                                                return file_exists($path) ? explode("\n", trim(file_get_contents($path))) : [];
+                                                                                            }
 
-DB_QUERY(){
-export queryResult=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD << EOF
-    set feedback off
-    set head off
-    set pages 0
-    $@;
-    commit;
-    exit;
-EOF`
-}
+                                                                                            $check_path = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/check_$crdate.txt";
+                                                                                            $start_time_path = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/start_time_$crdate.txt";
+                                                                                            $tpmtime = safe_read($check_path);
+                                                                                            $tpm_starttime = safe_read($start_time_path);
+                                                                                            $tpmtimestamp = shell_exec("ls -lrt $check_path | awk '{print $6,$7,$8}'");
 
-# NEW: picks the most recently modified file matching a pattern and returns its HH:MM mtime
-get_latest_log_time() {
-    # $1 = pattern like b24.??.out.txt_*  (works even when logs switch to _2, _3, ...)
-    pattern="$1"
-    latest_file=$(ls -t ${pattern} 2>/dev/null | head -1)
-    if [ -n "$latest_file" ]; then
-        # use ls -l to extract the HH:MM column (same approach your script already uses)
-        ls -l "$latest_file" | awk '{print $8}'
-    else
-        echo "00:00"
-    fi
-}
+                                                                                            $checktpmrunning = safe_read("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpmStatus.txt");
+                                                                                            $tpm_scp_time = shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.$crdate | tail -1");
+                                                                                            $tpm_total_file = safe_read_lines("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/tpm_sequence_file_count.txt.$crdate");
 
-main(){
->$npdata/${inputfile}
-    ##########################################--B24 GATEWAY--#####################
-    dt=`cut -c 9-16 $ddata/file/MFLAGS`
-    gdate=`date|cut -c5-10`
-    $npscripts/UTILITIES/check_job.sh B24  #Does nothing but check $npcard/SERVICE_CHECK.card For Y variable  for gateway provided output 0 or 1[ideally 0]
-    if [ $? -eq 0 ]
-    then
-                    #NORMAL GATEWAY
-                    B24=`ps -fufnsonli|grep B24GWBL|grep -v -e grep -e print|wc -l`
-            #       B24RE=`grep B24REP /home/fnsonli/.profile | awk -F '=' '{print $2}'`
-                    B24RE=`grep B24REP /home/fnsonli/.profile |grep -v '#'|awk -F  '=' '{print $2}'`
-    #B24RE=39
-                    #ENCRYPTED GATEWAY FROM GTIN TABLE
-                    B24enc=`ps -fufnsonli|grep B24GWBLENC|grep -v -e grep -e print|wc -l`
-                    DB_QUERY "select count(1) from gtin@master_3_link where dqp_type='${BANCS_DQPTYPE}' and gateway='b24gw' and enc_flag='Y'"
-                    gtin_b24enc_count=`echo $queryResult`
+                                                                                            $missingTPMSeq = [];
+                                                                                            $missing_count = 0;
+                                                                                            $tpm_button = "";
 
-                    cd $csysout
-                    if [ $B24 -eq $B24RE ]
-                    then
-                            # CHANGED: use latest modified b24 log file’s time
-                            log_time=`get_latest_log_time "b24.??.out.txt_*"`
-                            curr_T=`date |awk {'print $4'} |cut -c 1-5`
-                            diff=`$npscripts/UTILITIES/getTimeDiff.pl $log_time $curr_T`
-                            #rep_err_time=`grep "not enabled for" b24.??.out.txt | grep -v FN1Q | awk -F ':' '{print $2":"$3}' | sort -n | uniq | tail -1`
-                            #curr_T=`date |awk {'print $4'} |cut -c 1-5`
-                            #diff_err_time=`$npscripts/UTILITIES/getTimeDiff.pl $rep_err_time $curr_T`
-                            #if [ ${diff_err_time} -le 900 ]
-                            #then
-                            #       GENERATE_FILE "B24 Gateway" "UTP TXN"
-                            #else
-                                    if [ $diff -gt 300 ]
-                                    then
-                                                    GENERATE_FILE "B24 Gateway" "NOT UPDATING"
-                                    else
-                                            if [ $B24enc -eq $gtin_b24enc_count ]
-                                            then
-                                                    GENERATE_FILE "B24 Gateway" "RUNNING"
-                                            else
-                                                    GENERATE_FILE "B24 Gateway" "NOT ENCRYPTED"
-                                            fi
-                                    fi
-                            #fi
-                    else
-                            GENERATE_FILE "B24 Gateway" "NOT RUNNING"
-                    fi
-    else
-                    GENERATE_FILE "B24 Gateway" "NA"
-    fi
-    ##########################################--ATM GATEWAY--######################
+                                                                                            foreach (array_filter($tpm_total_file) as $value) {
+                                                                                                $data = explode("|", trim($value));
+                                                                                                if (trim($data[0]) != '1') {
+                                                                                                    $missing_count++;
+                                                                                                    array_push($missingTPMSeq, $data);
+                                                                                                }
+                                                                                            }
 
-    $npscripts/UTILITIES/check_job.sh ATM
-    if [ $? -eq 0 ]
-    then
-                    #NORMAL GATEWAY
-                    ATM=`ps -fufnsonli|grep ATMGWBL|grep -v -e grep -e print|wc -l`
-                    ATMRE=`cat $card/atmrep_c.card | awk '{print $1}'`
+                                                                                            if ($missing_count > 0) {
+                                                                                                $tpm_button = "<button class='glow' data-toggle='modal' data-target='#tpm_modal' style='background-color:red;color:white'>TPM Alert</button>";
+                                                                                            }
 
-                    #ENCRYPTED GATEWAY FROM GTIN TABLE
-                    ATMenc=`ps -fufnsonli|grep ATMGWBLENC|grep -v -e grep -e print|wc -l`
-                    DB_QUERY "select count(1) from gtin where dqp_type='${BANCS_DQPTYPE}' and gateway='atm' and enc_flag='Y'"
-                    gtin_atmenc_count=`echo $queryResult`
+                                                                                            array_pop($missingTPMSeq);
 
-                    cd $csysout
-                    if [ $ATM -eq $ATMRE ]
-                    then
-                            # CHANGED: use latest modified atm log file’s time
-                            file_T=`get_latest_log_time "atm.??.out.txt_*"`
-                            curr_T=`date |awk {'print $4'} |cut -c 1-5`
-                            diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_T $curr_T`
-                            #rep_err_time=`grep "not enabled for" atm.??.out.txt_?? | grep -v FN1Q | awk -F ':' '{print $2":"$3}' | sort -n | uniq | tail -1`
-                            #curr_T=`date |awk {'print $4'} |cut -c 1-5`
-                            #diff_err_time=`$npscripts/UTILITIES/getTimeDiff.pl $rep_err_time $curr_T`
-                            #if [ ${diff_err_time} -le 900 ]
-                            #then
-                            #       GENERATE_FILE "ATM Gateway" "UTP TXN"
-                            #else
-                                    if [ $diff -gt 300 ]
-                                    then
-                                            GENERATE_FILE "ATM Gateway" "NOT UPDATING"
-                                    else
-                                            if [ $ATMenc -eq $gtin_atmenc_count ]
-                                            then
-                                                    GENERATE_FILE "ATM Gateway" "RUNNING"
-                                            else
-                                                    GENERATE_FILE "ATM Gateway" "NOT ENCRYPTED"
-                                            fi
-                                    fi
-                            #fi
-                    else
-                                    GENERATE_FILE "ATM Gateway" "NOT RUNNING"
-                    fi
-    else
-                    GENERATE_FILE "ATM Gateway" "NA"
-    fi
+                                                                                            $tpm_running_from = '';
+                                                                                            if (stripos($checktpmrunning, 'terna') !== false) {
+                                                                                                $tpm_running_from = 'PR';
+                                                                                            } elseif (stripos($checktpmrunning, 'MIZO') !== false) {
+                                                                                                $tpm_running_from = 'NR';
+                                                                                            } elseif (stripos($checktpmrunning, 'ARASALAR') !== false) {
+                                                                                                $tpm_running_from = 'DR';
+                                                                                            }
 
+                                                                                            $tpm_scp_data = explode("|", $tpm_scp_time);
+                                                                                            $removeColon_tpm_scp_time = isset($tpm_scp_data[2]) ? strtotime(str_replace(":", "", trim($tpm_scp_data[2]))) : 0;
 
-    ##########################################--INB GATEWAY--######################
+                                                                                            $_tpmTime = $yummy->timeUpdatedTpm("tpmStatus.txt.", ".");
+                                                                                            $removeColonTPM = strtotime(str_replace(":", "", trim($_tpmTime)));
+                                                                                            $currtimes = strtotime(date("Ymd Hi"));
+                                                                                            $scp_difftimes = $currtimes - $removeColon_tpm_scp_time;
+                                                                                            $difftimes = $currtimes - $removeColonTPM;
 
-    $npscripts/UTILITIES/check_job.sh INB
-    if [ $? -eq 0 ]
-    then
-                    #NORMAL GATEWAY
-                    INB=`ps -fufnsonli|grep INBGWBL|grep -v grep|wc -l`
-                    INB1=`ps -fufnsonlid|grep inb0000|grep -v grep|wc -l`
-                    INB2=`ps -fufnsonlid|grep ioclenq|grep -v grep|wc -l`
-                    INB3=`ps -fufnsonlid|grep pushenq|grep -v grep|wc -l`
-                    INBRE=`cat $card/inbrep.card`
+                                                                                            $FinalScpTime = "<span style='color:#fff'>" . (isset($tpm_scp_data[2]) ? trim($tpm_scp_data[2]) : "N/A") . "</span>";
+                                                                                            if ($scp_difftimes > 3600) {
+                                                                                                $FinalScpTime = "<span style='color:#fff'>" . (isset($tpm_scp_data[2]) ? trim($tpm_scp_data[2]) : "N/A") . "</span>";
+                                                                                            }
 
-                    #ENCRYPTED GATEWAY FROM GTIN TABLE
-                    INBenc=`ps -fufnsonli|grep INBGWBLENC|grep -v -e grep -e print|wc -l`
-                    DB_QUERY "select count(1) from gtin where dqp_type='${BANCS_DQPTYPE}' and gateway='inb' and enc_flag='Y'"
-                    gtin_inbenc_count=`echo $queryResult`
+                                                                                            $finalTpmTime = "<span style='color:#fff'>" . trim($_tpmTime) . "</span>";
+                                                                                            if ($difftimes > 600) {
+                                                                                                $finalTpmTime = "<span style='background-color:red;color:white' class='glow' title='TPM Not Updated since last 10 minutes'>" . trim($_tpmTime) . "</span>";
+                                                                                            }
 
-                    cd $csysout
-                    if [ ${INB} -eq ${INBRE} ] && [ ${INB1} -ge 1 ] && [ ${INB2} -ge 1 ] && [ ${INB3} -ge 1 ]
-                    then
-                            # CHANGED: use latest modified inb log file’s time
-                            file_T=`get_latest_log_time "inb.??.out.txt_*"`
-                            curr_T=`date |awk {'print $4'} |cut -c 1-5`
-                            diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_T $curr_T`
-                            #rep_err_time=`grep "not enabled for" inb.??.out.txt_?? | grep -v FN1Q | awk -F ':' '{print $2":"$3}' | sort -n | uniq | tail -1`
-                            #curr_T=`date |awk {'print $4'} |cut -c 1-5`
-                            #diff_err_time=`$npscripts/UTILITIES/getTimeDiff.pl $rep_err_time $curr_T`
-                            #if [ ${diff_err_time} -le 900 ]
-                            #then
-                            #       GENERATE_FILE "INB Gateway" "UTP TXN"
-                            #else
-                                    if [ $diff -gt 300 ]
-                                    then
-                                            GENERATE_FILE "INB Gateway" "NOT UPDATING"
-                                    else
-                                            if [ $INBenc -eq $gtin_inbenc_count ]
-                                            then
-                                                    GENERATE_FILE "INB Gateway" "RUNNING"
-                                            else
-                                                    GENERATE_FILE "INB Gateway" "NOT ENCRYPTED"
-                                            fi
-                                    fi
-                            #fi
-                    else
-                            GENERATE_FILE "INB Gateway" "NOT RUNNING"
-                    fi
-    else
-                    GENERATE_FILE "INB Gateway" "NA"
-    fi
+                                                                                            $TPM_start_time_hr = substr($tpm_starttime, 0, 2);
+                                                                                            $TPM_start_time_min = substr($tpm_starttime, 2, 2);
+                                                                                        ?>
 
-    ################################---MR GATEWAY------######################################
-    $npscripts/UTILITIES/check_job.sh MR
-    if [ $? -eq 0 ]
-    then
-                    #NORMAL GATEWAY
-                    MR=`ps -fufnsonli|grep MRGWBL|grep -v -e grep -e print|wc -l`
-                    MRRE=`cat $card/mrrep.card`
-                    logpath="/fns/i/r/sysout"
-                    hostname=`hostname`
-                    filelist=`ls -lrt $logpath/mr*out*|awk '{print $9}' `
-                    faultylinetot=0
-                    for i in $filelist
-                    do
-                            faultylines=`tail -1000 $i| grep -i "Maximum limit for Active connections reached"`
-                            faultyline=`echo $faultylines| wc -l`
-                            if [ ! -z "$faultylines" ]
-                            then
-                                    if [ ${faultyline} -ge 1 ]
-                                    then
-                                            faultylinetot=`expr $faultylinetot + $faultyline`
-                                    fi
-                            fi
-                    done
+                                                                                                         <span style="float:left;font-size:14px;" class="btn btn-xs btn-success">
+                                                                                                             <a class="btn btn-sm" style="float:left"
+                                                                                                                 onclick="window.open('TPMmonitorfile.php?date=<?php echo $crdate;?>','','height=900, width=1400,scrollbars=yes,resizable=yes' );">
+                                                                                                                 <?php
+                                                                                                                     echo "TPM Running on : $tpm_running_from | SFTP : $FinalScpTime | Tar Files : " . ($tpm_scp_data[0] ?? "N/A") . " $tpm_button";
+                                                                                                                 ?>
+                                                                                                             </a>
+                                                                                                         </span>
 
-                    #ENCRYPTED GATEWAY FROM GTIN TABLE
-                    MRenc=`ps -fufnsonli|grep MRGWBLENC|grep -v -e grep -e print|wc -l`
-                    DB_QUERY "select count(1) from gtin@master_3_link where dqp_type='${BANCS_DQPTYPE}' and gateway='mr' and enc_flag='Y'"
-                    gtin_mrenc_count=`echo $queryResult`
+                                                                                        <span class="queuetimepop" style="float:right;font-size:18px;"><img src="loading-bubbles.svg">
+                                                                                            <?php echo $yummy->timeUpdated("status_queue_8app.txt.false", ".");?>
+                                                                                        </span>
 
-                    if [ $MR -ge $MRRE ]
-                    then
-                                    cd $csysout
-                                    #rep_err_time=`grep "not enabled for" mr.??.out.txt_?? | grep -v FN1Q | awk -F ':' '{print $2":"$3}' | sort -n | uniq | tail -1`
-                                    #curr_T=`date |awk {'print $4'} |cut -c 1-5`
-                                    #diff_err_time=`$npscripts/UTILITIES/getTimeDiff.pl $rep_err_time $curr_T`
-                                    #if [ ${diff_err_time} -le 900 ]
-                                    #then
-                                    #       GENERATE_FILE "MR Gateway" "UTP TXN"
-                                    #elif [  $faultylinetot -ge 10 ]
-                                    if [  $faultylinetot -ge 10 ]
-                                    then
-                                                    GENERATE_FILE "MR Gateway" "MAXTCP"
-                                    else
-                                            curr_T=`date |awk {'print $4'} |cut -c 1-5`
-                                            # CHANGED: use latest modified mr log file’s time
-                                            file_T=`get_latest_log_time "mr.??.out.txt_*"`
-                                            diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_T $curr_T`
-                                            if [ $diff -gt 300 ]
-                                            then
-                                                    GENERATE_FILE "MR Gateway" "NOT UPDATING"
-                                            else
-                                               if [ $MRenc -eq $gtin_mrenc_count ]
-                                                    then
-                                                            GENERATE_FILE "MR Gateway" "RUNNING"
-                                                    else
-                                                            GENERATE_FILE "MR Gateway" "NOT ENCRYPTED"
-                                                    fi
-                                            fi
-                                    fi
-                    else
-                                    GENERATE_FILE "MR Gateway" "NOT RUNNING"
-                    fi
-    else
-                    GENERATE_FILE "MR Gateway" "NA"
-    fi
+                                                                                        <div class="box-tools pull-right"></div>
 
-    ##########################################--TF GATEWAY--######################
-    $npscripts/UTILITIES/check_job.sh TF
-    if [ $? -eq 0 ]
-    then
-                    DB_QUERY "select to_char(sysdate,'DAY') from dual"
-                    curr_day=`echo $queryResult`
-                    if [ ${curr_day} = "SUNDAY" ]
-                    then
-                                    GENERATE_FILE "TF Gateway" "SUNDAY"
-                    else
-                                    cd $csysout
-                                    tf_cnt=`ps -fufnsonli|grep TFTCPSV|grep -v grep|wc -l`
-                                    oracle_error=`grep "ORA-" TFTCPSV.1.out|wc -l`
-                                    file_T=`ll -rtl TFTCPSV.1.out|awk '{print $8}'`
-                                    curr_T=`date |awk {'print $4'} |cut -c 1-5`
-                                    diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_T $curr_T`
-                                    if [ ${oracle_error} -gt 0 ] || [ ${tf_cnt} -lt 1 ]
-                                    then
-                                                    GENERATE_FILE "TF Gateway" "NOT RUNNING"
-                                    else
-                                                    if [ ${diff} -gt 300 ]
-                                                    then
-                                                                    GENERATE_FILE "TF Gateway" "NOT UPDATING"
-                                                    else
-                                                                    GENERATE_FILE "TF Gateway" "RUNNING"
-                                                    fi
-                                    fi
-                    fi
-    else
-                    GENERATE_FILE "TF Gateway" "NA"
-    fi
+                                                                                        </div>
+                                                                <div class="panel-body hehe" style="padding-right:10px;">
+                                                                     <div style="max-height: 500px; overflow-y: auto;">
+                                                                         <table class="table table-bordered table-striped text-center" >
+                                                                             <thead>
+                                                                                 <tr>
+                                                                                     <th>Queue Name</th>
+                                                                                     <?php for ($i = 0; $i <= 15; $i++): ?>
+                                                                                         <th><?php echo $i == 0 ? "M" : "S$i"; ?></th>
+                                                                                     <?php endfor; ?>
+                                                                                 </tr>
+                                                                             </thead>
+                                                                             <tbody class="queueappend" style="font-size:15px;">
+                                                                                 <?php
+                                                                                     $buildup_flag = safe_read("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/buildup_flag.txt");
+                                                                                     if ($buildup_flag == "0") {
+                                                                                         $aplnMonior->status_queue();
+                                                                                     } else {
+                                                                                         $aplnMonior->status_queue1();
+                                                                                     }
+                                                                                 ?>
+                                                                             </tbody>
+                                                                         </table>
+                                                                     </div>
+                                                                </div>
 
-    ############################-Trickle Feed--##############################
-    $npscripts/UTILITIES/check_job.sh TRICKLE_FEED
-    if [ $? -eq 0 ]
-    then
-                    curr_date=`cut -c 15-16 $ddata/file/MFLAGS``cut -c 13-14 $ddata/file/MFLAGS``cut -c 9-12 $ddata/file/MFLAGS`
-                    curr_count=`tail -500 $sysout/Tf*${curr_date}.out | grep "ABORT" |wc -l`
+                                                                </div>
+                                                                </div>
+</div>
+</div>
 
-                    tfdr=`ps -fufnsonlid|grep tfdrtrig|grep -v grep|wc -l`
-                    tfm=`ps -fufnsonlid|grep tfmfilesplit|grep -v grep|wc -l`
-                    nft=`ps -fufnsonlid|grep nftfbu|grep -v grep|wc -l`
-                    v5588=1
-                    v0002=1
-                    $npscripts/UTILITIES/check_job.sh cfpd5588
-                    if [ $? -eq 0 ]
-                    then
-                                    v5588=`ps -fufnsonlid|grep cfpd5588 | grep -v grep | wc -l`
-                    fi
-                    $npscripts/UTILITIES/check_job.sh cfpd0002
-                    if [ $? -eq 0 ]
-                    then
-                                    v0002=`ps -fufnsonlid|grep cfpd0002 | grep -v grep | wc -l`
-                    fi
-
-                    cd $dsysout
-                    curr_T=`date |awk {'print $4'} |cut -c 1-5`
-                    file_T1=`ll -rtl TFTRIGProc.out|awk '{print $8}'`
-                    file_T2=`ll -rtl nftfbu.log|awk '{print $8}'`
-
-                    diff1=`$npscripts/UTILITIES/getTimeDiff.pl $file_T1 $curr_T`
-                    diff2=`$npscripts/UTILITIES/getTimeDiff.pl $file_T2 $curr_T`
-
-                    if [ $tfdr -ge 1 ] && [ $tfm -ge 1 ] && [ $nft -ge 1 ] && [ $v5588 -ge 1 ] && [ $v0002 -ge 1 ]
-                    then
-                                    if [ ${diff1} -le 600 ] && [ ${diff2} -le 600 ]
-                                    then
-                                                    if [ ${curr_count} -ge 1 ]
-                                                    then
-                                                                    GENERATE_FILE "Trickle Feed" "ABORT"
-                                                    else
-
-                                                                    GENERATE_FILE "Trickle Feed" "RUNNING"
-                                                    fi
-                                    elif [ ${diff1} -le 600 ] && [ ${diff2} -gt 600 ]
-                                    then
-                                                    GENERATE_FILE "Trickle Feed" "OLD ARCH NOT UPDATING"
-
-                                    elif [ ${diff1} -gt 600 ] && [ ${diff2} -le 600 ]
-                                    then
-                                                    GENERATE_FILE "Trickle Feed" "NEW ARCH NOT UPDATING"
-                                    else
-                                                    GENERATE_FILE "Trickle Feed" "NEW AND OLD ARCH NOT UPDATING"
-                                    fi
-                    else
-                                    GENERATE_FILE "Trickle Feed" "NOT RUNNING"
-                    fi
-    else
-                    GENERATE_FILE "Trickle Feed" "NA"
-    fi
-
-    #####################################---------------RTGS--------------########################
-    $npscripts/UTILITIES/check_job.sh RTGS
-    if [ $? -eq 0 ]
-    then
-                    rtgs_job=`cat $npcard/RTGS.card |xargs|sed 's/ /|/g'`
-                    rtgs_job_run_count=`ps -fufnsonlid |grep -E "${rtgs_job}" |awk {'print $NF'}|sort|uniq|wc -l`
-                    rtgs_job_card_count=`cat $npcard/RTGS.card|wc -l`
-                    cd $sysout
-                    file_T=`ll -rtl rtgsngproctime_??.txt|grep "${gdate}" |tail -1|awk '{print $8}'`
-                    curr_T=`date |awk {'print $4'}|cut -c 1-5`
-
-                    diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_T $curr_T`
-
-                    if [ ${rtgs_job_run_count} -ge ${rtgs_job_card_count} ]
-                    then
-                                    if [ ${diff} -gt 120 ]
-                                    then
-                                                    GENERATE_FILE "RTGS" "NOT UPDATING"
-                                    else
-                                                    GENERATE_FILE "RTGS" "RUNNING"
-                                    fi
-                    else
-                                    GENERATE_FILE "RTGS" "NOT RUNNING"
-                    fi
-    else
-                    GENERATE_FILE "RTGS" "NA"
-    fi
-
-    ##############################################-------NEFT-----------###########################
-    $npscripts/UTILITIES/check_job.sh NEFT
-    if [ $? -eq 0 ]
-    then
-                    neft_job=`cat $npcard/NEFT.card |xargs|sed 's/ /|/g'`
-                    neft_job_run_count=`ps -fufnsonlid |grep -E "${neft_job}" |wc -l`
-                    neft_job_card_count=`cat $npcard/NEFT.card|wc -l`
-                    cd $sysout
-                    file_T=`ll -rtl neftstream.out??|grep "${gdate}" |tail -1|awk '{print $8}'`
-                    curr_T=`date |awk {'print $4'}|cut -c 1-5`
-
-                    diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_T $curr_T`
-
-                    if [ ${neft_job_run_count} -ge ${neft_job_card_count} ]
-                    then
-                                    if [ ${diff} -gt 120 ]
-                                    then
-                                                    GENERATE_FILE "NEFT" "NOT UPDATING"
-                                    else
-                                                    GENERATE_FILE "NEFT" "RUNNING"
-                                    fi
-                    else
-                                    GENERATE_FILE "NEFT" "NOT RUNNING"
-                    fi
-    else
-                    GENERATE_FILE "NEFT" "NA"
-    fi
-
-    ##########################################----------MQ ERROR----------#########################
-    flag_rtgs=0
-    flag_neft=0
-    flag_imps=0
-    for i in `ls -lrt $sysout/rtgsng*| grep -v neft_ack_in.log|grep "${gdate}"|awk {'print $NF'}`
-    do
-                    tail -100 $i|grep -e "MQCONN ended with reason code" -e "MQPUT ended with reason code" >/dev/null
-                    if [ $? -eq 0 ]
-                    then
-                                    flag_rtgs=1
-                                    break
-                    fi
-    done
-
-    for i in `ls -lrt $sysout/neft*| grep -v neft_ack_in.log | grep -v neftnotif.out |grep "${gdate}"|awk {'print $NF'}`
-    do
-                    tail -100 $i|grep -e "MQCONN ended with reason code" -e "MQPUT ended with reason code" >/dev/null
-                    if [ $? -eq 0 ]
-                    then
-                                    flag_neft=1
-                                    break
-                    fi
-    done
-
-    for i in `ls -lrt $sysout/imps*|grep "${gdate}"|awk {'print $NF'}`
-    do
-                    tail -100 $i|grep -e "MQCONN ended with reason code" -e "MQPUT ended with reason code" >/dev/null
-                    if [ $? -eq 0 ]
-                    then
-                                    flag_imps=1
-                                    break
-                    fi
-    done
-    echo $flag_imps
-    if [ ${flag_rtgs} -eq 0  -a  ${flag_neft} -eq 0  -a ${flag_imps} -eq 0 ]
-    then
-                    GENERATE_FILE "MQ SERVER" "RUNNING"
-    elif [ ${flag_rtgs} -eq 1  -a ${flag_neft} -eq 0 -a ${flag_imps} -eq 0 ]
-    then
-                    GENERATE_FILE "MQ SERVER" "ERROR IN RTGS"
-    elif [ ${flag_rtgs} -eq 0 -a ${flag_neft} -eq 1 -a ${flag_imps} -eq 0 ]
-    then
-                    GENERATE_FILE "MQ SERVER" "ERROR IN NEFT"
-    elif [ ${flag_rtgs} -eq 0 -a ${flag_neft} -eq 0 -a ${flag_imps} -eq 1 ]
-    then
-                    GENERATE_FILE "MQ SERVER" "ERROR IN IMPS"
-    else
-                    GENERATE_FILE "MQ SERVER" "ERROR IN RTGS-NEFT-IMPS"
-    fi
-    #######################################-------CHECKRC-------###############################
-    checkrc_cnt=`ps -ef|grep fnsonli|grep checkrc.sh|grep -v -e grep -e checklist| grep -v "checkrc.sh 0" |wc -l`
-    if [ $checkrc_cnt -gt 0 ]
-    then
-                    GENERATE_FILE "Check RC" "RC RUNNING"
-    else
-                    GENERATE_FILE "Check RC" "NO CHECK RC"
-    fi
-
-    ##########################################-SYSTEM UTILISATION------###################################
-    uti=`sar -u 1 1|tail -1|awk '{print $5}'`
-    if [ -z "$uti" ]
-    then
-    uti=-
-    fi
-
-    GENERATE_FILE "System Idle" "${uti}"
-    ################################################-LAST UPDATE-###################################
-    update_T=`date|awk '{print $4}'|cut -c 1-5`
-    GENERATE_FILE "LAST UPDATE" "${update_T}"
-}
-main
-$HOME/pace/ftc.sh $npdata/${inputfile} /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/${inputfile}.${dt}
-$HOME/pace/ftc.sh $spool/CBS_ONLINE.txt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/CBS_ONLINE.txt.${dt}
