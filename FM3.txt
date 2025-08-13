@@ -1,7 +1,7 @@
 
 // get_queue_buildup.c  (PRODUCTION VERSION)
 // Writes queue counts to $HOME/queue_buildup_<DQP>.out
-// Also writes timestamp with microseconds to $HOME/t11 as HH:MM:SS.mmmuuu
+// Also writes timestamp with microseconds to $HOME/t11 as HH:MM:SS.mmm.uuu
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -258,141 +258,137 @@ int msgCount, msgQId;
 FILE *filePointer;
 char  fileNameBuf[512];
 
-/* write HH:MM:SS.mmmuuu to $HOME/t11 */
+/* write HH:MM:SS.mmm.uuu to $HOME/t11 */
 static void write_timestamp_full_to_t11(void) {
-        struct timeval tv;
-        struct tm tmval;
-        char path[512], buf[64];
-        FILE *fp;
-        const char *home = getenv("HOME");
-        if (!home) return;
+    struct timeval tv;
+    struct tm tmval;
+    char path[512], buf[64];
+    FILE *fp;
+    const char *home = getenv("HOME");
+    if (!home) return;
 
-        gettimeofday(&tv, NULL);
-        localtime_r(&tv.tv_sec, &tmval);
+    gettimeofday(&tv, NULL);
+    localtime_r(&tv.tv_sec, &tmval);
 
-        int ms = (int)(tv.tv_usec / 1000);
-        int us = (int)(tv.tv_usec % 1000);
+    int ms = (int)(tv.tv_usec / 1000);
+    int us = (int)(tv.tv_usec % 1000);
 
-        snprintf(path, sizeof(path), "%s/t11", home);
-        snprintf(buf, sizeof(buf), "%02d:%02d:%02d.%03d%03d\n",
-                 tmval.tm_hour, tmval.tm_min, tmval.tm_sec, ms, us);
+    snprintf(path, sizeof(path), "%s/t11", home);
+    snprintf(buf, sizeof(buf), "%02d:%02d:%02d.%03d.%03d\n",
+             tmval.tm_hour, tmval.tm_min, tmval.tm_sec, ms, us);
 
-        fp = fopen(path, "w");
-        if (!fp) return;
-        fputs(buf, fp);
-        fclose(fp);
+    fp = fopen(path, "w");
+    if (!fp) return;
+    fputs(buf, fp);
+    fclose(fp);
 }
 
 int getMultQueIndex(char queueName[],int multQueCount){
-        int idx;
-        for(idx=1; idx < multQueCount; idx++)
-                if(!strcmp(queueName,multiplexedQueues[idx]))
-                        break;
-        return (idx == multQueCount) ? 0 : 1;
+    int idx;
+    for(idx=1; idx < multQueCount; idx++)
+        if(!strcmp(queueName,multiplexedQueues[idx]))
+            break;
+    return (idx == multQueCount) ? 0 : 1;
 }
 
 int getQueueIndex(char queueName[]){
-        int idx;
-        for (idx=0; queueTable[idx]!=NULL; idx++)
-                if (!strcmp(queueName,queueTable[idx]))
-                        break;
-        return (queueTable[idx]==NULL) ? -1 : idx;
+    int idx;
+    for (idx=0; queueTable[idx]!=NULL; idx++)
+        if (!strcmp(queueName,queueTable[idx]))
+            break;
+    return (queueTable[idx]==NULL) ? -1 : idx;
 }
 
 int getDQPType(){
-        char *dqpPtr=getenv("BANCS_DQPTYPE");
-        return (int)dqpPtr[0];
+    char *dqpPtr=getenv("BANCS_DQPTYPE");
+    return (int)dqpPtr[0];
 }
 int getFNSSysnum(){
-        char *p=getenv("FNS_SYSNUM");
-        return (int)(p[0]-'0');
+    char *p=getenv("FNS_SYSNUM");
+    return (int)(p[0]-'0');
 }
 int getApplNo(){
-        char *p=getenv("BANCS_HOSTNO");
-        return (int)(p[0]-'0');
+    char *p=getenv("BANCS_HOSTNO");
+    return (int)(p[0]-'0');
 }
 
 int loadQueueDetails(int queueKey){
-        struct msqid_ds ds;
-        msgQId=msgget(queueKey, 0);
-        if (msgQId==-1) return -1;
-        if (msgctl(msgQId, IPC_STAT, &ds)==-1) return -2;
-        msgCount=ds.msg_qnum;
-        return 0;
+    struct msqid_ds ds;
+    msgQId=msgget(queueKey, 0);
+    if (msgQId==-1) return -1;
+    if (msgctl(msgQId, IPC_STAT, &ds)==-1) return -2;
+    msgCount=ds.msg_qnum;
+    return 0;
 }
 
 int main(int argc, char *argv[])
 {
-        int queueIdx, idx, idx1, flag, bancsDQPType, fnsSysnum, bancsHostno, queueKey, rc;
-        char DQPType;
+    int queueIdx, idx, idx1, flag, bancsDQPType, fnsSysnum, bancsHostno, queueKey, rc;
+    char DQPType;
 
-        multiplexedQueues = argv;
+    multiplexedQueues = argv;
 
-        bancsDQPType=getDQPType();
-        fnsSysnum=getFNSSysnum();
-        bancsHostno=getApplNo();
-        DQPType=(char)bancsDQPType;
+    bancsDQPType=getDQPType();
+    fnsSysnum=getFNSSysnum();
+    bancsHostno=getApplNo();
+    DQPType=(char)bancsDQPType;
 
-        const char *home = getenv("HOME");
-        if(!home) { fprintf(stderr,"HOME not set\n"); return -1; }
+    const char *home = getenv("HOME");
+    if(!home) { fprintf(stderr,"HOME not set\n"); return -1; }
 
-        /* PRODUCTION path: $HOME/queue_buildup_<DQP>.out */
-        snprintf(fileNameBuf, sizeof(fileNameBuf), "%s/queue_buildup_%c.out", home, DQPType);
+    snprintf(fileNameBuf, sizeof(fileNameBuf), "%s/queue_buildup_%c.out", home, DQPType);
 
-        filePointer=fopen(fileNameBuf, "w+");
-        if(filePointer==NULL){ printf("\nError opening file: %s", fileNameBuf); exit(-1); }
+    filePointer=fopen(fileNameBuf, "w+");
+    if(filePointer==NULL){ printf("\nError opening file: %s", fileNameBuf); exit(-1); }
 
-        /* write HH:MM:SS.mmmuuu to $HOME/t11 */
-        write_timestamp_full_to_t11();
+    write_timestamp_full_to_t11();
 
-        /* main loop: for each important queue */
-        for (idx=0; importantQueues[idx]!=NULL; idx++){
-                flag=0;
-                queueIdx=getQueueIndex(importantQueues[idx]);
+    for (idx=0; importantQueues[idx]!=NULL; idx++){
+        flag=0;
+        queueIdx=getQueueIndex(importantQueues[idx]);
 
-                if(queueIdx==-1){
-                        fprintf(filePointer, "%s NSQE\n", importantQueues[idx]);
-                        continue;
-                }
-
-                queueKey=Q_OFFSET+queueIdx+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
-                rc=loadQueueDetails(queueKey);
-                if(rc==-1){
-                        for (idx1=1; idx1 < argc; idx1++){
-                                if(!strcmp(importantQueues[idx], multiplexedQueues[idx1])){
-                                        fprintf(filePointer, "%s B, NQKE\n", importantQueues[idx]);
-                                        flag=1;
-                                }
-                        }
-                        if(flag==0) fprintf(filePointer, "%s\tNQKE\n", importantQueues[idx]);
-                } else if(rc==-2){
-                        fprintf(filePointer, "LDQE\n");
-                } else {
-                        fprintf(filePointer, "%s\t%d\n", importantQueues[idx], msgCount);
-                }
-
-                /* multiplexed A / I / M */
-                if(getMultQueIndex(importantQueues[idx], argc)){
-                        queueKey = Q_OFFSET+queueIdx+510+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
-                        rc=loadQueueDetails(queueKey);
-                        if(rc==-1) fprintf(filePointer, "%s A, NQKE\n",importantQueues[idx]);
-                        else if(rc==-2) fprintf(filePointer, "%s A, LDQE\n",importantQueues[idx]);
-                        else fprintf(filePointer, "%s A, %d\n",importantQueues[idx], msgCount);
-
-                        queueKey = Q_OFFSET+queueIdx+520+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
-                        rc=loadQueueDetails(queueKey);
-                        if(rc==-1) fprintf(filePointer, "%s I, NQKE\n",importantQueues[idx]);
-                        else if(rc==-2) fprintf(filePointer, "%s I, LDQE\n",importantQueues[idx]);
-                        else fprintf(filePointer, "%s I, %d\n", importantQueues[idx], msgCount);
-
-                        queueKey = Q_OFFSET+queueIdx+530+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
-                        rc=loadQueueDetails(queueKey);
-                        if(rc==-1) fprintf(filePointer, "%s M, NQKE\n",importantQueues[idx]);
-                        else if(rc==-2) fprintf(filePointer, "%s M, LDQE\n",importantQueues[idx]);
-                        else fprintf(filePointer, "%s M, %d\n", importantQueues[idx], msgCount);
-                }
+        if(queueIdx==-1){
+            fprintf(filePointer, "%s NSQE\n", importantQueues[idx]);
+            continue;
         }
 
-        fclose(filePointer);
-        return 0;
+        queueKey=Q_OFFSET+queueIdx+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
+        rc=loadQueueDetails(queueKey);
+        if(rc==-1){
+            for (idx1=1; idx1 < argc; idx1++){
+                if(!strcmp(importantQueues[idx], multiplexedQueues[idx1])){
+                    fprintf(filePointer, "%s B, NQKE\n", importantQueues[idx]);
+                    flag=1;
+                }
+            }
+            if(flag==0) fprintf(filePointer, "%s\tNQKE\n", importantQueues[idx]);
+        } else if(rc==-2){
+            fprintf(filePointer, "LDQE\n");
+        } else {
+            fprintf(filePointer, "%s\t%d\n", importantQueues[idx], msgCount);
+        }
+
+        if(getMultQueIndex(importantQueues[idx], argc)){
+            queueKey = Q_OFFSET+queueIdx+510+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
+            rc=loadQueueDetails(queueKey);
+            if(rc==-1) fprintf(filePointer, "%s A, NQKE\n",importantQueues[idx]);
+            else if(rc==-2) fprintf(filePointer, "%s A, LDQE\n",importantQueues[idx]);
+            else fprintf(filePointer, "%s A, %d\n",importantQueues[idx], msgCount);
+
+            queueKey = Q_OFFSET+queueIdx+520+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
+            rc=loadQueueDetails(queueKey);
+            if(rc==-1) fprintf(filePointer, "%s I, NQKE\n",importantQueues[idx]);
+            else if(rc==-2) fprintf(filePointer, "%s I, LDQE\n",importantQueues[idx]);
+            else fprintf(filePointer, "%s I, %d\n", importantQueues[idx], msgCount);
+
+            queueKey = Q_OFFSET+queueIdx+530+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
+            rc=loadQueueDetails(queueKey);
+            if(rc==-1) fprintf(filePointer, "%s M, NQKE\n", importantQueues[idx]);
+            else if(rc==-2) fprintf(filePointer, "%s M, LDQE\n", importantQueues[idx]);
+            else fprintf(filePointer, "%s M, %d\n", importantQueues[idx], msgCount);
+        }
+    }
+
+    fclose(filePointer);
+    return 0;
 }
