@@ -22,10 +22,10 @@
                                 break;
                 }
 ?>
-<?php
+<!--?php
                 error_reporting(E_ALL);
                 ini_set('display_errors' ,1);
-                ?>
+                ?-->
         <section class="content">
                 <div class="row">
                         <div class="col-xs-12">
@@ -284,7 +284,7 @@
                                                 <div class="col-md-12">
                                                                         <div class="panel panel-primary">
                                                                                 <div class="panel-heading bg-tcs-active">
-                                                                                        <span style="float:right;font-size:18px;"><?php echo $yummy->timeUpdated("SBI_autosys_space_utilization.txt",".");?></span>
+                                                                                        <span style="float:right;font-size:18px;"><?php echo $yummy->timeUpdated("mq_status_12apps.txt",".");?></span>
                                                                                         MQ Status
                                                                                 </div>
                                                                                 <div class="panel-body table-responsive">
@@ -1669,4 +1669,3 @@
                 </div>
         </div>
 </section>
-
