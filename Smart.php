@@ -186,6 +186,8 @@ error_reporting(0);
     <link href="../css/skins/_all-skins.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
     <link href="../css/compactPage.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
         <link href="../css/animate.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="https://10.0.40.9:9090/pace/Online_portal/css/fix-colors-icons.css">
+        <link rel="stylesheet" href="/pace/Online_portal/css/fix-colors-icons.css">
         <link href="../css/normalize.min.css" rel="stylesheet" >
         <link href="../css/progress.css" rel="stylesheet" >
         <link href="../css/darklight.css" rel="stylesheet" type="text/css" />
