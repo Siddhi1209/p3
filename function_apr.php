@@ -2117,57 +2117,66 @@ class applnMonitor extends datablank{
                 return array_merge($temp,$g);
         }
         //----original Queue Buildup----
-        function status_queue(){
-        //      $data = file("../../ApplnMonitor/status_queue_8app.txt");
-                $data1 = explode("\n", str_replace("NQKE","-1",shell_exec("cat ".$this->currpath."status_queue_8app.txt.".$this->datecrr."|grep -v VV3Q")));
-        //      $data1 = explode("\n", file_get_contents($this->currpath."status_queue_8app.txt_prasad"));
-                if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
-                $data = $this->throwRed($data1,',');
-                foreach ($data as $key2 => $value2){
-                        $queueArray = explode(",",$value2);
-                        echo "<tr>";
-                        foreach ($queueArray as $k2 => $v2){
-                                /*if($queueArray[0]=='GLAQ'){
-                                        if($k2 == '0'){
-                                                $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                                                echo "<th><a onclick=$linkreplica>".$v2."</a></th>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '1' && $v2 < '1000'){
-                                                echo "<td date-toggle='tooltip' title='$v2'>0</td>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '1000'){
-                                                echo "<td style='color:white;background-color:red;'>".$v2."</td>";
-                                        }
-                                        else{
-                                                echo "<td>".$v2."</td>";
-                                        }
-                                }
-                                else{*/
-                                        if($k2 == '0'){
-                                                $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                                                echo "<th><a onclick=$linkreplica>".$v2."</a></th>";
-                                        }
-                                        elseif($v2 == 'NQKE' ||  $v2 == -1){
-                                                echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '1' && $v2 < '100'){
-                                                echo "<td title='$v2'>0</td>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '100' && $v2 < '500'){
-                                                echo "<td title='$v2'>0</td>";
-                                        }
-                                        elseif($k2 > '0' && $v2 >= '500'){
-                                                echo "<td class='bg-red-active'>".$v2."</td>";
-                                        }
-                                        else{
-                                                echo "<td>".$v2."</td>";
-                                        }
-                                //}
+       function status_queue(){
+    //      $data = file("../../ApplnMonitor/status_queue_8app.txt");
+    $data1 = explode("\n", str_replace("NQKE","-1",shell_exec("cat ".$this->currpath."status_queue_8app.txt.".$this->datecrr."|grep -v VV3Q")));
+    //      $data1 = explode("\n", file_get_contents($this->currpath."status_queue_8app.txt_prasad"));
+    if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
+    $data = $this->throwRed($data1,',');
 
-                        }
-                        echo "</tr>";
+    foreach ($data as $key2 => $value2){
+        $queueArray = explode(",",$value2);
+        echo "<tr>";
+        foreach ($queueArray as $k2 => $v2){
+
+            // --- minimal additions: normalize and prepare numeric value ---
+            $v2t = trim((string)$v2);
+            $v2n = is_numeric($v2t) ? (int)$v2t : null;
+            // -------------------------------------------------------------
+
+            /*if($queueArray[0]=='GLAQ'){
+                    if($k2 == '0'){
+                            $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                            echo "<th><a onclick=$linkreplica>".$v2."</a></th>";
+                    }
+                    elseif($k2 > '0' && $v2 >= '1' && $v2 < '1000'){
+                            echo "<td date-toggle='tooltip' title='$v2'>0</td>";
+                    }
+                    elseif($k2 > '0' && $v2 >= '1000'){
+                            echo "<td style='color:white;background-color:red;'>".$v2."</td>";
+                    }
+                    else{
+                            echo "<td>".$v2."</td>";
+                    }
+            }
+            else{*/
+                if($k2 === 0){
+                    $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2t)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                    echo "<th><a onclick=$linkreplica>".$v2t."</a></th>";
                 }
+                elseif($v2t === 'NQKE' || $v2n === -1){
+                    echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
+                }
+                elseif($k2 > 0 && $v2n !== null && $v2n >= 1 && $v2n < 99){
+                    echo "<td title='$v2t'>0</td>";
+                }
+                elseif($k2 > 0 && $v2n !== null && $v2n >= 99 && $v2n < 500){
+                    echo "<td class='bg-yellow text-center'>".$v2t."</td>";
+                }
+                elseif($k2 > 0 && $v2n !== null && $v2n >= 500){
+                    echo "<td class='bg-red-active'>".$v2t."</td>";
+                }
+                else{
+                    echo "<td>".$v2t."</td>";
+                }
+            //}
+
         }
+        echo "</tr>";
+    }
+}
+
+
         function status_queue1(){
                 //$data = file("../../ApplnMonitor/status_queue_8app.txt");
                 $data1 = explode("\n", file_get_contents($this->currpath."status_queue_8app.txt.".$this->datecrr));
@@ -2520,16 +2529,16 @@ class applnMonitor extends datablank{
 // changes upto here -------
         class timedisplay{
                 public static function dateUp(){
-                        $getDDcrr = $_GET['date'];
+                        $getDDcrr = (isset($_GET['date']) && $_GET['date'] !== '') ? $_GET['date'] : '';
                         $mflag = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
-                        if(empty($getDDcrr) && $getDDcrr == ''){
-                                //$datecrr = date("Ymd");
+                        if($getDDcrr === ''){
                                 $datecrr = $mflag;
                         }
                         else{
                                 $datecrr = $getDDcrr;
                         }
                         return $datecrr;
+
                 }
                 public static function timeUpdated($flag,$param){
                         $vay = self::dateUp();
@@ -2538,7 +2547,8 @@ class applnMonitor extends datablank{
                         return trim($file);
                 }
                 public static function pathgiver(){
-                        $getDDcrr = $_GET['date'];
+                        $getDDcrr = isset($_GET['date'])?
+                        $_GET['date'] : date("Ymd");
                         $singlepath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/";
                         $mflag = trim(file_get_contents($singlepath."MFLAGS_D"));
                         if(empty($getDDcrr)){
@@ -3029,7 +3039,7 @@ class msl extends timedisplay{
                 }
         }
 
-        function NT(){
+        public static function NT(){
         $mithi_mountpoint=file("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/NTlog.txt");
         foreach ($mithi_mountpoint as $line_num => $line1) {
                 $varmount = explode(",",$line1);
@@ -3042,7 +3052,7 @@ class msl extends timedisplay{
 }
 
 
-        function NX(){
+        public static function NX(){
         $mithi_mountpoint=file("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/NXlog.txt");
         foreach ($mithi_mountpoint as $line_num => $line1) {
                 $varmount = explode(",",$line1);
@@ -3191,7 +3201,7 @@ class msl extends timedisplay{
                         }
                 }
         }
-                function bhaga_stat(){
+        public static function bhaga_stat(){
                 $data = explode("\n", trim(file_get_contents(timedisplay::pathgiver()."tf_bhaga.txt.".timedisplay::dateUp())));
                 if(count($data) == '0'){
                         echo "<tr><th><span class='btn btn-warning'>No Data Available</span></th></tr>";
@@ -3560,7 +3570,7 @@ class msl extends timedisplay{
         }
         //--original---
 
-        function queue_buildup_details($flag,$bool){
+     public static function queue_buildup_details($flag,$bool){
                 $data1 = explode("\n",trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/production_history/queue/online/$flag.".timedisplay::dateUp())));
                 //print_r($data1);
                 //echo timedisplay::pathgiver()."/production_history/queue/online/$flag.".timedisplay::dateUp();
@@ -4105,38 +4115,39 @@ class msl extends timedisplay{
                 echo "</tr>";
         }
 
-        public static function mq_status(){
-                $date = $_POST['date'] ?? ($_GET['date'] ?? timedisplay::dateUp());
-                $filepath = timedisplay::pathgiver() . "mq_status_12apps.txt." . $date;
-                if (!file_exists($filepath)) {
-                        echo "<tr><td colspan='13' class='text-center'>No data present for today.</td></tr>";
-                        return;
-                }
+public static function mq_status() {
+                 $filePath = timedisplay::pathgiver() . "mq_status_12apps.txt." . timedisplay::dateUp();
 
-                $rawData = file_get_contents($filepath);
-                if ($rawData === false || trim($rawData) === "") {
-                        echo "<tr><td colspan='13' class='text-center'>No data present for today.</td></tr>";
-                        return;
-                }
+                 if (!file_exists($filePath)) {
+                 echo "<tr><td colspan='13' class='text-center text-danger'>File not present</td></tr>";
+        return;
+    }
 
-                $data = explode("\n", trim($rawData));
-                foreach ($data as $line) {
-                        $var = explode(",", $line);
-                        echo "<tr>";
-                        foreach ($var as $v3) {
-                                $v3 = trim($v3);
-                                if ($v3 === 'RUNNING') {
-                                        echo "<td class='text-center' style='color:green;'><i class='fa fa-check'></i></td>";
-                                } elseif ($v3 === 'NA') {
-                                        echo "<td class='text-center' style='color:black;'><i class='fa fa-minus'></i></td>";
-                                } elseif ($v3 === 'ERROR') {
-                                        echo "<td class='glow text-center' data-toggle='tooltip' style='color:white;' title='Error'>ERROR</td>";
-                                } else {
-                                        echo "<td class='text-center bg-black'>" . htmlspecialchars($v3) . "</td>";
-                                }
-                        }
-                        echo "</tr>";
+                $content = trim(file_get_contents($filePath));
+                if (empty($content)) {
+                echo "<tr><td colspan='13' class='text-center text-warning'>File is empty</td></tr>";
+                return;
+    }
+
+                $lines = explode("\n", $content);
+
+                foreach ($lines as $line) {
+                $columns = explode(",", $line);
+                echo "<tr>";
+                foreach ($columns as $status) {
+                $status = trim($status);
+                if ($status === 'RUNNING') {
+                    echo "<td class='text-center' style='color:green;'><i class='fa fa-check'></i></td>";
+                } elseif ($status === 'NA') {
+                    echo "<td class='text-center' style='color:black;'><i class='fa fa-minus'></i></td>";
+                } elseif ($status === 'ERROR') {
+                    echo "<td class='glow text-center' data-toggle='tooltip' style='color:white;' title='Error in MQ'>ERROR</td>";
+                } else {
+                    echo "<td class='text-center bg-black'>" . htmlspecialchars($status) . "</td>";
+                }
         }
+        echo "</tr>";
+    }
 }
 
 function UPI_status(){
