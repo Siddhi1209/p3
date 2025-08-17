@@ -1,66 +1,60 @@
-nano fix-colors-icons.css
-=======
+       function status_queue(){
+    //      $data = file("../../ApplnMonitor/status_queue_8app.txt");
+               $data1 = explode("\n", str_replace("NQKE","-1",shell_exec("cat ".$this->currpath."status_queue_8app.txt.".$this->datecrr."|grep -v VV3Q")));
+              // echo $data1 ;
+    //      $data1 = explode("\n", file_get_contents($this->currpath."status_queue_8app.txt_prasad"));
+    if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
+    $data = $this->throwRed($data1,',');
 
-/* Fix missing red background from AdminLTE skins */
-.bg-red-active { background-color:#dd4b39 !important; color:#fff !important; }
+    foreach ($data as $key2 => $value2){
+        $queueArray = explode(",",$value2);
+        echo "<tr>";
+        foreach ($queueArray as $k2 => $v2){
 
-/* Make any text-red elements red */
-.text-red { color:#dd4b39 !important; }
+            // --- minimal additions: normalize and prepare numeric value ---
+            $v2t = trim((string)$v2);
+            $v2n = is_numeric($v2t) ? (int)$v2t : null;
+            // -------------------------------------------------------------
 
-/* Make the thumbs-down icon red */
-.fa-thumbs-down { color:#dd4b39 !important; }
+            /*if($queueArray[0]=='GLAQ'){
+                    if($k2 == '0'){
+                            $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                            echo "<th><a onclick=$linkreplica>".$v2."</a></th>";
+                    }
+                    elseif($k2 > '0' && $v2 >= '1' && $v2 < '1000'){
+                            echo "<td date-toggle='tooltip' title='$v2'>0</td>";
+                    }
+                    elseif($k2 > '0' && $v2 >= '1000'){
+                            echo "<td style='color:white;background-color:red;'>".$v2."</td>";
+                    }
+                    else{
+                            echo "<td>".$v2."</td>";
+                    }
+            }
+            else{*/
+                if($k2 === 0){
+                    $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2t)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                    echo "<th><a onclick=$linkreplica>".$v2t."</a></th>";
+                }
+                elseif($v2t === 'NQKE' || $v2n === -1){
+                    echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
+                }
+                elseif($k2 > 0 && $v2n !== null && $v2n >= 1 && $v2n < 99){
+                    echo "<td title='$v2t'>A</td>";
+                }
+                elseif($k2 > 0 && $v2n !== null && $v2n >= 99 && $v2n < 500){
+                    echo "<td class='bg-yellow text-center'>".$v2t."</td>";
+                }
+                elseif($k2 > 0 && $v2n !== null && $v2n >= 500){
+                    echo "<td class='bg-red-active'>".$v2t."</td>";
+                }
+                else{
+                        echo "<td>".$v2t."</td>";
+                         echo "<td class='bg-red-active'>".$v2t."</td>";
+                }
+            //}
 
-≈=========
-
-
-<link rel="stylesheet" href="../css/fix-colors-icons.css">
-
-
-
-
-
-_______________________6
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-#include <string.h>
-#include <sys/time.h>
-#include <time.h>
-
-#define Q_OFFSET                500
-#define NUM_REGIONS             128
-#define NUM_SYSTEMS             10
-#define NUM_APPS                10
-#define NUM_QUEUES              250
-#define MAX_QUEUE_KEY           (Q_OFFSET+NUM_REGIONS*NUM_SYSTEMS*NUM_APPS*NUM_QUEUES)
-
-char *queueTable[] =
-{
-    /* your original queueTable list exactly as before */
-    /* Terminator */
-    NULL
-};
-
-char *importantQueues[] =
-{
-    /* your original importantQueues list exactly as before */
-    /* Terminator */
-    NULL
-};
-
-/* Start of Changes for multiplexed queues */
-char **multiplexedQueues;
-/* End of Changes for multiplexed queues */
-
-int msgCount, msgQId;
-FILE *filePointer;
-char *fileName;
-
-int getMultQueIndex(char queueName[], int multQueCount) {
-    int idx;
-    for (idx = 1; idx < multQueCount; idx++)
-        if (!strcmp(queueName, multiplexedQueues[idx]))
-            break;
-    return (idx == multQueCount) ? 0 : 1;
+        }
+        echo "</tr>";
+    }
 }
