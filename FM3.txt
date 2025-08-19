@@ -287,7 +287,7 @@ static void write_timestamp_to_t11(void){
         FILE *fp = fopen(path, "w");
         if (!fp) return;
 
-        /* milliseconds . microseconds */
+        /* milliseconds . microseconds (dot between them) */
         fprintf(fp, "%02d:%02d:%02d.%03ld.%03ld\n",
                 tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec,
                 tv.tv_usec/1000, tv.tv_usec%1000);
@@ -384,9 +384,11 @@ int main(int argc, char *argv[])
         int queueIdx, idx,idx1,flag,bancsDQPType, fnsSysnum, bancsHostno, queueKey, loadQueueRC;
         char DQPType;
                 multiplexedQueues = argv;
+
         bancsDQPType=getDQPType();
         fnsSysnum=getFNSSysnum();
         bancsHostno=getApplNo();
+
         DQPType=(char)bancsDQPType;
 
         homePath=getenv("HOME");
@@ -438,7 +440,6 @@ int main(int argc, char *argv[])
                         if(loadQueueRC==-1)
                         {
 
-
                         for (idx1=1;idx1 < argc; idx1++){
                                 if(!strcmp(importantQueues[idx],multiplexedQueues[idx1])){
                                         fprintf(filePointer, "%s B, NQKE\n",importantQueues[idx]);
@@ -465,6 +466,7 @@ int main(int argc, char *argv[])
 
                         /* Start of Changes for multiplexed queues */
                         if(getMultQueIndex(importantQueues[idx],argc)){
+                                /* ===== A (offset +510) ===== */
                                 queueKey = Q_OFFSET+queueIdx+510+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
                                 loadQueueRC=loadQueueDetails(queueKey);
                                 if(loadQueueRC==-1){
@@ -480,6 +482,7 @@ int main(int argc, char *argv[])
                                        fprintf(filefd,"%s A, %d\t%d\t%.2f\t%010ld\t%010ld\n",importantQueues[idx],msgCount,msgCBytes,ratioBytes,sendTimeDiff,recTimeDiff);
                                    }
 
+                                /* ===== I (offset +520) ===== */
                                 queueKey = Q_OFFSET+queueIdx+520+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
                                 loadQueueRC=loadQueueDetails(queueKey);
                                 if(loadQueueRC==-1){
@@ -495,6 +498,7 @@ int main(int argc, char *argv[])
                                         fprintf(filefd,"%s I, %d\t%d\t%.2f\t%010ld\t%010ld\n",importantQueues[idx],msgCount,msgCBytes,ratioBytes,sendTimeDiff,recTimeDiff);
                                 }
 
+                                /* ===== M (offset +530) ===== */
                                 queueKey = Q_OFFSET+queueIdx+530+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
                                 loadQueueRC=loadQueueDetails(queueKey);
                                 if(loadQueueRC==-1){
