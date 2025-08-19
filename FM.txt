@@ -1,1 +1,77 @@
 
+function status_queue() {
+    // (1) Read the data file safely (no shell_exec)
+    $filePath = $this->currpath . "status_queue_8app.txt." . $this->datecrr;
+    $rawLines = @file($filePath, FILE_IGNORE_NEW_LINES);    // false if unreadable
+
+    if (!$rawLines || !is_array($rawLines) || count($rawLines) === 0) {
+        echo "<tr><td colspan='16' class='text-center'>No data (file missing or empty)</td></tr>";
+        return;
+    }
+
+    // (2) Filter: drop blank & any case of VV3Q; normalize NQKE -> -1
+    $data1 = [];
+    foreach ($rawLines as $line) {
+        if ($line === '' || stripos($line, 'VV3Q') !== false) continue;  // case-insensitive
+        $data1[] = str_replace('NQKE', '-1', rtrim($line, "\r\n"));
+    }
+
+    // If still blank, nothing to render
+    if (parent::checkblank($data1)) return;
+
+    // (3) Let your helper transform rows; it may inject markup
+    $data = $this->throwRed($data1, ',');
+
+    foreach ($data as $row) {
+        if ($row === '') continue;
+        $cells = explode(',', $row);
+        echo "<tr>";
+
+        foreach ($cells as $k2 => $v2) {
+            // text that may include markup from throwRed
+            $v2t = trim((string)$v2);
+
+            // plain text for numeric logic
+            $plain  = trim(html_entity_decode(strip_tags($v2t)));
+            $v2n    = preg_match('/^-?\d+$/', $plain) ? (int)$plain : null;
+
+            if ($k2 === 0) {
+                // queue name cell with popup
+                $link = "window.open('queuereplica.php?queue=" . urlencode($plain) .
+                        "&&date=" . $this->datecrr .
+                        "','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                echo "<th><a onclick=\"$link\">" . htmlspecialchars($plain, ENT_QUOTES) . "</a></th>";
+                continue;
+            }
+
+            // 👎 for NQKE or -1
+            if ($plain === 'NQKE' || $v2n === -1) {
+                echo "<td><i class='fa fa-thumbs-down' style='color:red'></i></td>";
+                continue;
+            }
+
+            // <99 → 0 (your test: change to 'A' if you want to verify)
+            if ($v2n !== null && $v2n >= 1 && $v2n < 99) {
+                echo "<td title='" . htmlspecialchars($plain, ENT_QUOTES) . "'>0</td>";
+                continue;
+            }
+
+            // 99..499 → yellow
+            if ($v2n !== null && $v2n >= 99 && $v2n < 500) {
+                echo "<td class='bg-yellow text-center'>" . htmlspecialchars($plain, ENT_QUOTES) . "</td>";
+                continue;
+            }
+
+            // ≥500 → red
+            if ($v2n !== null && $v2n >= 500) {
+                echo "<td class='bg-red-active'>" . htmlspecialchars($plain, ENT_QUOTES) . "</td>";
+                continue;
+            }
+
+            // default: print plain value
+            echo "<td>" . htmlspecialchars($plain, ENT_QUOTES) . "</td>";
+        }
+
+        echo "</tr>";
+    }
+}
