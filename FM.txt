@@ -1,60 +1,9 @@
-       function status_queue(){
-    //      $data = file("../../ApplnMonitor/status_queue_8app.txt");
-               $data1 = explode("\n", str_replace("NQKE","-1",shell_exec("cat ".$this->currpath."status_queue_8app.txt.".$this->datecrr."|grep -v VV3Q")));
-              // echo $data1 ;
-    //      $data1 = explode("\n", file_get_contents($this->currpath."status_queue_8app.txt_prasad"));
-    if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
-    $data = $this->throwRed($data1,',');
 
-    foreach ($data as $key2 => $value2){
-        $queueArray = explode(",",$value2);
-        echo "<tr>";
-        foreach ($queueArray as $k2 => $v2){
+The  c code which you have provided me is of very less size. sixe of the code which 
+you provided me is 9386 byte but the original code size was 14094 bytes. that means 
+many things are missing in the code. 
+Also After implented the code i got complaint that queue_buildup_i_new.out file was not generating
+in home path. ( Here i is dqp type). there were many lines in int main(int argc, char *argv[]) which were 
+missing in the c program provided by you.
 
-            // --- minimal additions: normalize and prepare numeric value ---
-            $v2t = trim((string)$v2);
-            $v2n = is_numeric($v2t) ? (int)$v2t : null;
-            // -------------------------------------------------------------
-
-            /*if($queueArray[0]=='GLAQ'){
-                    if($k2 == '0'){
-                            $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                            echo "<th><a onclick=$linkreplica>".$v2."</a></th>";
-                    }
-                    elseif($k2 > '0' && $v2 >= '1' && $v2 < '1000'){
-                            echo "<td date-toggle='tooltip' title='$v2'>0</td>";
-                    }
-                    elseif($k2 > '0' && $v2 >= '1000'){
-                            echo "<td style='color:white;background-color:red;'>".$v2."</td>";
-                    }
-                    else{
-                            echo "<td>".$v2."</td>";
-                    }
-            }
-            else{*/
-                if($k2 === 0){
-                    $linkreplica="window.open('queuereplica.php?queue=".urlencode($v2t)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                    echo "<th><a onclick=$linkreplica>".$v2t."</a></th>";
-                }
-                elseif($v2t === 'NQKE' || $v2n === -1){
-                    echo "<td><i style='color:red' class='fa fa-thumbs-down'></i></td>";
-                }
-                elseif($k2 > 0 && $v2n !== null && $v2n >= 1 && $v2n < 99){
-                    echo "<td title='$v2t'>A</td>";
-                }
-                elseif($k2 > 0 && $v2n !== null && $v2n >= 99 && $v2n < 500){
-                    echo "<td class='bg-yellow text-center'>".$v2t."</td>";
-                }
-                elseif($k2 > 0 && $v2n !== null && $v2n >= 500){
-                    echo "<td class='bg-red-active'>".$v2t."</td>";
-                }
-                else{
-                        echo "<td>".$v2t."</td>";
-                         echo "<td class='bg-red-active'>".$v2t."</td>";
-                }
-            //}
-
-        }
-        echo "</tr>";
-    }
-}
+should i give you both the old c program and the c program you provided me for comparison.
