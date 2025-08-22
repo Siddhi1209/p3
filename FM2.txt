@@ -1,20 +1,112 @@
-TIME,CASQ, CIFQ, CIFQ A, CIFQ I, CIFQ M, CTAQ, DEPQ, DEPQ A, DEPQ I, DEPQ M, DP1Q, DP1Q A, DP1Q I, DP1Q M, DP2Q, DP2Q A, DP2Q I, DP2Q M, DP3Q, DP4Q, DP4Q A, DP4Q I, DP4Q M, DP5Q, DP6Q, DP7Q, DP8Q, DP9Q, GL1Q, EQ1Q, ELMQ, GENQ, GENQ A, GENQ I, GENQ M, LONQ, OLRQ, ONLQ, PF1Q, PFMQ, RESPQ, SBRQ, SDVQ, SPYQ, VPIQ, VV1Q, VV2Q, VV3Q, ARCQ, CC1Q, KCCQ, FA1Q, SFDQ, CRCQ, BLTQ, BL1Q
-00:04:40,0,0,0,0,0,NQKE,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,NQKE,NQKE,0,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,179
-01:24:03,0,171,0,0,0,NQKE,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NQKE,NQKE,0,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,0
-03:17:09,0,43,0,0,0,NQKE,0,0,0,0,0,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,39,0,0,NQKE,NQKE,1,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,40
-03:17:20,0,53,0,0,0,NQKE,0,0,0,0,0,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,106,0,0,NQKE,NQKE,1,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,73
-03:17:32,0,69,0,0,0,NQKE,0,0,0,0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,190,0,0,NQKE,NQKE,2,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,307
-03:17:43,0,100,0,0,6,NQKE,0,0,0,0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,287,0,0,NQKE,NQKE,2,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,524
-03:17:55,0,119,0,0,6,NQKE,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,397,0,0,NQKE,NQKE,2,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,760
-03:18:06,0,153,0,0,7,NQKE,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,513,0,0,NQKE,NQKE,2,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,909
-03:18:18,0,168,0,0,24,NQKE,0,0,0,0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,636,0,0,NQKE,NQKE,3,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,1027
-03:18:29,0,190,0,0,21,NQKE,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,765,0,0,NQKE,NQKE,4,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,1036
-03:18:41,0,215,0,0,26,NQKE,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,894,0,0,NQKE,NQKE,4,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,1036
-03:18:52,0,217,0,0,26,NQKE,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1024,0,0,NQKE,NQKE,4,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,1036
-03:19:04,0,215,0,0,20,NQKE,0,0,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1036,0,0,NQKE,NQKE,5,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,1036
-03:19:15,0,221,0,0,24,NQKE,0,0,0,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1036,0,0,NQKE,NQKE,5,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,1036
-03:19:27,0,236,0,0,17,NQKE,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1036,0,0,NQKE,NQKE,6,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,1036
-03:19:38,0,210,0,0,8,NQKE,0,0,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1036,0,0,NQKE,NQKE,6,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,1036
-03:19:49,0,231,0,0,5,NQKE,2,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1036,0,0,NQKE,NQKE,1,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,1036
-03:20:01,0,225,0,0,2,NQKE,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1036,0,0,NQKE,NQKE,1,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,1036
-03:20:13,0,239,0,0,3,NQKE,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1036,0,0,NQKE,NQKE,1,NQKE,0,NQKE,0,0,NQKE,NQKE,NQKE,NQKE,0,NQKE,NQKE,NQKE,NQKE,0,1036
+function eod_queue_buildup_details($flag,$bool){
+                $data1 = explode("\n",trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/production_history/queue/eod/$flag.".$this->datecrr)));
+                //print_r($data1);
+                if(count($data1) == '0'){
+                        echo "<tr><th><span class='btn btn-warning'>No Data Available</span></th></tr>";
+                }
+                else{
+                        if($bool == 1){
+                                $data=array_reverse($data1);
+                                echo "<tbody>";
+                                foreach ($data as $line_num => $line) {
+                                        if($line_num < count($data)-1 ){
+                                                $var = explode(",",$line);
+                                                //if(in_array("1",$var)){
+                                                        echo "<tr>";
+                                                        foreach ($var as $k3 => $v3) {
+                                                                $vall = trim($v3);
+                                                                if($k3 == '0' && $vall != '' ){
+                                                                        echo "<th style='background-color:#1f3f92;color:white;' class='text-center'>".$v3."</th>";
+                                                                }
+                                                                elseif($vall > 25 && $vall != 'NQKE' ) {
+                                                                        echo "<td class='text-center' style='background-color:red;color:white;'>".$vall."</td>";
+                                                                }
+                                                                /*elseif($vall=="DP9Q" ) {
+                                                                        echo "<th style='background-color:#1f3f92;color:white;' class='text-center'>".$v3."</th>";
+                                                                }*/
+                                                                else{
+                                                                        //echo "<td class='text-center' style='color:#3c8dbc;'>".$vall."</td>";
+                                                                        echo "<td class='text-center' style='background-color:green;color:white;'>-</td>";
+                                                                }
+                                                        }
+                                                        echo "</tr>";
+                                                //}
+                                        }
+                                }
+                                echo "</tbody>";
+                        }
+                        elseif($bool == 0){
+                                echo "<thead>";
+                                foreach ($data1 as $line_num => $line) {
+                                        if($line_num == 0 ){
+                                                $var = explode(",",$line);
+                                                echo "<tr>";
+                                                        foreach ($var as $k3 => $v3) {
+                                                                $vall = trim($v3);
+                                                                if($k3 == '0' && $vall != '' || $line_num == 0   ){
+                                                                        echo "<th style='background-color:#1f3f92;color:white;' class='text-center'>".$v3."</th>";
+                                                                }
+                                                        }
+                                                echo "</tr>";
+                                        }
+                                }
+                                echo "</thead>";
+                        }
+
+                }
+        }
+
+ function eod_queue_buildup_details_hide($flag,$bool){
+                $data1 = explode("\n",trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/production_history/queue/eod/$flag.".$this->datecrr)));
+                //print_r($data1);
+                if(count($data1) == '0'){
+                        echo "<tr><th><span class='btn btn-warning'>No Data Available</span></th></tr>";
+                }
+                else {
+                        if($bool == 1){
+                                $data=array_reverse($data1);
+                                echo "<tbody>";
+                                foreach ($data as $line_num => $line) {
+                                        if($line_num < count($data)-1 ){
+                                                $var = explode(",",$line);
+                                                if(in_array("1",$var)){
+                                                        echo "<tr>";
+                                                        foreach ($var as $k3 => $v3) {
+                                                                $vall = trim($v3);
+                                                                if($k3 == '0' && $vall != '' ){
+                                                                        echo "<th style='background-color:#1f3f92;color:white;' class='text-center'>".$v3."</th>";
+                                                                }
+                                                                elseif($vall != '' && $vall > '1' && $vall != 'NQKE' ) {
+                                                                        echo "<td class='text-center' style='background-color:red;color:white;'>".$vall."</td>";
+                                                                }
+                                                                else{
+                                                                        //echo "<td class='text-center' style='color:#3c8dbc;'>".$vall."</td>";
+                                                                        echo "<td class='text-center' style='color:#3c8dbc;'>-</td>";
+                                                                }
+                                                        }
+                                                        echo "</tr>";
+                                                }
+                                        }
+                                }
+                                echo "</tbody>";
+                        }
+                        elseif($bool == 0){
+                                echo "<thead>";
+                                foreach ($data1 as $line_num => $line) {
+                                        if($line_num == 0 ){
+                                                $var = explode(",",$line);
+                                                echo "<tr>";
+                                                        foreach ($var as $k3 => $v3) {
+                                                                $vall = trim($v3);
+                                                                if($k3 == '0' && $vall != '' || $line_num == 0   ){
+                                                                        echo "<th style='background-color:#1f3f92;color:white;' class='text-center'>".$v3."</th>";
+                                                                }
+                                                        }
+                                                echo "</tr>";
+                                        }
+                                }
+                                echo "</thead>";
+                        }
+
+                }
+        }
