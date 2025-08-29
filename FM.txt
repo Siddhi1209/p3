@@ -1,1 +1,3 @@
 
+$prevdate = date("Ymd", strtotime("-1 days", strtotime($crdate)));
+$dateyear = substr($prevdate, 0, 4);
