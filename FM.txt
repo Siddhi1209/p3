@@ -1,425 +1,62 @@
-//cat $card/GATEWAYQ.card | awk '{print $2}'|xargs| tr ' ' ','
-#include<stdio.h>
-#include<stdlib.h>
-#include<sys/ipc.h>
-#include<sys/msg.h>
-#include<stdio.h>
-#include<string.h>
-
-#define Q_OFFSET                500
-#define NUM_REGIONS             128
-#define NUM_SYSTEMS             10
-#define NUM_APPS                10
-#define NUM_QUEUES              250
-#define MAX_QUEUE_KEY           (Q_OFFSET+NUM_REGIONS*NUM_SYSTEMS*NUM_APPS*NUM_QUEUES)
-
-char *queueTable[] =
-{
-        "BANCSQ",
-        "LINKINQ",
-        "LINKOUTQ",
-        "SYSSTARTQ",
-        "DJ0000Q",
-        "SY0020Q",
-        "SY0040Q",
-        "SY0050Q",
-        "SY0070Q",
-        "CDRUTHERQ",
-        "CDRDELAYQ",
-        "CDTRACERQ",
-        "SCCQ",
-        "SCCOPINQ",
-
-        /* A Interface queues */
-        "AT0000Q",
-        "AT0100Q",
-        "AT0110Q",
-        "AT0200Q",
-        "AT0300Q",
-        "AT0210Q",
-        /*  Commented for multiple queues for A Gateway IR 18794*/
-        /*START of IR R331 (Revert IR 18794)*/
-        "EI0000Q",
-        "EI0060Q",
-        /*"EI0061Q",
-        "EI0062Q",
-        "EI0063Q",
-        "EI0064Q",
-        "EI0065Q",*/
-        /*END of IR R331*/
-        /* Five EI0060Q s added for A Gateway IR 18794*/
-        "ATINQ",
-        "ATOUTQ",
-        "ATRDELAYQ",
-        "ATRUTHERQ",
-        "ATTRACERQ",
-        "ACSQ",
-        "ACTLQ",
-        "INPUTQ",
-        "TRICKLEQ",
-        "INTERAPQ",
-        "OPQ",
-        "CONSOLEQ",
-        "SY0004Q",
-        "DEPQ",
-        "LONQ",
-        "TXPQ",
-        "CIFQ",
-        "GENQ",
-        "CASQ",
-        "PFMQ",
-        "VPIQ",
-        "SDVQ",
-        "VISQ",
-        "WBSQ",
-        "CTAQ",
-        "SBRQ",
-        "ELMQ",
-        "LIMQ",
-        "EXPQ",
-        "FN1Q",
-        "FXCQ",
-        "TDRQ",
-        "SECQ",
-        "EPSQ",
-        "SPYQ",
-        "OLRQ",
-        "ONLQ",
-        "RESPQ",
-        "SB0100Q",
-        "DP1Q",
-        "DP2Q",
-        "DP3Q",
-        "DP4Q",
-        "DP5Q",
-        "DP6Q",
-        "DP7Q",
-        "DP8Q",
-        "DP9Q",
-        "VV1Q",
-        "VV2Q",
-        "VV3Q",
-        "ARCQ",
-        "CC1Q",
-        "KCCQ",
-        "LN1Q",
-        "PF1Q",
-        "GL1Q",
-        "EQ1Q",
-        "FA1Q",
-        "NW1Q",
-        "NW2Q",
-        "NW3Q",
-        "SFDQ",
-        "DEPOPINQ",
-        "LONOPINQ",
-        "CIFOPINQ",
-        "GENOPINQ",
-        "CASOPINQ",
-        "PFMOPINQ",
-        "VISOPINQ",
-        "WBSOPINQ",
-        "CTAOPINQ",
-        "ELMOPINQ",
-        "LIMOPINQ",
-        "EXPOPINQ",
-        "FN1OPINQ",
-        "FXCOPINQ",
-        "TDROPINQ",
-        "SECOPINQ",
-        "TERMINALQ",
-        "SECMAINQ",
-        "SY3000Q",
-        "TXPOPINQ",
-        "SWIFTINQ",
-        "REPLAYQ",
-        "REPLAY01Q",
-        "REPLAY02Q",
-        "REPLAY03Q",
-        "TMMOPINQ",
-        "TMMQ",
-        "TBGOPINQ",
-        "TBGQ",
-        "PYNMAINQ",
-        "SPYOPINQ",
-        "PYIMAINQ",
-        "PYMMAINQ",
-        "PYOMAINQ",
-        "PYLMAINQ",
-        "GIRMAINQ",
-        "OLROPINQ",
-
-        /* Telepac queues */
-        "TPAC1",    /* Telepac Test Queues */
-        "TPAC2",
-        "TPAC3",
-        "TPOST",    /* Transaction Poster */
-        "TPCQ",     /* TPINTER */
-        "TPCOPINQ", /* TPINTER */
-        /* New Intersystem -interface to BOSS- Queue */
-        "MHSQ",
-
-        /* Unknown */
-        "ARD0001",
-        "AIO0001",
-        "ARD0002",
-        "AIO0002",
-        "AJNL",
-        "DBDUM",
-        "DYMON",
-        "ENQRY",
-        "HWCRP",
-        "KMNGR",
-        "MAINT",
-        "NAMES",
-        "START",
-        "SUPER",
-        "TLLR1",
-        "SPARE!!!!",
-        "CHQMDQ",
-        "JSMCONSQ",
-        "JSMGENERQ",
-        "JSMNEXTQ",
-        "JSMSTARTQ",
-        "CRDEV0005",
-        "NDUMP",
-        "DIBLD",
-        "DIBRD0002",
-        "RPORT",
-        "DXLNK",
-        "DXL25W001",
-        "DXL25W002",
-        "RTLNK",
-        "RETRY",
-        "TEST",
-        "DXL25W003",
-        "DXL25W004",
-        "RTL25W001",
-        "RTL25W002",
-        "SWIFT2Q",
-        "MSETT",
-
-        /* Terminator */
-        NULL
-};
-
-char *importantQueues[] =
-{
-        "CASQ",
-        "CIFQ",
-        "CTAQ",
-        "DEPQ",
-        "DP1Q",
-        "DP2Q",
-        "DP3Q",
-        "DP4Q",
-        "DP5Q",
-        "DP6Q",
-        "DP7Q",
-        "DP8Q",
-        "DP9Q",
-        "GL1Q",
-        "EQ1Q",
-        "ELMQ",
-        "GENQ",
-        "LONQ",
-        "OLRQ",
-        "ONLQ",
-        "PF1Q",
-        "PFMQ",
-        "RESPQ",
-        "SBRQ",
-        "SDVQ",
-        "SPYQ",
-        "VPIQ",
-        "VV1Q",
-        "VV2Q",
-        "VV3Q",
-        "ARCQ",
-        "CC1Q",
-        "KCCQ",
-        "FA1Q",
-        "SFDQ",
-
-
-        /* Terminator */
-        NULL
-};
-
-/* Start of Changes for multiplexed queues */
-char **multiplexedQueues;
-/* End of Changes for multiplexed queues */
-
-int msgCount, msgQId, msgQCurrBytes;
-
-FILE *filePointer;
-char *fileName;
-
-/* Start of Changes for multiplexed queues */
-int getMultQueIndex(char queueName[],int multQueCount){
-        int idx;
-
-        for(idx=1; idx < multQueCount; idx++)
-                if(!strcmp(queueName,multiplexedQueues[idx]))
-                        break;
-        if( idx == multQueCount)
-                return 0;
-        else
-                return 1;
-}
-/* End of Changes for multiplexed queues */
-
-int getQueueIndex(char queueName[]){
-        int idx;
-
-        for (idx=0; queueTable[idx]!=NULL; idx++)
-                if (!strcmp(queueName,queueTable[idx]))
-                        break;
-
-        if (queueTable[idx]==NULL)
-                return -1;
-        else
-                return idx;
-}
-
-int getDQPType(){
-        char *dqpPtr;
-        int dqpType;
-
-        dqpPtr=getenv("BANCS_DQPTYPE");
-        dqpType=(int)dqpPtr[0];
-
-        return dqpType;
-}
-
-int getFNSSysnum(){
-        char *fnsSysnumPtr;
-        int fnsSysnum;
-
-        fnsSysnumPtr=getenv("FNS_SYSNUM");
-        fnsSysnum=(int)(fnsSysnumPtr[0]-'0');
-
-        return fnsSysnum;
-}
-
-int getApplNo(){
-        char *applNumPtr;
-        int applNum;
-
-        applNumPtr=getenv("BANCS_HOSTNO");
-        applNum=(int)(applNumPtr[0]-'0');
-
-        return applNum;
-}
-
-int loadQueueDetails(int queueKey){
-        struct msqid_ds msgQueueID_DS;
-
-        msgQId=msgget(queueKey, 0);
-        if (msgQId==-1)
-                return -1;
-        else{
-                if(msgctl(msgQId, IPC_STAT, &msgQueueID_DS)==-1)
-                        return -2;
-                else{
-                        msgCount=msgQueueID_DS.msg_qnum;
-                        return 0;
-                }
-        }
-}
-
-int main(int argc, char *argv[])
-{
-        int queueIdx, idx,idx1,flag,bancsDQPType, fnsSysnum, bancsHostno, queueKey, loadQueueRC;
-        char DQPType;
-                multiplexedQueues = argv;
-
-        bancsDQPType=getDQPType();
-        fnsSysnum=getFNSSysnum();
-        bancsHostno=getApplNo();
-
-        DQPType=(char)bancsDQPType;
-        fileName=getenv("HOME");
-        strcat(fileName, "/queue_buildup_");
-        strcat(fileName, &DQPType);
-        strcat(fileName, ".out");
-
-        filePointer=fopen(fileName, "w+");
-        if(filePointer==NULL){
-                printf("\nError opening file: %s", fileName);
-                exit(-1);
-        }
-
-                //main loop runs for each queue present in importantQueues array
-        for (idx=0; importantQueues[idx]!=NULL; idx++){
-                flag=0;
-
-                                //finds queue index from importantQueues
-                queueIdx=getQueueIndex(importantQueues[idx]);
-
-                //fprintf(filePointer, "%s\t", importantQueues[idx]);
-                if(queueIdx==-1)
-                        fprintf(filePointer, "%s NSQE\n", importantQueues[idx]);
-                else{
-                        queueKey=Q_OFFSET+queueIdx+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
-
-                        loadQueueRC=loadQueueDetails(queueKey);
-                        if(loadQueueRC==-1)
-                        {
-
-
-                        for (idx1=1;idx1 < argc; idx1++){
-                                if(!strcmp(importantQueues[idx],multiplexedQueues[idx1])){
-                                        fprintf(filePointer, "%s B, NQKE\n",importantQueues[idx]);
-                                        flag=1;
-                                }}
-
-                        if(flag==0)
-                        {
-                                //fprintf(filePointer, "NQKE\n");
-                                fprintf(filePointer, "%s\tNQKE\n", importantQueues[idx]);
-                                        }
-                                            }
-                        else if(loadQueueRC==-2)
-                                fprintf(filePointer, "LDQE\n");
-                        else
-                                //fprintf(filePointer, "%d\n", msgCount);
-                                fprintf(filePointer, "%s\t%d\n",importantQueues[idx],msgCount);
-
-
-                        /* Start of Changes for multiplexed queues */
-                        if(getMultQueIndex(importantQueues[idx],argc)){
-                                queueKey = Q_OFFSET+queueIdx+510+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
-                                loadQueueRC=loadQueueDetails(queueKey);
-                                if(loadQueueRC==-1)
-                                        fprintf(filePointer, "%s A, NQKE\n",importantQueues[idx]);
-                                else if(loadQueueRC==-2)
-                                        fprintf (filePointer, "%s A, LDQE\n",importantQueues[idx]);
-                                else
-                                        fprintf(filePointer, "%s A, %d\n",importantQueues[idx], msgCount);
-
-                                queueKey = Q_OFFSET+queueIdx+520+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
-                                loadQueueRC=loadQueueDetails(queueKey);
-                                if(loadQueueRC==-1)
-                                        fprintf(filePointer, "%s I, NQKE\n",importantQueues[idx]);
-                                else if(loadQueueRC==-2)
-                                        fprintf(filePointer, "%s I, LDQE\n",importantQueues[idx]);
-                                else
-                                        fprintf(filePointer, "%s I, %d\n", importantQueues[idx],msgCount);
-
-                                queueKey = Q_OFFSET+queueIdx+530+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
-                                loadQueueRC=loadQueueDetails(queueKey);
-                                if(loadQueueRC==-1)
-                                        fprintf(filePointer, "%s M, NQKE\n",importantQueues[idx]);
-                                else if(loadQueueRC==-2)
-                                        fprintf(filePointer, "%s M, LDQE\n",importantQueues[idx]);
-                                else
-                                        fprintf(filePointer, "%s M, %d\n", importantQueues[idx],msgCount);
+<html lang="en" >
+<head>
+        <meta charset="UTF-8">
+        <meta http-equiv="refresh" content="600">
+        <title>CBS Progress Bar</title>
+        <link rel="stylesheet" href="../css/normalize.min.css">
+        <link rel="stylesheet" href="../css/progress.css">
+</head>
+<body>
+<br/>
+<ol class="progress progress--large addli">
+  <!--<li title="dfiwdhgklng" data-toggle="tooltip" class="is-complete" data-step="1">All_Region_Bounce</li>
+  <li title="dfiwdhgklng" data-toggle="tooltip" class="is-complete" data-step="2">Region_Switch</li>
+  <li title="dfiwdhgklng" data-toggle="tooltip" class="is-complete" data-step="3">Interfaces</li>
+  <li title="dfiwdhgklng" data-toggle="tooltip" class="is-complete" data-step="4" >Reposting</li>
+  <li title="dfiwdhgklng" data-toggle="tooltip" class="is-complete" data-step="5" >PostSod</li>
+  <li title="dfiwdhgklng" data-toggle="tooltip" class="is-complete" data-step="6" >SI</li>
+  <li title="dfiwdhgklng" data-toggle="tooltip" class="is-complete" data-step="7" >Night_EOD</li>
+  <li title="dfiwdhgklng" data-toggle="tooltip" class="is-complete" data-step="8" >Night_SOD</li>
+  <li title="dfiwdhgklng" data-toggle="tooltip" class="is-complete" data-step="9" >Branch_Cut_Off</li>
+  <li title="dfiwdhgklng" data-toggle="tooltip" class="is-active" data-step="10" >Sweeps</li>-->
+</ol>
+<script type="text/javascript" src='../js/jQuery-3.3.1.min.js'></script>
+<script>
+        function progressBar(ModuleName){
+                console.log('loading '+ModuleName+' Data Info');
+                $.ajax({
+                        type:"POST",
+                        url:"progressdata.php",
+                        data: {
+                                key:101,
+                                modulename:ModuleName
+                        },
+                        success:function(ds){
+                                try{
+                                        $('.addli').html();
+                                        var lidata='',datadiff=0,rowInfo=JSON.parse(ds);
+                                        $(rowInfo).each(function(i,v){
+                                                datadiff=v.split(',');
+                                                //console.log(parseInt(datadiff[1]),rowInfo.length);
+                                                if(parseInt(datadiff[1])==rowInfo.length){
+                                                        lidata+='<li title="'+datadiff[0]+'" data-toggle="tooltip" class="is-active" data-step='+datadiff[1]+'>'+datadiff[0]+'</li>';
+                                                }
+                                                else{
+                                                        lidata+='<li title="'+datadiff[0]+'" data-toggle="tooltip" class="is-complete" data-step='+datadiff[1]+'>'+datadiff[0]+'</li>';
+                                                }
+                                        })
+                                        $('.addli').append(lidata);
+                                }
+                                catch(e){
+                                        alert(ModuleName+" File Format Error !!!");
+                                }
                         }
-                        /* End of Changes for multiplexed queues */
-                }
+                })
         }
-
-        fclose(filePointer);
-        return 0;
-}
+        $(document).ready(function(){
+                progressBar("CBS");
+                //progressBar("F1");
+        })
+</script>
+</body>
+</html>
