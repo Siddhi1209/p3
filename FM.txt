@@ -1,427 +1,457 @@
-
-// get_queue_buildup.c  (old behavior, unchanged logic)
-// NOTE: Only additions are CRCQ, BLTQ, BL1Q in queueTable[] and importantQueues[].
-
-#include<stdio.h>
-#include<stdlib.h>
-#include<sys/ipc.h>
-#include<sys/msg.h>
-#include<stdio.h>
-#include<string.h>
-
-#define Q_OFFSET                500
-#define NUM_REGIONS             128
-#define NUM_SYSTEMS             10
-#define NUM_APPS                10
-#define NUM_QUEUES              250
-#define MAX_QUEUE_KEY           (Q_OFFSET+NUM_REGIONS*NUM_SYSTEMS*NUM_APPS*NUM_QUEUES)
-
-char *queueTable[] =
-{
-        "BANCSQ",
-        "LINKINQ",
-        "LINKOUTQ",
-        "SYSSTARTQ",
-        "DJ0000Q",
-        "SY0020Q",
-        "SY0040Q",
-        "SY0050Q",
-        "SY0070Q",
-        "CDRUTHERQ",
-        "CDRDELAYQ",
-        "CDTRACERQ",
-        "SCCQ",
-        "SCCOPINQ",
-
-        /* A Interface queues */
-        "AT0000Q",
-        "AT0100Q",
-        "AT0110Q",
-        "AT0200Q",
-        "AT0300Q",
-        "AT0210Q",
-        /*  Commented for multiple queues for A Gateway IR 18794*/
-        /*START of IR R331 (Revert IR 18794)*/
-        "EI0000Q",
-        "EI0060Q",
-        /*"EI0061Q",
-        "EI0062Q",
-        "EI0063Q",
-        "EI0064Q",
-        "EI0065Q",*/
-        /*END of IR R331*/
-        /* Five EI0060Q s added for A Gateway IR 18794*/
-        "ATINQ",
-        "ATOUTQ",
-        "ATRDELAYQ",
-        "ATRUTHERQ",
-        "ATTRACERQ",
-        "ACSQ",
-        "ACTLQ",
-        "INPUTQ",
-        "TRICKLEQ",
-        "INTERAPQ",
-        "OPQ",
-        "CONSOLEQ",
-        "SY0004Q",
-        "DEPQ",
-        "LONQ",
-        "TXPQ",
-        "CIFQ",
-        "GENQ",
-        "CASQ",
-        "PFMQ",
-        "VPIQ",
-        "SDVQ",
-        "VISQ",
-        "WBSQ",
-        "CTAQ",
-        "SBRQ",
-        "ELMQ",
-        "LIMQ",
-        "EXPQ",
-        "FN1Q",
-        "FXCQ",
-        "TDRQ",
-        "SECQ",
-        "EPSQ",
-        "SPYQ",
-        "OLRQ",
-        "ONLQ",
-        "RESPQ",
-        "SB0100Q",
-        "DP1Q",
-        "DP2Q",
-        "DP3Q",
-        "DP4Q",
-        "DP5Q",
-        "DP6Q",
-        "DP7Q",
-        "DP8Q",
-        "DP9Q",
-        "VV1Q",
-        "VV2Q",
-        "VV3Q",
-        "ARCQ",
-        "CC1Q",
-        "KCCQ",
-        "LN1Q",
-        "PF1Q",
-        "GL1Q",
-        "EQ1Q",
-        "FA1Q",
-        "NW1Q",
-        "NW2Q",
-        "NW3Q",
-        "SFDQ",
-        "CRCQ",     /* added */
-        "BLTQ",     /* added */
-        "BL1Q",     /* added */
-        "DEPOPINQ",
-        "LONOPINQ",
-        "CIFOPINQ",
-        "GENOPINQ",
-        "CASOPINQ",
-        "PFMOPINQ",
-        "VISOPINQ",
-        "WBSOPINQ",
-        "CTAOPINQ",
-        "ELMOPINQ",
-        "LIMOPINQ",
-        "EXPOPINQ",
-        "FN1OPINQ",
-        "FXCOPINQ",
-        "TDROPINQ",
-        "SECOPINQ",
-        "TERMINALQ",
-        "SECMAINQ",
-        "SY3000Q",
-        "TXPOPINQ",
-        "SWIFTINQ",
-        "REPLAYQ",
-        "REPLAY01Q",
-        "REPLAY02Q",
-        "REPLAY03Q",
-        "TMMOPINQ",
-        "TMMQ",
-        "TBGOPINQ",
-        "TBGQ",
-        "PYNMAINQ",
-        "SPYOPINQ",
-        "PYIMAINQ",
-        "PYMMAINQ",
-        "PYOMAINQ",
-        "PYLMAINQ",
-        "GIRMAINQ",
-        "OLROPINQ",
-
-        /* Telepac queues */
-        "TPAC1",    /* Telepac Test Queues */
-        "TPAC2",
-        "TPAC3",
-        "TPOST",    /* Transaction Poster */
-        "TPCQ",     /* TPINTER */
-        "TPCOPINQ", /* TPINTER */
-        /* New Intersystem -interface to BOSS- Queue */
-        "MHSQ",
-
-        /* Unknown */
-        "ARD0001",
-        "AIO0001",
-        "ARD0002",
-        "AIO0002",
-        "AJNL",
-        "DBDUM",
-        "DYMON",
-        "ENQRY",
-        "HWCRP",
-        "KMNGR",
-        "MAINT",
-        "NAMES",
-        "START",
-        "SUPER",
-        "TLLR1",
-        "SPARE!!!!",
-        "CHQMDQ",
-        "JSMCONSQ",
-        "JSMGENERQ",
-        "JSMNEXTQ",
-        "JSMSTARTQ",
-        "CRDEV0005",
-        "NDUMP",
-        "DIBLD",
-        "DIBRD0002",
-        "RPORT",
-        "DXLNK",
-        "DXL25W001",
-        "DXL25W002",
-        "RTLNK",
-        "RETRY",
-        "TEST",
-        "DXL25W003",
-        "DXL25W004",
-        "RTL25W001",
-        "RTL25W002",
-        "SWIFT2Q",
-        "MSETT",
-
-        /* Terminator */
-        NULL
-};
-
-char *importantQueues[] =
-{
-        "CASQ",
-        "CIFQ",
-        "CTAQ",
-        "DEPQ",
-        "DP1Q",
-        "DP2Q",
-        "DP3Q",
-        "DP4Q",
-        "DP5Q",
-        "DP6Q",
-        "DP7Q",
-        "DP8Q",
-        "DP9Q",
-        "GL1Q",
-        "EQ1Q",
-        "ELMQ",
-        "GENQ",
-        "LONQ",
-        "OLRQ",
-        "ONLQ",
-        "PF1Q",
-        "PFMQ",
-        "RESPQ",
-        "SBRQ",
-        "SDVQ",
-        "SPYQ",
-        "VPIQ",
-        "VV1Q",
-        "VV2Q",
-        "VV3Q",
-        "ARCQ",
-        "CC1Q",
-        "KCCQ",
-        "FA1Q",
-        "SFDQ",
-        "CRCQ",     /* added */
-        "BLTQ",     /* added */
-        "BL1Q",     /* added */
-
-        /* Terminator */
-        NULL
-};
-
-/* Start of Changes for multiplexed queues */
-char **multiplexedQueues;
-/* End of Changes for multiplexed queues */
-
-int msgCount, msgQId, msgQCurrBytes;
-
-FILE *filePointer;
-char *fileName;
-
-/* Start of Changes for multiplexed queues */
-int getMultQueIndex(char queueName[],int multQueCount){
-        int idx;
-
-        for(idx=1; idx < multQueCount; idx++)
-                if(!strcmp(queueName,multiplexedQueues[idx]))
-                        break;
-        if( idx == multQueCount)
-                return 0;
+inputfile="gateway_${BANCS_DQPTYPE}.txt"
+GENERATE_FILE(){
+        if [ ${BANCS_DQPTYPE} = ${MASTER_DQPTYPE} ]
+        then
+                echo "${1},${2}" >>$npdata/${inputfile}
         else
-                return 1;
-}
-/* End of Changes for multiplexed queues */
-
-int getQueueIndex(char queueName[]){
-        int idx;
-
-        for (idx=0; queueTable[idx]!=NULL; idx++)
-                if (!strcmp(queueName,queueTable[idx]))
-                        break;
-
-        if (queueTable[idx]==NULL)
-                return -1;
-        else
-                return idx;
+                echo "${2}" >>$npdata/${inputfile}
+        fi
 }
 
-int getDQPType(){
-        char *dqpPtr;
-        int dqpType;
-
-        dqpPtr=getenv("BANCS_DQPTYPE");
-        dqpType=(int)dqpPtr[0];
-
-        return dqpType;
+DB_QUERY(){
+        export queryResult=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD << EOF
+        set feedback off
+        set head off
+        set pages 0
+        $@;
+        commit;
+        exit;
+        EOF`
 }
 
-int getFNSSysnum(){
-        char *fnsSysnumPtr;
-        int fnsSysnum;
+main(){
+        >$npdata/${inputfile}
+        ##########################################--B24 GATEWAY--#####################
+        dt=`cut -c 9-16 $ddata/file/MFLAGS`
+        gdate=`date|cut -c5-10`
+        $npscripts/UTILITIES/check_job.sh B24  #Does nothing but check $npcard/SERVICE_CHECK.card For Y variable  for gateway provided output 0 or 1[ideally 0]
+        if [ $? -eq 0 ]
+        then
+                        #NORMAL GATEWAY
+                        B24=`ps -fufnsonli|grep B24GWBL|grep -v -e grep -e print|wc -l`
+                #       B24RE=`grep B24REP /home/fnsonli/.profile | awk -F '=' '{print $2}'`
+                B24RE=`grep B24REP /home/fnsonli/.profile |grep -v '#'|awk -F  '=' '{print $2}'`
+                        #ENCRYPTED GATEWAY FROM GTIN TABLE
+                        B24enc=`ps -fufnsonli|grep B24GWBLENC|grep -v -e grep -e print|wc -l`
+                        DB_QUERY "select count(1) from gtin@master_3_link where dqp_type='${BANCS_DQPTYPE}' and gateway='b24gw' and enc_flag='Y'"
+                        gtin_b24enc_count=`echo $queryResult`
 
-        fnsSysnumPtr=getenv("FNS_SYSNUM");
-        fnsSysnum=(int)(fnsSysnumPtr[0]-'0');
-
-        return fnsSysnum;
-}
-
-int getApplNo(){
-        char *applNumPtr;
-        int applNum;
-
-        applNumPtr=getenv("BANCS_HOSTNO");
-        applNum=(int)(applNumPtr[0]-'0');
-
-        return applNum;
-}
-
-int loadQueueDetails(int queueKey){
-        struct msqid_ds msgQueueID_DS;
-
-        msgQId=msgget(queueKey, 0);
-        if (msgQId==-1)
-                return -1;
-        else{
-                if(msgctl(msgQId, IPC_STAT, &msgQueueID_DS)==-1)
-                        return -2;
-                else{
-                        msgCount=msgQueueID_DS.msg_qnum;
-                        return 0;
-                }
-        }
-}
-
-int main(int argc, char *argv[])
-{
-        int queueIdx, idx,idx1,flag,bancsDQPType, fnsSysnum, bancsHostno, queueKey, loadQueueRC;
-        char DQPType;
-        multiplexedQueues = argv;
-
-        bancsDQPType=getDQPType();
-        fnsSysnum=getFNSSysnum();
-        bancsHostno=getApplNo();
-
-        DQPType=(char)bancsDQPType;
-        fileName=getenv("HOME");
-        strcat(fileName, "/queue_buildup_");
-        strcat(fileName, &DQPType);
-        strcat(fileName, ".out");
-
-        filePointer=fopen(fileName, "w+");
-        if(filePointer==NULL){
-                printf("\nError opening file: %s", fileName);
-                exit(-1);
-        }
-
-        // main loop runs for each queue present in importantQueues array
-        for (idx=0; importantQueues[idx]!=NULL; idx++){
-                flag=0;
-
-                // finds queue index from importantQueues
-                queueIdx=getQueueIndex(importantQueues[idx]);
-
-                if(queueIdx==-1)
-                        fprintf(filePointer, "%s NSQE\n", importantQueues[idx]);
-                else{
-                        queueKey=Q_OFFSET+queueIdx+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
-
-                        loadQueueRC=loadQueueDetails(queueKey);
-                        if(loadQueueRC==-1)
-                        {
-                                for (idx1=1;idx1 < argc; idx1++){
-                                        if(!strcmp(importantQueues[idx],multiplexedQueues[idx1])){
-                                                fprintf(filePointer, "%s B, NQKE\n",importantQueues[idx]);
-                                                flag=1;
-                                        }
-                                }
-
-                                if(flag==0){
-                                        fprintf(filePointer, "%s\tNQKE\n", importantQueues[idx]);
-                                }
-                        }
-                        else if(loadQueueRC==-2)
-                                fprintf(filePointer, "LDQE\n");
+                        cd $csysout
+                        if [ $B24 -eq $B24RE ]
+                        then
+                                log_time=`ls -lrt b24.*.out.txt_* | awk '{print $8}' | tail -1`
+                                curr_T=`date |awk {'print $4'} |cut -c 1-5`
+                                diff=`$npscripts/UTILITIES/getTimeDiff.pl $log_time $curr_T`
+                                #rep_err_time=`grep "not enabled for" b24.??.out.txt | grep -v FN1Q | awk -F ':' '{print $2":"$3}' | sort -n | uniq | tail -1`
+                                #curr_T=`date |awk {'print $4'} |cut -c 1-5`
+                                #diff_err_time=`$npscripts/UTILITIES/getTimeDiff.pl $rep_err_time $curr_T`
+                                #if [ ${diff_err_time} -le 900 ]
+                                #then
+                                #       GENERATE_FILE "B24 Gateway" "UTP TXN"
+                                #else
+                                        if [ $diff -gt 300 ]
+                                        then
+                                                        GENERATE_FILE "B24 Gateway" "NOT UPDATING"
+                                        else
+                                                if [ $B24enc -eq $gtin_b24enc_count ]
+                                                then
+                                                        GENERATE_FILE "B24 Gateway" "RUNNING"
+                                                else
+                                                        GENERATE_FILE "B24 Gateway" "NOT ENCRYPTED"
+                                                fi
+                                        fi
+                                #fi
                         else
-                                fprintf(filePointer, "%s\t%d\n",importantQueues[idx],msgCount);
+                                GENERATE_FILE "B24 Gateway" "NOT RUNNING"
+                        fi
+        else
+                        GENERATE_FILE "B24 Gateway" "NA"
+        fi
+        ##########################################--ATM GATEWAY--######################
 
-                        /* Start of Changes for multiplexed queues */
-                        if(getMultQueIndex(importantQueues[idx],argc)){
-                                queueKey = Q_OFFSET+queueIdx+510+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
-                                loadQueueRC=loadQueueDetails(queueKey);
-                                if(loadQueueRC==-1)
-                                        fprintf(filePointer, "%s A, NQKE\n",importantQueues[idx]);
-                                else if(loadQueueRC==-2)
-                                        fprintf (filePointer, "%s A, LDQE\n",importantQueues[idx]);
-                                else
-                                        fprintf(filePointer, "%s A, %d\n",importantQueues[idx], msgCount);
+        $npscripts/UTILITIES/check_job.sh ATM
+        if [ $? -eq 0 ]
+        then
+                        #NORMAL GATEWAY
+                        ATM=`ps -fufnsonli|grep ATMGWBL|grep -v -e grep -e print|wc -l`
+                        ATMRE=`cat $card/atmrep_c.card | awk '{print $1}'`
 
-                                queueKey = Q_OFFSET+queueIdx+520+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
-                                loadQueueRC=loadQueueDetails(queueKey);
-                                if(loadQueueRC==-1)
-                                        fprintf(filePointer, "%s I, NQKE\n",importantQueues[idx]);
-                                else if(loadQueueRC==-2)
-                                        fprintf(filePointer, "%s I, LDQE\n",importantQueues[idx]);
-                                else
-                                        fprintf(filePointer, "%s I, %d\n", importantQueues[idx],msgCount);
+                        #ENCRYPTED GATEWAY FROM GTIN TABLE
+                        ATMenc=`ps -fufnsonli|grep ATMGWBLENC|grep -v -e grep -e print|wc -l`
+                        DB_QUERY "select count(1) from gtin where dqp_type='${BANCS_DQPTYPE}' and gateway='atm' and enc_flag='Y'"
+                        gtin_atmenc_count=`echo $queryResult`
 
-                                queueKey = Q_OFFSET+queueIdx+530+NUM_QUEUES*(bancsHostno+NUM_APPS*(fnsSysnum+NUM_SYSTEMS*bancsDQPType));
-                                loadQueueRC=loadQueueDetails(queueKey);
-                                if(loadQueueRC==-1)
-                                        fprintf(filePointer, "%s M, NQKE\n",importantQueues[idx]);
-                                else if(loadQueueRC==-2)
-                                        fprintf(filePointer, "%s M, LDQE\n",importantQueues[idx]);
-                                else
-                                        fprintf(filePointer, "%s M, %d\n", importantQueues[idx],msgCount);
-                        }
-                        /* End of Changes for multiplexed queues */
-                }
-        }
+                        cd $csysout
+                        if [ $ATM -eq $ATMRE ]
+                        then
+                                file_T=`ls -lrt atm.??.out.txt_?? | tail -${ATM} | awk '{print $8}' | sort -n | uniq | head -1`
+                                curr_T=`date |awk {'print $4'} |cut -c 1-5`
+                                diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_T $curr_T`
+                                #rep_err_time=`grep "not enabled for" atm.??.out.txt_?? | grep -v FN1Q | awk -F ':' '{print $2":"$3}' | sort -n | uniq | tail -1`
+                                #curr_T=`date |awk {'print $4'} |cut -c 1-5`
+                                #diff_err_time=`$npscripts/UTILITIES/getTimeDiff.pl $rep_err_time $curr_T`
+                                #if [ ${diff_err_time} -le 900 ]
+                                #then
+                                #       GENERATE_FILE "ATM Gateway" "UTP TXN"
+                                #else
+                                        if [ $diff -gt 300 ]
+                                        then
+                                                GENERATE_FILE "ATM Gateway" "NOT UPDATING"
+                                        else
+                                                if [ $ATMenc -eq $gtin_atmenc_count ]
+                                                then
+                                                        GENERATE_FILE "ATM Gateway" "RUNNING"
+                                                else
+                                                        GENERATE_FILE "ATM Gateway" "NOT ENCRYPTED"
+                                                fi
+                                        fi
+                                #fi
+                        else
+                                        GENERATE_FILE "ATM Gateway" "NOT RUNNING"
+                        fi
+        else
+                        GENERATE_FILE "ATM Gateway" "NA"
+        fi
 
-        fclose(filePointer);
-        return 0;
+
+        ##########################################--INB GATEWAY--######################
+
+        $npscripts/UTILITIES/check_job.sh INB
+        if [ $? -eq 0 ]
+        then
+                        #NORMAL GATEWAY
+                        INB=`ps -fufnsonli|grep INBGWBL|grep -v grep|wc -l`
+                        INB1=`ps -fufnsonlid|grep inb0000|grep -v grep|wc -l`
+                        INB2=`ps -fufnsonlid|grep ioclenq|grep -v grep|wc -l`
+                        INB3=`ps -fufnsonlid|grep pushenq|grep -v grep|wc -l`
+                        INBRE=`cat $card/inbrep.card`
+
+                        #ENCRYPTED GATEWAY FROM GTIN TABLE
+                        INBenc=`ps -fufnsonli|grep INBGWBLENC|grep -v -e grep -e print|wc -l`
+                        DB_QUERY "select count(1) from gtin where dqp_type='${BANCS_DQPTYPE}' and gateway='inb' and enc_flag='Y'"
+                        gtin_inbenc_count=`echo $queryResult`
+
+
+                        cd $csysout
+                        if [ ${INB} -eq ${INBRE} ] && [ ${INB1} -ge 1 ] && [ ${INB2} -ge 1 ] && [ ${INB3} -ge 1 ]
+                        then
+                                file_T=`ls -lrt inb.??.out.txt_?? | tail -${INB} | awk '{print $8}' | sort -n | uniq | tail -1`
+                                curr_T=`date |awk {'print $4'} |cut -c 1-5`
+                                diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_T $curr_T`
+                                #rep_err_time=`grep "not enabled for" inb.??.out.txt_?? | grep -v FN1Q | awk -F ':' '{print $2":"$3}' | sort -n | uniq | tail -1`
+                                #curr_T=`date |awk {'print $4'} |cut -c 1-5`
+                                #diff_err_time=`$npscripts/UTILITIES/getTimeDiff.pl $rep_err_time $curr_T`
+                                #if [ ${diff_err_time} -le 900 ]
+                                #then
+                                #       GENERATE_FILE "INB Gateway" "UTP TXN"
+                                #else
+                                        if [ $diff -gt 300 ]
+                                        then
+                                                GENERATE_FILE "INB Gateway" "NOT UPDATING"
+                                        else
+                                                if [ $INBenc -eq $gtin_inbenc_count ]
+                                                then
+                                                        GENERATE_FILE "INB Gateway" "RUNNING"
+                                                else
+                                                        GENERATE_FILE "INB Gateway" "NOT ENCRYPTED"
+                                                fi
+                                        fi
+                                #fi
+                        else
+                                GENERATE_FILE "INB Gateway" "NOT RUNNING"
+                        fi
+        else
+                        GENERATE_FILE "INB Gateway" "NA"
+        fi
+        ################################---MR GATEWAY------######################################
+        $npscripts/UTILITIES/check_job.sh MR
+        if [ $? -eq 0 ]
+        then
+                        #NORMAL GATEWAY
+                        MR=`ps -fufnsonli|grep MRGWBL|grep -v -e grep -e print|wc -l`
+                        MRRE=`cat $card/mrrep.card`
+                        logpath="/fns/i/r/sysout"
+                        hostname=`hostname`
+                        filelist=`ls -lrt $logpath/mr*out*|awk '{print $9}' `
+                        faultylinetot=0
+                        for i in $filelist
+                        do
+                                faultylines=`tail -1000 $i| grep -i "Maximum limit for Active connections reached"`
+                                faultyline=`echo $faultylines| wc -l`
+                                if [ ! -z "$faultylines" ]
+                                then
+                                        if [ ${faultyline} -ge 1 ]
+                                        then
+                                                faultylinetot=`expr $faultylinetot + $faultyline`
+                                        fi
+                                fi
+                        done
+
+                        #ENCRYPTED GATEWAY FROM GTIN TABLE
+                        MRenc=`ps -fufnsonli|grep MRGWBLENC|grep -v -e grep -e print|wc -l`
+                        DB_QUERY "select count(1) from gtin@master_3_link where dqp_type='${BANCS_DQPTYPE}' and gateway='mr' and enc_flag='Y'"
+                        gtin_mrenc_count=`echo $queryResult`
+
+                        if [ $MR -ge $MRRE ]
+                        then
+                                        cd $csysout
+                                        #rep_err_time=`grep "not enabled for" mr.??.out.txt_?? | grep -v FN1Q | awk -F ':' '{print $2":"$3}' | sort -n | uniq | tail -1`
+                                        #curr_T=`date |awk {'print $4'} |cut -c 1-5`
+                                        #diff_err_time=`$npscripts/UTILITIES/getTimeDiff.pl $rep_err_time $curr_T`
+                                        #if [ ${diff_err_time} -le 900 ]
+                                        #then
+                                        #       GENERATE_FILE "MR Gateway" "UTP TXN"
+                                        #elif [  $faultylinetot -ge 10 ]
+                                        if [  $faultylinetot -ge 10 ]
+                                        then
+                                                        GENERATE_FILE "MR Gateway" "MAXTCP"
+                                        else
+                                                curr_T=`date |awk {'print $4'} |cut -c 1-5`
+                                                file_T=`ls -lrt mr.??.out.txt_?? | tail -${MR} | awk '{print $8}' | sort -n | uniq | grep -v "${curr_T}" | head -1`
+                                                if [ $? -ne 0 ]
+                                                then
+                                                        curr_T=`date |awk {'print $4'} |cut -c 1-5`
+                                                        diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_T $curr_T`
+                                                        if [ $diff -gt 300 ]
+                                                        then
+                                                                GENERATE_FILE "MR Gateway" "NOT UPDATING"
+                                                        else
+                                                           if [ $MRenc -eq $gtin_mrenc_count ]
+                                                                then
+                                                                        GENERATE_FILE "MR Gateway" "RUNNING"
+                                                                else
+                                                                        GENERATE_FILE "MR Gateway" "NOT ENCRYPTED"
+                                                                fi
+                                                        fi
+                                                else
+                                                        if [ $MRenc -eq $gtin_mrenc_count ]
+                                                        then
+                                                                GENERATE_FILE "MR Gateway" "RUNNING"
+                                                        else
+                                                                GENERATE_FILE "MR Gateway" "NOT ENCRYPTED"
+                                                        fi
+                                                fi
+                                        fi
+                        else
+                                        GENERATE_FILE "MR Gateway" "NOT RUNNING"
+                        fi
+        else
+                        GENERATE_FILE "MR Gateway" "NA"
+        fi
+        ##########################################--TF GATEWAY--######################
+        $npscripts/UTILITIES/check_job.sh TF
+        if [ $? -eq 0 ]
+        then
+                        DB_QUERY "select to_char(sysdate,'DAY') from dual"
+                        curr_day=`echo $queryResult`
+                        if [ ${curr_day} = "SUNDAY" ]
+                        then
+                                        GENERATE_FILE "TF Gateway" "SUNDAY"
+                        else
+                                        cd $csysout
+                                        tf_cnt=`ps -fufnsonli|grep TFTCPSV|grep -v grep|wc -l`
+                                        oracle_error=`grep "ORA-" TFTCPSV.1.out|wc -l`
+                                        file_T=`ll -rtl TFTCPSV.1.out|awk '{print $8}'`
+                                        curr_T=`date |awk {'print $4'} |cut -c 1-5`
+                                        diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_T $curr_T`
+                                        if [ ${oracle_error} -gt 0 ] || [ ${tf_cnt} -lt 1 ]
+                                        then
+                                                        GENERATE_FILE "TF Gateway" "NOT RUNNING"
+                                        else
+                                                        if [ ${diff} -gt 300 ]
+                                                        then
+                                                                        GENERATE_FILE "TF Gateway" "NOT UPDATING"
+                                                        else
+                                                                        GENERATE_FILE "TF Gateway" "RUNNING"
+                                                        fi
+                                        fi
+                        fi
+        else
+                        GENERATE_FILE "TF Gateway" "NA"
+        fi
+        ############################-Trickle Feed--##############################
+        $npscripts/UTILITIES/check_job.sh TRICKLE_FEED
+        if [ $? -eq 0 ]
+        then
+                        curr_date=`cut -c 15-16 $ddata/file/MFLAGS``cut -c 13-14 $ddata/file/MFLAGS``cut -c 9-12 $ddata/file/MFLAGS`
+                        curr_count=`tail -500 $sysout/Tf*${curr_date}.out | grep "ABORT" |wc -l`
+
+                        tfdr=`ps -fufnsonlid|grep tfdrtrig|grep -v grep|wc -l`
+                        tfm=`ps -fufnsonlid|grep tfmfilesplit|grep -v grep|wc -l`
+                        nft=`ps -fufnsonlid|grep nftfbu|grep -v grep|wc -l`
+                        v5588=1
+                        v0002=1
+                        $npscripts/UTILITIES/check_job.sh cfpd5588
+                        if [ $? -eq 0 ]
+                        then
+                                        v5588=`ps -fufnsonlid|grep cfpd5588 | grep -v grep | wc -l`
+                        fi
+                        $npscripts/UTILITIES/check_job.sh cfpd0002
+                        if [ $? -eq 0 ]
+                        then
+                                        v0002=`ps -fufnsonlid|grep cfpd0002 | grep -v grep | wc -l`
+                        fi
+
+                        cd $dsysout
+                        curr_T=`date |awk {'print $4'} |cut -c 1-5`
+                        file_T1=`ll -rtl TFTRIGProc.out|awk '{print $8}'`
+                        file_T2=`ll -rtl nftfbu.log|awk '{print $8}'`
+
+                        diff1=`$npscripts/UTILITIES/getTimeDiff.pl $file_T1 $curr_T`
+                        diff2=`$npscripts/UTILITIES/getTimeDiff.pl $file_T2 $curr_T`
+
+                        if [ $tfdr -ge 1 ] && [ $tfm -ge 1 ] && [ $nft -ge 1 ] && [ $v5588 -ge 1 ] && [ $v0002 -ge 1 ]
+                        then
+                                        if [ ${diff1} -le 600 ] && [ ${diff2} -le 600 ]
+                                        then
+                                                        if [ ${curr_count} -ge 1 ]
+                                                        then
+                                                                        GENERATE_FILE "Trickle Feed" "ABORT"
+                                                        else
+
+                                                                        GENERATE_FILE "Trickle Feed" "RUNNING"
+                                                        fi
+                                        elif [ ${diff1} -le 600 ] && [ ${diff2} -gt 600 ]
+                                        then
+                                                        GENERATE_FILE "Trickle Feed" "OLD ARCH NOT UPDATING"
+
+                                        elif [ ${diff1} -gt 600 ] && [ ${diff2} -le 600 ]
+                                        then
+                                                        GENERATE_FILE "Trickle Feed" "NEW ARCH NOT UPDATING"
+                                        else
+                                                        GENERATE_FILE "Trickle Feed" "NEW AND OLD ARCH NOT UPDATING"
+                                        fi
+                        else
+                                        GENERATE_FILE "Trickle Feed" "NOT RUNNING"
+                        fi
+        else
+                        GENERATE_FILE "Trickle Feed" "NA"
+        fi
+        #####################################---------------RTGS--------------########################
+        $npscripts/UTILITIES/check_job.sh RTGS
+        if [ $? -eq 0 ]
+        then
+                        rtgs_job=`cat $npcard/RTGS.card |xargs|sed 's/ /|/g'`
+                        rtgs_job_run_count=`ps -fufnsonlid |grep -E "${rtgs_job}" |awk {'print $NF'}|sort|uniq|wc -l`
+                        rtgs_job_card_count=`cat $npcard/RTGS.card|wc -l`
+                        cd $sysout
+                        file_T=`ll -rtl rtgsngproctime_??.txt|grep "${gdate}" |tail -1|awk '{print $8}'`
+                        curr_T=`date |awk {'print $4'}|cut -c 1-5`
+
+                        diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_T $curr_T`
+
+                        if [ ${rtgs_job_run_count} -ge ${rtgs_job_card_count} ]
+                        then
+                                        if [ ${diff} -gt 120 ]
+                                        then
+                                                        GENERATE_FILE "RTGS" "NOT UPDATING"
+                                        else
+                                                        GENERATE_FILE "RTGS" "RUNNING"
+                                        fi
+                        else
+                                        GENERATE_FILE "RTGS" "NOT RUNNING"
+                        fi
+        else
+                        GENERATE_FILE "RTGS" "NA"
+        fi
+
+        ##############################################-------NEFT-----------###########################
+        $npscripts/UTILITIES/check_job.sh NEFT
+        if [ $? -eq 0 ]
+        then
+                        neft_job=`cat $npcard/NEFT.card |xargs|sed 's/ /|/g'`
+                        neft_job_run_count=`ps -fufnsonlid |grep -E "${neft_job}" |wc -l`
+                        neft_job_card_count=`cat $npcard/NEFT.card|wc -l`
+                        cd $sysout
+                        file_T=`ll -rtl neftstream.out??|grep "${gdate}" |tail -1|awk '{print $8}'`
+                        curr_T=`date |awk {'print $4'}|cut -c 1-5`
+
+                        diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_T $curr_T`
+
+                        if [ ${neft_job_run_count} -ge ${neft_job_card_count} ]
+                        then
+                                        if [ ${diff} -gt 120 ]
+                                        then
+                                                        GENERATE_FILE "NEFT" "NOT UPDATING"
+                                        else
+                                                        GENERATE_FILE "NEFT" "RUNNING"
+                                        fi
+                        else
+                                        GENERATE_FILE "NEFT" "NOT RUNNING"
+                        fi
+        else
+                        GENERATE_FILE "NEFT" "NA"
+        fi
+        ##########################################----------MQ ERROR----------#########################
+        flag_rtgs=0
+        flag_neft=0
+        flag_imps=0
+        for i in `ls -lrt $sysout/rtgsng*| grep -v neft_ack_in.log|grep "${gdate}"|awk {'print $NF'}`
+        do
+                        tail -100 $i|grep -e "MQCONN ended with reason code" -e "MQPUT ended with reason code" >/dev/null
+                        if [ $? -eq 0 ]
+                        then
+                                        flag_rtgs=1
+                                        break
+                        fi
+        done
+
+        for i in `ls -lrt $sysout/neft*| grep -v neft_ack_in.log|grep "${gdate}"|awk {'print $NF'}`
+        do
+                        tail -100 $i|grep -e "MQCONN ended with reason code" -e "MQPUT ended with reason code" >/dev/null
+                        if [ $? -eq 0 ]
+                        then
+                                        flag_neft=1
+                                        break
+                        fi
+        done
+
+        for i in `ls -lrt $sysout/imps*|grep "${gdate}"|awk {'print $NF'}`
+        do
+                        tail -100 $i|grep -e "MQCONN ended with reason code" -e "MQPUT ended with reason code" >/dev/null
+                        if [ $? -eq 0 ]
+                        then
+                                        flag_imps=1
+                                        break
+                        fi
+        done
+        echo $flag_imps
+        if [ ${flag_rtgs} -eq 0  -a  ${flag_neft} -eq 0  -a ${flag_imps} -eq 0 ]
+        then
+                        GENERATE_FILE "MQ SERVER" "RUNNING"
+        elif [ ${flag_rtgs} -eq 1  -a ${flag_neft} -eq 0 -a ${flag_imps} -eq 0 ]
+        then
+                        GENERATE_FILE "MQ SERVER" "ERROR IN RTGS"
+        elif [ ${flag_rtgs} -eq 0 -a ${flag_neft} -eq 1 -a ${flag_imps} -eq 0 ]
+        then
+                        GENERATE_FILE "MQ SERVER" "ERROR IN NEFT"
+        elif [ ${flag_rtgs} -eq 0 -a ${flag_neft} -eq 0 -a ${flag_imps} -eq 1 ]
+        then
+                        GENERATE_FILE "MQ SERVER" "ERROR IN IMPS"
+        else
+                        GENERATE_FILE "MQ SERVER" "ERROR IN RTGS-NEFT-IMPS"
+        fi
+        #######################################-------CHECKRC-------###############################
+        checkrc_cnt=`ps -ef|grep fnsonli|grep checkrc.sh|grep -v -e grep -e checklist| grep -v "checkrc.sh 0" |wc -l`
+        if [ $checkrc_cnt -gt 0 ]
+        then
+                        GENERATE_FILE "Check RC" "RC RUNNING"
+        else
+                        GENERATE_FILE "Check RC" "NO CHECK RC"
+        fi
+
+        ##########################################-SYSTEM UTILISATION------###################################
+        uti=`sar -u 1 1|tail -1|awk '{print $5}'`
+        if [ -z "$uti" ]
+        then
+        uti=-
+        fi
+
+        GENERATE_FILE "System Idle" "${uti}"
+        ################################################-LAST UPDATE-###################################
+        update_T=`date|awk '{print $4}'|cut -c 1-5`
+        GENERATE_FILE "LAST UPDATE" "${update_T}"
 }
+main
+$HOME/pace/ftc.sh $npdata/${inputfile} /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/${inputfile}.${dt}
+$HOME/pace/ftc.sh $spool/CBS_ONLINE.txt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/CBS_ONLINE.txt.${dt}
