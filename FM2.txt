@@ -1,27 +1,726 @@
+000010*****************************************************************
+000020* PROGRAM: UTSRH1                                               *
+000030*                                                               *
+000040*****************************************************************
+000050*                    PROGRAM HISTORY                            *
+000060*                    ----------------                           *
+000070*  PROGRAMMERS INITIALS TOGETHER WITH THE "SPR" NUMBER MUST BE  *
+000080*  REFLECTED IN COLUMNS 73-80 OF EVERY LINE/S CHANGED OR ADDED. *
+000090*                                                               *
+000100*  PROGRAMMER  : DATE    :SPR NO :COMMENTS                      *
+000110*---------------------------------------------------------------*
+000120******************************************************************
+R40088* RANI : 19040088 : 17102019 : CLOSURE NOT ALLOWED IF ACCOUNT IS H
+R40088*                               ACTIVE HOLD
+000150******************************************************************
+PSOARC* PRASHANTH : 10/03/2021 : 262484 : Performance Tuning.
+PSOARC*-----------------------------------------------------------------
+HHHHHH* HARSH  : 15042024 : 23070083 : TO STOP ONE-STOP REPOST
+HHHHHH*-----------------------------------------------------------------
+MMMMMM* KOLA MAHESH : 14082024 : 24080027 : TO HANDLING THE SI PARTIAL
+MMMMMM*                                     RECOVERY AMOUNT
+MMMMMM*---------------------------------------------------------------
+MMMMMM**** KOLA MAHESH : 28052025 : 25010289 : DEFECT OF CR 24080027
+MMMMMM****----------------------------------------------------------
+000250 IDENTIFICATION DIVISION.
+000260 PROGRAM-ID. UTSRH1.
+000270 AUTHOR.     TCS.
+000280 DATE-WRITTEN. OCT 2018.
+000290 DATE-COMPILED. XXXXXXXXXX.
+000300*
+000310 ENVIRONMENT DIVISION.
+000320 CONFIGURATION SECTION.
+000330 SPECIAL-NAMES.
+000340        CONSOLE IS CONS.
+000350*
+MMMMMM*------------START OF CR 24080027----------
+000370 SELECT CARDFILE ASSIGN TO "$card/PART_SI_REC_AMT.card"
+000380        ORGANIZATION IS LINE SEQUENTIAL
+000390        FILE STATUS IS WS-SI-REC-STATUS.
+MMMMMM*------------END OF CR 24080027-----------
+000410 DATA DIVISION.
+000420
+MMMMMM*------------START OF CR 24080027-------------------
+MMMMMM FD CARDFILE.
+000450 01 WA-SI-PART-AMT      PIC S9(06).
+MMMMMM*------------END OF CR 24080027-------------------
 
-MONITORP : /var/www/html/pace/Online_portal/pages ]vim progressdata.php
-<?php
-        if(isset($_POST['key']) && $_POST['key'] == 101){
-                $modulename=$_POST['modulename'];
-                switch($modulename){
-                        case "CBS":
-                                $path="/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/";
-                                $data=explode("\n",shell_exec("cat ".$path."currFlow.seq"));
-                                array_pop($data);
-                                $sendto=json_encode($data);
-                                break;
-                        case "F1":
-                                $path="/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/FINANCEONE/";
-                                $data=explode("\n",shell_exec("cat ".$path."F1_CURRFLOW.seq"));
-                                array_pop($data);
-                                $sendto=json_encode($data);
-                                break;
-                        default:
-                                $data="No Data Available";
-                                $sendto=json_encode($data);
-                                break;
-                }
-                echo $sendto;
-        }
-        exit();
-?>
+000480 WORKING-STORAGE SECTION.
+000490*----------------------------------------------
+000500     EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+000510 01 WA-FROM-ACCT-NO      PIC X(16).
+000520 01 WA-TO-ACCT-NO        PIC X(16).
+000530 01 WA-HOLD-APPLY-DT     PIC X(08).
+000540 01 WA-HOLD-APPLY-TIME   PIC X(08).
+000550 01 WA-SI-HOLD-AMT       PIC S9(14)V999
+000560                         SIGN LEADING SEPARATE.
+000570 01 WA-TO-SYS            PIC X(03).
+000580 01 WA-STATUS            PIC X(01).
+000590 01 WA-START-ACCT        PIC X(16).
+000600 01 WA-END-ACCT          PIC X(16).
+000610     EXEC SQL END DECLARE SECTION END-EXEC.
+000620*-----------------------------------------------
+000630     EXEC SQL INCLUDE SQLCA END-EXEC.
+000640
+MMMMMM*----------START OF CR 24080027--------
+MMMMMM 01 WS-SI-REC-STATUS    PIC 9(02) VALUE 00.
+MMMMMM 01 WM-SI-PART-AMT      PIC S9(06).
+MMMMMM 01 WA-FIRST-FLAG       PIC X(01) VALUE 'Y'.
+MMMMMM 01 WA-PART-AMT         PIC S9(14)V999.
+MMMMMM 01 WA-FROM-ACT         PIC X(16).
+MMMMMM 01 WA-TO-ACT           PIC X(16).
+MMMMMM 01 WA-SYS1             PIC XXX.
+MMMMMM 01 WA-SYS2             PIC XXX.
+MMMMMM 01 WA-AM               PIC X(03).
+MMMMMM 01 WA-BR               PIC X(05).
+MMMMMM 01 WA-ST               PIC X(01).
+MMMMMM 01 WA-ERR              PIC 9(04) COMP.
+MMMMMM 01 WA-PR               PIC XX.
+MMMMMM 01 WA-CHASE            PIC X(01).
+MMMMMM 01 WA-HF               PIC X(01).
+MMMMMM 01 WA-HR               PIC X(18).
+MMMMMM 01 WA-JR-NO            PIC 9(09) COMP.
+MMMMMM*----------END OF CR 24080027-----------
+000840 01 PARM-CARD.
+000850    03 FILLER                          PIC X(17).
+000860    03 PARM-SELECT                     PIC X(1).
+000870    03 FILLER                          PIC X(1).
+000880    03 PARM-FROM-ACCOUNT-NO            PIC X(16).
+000890    03 FILLER                          PIC X(1).
+000900    03 PARM-TO-ACCOUNT-NO              PIC X(16).
+000910 01 WA-SQLCODE                         PIC 9(09).
+000920 01 WA-CURR-STATUS                     PIC X(02).
+000930 01 WA-INVM-KEY.
+000940    03 SOC-NO               PIC X(03).
+000950    03 INVM-ACCT-NO         PIC X(16).
+000960 01 WA-BORM-KEY.
+000970    03 BORM-SOC-NUMBER      PIC X(03).
+000980    03 BORM-ACCT-NO         PIC X(16).
+000990 01 WA-PREV-ACCT-NO         PIC X(16).
+001000 01 WA-AVBL-CURR-BAL     PIC S9(14)V999
+001010                         SIGN LEADING SEPARATE.
+001020 01 UTAVBL-CALL-AREA.
+001030    COPY UTAVBLCA IN LIBRYMIS.
+MMMMMM*-------START OF CR 24080027------------
+MMMMMM    COPY UT0030CA        IN LIBRYMIS.
+MMMMMM    COPY UT1999CA        IN LIBRYMIS.
+MMMMMM 01 UT1996CA-CALL-AREA.
+001080    COPY UT1996CA        IN LIBRYMIS.
+MMMMMM 01 WA-TODAY-DATE-DDMMCCYY   PIC X(08).
+MMMMMM****------START OF CR 25010289------------
+001110 01 WA-TODAY-DATE.
+001120    05 WA-TODAY-CC           PIC 9(02).
+001130    05 WA-TODAY-YY           PIC 9(02).
+001140    05 WA-TODAY-MM           PIC 9(02).
+001150    05 WA-TODAY-DD           PIC 9(02).
+MMMMMM****------END OF CR 25010289------------
+MMMMMM 01 WS-SYSTEM-TIME-R         PIC X(08).
+MMMMMM 01 WS-TEMP-SRHR-KEY         PIC X(35).
+MMMMMM*-------END OF CR 24080027------------
+001200 01 WA-INVM-RECORD-AREA.
+001210     COPY INVMMAST IN LIBRYINV.
+001220 01 WA-BORM-RECORD-AREA.
+001230     COPY BORMMAST IN LIBRYBOR.
+001240 01  UT0200-CALL-PARAMS.
+001250     02 UT0200-CALL-AREA.
+001260        COPY UT0200CA IN LIBRYINV.
+001270     02 UT0200-RETURN-AREA.
+001280        COPY DEPPARM  IN LIBRYINV.
+001290        COPY UT0200RT IN LIBRYINV.
+001300 01 SRHR-AREA.
+001310    COPY SRHRMAST    IN LIBRYINV.
+001320 01 WS-SRHR-KEY.
+001330    03 WS-INST-NO        PIC X(03).
+001340    03 WS-FROM-ACCT-NO   PIC X(16).
+001350    03 WS-PROS-DATE      PIC X(08).
+001360    03 WS-PROS-TIME      PIC X(08).
+001370 01 FLAG-STATUS          PIC 9(02) VALUE 00.
+001380    COPY UT8500CA    IN LIBRYMIS.
+001390    COPY UT8500FU    IN LIBRYMIS.
+001400    COPY DBIOCALL    IN LIBRYMIS.
+001410    COPY DBIOMODNAME IN LIBRYMIS.
+001420    COPY DBIOORAST   IN LIBRYMIS.
+001430    COPY DBIOMODCA   IN LIBRYMIS.
+001440    COPY BINS        IN LIBRYBOR.
+001450
+001460 PROCEDURE DIVISION.
+001470 MAIN-PARA.
+001480    PERFORM A000-INIT-PARA THRU A000-EXIT
+001490    PERFORM D001-OPEN-DB   THRU D001-EXIT
+001500    PERFORM R000-READ-CARD THRU R000-READ-CARD-EXIT
+001510    PERFORM R001-READ      THRU R001-EXIT
+001520    PERFORM C400-COMMIT     THRU C499-EXIT.
+001530    PERFORM I000-CLOSE-PARA     THRU I999-EXIT.
+001540 MAIN-PARA-EXIT.
+001550 STOP RUN.
+001560
+001570 A000-INIT-PARA.
+001580   INITIALIZE WA-FROM-ACCT-NO
+001590              WA-TO-ACCT-NO
+001600              WA-TO-SYS
+001610              WA-STATUS
+001620              WA-PREV-ACCT-NO
+001630              SRHR-AREA
+001640              WA-AVBL-CURR-BAL
+001650              WA-HOLD-APPLY-TIME
+001660              WA-HOLD-APPLY-DT
+001670              WA-SI-HOLD-AMT
+001680              WA-SQLCODE
+001690              WA-INVM-KEY
+001700              WA-BORM-KEY
+001710              UTAVBL-CALL-AREA
+001720              WA-INVM-RECORD-AREA
+001730              UT0200-CALL-PARAMS
+001740              WA-START-ACCT
+MMMMMM*----------START OF CR 24080027----------
+MMMMMM              WA-FROM-ACT
+MMMMMM              WA-TO-ACT
+MMMMMM              WA-SYS1
+MMMMMM              WA-SYS2
+MMMMMM              WA-AM
+MMMMMM              WA-BR
+MMMMMM              WA-ST
+MMMMMM              WA-ERR
+MMMMMM              WA-PR
+MMMMMM              WA-CHASE
+MMMMMM              WA-HF
+MMMMMM              WA-HR
+MMMMMM              WA-JR-NO
+MMMMMM              WA-PART-AMT
+MMMMMM              UT1996CA-CALL-AREA
+MMMMMM*----------END OF CR 24080027----------
+001920              WA-BORM-RECORD-AREA
+001930              WA-END-ACCT.
+001940 A000-EXIT.
+001950 EXIT.
+001960
+001970
+001980 D001-OPEN-DB.
+001990     CALL "DBIO"
+002000     MOVE 95 TO DBIO-CALL-FUNC.
+002010     CALL "DBIO" USING DBIO-CALL-PARAM
+002020                       DBIO-CALL-SYS-AREA
+002030                       DBIO-CALL-KEY-AREA
+002040                       DBIO-CALL-STATUS.
+002050     IF DBIO-CALL-STATUS = "****"
+002060       DISPLAY "UTSRH1(D001):GOOD DB SIGNON"
+002070     ELSE
+002080       DISPLAY "UTSRH1(D001):DB OPEN ERROR - "
+002090       DBIO-CALL-STATUS
+002100     END-IF.
+002110 D001-EXIT.
+002120 EXIT.
+002130
+002140 R000-READ-CARD.
+002150     CALL "UTCARD" USING PARM-CARD.
+002160     MOVE PARM-FROM-ACCOUNT-NO TO WA-START-ACCT
+002170     MOVE PARM-TO-ACCOUNT-NO   TO WA-END-ACCT.
+002180 R000-READ-CARD-EXIT.
+002190 EXIT.
+002200
+002210*---------------------------------------------------------------
+002220 R001-READ.
+MMMMMM*---------START OF CR 24080027------------------
+MMMMMM         PERFORM READ-CARDFILE THRU CARDFILE-EXIT
+MMMMMM*---------END OF CR 24080027------------------
+002260         EXEC SQL DECLARE SRHRCUR CURSOR FOR
+002270           SELECT  /*+ INDEX (SRHR SRHR_FRM_ACT) */
+002280             FROM_ACCT_NO,
+002290             TO_ACCT_NO,
+002300             HOLD_APPLY_DT,
+002310             HOLD_APPLY_TIME,
+002320             SI_HOLD_AMT,
+002330             TO_SYS,
+002340             STATUS
+002350             FROM SRHR WHERE
+002360          FROM_ACCT_NO BETWEEN :WA-START-ACCT
+002370           AND :WA-END-ACCT AND STATUS IN ('0','3','7')
+002380           ORDER BY FROM_ACCT_NO,
+002390                    TO_SYS DESC,
+002400                    HOLD_APPLY_DT,
+002410                    HOLD_APPLY_TIME,
+002420                    SI_HOLD_AMT
+002430         END-EXEC
+002440         EXEC SQL OPEN SRHRCUR END-EXEC
+002450          IF SQLCODE = ZEROES
+002460             INITIALIZE WA-SQLCODE
+002470             PERFORM A008-FETCH THRU A008-EXIT
+002480             UNTIL WA-SQLCODE NOT  = ZEROES
+002490          ELSE
+002500              DISPLAY
+002510               "UTSRH1 :(R001) ERROR OPENING CURSOR SRHRCUR"
+002520               SQLCODE
+002530          END-IF.
+002540 R001-EXIT.
+002550 EXIT.
+002560*---------------------------------------------------------------
+002570 A008-FETCH.
+002580     EXEC SQL FETCH SRHRCUR INTO
+002590            :WA-FROM-ACCT-NO,
+002600            :WA-TO-ACCT-NO,
+002610            :WA-HOLD-APPLY-DT,
+002620            :WA-HOLD-APPLY-TIME,
+002630            :WA-SI-HOLD-AMT,
+002640            :WA-TO-SYS,
+002650            :WA-STATUS
+002660     END-EXEC
+002670     MOVE SQLCODE TO WA-SQLCODE
+002680     EVALUATE SQLCODE
+002690       WHEN ZEROES
+002700         INITIALIZE WA-CURR-STATUS
+002710         IF WA-TO-SYS = 'INV' OR 'DEP'
+002720           MOVE WA-TO-ACCT-NO TO INVM-ACCT-NO
+002730           PERFORM A001-READ-INVM THRU A099-READ-INVM-EXIT
+002740           IF INVM-CURR-STATUS = "07"
+002750              MOVE "01"  TO WA-CURR-STATUS
+002760           END-IF
+002770         ELSE
+002780           IF WA-TO-SYS = 'LON' OR 'BOR'
+002790             MOVE WA-TO-ACCT-NO TO BORM-ACCT-NO
+002800             PERFORM A200-READ-BORM THRU A299-READ-BORM-EXIT
+R40088*----------------------START OF IR 19040088----------------------*
+002820*             IF BORM-STAT = "40"
+002830             IF BORM-STAT = "40" OR "45"
+R40088*----------------------END   OF IR 19040088----------------------*
+002850                MOVE "01"  TO WA-CURR-STATUS
+002860             END-IF
+002870           END-IF
+002880         END-IF
+002890         IF WA-STATUS = "7"
+002900            PERFORM A001-CHECK-SRHR THRU A001-SRHR-EXIT
+002910            IF DBIOMOD-STAT = "****"
+002920              IF WA-CURR-STATUS = '01'
+002930                  MOVE "8"       TO SRHR-STATUS
+002940                  MOVE "REWRITE" TO DBIOMOD-FUNCTION
+002950                  PERFORM A006-ACCESS-SRHR   THRU A006-EXIT
+002960              ELSE
+002970                  MOVE "0"       TO SRHR-STATUS
+002980                  MOVE "REWRITE" TO DBIOMOD-FUNCTION
+002990                  PERFORM A006-ACCESS-SRHR   THRU A006-EXIT
+003000              END-IF
+003010            END-IF
+003020         ELSE
+003030            IF WA-CURR-STATUS = '01'
+003040              PERFORM A001-CHECK-SRHR THRU A001-SRHR-EXIT
+R40088*----------------------START OF IR 19040088----------------------*
+R40088              IF SRHR-HOLD-REASON(1:2) NOT = '11' AND '12'
+R40088                                             AND '15'
+R40088*----------------------END   OF IR 19040088----------------------*
+003090              IF DBIOMOD-STAT = "****"
+003100                 MOVE "7"       TO SRHR-STATUS
+003110                 MOVE "REWRITE" TO DBIOMOD-FUNCTION
+003120                 PERFORM A006-ACCESS-SRHR   THRU A006-EXIT
+003130              END-IF
+R40088*----------------------START OF IR 19040088----------------------*
+R40088              END-IF
+R40088*----------------------END OF IR 19040088----------------------*
+003170            ELSE
+003180              MOVE WA-FROM-ACCT-NO TO INVM-ACCT-NO
+003190              PERFORM A001-READ-INVM THRU A099-READ-INVM-EXIT
+003200              IF DBIO-CALL-STATUS = "****"
+003210                PERFORM R300-READ-DEPP THRU R399-READ-DEPP-EXIT
+003220                IF UT0200-CALL-STATUS NOT = ZEROES
+003230                  DISPLAY   "STATUS: " UT0200-CALL-STATUS
+003240                ELSE
+003250                  INITIALIZE UTAVBL-CALL-AREA
+003260                  EVALUATE ACCT-PARM-OD-INDICATOR
+003270                  WHEN "Y"
+003280                       MOVE 09         TO   UTAVBL-CALL-CODE
+003290                  WHEN "N"
+003300                       MOVE 03         TO   UTAVBL-CALL-CODE
+003310                  END-EVALUATE
+003320                  PERFORM A009-COMPARE-BAL THRU A009-EXIT
+003330                END-IF
+003340              END-IF
+003350            END-IF
+003360         END-IF
+PSOARC*********************START OF IR 262484 *************************
+003380            PERFORM C400-COMMIT        THRU C499-EXIT
+PSOARC*********************END OF IR 262484 *************************
+003400       WHEN 1403
+003410          CONTINUE
+003420       WHEN OTHER
+003430         DISPLAY " UTSRH1(A008): 'SRHR' FETCH ERROR, SQLCODE-"
+003440         SQLCODE
+003450     END-EVALUATE.
+003460 A008-EXIT.
+003470 EXIT.
+003480*-----------------------------------------------------------------
+003490
+003500
+003510
+003520 C000-CALC-AVAIL-BAL.
+003530***************START OF IR 23070083************************
+HHHHHH         INITIALIZE UTAVBL-REPOST-TXN
+HHHHHH                    UTAVBL-TXN-DT
+003560***************END OF IR 23070083**************************
+003570      CALL  "UTAVBL" USING UTAVBL-CALL-AREA
+003580                           WA-INVM-RECORD-AREA
+003590                           UT0200-CALL-PARAMS.
+003600 C099-CALC-EXIT.
+003610     EXIT.
+003620
+003630 A001-READ-INVM.
+003640     MOVE "003" TO SOC-NO
+003650     MOVE SPACES          TO DBIO-CALL-STATUS.
+003660     MOVE "INVM"          TO DBIO-CALL-SYS-AREA.
+003670     MOVE 01              TO DBIO-CALL-FUNC.
+003680     MOVE WA-INVM-KEY     TO DBIO-CALL-KEY-AREA.
+003690     CALL "DBIO" USING
+003700                       DBIO-CALL-PARAM
+003710                       DBIO-CALL-SYS-AREA
+003720                       DBIO-CALL-KEY-AREA
+003730                       DBIO-CALL-STATUS
+003740                       WA-INVM-RECORD-AREA
+003750                       DBIO-CALL-REFER-AREA.
+003760     IF  DBIO-CALL-STATUS NOT = "****" AND "MRNF"
+003770         DISPLAY " UTSRH1(A001): 'INVM' READ ERROR, STAT-"
+003780                  DBIO-CALL-STATUS
+003790     END-IF.
+003800 A099-READ-INVM-EXIT.
+003810  EXIT.
+003820
+003830 A200-READ-BORM.
+003840     MOVE "003"           TO BORM-SOC-NUMBER
+003850     MOVE SPACES          TO DBIO-CALL-STATUS.
+003860     MOVE "BORM"          TO DBIO-CALL-SYS-AREA.
+003870     MOVE 01              TO DBIO-CALL-FUNC.
+003880     MOVE WA-BORM-KEY     TO DBIO-CALL-KEY-AREA.
+003890     CALL "DBIO" USING
+003900                       DBIO-CALL-PARAM
+003910                       DBIO-CALL-SYS-AREA
+003920                       DBIO-CALL-KEY-AREA
+003930                       DBIO-CALL-STATUS
+003940                       WA-BORM-RECORD-AREA
+003950                       DBIO-CALL-REFER-AREA.
+003960     IF  DBIO-CALL-STATUS NOT = "****" AND "MRNF"
+003970         DISPLAY " UTSRH1(A200): 'BORM' READ ERROR, STAT-"
+003980                  DBIO-CALL-STATUS
+003990     END-IF.
+004000 A299-READ-BORM-EXIT.
+004010  EXIT.
+004020 R300-READ-DEPP.
+004030     MOVE SOC-NO           TO UT0200-CALL-SOC-NO.
+004040     MOVE INVM-ACCT-TYPE   TO UT0200-CALL-ACCT-TYPE-A.
+004050     MOVE INVM-INT-CAT     TO UT0200-CALL-INT-CAT-A.
+004060     MOVE 0                TO UT0200-CALL-INDEX.
+004070     MOVE 02               To UT0200-CALL-CODE.
+004080     CALL "UT0200"         USING
+004090                           UT0200-CALL-PARAMS.
+004100 R399-READ-DEPP-EXIT.
+004110  EXIT.
+004120
+004130
+004140 A001-CHECK-SRHR.
+004150     MOVE 0            TO DBIOMOD-KEY-NO
+004160     MOVE "READ"       TO DBIOMOD-FUNCTION
+004170     MOVE "003"        TO WS-INST-NO
+004180     MOVE WA-FROM-ACCT-NO    TO WS-FROM-ACCT-NO
+004190     MOVE WA-HOLD-APPLY-TIME TO WS-PROS-TIME
+004200     MOVE WA-HOLD-APPLY-DT   TO WS-PROS-DATE
+004210     MOVE WS-SRHR-KEY        TO DBIOMOD-KEY
+004220     PERFORM A006-ACCESS-SRHR   THRU A006-EXIT.
+004230 A001-SRHR-EXIT.
+004240 EXIT.
+MMMMMM*
+MMMMMM*----------START OF CR 24080027-----------
+MMMMMM A004-WRITE-SRHR.
+MMMMMM         EXEC SQL
+MMMMMM           INSERT INTO SRHR(
+MMMMMM                   INST_NO,
+MMMMMM                   FROM_ACCT_NO,
+MMMMMM                   HOLD_APPLY_DT,
+MMMMMM                   HOLD_APPLY_TIME,
+MMMMMM                   TO_ACCT_NO,
+MMMMMM                   FROM_SYS,
+MMMMMM                   TO_SYS,
+MMMMMM                   SI_HOLD_AMT,
+MMMMMM                   AMT_CURR,
+MMMMMM                   BRANCH,
+MMMMMM                   STATUS,
+MMMMMM                   ERR_CODE,
+MMMMMM                   PRIORITY,
+MMMMMM                   CHASE_FLAG,
+MMMMMM                   SI_HOLD_FLAG,
+MMMMMM                   HOLD_REASON,
+MMMMMM                   JRNL_NO,
+MMMMMM                   FILLER)
+MMMMMM            VALUES('003',:WA-FROM-ACT,
+MMMMMM                         :WA-TODAY-DATE-DDMMCCYY,
+MMMMMM                         :WS-SYSTEM-TIME-R,
+MMMMMM                         :WA-TO-ACT,
+MMMMMM                         :WA-SYS1,
+MMMMMM                         :WA-SYS2,
+MMMMMM                         :WA-PART-AMT,
+MMMMMM                         :WA-AM,
+MMMMMM                         :WA-BR,
+MMMMMM                         :WA-ST,
+MMMMMM                         :WA-ERR,
+MMMMMM                         :WA-PR,
+MMMMMM                         :WA-CHASE,
+MMMMMM                         :WA-HF,
+MMMMMM                         :WA-HR,
+MMMMMM                         :WA-JR-NO,' ')
+MMMMMM               END-EXEC
+MMMMMM          IF SQLCODE <> ZEROES
+MMMMMM             DISPLAY
+MMMMMM              "UTSRH1 :(A004) ERROR IN A004-WRITE-SRHR PARA"
+MMMMMM              SQLCODE
+MMMMMM          END-IF.
+MMMMMM A004-SRHR-EXIT.
+MMMMMM EXIT.
+MMMMMM*-----------END OF CR 24080027-----------
+004730
+004740 A006-ACCESS-SRHR.
+004750     MOVE "SRHR"                    TO DBIOMOD-FILE
+004760                                       DBIOMOD-SUFFIX.
+004770     MOVE "DBIO"                    TO DBIOMOD-PREFIX.
+004780     MOVE SPACES                    TO DBIOMOD-RELEASE-LOCK
+004790                                       DBIOMOD-ACCESS-COMMAND
+004800                                       DBIOMOD-ACCESS-COND
+004810                                       DBIOMOD-STATUS.
+004820     CALL DBIOMODNAME            USING DBIOMOD-FILE
+004830                                       DBIOMOD-KEY
+004840                                       SRHR-AREA
+004850                                       DBIOMOD-FUNCTION
+004860                                       DBIOMOD-KEY-NO
+004870                                       DBIOMOD-RELEASE-LOCK
+004880                                       DBIOMOD-ACCESS-COMMAND
+004890                                       DBIOMOD-ACCESS-COND
+004900                                       DBIOMOD-STATUS.
+004910     IF DBIOMOD-STAT NOT = "****" AND "MRNF"
+004920        MOVE "N" TO UT8500CA-CALL-CODE
+004930        MOVE SPACES TO UT8500CA-INPUT-MSG
+004940        STRING "UTSRH1(A006): ERROR IN READING SRHR"
+004950              "/FUNCTION:" DBIOMOD-FUNCTION
+004960              "/STATUS:"   DBIOMOD-STAT
+004970              "/KEY:"      DBIOMOD-KEY
+004980        DELIMITED BY SIZE INTO UT8500CA-INPUT-MSG
+004990        CALL "UT8500" USING UT8500CA-AREA
+005000     END-IF.
+005010 A006-EXIT.
+005020 EXIT.
+005030
+005040 A009-COMPARE-BAL.
+005050    IF WA-PREV-ACCT-NO = WA-FROM-ACCT-NO
+005060       IF WA-AVBL-CURR-BAL >=  WA-SI-HOLD-AMT
+005070          SUBTRACT WA-SI-HOLD-AMT FROM WA-AVBL-CURR-BAL
+005080         PERFORM A001-CHECK-SRHR THRU A001-SRHR-EXIT
+005090         IF DBIOMOD-STAT = "****"
+005100            MOVE "1"       TO SRHR-STATUS
+005110            IF WA-TO-SYS = "LON"
+005120              MOVE "97"      TO SRHR-PRIORITY
+005130            ELSE
+005140              MOVE "98"      TO SRHR-PRIORITY
+005150            END-IF
+005160            MOVE "REWRITE" TO DBIOMOD-FUNCTION
+005170            PERFORM A006-ACCESS-SRHR   THRU A006-EXIT
+005180         END-IF
+MMMMMM*---------START OF CR 24080027-----------------------
+MMMMMM        ELSE
+MMMMMM           INITIALIZE WS-TEMP-SRHR-KEY
+MMMMMM           MOVE UTAVBL-AVAIL-BAL TO WA-AVBL-CURR-BAL
+MMMMMM           IF (WA-AVBL-CURR-BAL >= WM-SI-PART-AMT)
+MMMMMM               MOVE WA-AVBL-CURR-BAL TO WA-PART-AMT
+MMMMMM              SUBTRACT WA-AVBL-CURR-BAL FROM WA-SI-HOLD-AMT
+MMMMMM              PERFORM A001-CHECK-SRHR THRU A001-SRHR-EXIT
+MMMMMM             IF DBIOMOD-STAT = "****"
+MMMMMM               MOVE WS-SRHR-KEY    TO WS-TEMP-SRHR-KEY
+MMMMMM               IF WA-TO-SYS = "LON"
+MMMMMM                 MOVE SRHR-FROM-ACCT-NO TO WA-FROM-ACT
+MMMMMM                 MOVE SRHR-TO-ACCT-NO   TO WA-TO-ACT
+MMMMMM                 MOVE SRHR-FROM-SYS     TO WA-SYS1
+MMMMMM                 MOVE SRHR-TO-SYS       TO WA-SYS2
+MMMMMM                 MOVE "1"               TO WA-ST
+MMMMMM                 MOVE SRHR-PRIORITY     TO WA-PR
+MMMMMM                 MOVE "0"               TO WA-ERR
+MMMMMM                 MOVE SRHR-AMT-CURR     TO WA-AM
+MMMMMM                 MOVE SRHR-BRANCH       TO WA-BR
+MMMMMM                 MOVE SRHR-CHASE-FLAG   TO WA-CHASE
+MMMMMM                 MOVE SRHR-HOLD-FLAG    TO WA-HF
+MMMMMM                 MOVE SRHR-HOLD-REASON  TO WA-HR
+MMMMMM                 MOVE "0"               TO WA-JR-NO
+MMMMMM                 PERFORM A110-GET-TODAY-DATE THRU A119-EXIT
+MMMMMM                 PERFORM A004-WRITE-SRHR THRU A004-SRHR-EXIT
+MMMMMM                 IF SQLCODE = ZEROES
+MMMMMM                   MOVE "0"              TO SRHR-STATUS
+MMMMMM                   MOVE WA-SI-HOLD-AMT   TO SRHR-SI-HOLD-AMT
+MMMMMM                   MOVE "97"             TO SRHR-PRIORITY
+MMMMMM                   MOVE WS-TEMP-SRHR-KEY TO DBIOMOD-KEY
+005500                   MOVE "REWRITE"        TO DBIOMOD-FUNCTION
+005510                   PERFORM A006-ACCESS-SRHR   THRU A006-EXIT
+005520                 END-IF
+005530                 END-IF
+005540               END-IF
+005550             END-IF
+MMMMMM*----------END OF CR 24080027--------------------
+005570      END-IF
+005580    END-IF
+005590    IF WA-PREV-ACCT-NO <> WA-FROM-ACCT-NO
+005600      PERFORM C000-CALC-AVAIL-BAL THRU C099-CALC-EXIT
+005610      COMPUTE UTAVBL-AVAIL-BAL = UTAVBL-AVAIL-BAL +
+005620                                 INVM-SI-HOLD-AMT
+005630      IF UTAVBL-AVAIL-BAL >= WA-SI-HOLD-AMT
+005640         MOVE INVM-MEMB-CUST-AC TO WA-PREV-ACCT-NO
+005650         MOVE UTAVBL-AVAIL-BAL TO WA-AVBL-CURR-BAL
+005660         SUBTRACT WA-SI-HOLD-AMT FROM WA-AVBL-CURR-BAL
+005670         PERFORM A001-CHECK-SRHR THRU A001-SRHR-EXIT
+005680          IF DBIOMOD-STAT = "****"
+005690             MOVE "1"       TO SRHR-STATUS
+005700             IF WA-TO-SYS = "LON"
+005710               MOVE "97"      TO SRHR-PRIORITY
+005720             ELSE
+005730               MOVE "98"      TO SRHR-PRIORITY
+005740             END-IF
+005750             MOVE "REWRITE" TO DBIOMOD-FUNCTION
+005760             PERFORM A006-ACCESS-SRHR   THRU A006-EXIT
+005770          END-IF
+MMMMMM*---------START OF CR 24080027-----------------------
+MMMMMM      ELSE
+MMMMMM         INITIALIZE WS-TEMP-SRHR-KEY
+MMMMMM         MOVE UTAVBL-AVAIL-BAL TO WA-AVBL-CURR-BAL
+MMMMMM         IF (WA-AVBL-CURR-BAL >= WM-SI-PART-AMT)
+MMMMMM             MOVE WA-AVBL-CURR-BAL TO WA-PART-AMT
+MMMMMM             SUBTRACT WA-AVBL-CURR-BAL FROM WA-SI-HOLD-AMT
+MMMMMM             PERFORM A001-CHECK-SRHR THRU A001-SRHR-EXIT
+MMMMMM           IF DBIOMOD-STAT = "****"
+MMMMMM               MOVE WS-SRHR-KEY    TO WS-TEMP-SRHR-KEY
+MMMMMM               IF WA-TO-SYS = "LON"
+MMMMMM                 MOVE SRHR-FROM-ACCT-NO TO WA-FROM-ACT
+MMMMMM                 MOVE SRHR-TO-ACCT-NO   TO WA-TO-ACT
+MMMMMM                 MOVE SRHR-FROM-SYS     TO WA-SYS1
+MMMMMM                 MOVE SRHR-TO-SYS       TO WA-SYS2
+MMMMMM                 MOVE "1"               TO WA-ST
+MMMMMM                 MOVE SRHR-PRIORITY     TO WA-PR
+MMMMMM                 MOVE "0"               TO WA-ERR
+MMMMMM                 MOVE SRHR-AMT-CURR     TO WA-AM
+MMMMMM                 MOVE SRHR-BRANCH       TO WA-BR
+MMMMMM                 MOVE SRHR-CHASE-FLAG   TO WA-CHASE
+MMMMMM                 MOVE SRHR-HOLD-FLAG    TO WA-HF
+MMMMMM                 MOVE SRHR-HOLD-REASON  TO WA-HR
+MMMMMM                 MOVE "0"               TO WA-JR-NO
+MMMMMM                 PERFORM A110-GET-TODAY-DATE THRU A119-EXIT
+MMMMMM                 PERFORM A004-WRITE-SRHR THRU A004-SRHR-EXIT
+MMMMMM                 IF SQLCODE = ZEROES
+MMMMMM                   MOVE "0"              TO SRHR-STATUS
+MMMMMM                   MOVE WA-SI-HOLD-AMT   TO SRHR-SI-HOLD-AMT
+MMMMMM                   MOVE "97"             TO SRHR-PRIORITY
+MMMMMM                   MOVE WS-TEMP-SRHR-KEY TO DBIOMOD-KEY
+006090                   MOVE "REWRITE"        TO DBIOMOD-FUNCTION
+006100                   PERFORM A006-ACCESS-SRHR   THRU A006-EXIT
+006110                 END-IF
+006120               END-IF
+006130           END-IF
+006140         END-IF
+MMMMMM*----------END OF CR 24080027--------------------
+006160      END-IF
+006170    END-IF.
+006180 A009-EXIT.
+006190 EXIT.
+006200
+006210
+006220 C400-COMMIT.
+006230     MOVE 25           TO DBIO-CALL-FUNC.
+006240     MOVE SPACES       TO DBIO-CALL-STATUS.
+006250     CALL "DBIO" USING    DBIO-CALL-PARAM
+006260                          DBIO-CALL-SYS-AREA
+006270                          DBIO-CALL-KEY
+006280                          DBIO-CALL-STATUS.
+006290     IF DBIO-CALL-STATUS NOT = "****"
+006300        DISPLAY " COMMIT FAILED "
+006310              " STATUS " DBIO-CALL-STATUS
+006320        MOVE 26        TO DBIO-CALL-FUNC
+006330        MOVE SPACES    TO DBIO-CALL-STATUS
+006340        CALL "DBIO" USING DBIO-CALL-PARAM
+006350                          DBIO-CALL-SYS-AREA
+006360                          DBIO-CALL-KEY
+006370                          DBIO-CALL-STATUS
+006380        IF DBIO-CALL-STATUS NOT = "****"
+006390           DISPLAY "UTSRH1(C400): ROLLBACK FAILED"
+006400        END-IF
+006410     END-IF.
+006420 C499-EXIT.
+006430     EXIT.
+006440 I000-CLOSE-PARA.
+006450     MOVE 91          TO DBIO-CALL-FUNC.
+006460     CALL "DBIO"      USING  DBIO-CALL-PARAM
+006470                             DBIO-CALL-SYS-AREA
+006480                             DBIO-CALL-KEY-AREA
+006490                             DBIO-CALL-STATUS.
+006500     IF DBIO-CALL-STATUS = "****"
+006510        MOVE SPACES                TO UT8500CA-INPUT-MSG
+006520        STRING "UTSRH1(I000):DATABASE IS DISCONNECTED"
+006530                DELIMITED BY SIZE INTO UT8500CA-INPUT-MSG
+006540        PERFORM T000-CALL-UT8500   THRU T999-EXIT
+006550     ELSE
+006560        MOVE SPACES TO UT8500CA-INPUT-MSG
+006570        STRING "UTSRH1(I000): DATABASE DISCONNECTING ERROR"
+006580                DELIMITED BY SIZE INTO UT8500CA-INPUT-MSG
+006590        PERFORM T000-CALL-UT8500   THRU T999-EXIT
+006600     END-IF.
+006610 I999-EXIT.
+006620     EXIT.
+006630******************************************************************
+006640 T000-CALL-UT8500.
+006650      SET UT8500CA-NORMAL-DISPLAY    TO TRUE
+006660      SET UT8500CA-RESPONSE-NOT-REQD TO TRUE
+006670      CALL "UT8500"                  USING UT8500CA-AREA.
+006680 T999-EXIT.
+006690      EXIT.
+006700
+006710******************************************************************
+MMMMMM*---------START OF CR 24080027---------------
+MMMMMM READ-CARDFILE.
+MMMMMM    INITIALIZE WM-SI-PART-AMT
+PPPPPP     IF WA-FIRST-FLAG = 'Y'
+PPPPPP        OPEN INPUT CARDFILE
+PPPPPP        IF WS-SI-REC-STATUS = 00
+PPPPPP           READ CARDFILE
+PPPPPP           MOVE WA-SI-PART-AMT TO WM-SI-PART-AMT
+PPPPPP        ELSE
+PPPPPP            MOVE ZEROS TO WM-SI-PART-AMT
+PPPPPP            DISPLAY "READ-CARDFILE:ERROR OPENING "
+PPPPPP-                          "IN PART_SI_REC_AMT.card"
+PPPPPP        END-IF
+PPPPPP        MOVE 'N' TO WA-FIRST-FLAG
+PPPPPP        CLOSE CARDFILE
+PPPPPP     END-IF.
+MMMMMM CARDFILE-EXIT.
+MMMMMM EXIT.
+PPPPPP A110-GET-TODAY-DATE.
+PPPPPP     INITIALIZE UT0030-DATE-DDMMCCYY
+PPPPPP                UT1999CA-CCYYMMDD
+MMMMMM                WA-TODAY-DATE-DDMMCCYY
+MMMMMM****-----------START OF CR 25010289----------------
+MMMMMM                WA-TODAY-DATE
+MMMMMM****---------- END OF CR 25010289-------------
+MMMMMM                WS-SYSTEM-TIME-R
+MMMMMM                UT1996CA-CALL-AREA
+PPPPPP     CALL "UT1999" USING UT1999CA-CALL-AREA
+PPPPPP     MOVE UT1999CA-DD  TO UT0030-DATE-DD.
+PPPPPP     MOVE UT1999CA-MM  TO UT0030-DATE-MM.
+PPPPPP     MOVE UT1999CA-CC  TO UT0030-DATE-CC.
+PPPPPP     MOVE UT1999CA-YY  TO UT0030-DATE-YY
+MMMMMM*--------START OF CR 25010289-------------------
+PPPPPP*    MOVE UT0030-DATE-DDMMCCYY TO WA-TODAY-DATE-DDMMCCYY.
+MMMMMM     MOVE UT1999CA-DD   TO WA-TODAY-DD
+MMMMMM     MOVE UT1999CA-MM   TO WA-TODAY-MM
+MMMMMM     MOVE UT1999CA-CC   TO WA-TODAY-CC
+MMMMMM     MOVE UT1999CA-YY   TO WA-TODAY-YY
+MMMMMM     MOVE WA-TODAY-DATE TO WA-TODAY-DATE-DDMMCCYY
+MMMMMM*--------END OF CR 25010289-------------------
+007120     MOVE 0                    TO UT1996CA-CALL-CODE
+007130     CALL "UT1996"          USING UT1996CA-CALL-AREA
+007140     MOVE UT1996CA-TIME
+007150                                  TO WS-SYSTEM-TIME-R
+007160     IF UT1996CA-RETURN-CODE  NOT = 0
+007170        MOVE SPACES            TO UT8500CA-INPUT-MSG
+007180      STRING "UTSRH1:(A110) BAD RETURN FROM UT1996, STATUS = "
+007190             UT1996CA-RETURN-CODE
+007200             DELIMITED BY SIZE INTO UT8500CA-INPUT-MSG
+007210      PERFORM T000-CALL-UT8500 THRU T999-EXIT
+MMMMMM     END-IF.
+PPPPPP A119-EXIT.
+PPPPPP     EXIT.
+MMMMMM*---------END OF CR 24080027-------------
+
