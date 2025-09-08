@@ -1,1 +1,101 @@
 
+<?php
+// Minimal error reporting: keep low in production, raise during debugging
+error_reporting(1);
+//$con = mysql_connect("localhost","root","");
+//$db = mysql_select_db('pso_port',$con);
+/*$con = oci_connect("MONITORP","password","opdb");
+if (!$con) {
+   $m = oci_error();
+   echo "<span class='btn btn-danger'>".$m['message']."</span>";
+   //exit;
+}
+else {
+   //print "Connected to Oracle!";
+}*/
+
+$protocol="https://";
+$ip=$_SERVER['SERVER_ADDR'];
+$hostname=$protocol.$_SERVER['SERVER_ADDR'];
+include("includes/function_apr.php");
+date_default_timezone_set("Asia/Kolkata");
+
+// ---------- Safe file-read helpers ----------
+/**
+ * Read full file contents safely. Returns '' if not readable.
+ */
+function read_safe($path) {
+    if (!file_exists($path) || !is_readable($path)) return '';
+    $c = @file_get_contents($path);
+    return ($c === false) ? '' : $c;
+}
+
+/**
+ * Read file into lines safely. Returns [] if not readable or empty.
+ */
+function read_lines_safe($path) {
+    if (!file_exists($path) || !is_readable($path)) return [];
+    $a = @file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    return ($a === false) ? [] : $a;
+}
+// ---------- End helpers ----------
+
+$getDDcrr = $_GET['date'] ?? '';
+$mldate = trim(read_safe("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+if(empty($getDDcrr)){
+    $crdate  = $mldate;
+} else {
+    $crdate  = $getDDcrr;
+}
+
+// Build path for portal main bulk file and read safely
+$portalMainFile = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Portal_Main_Bulk_File.txt_" . $crdate;
+$portalLines = read_lines_safe($portalMainFile);
+
+// Extract MasterDecider safely: first line, first CSV field
+$MasterDecider = '';
+if (count($portalLines) > 0) {
+    $firstLine = trim($portalLines[0]);
+    if ($firstLine !== '') {
+        $parts = explode(',', $firstLine);
+        if (is_array($parts) && count($parts) > 0) {
+            $MasterDecider = trim($parts[0]);
+        }
+    }
+}
+// If still empty, fallback to safe default (PR)
+if ($MasterDecider === '') {
+    $MasterDecider = 'PR';
+}
+
+switch($MasterDecider){
+    case "SUTLEJ":
+            $DBdecider='PR';
+            break;
+    case "KRISHNA":
+            $DBdecider='DR(No Auto Switch)';
+            break;
+    case "HIMALAYA":
+            $DBdecider='NR(No Auto Switch)';
+            break;
+    default:
+            $DBdecider='PR';
+            break;
+}
+
+// Read nslookup safely
+$nslookup = trim(read_safe("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/nslookup.txt"));
+
+//token
+
+function encrypt_decrypt($action, $string) {
+    if ($action == 'encrypt'){
+        $output = base64_encode(bin2hex($string));
+    }else if($action == 'decrypt'){
+        $output = pack("H*",base64_decode($string));
+    }
+    return $output;
+}
+
+/* previous commented-out alternative implementations kept intact */
+?>
