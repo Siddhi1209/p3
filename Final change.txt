@@ -1,1 +1,44 @@
-[Mon Sep 08 14:35:22.968824 2025] [php:notice] [pid 430910] [client 10.0.6.124:53965] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, bool given in /var/www/html/pace/Online_portal/includes/eodFunct.php:4\nStack trace:\n#0 /var/www/html/pace/Online_portal/includes/eodFunct.php(565): datablank->checkblank(false)\n#1 /var/www/html/pace/Online_portal/pages/eodFile.php(666): eod->sync_table()\n#2 /var/www/html/pace/Online_portal/pages/eod.php(466): include('/var/www/html/p...')\n#3 {main}\n  thrown in /var/www/html/pace/Online_portal/includes/eodFunct.php on line 4, referer: https://10.0.40.8:9090/pace/Online_portal/pages/eod.php?date=20250907
+
+<?php
+error_reporting(1);
+$protocol="https://";
+$ip=$_SERVER['SERVER_ADDR'];
+$hostname=$protocol.$_SERVER['SERVER_ADDR'];
+include("includes/function.php");
+date_default_timezone_set("Asia/Kolkata");
+
+$getDDcrr = $_GET['date'];
+$mldate = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+        if(empty($getDDcrr)){
+                $crdate  = $mldate;
+        }
+        else{
+                $crdate  = $getDDcrr;
+        }
+$MasterDecider=array_shift(explode(",",array_shift(file("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Portal_Main_Bulk_File.txt_$crdate"))));
+switch($MasterDecider){
+        case "SUTLEJ":
+                $DBdecider='PR';
+                break;
+        case "KRISHNA":
+                $DBdecider='DR(No Auto Switch)';
+                break;
+        case "HIMALAYA":
+                $DBdecider='NR(No Auto Switch)';
+                break;
+        default:
+                $DBdecider='PR';
+                break;
+}
+$nslookup=trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/nslookup.txt"));
+
+function encrypt_decrypt($action, $string) {
+    if ($action == 'encrypt'){
+        $output = base64_encode(bin2hex($string));
+    }else if($action == 'decrypt'){
+        $output = pack("H*",base64_decode($string));
+    }
+    return $output;
+}
+
+?>
