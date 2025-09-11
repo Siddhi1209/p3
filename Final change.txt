@@ -1,1 +1,64 @@
 
+<?php
+error_reporting(1);
+$protocol = "https://";
+$ip = $_SERVER['SERVER_ADDR'];
+$hostname = $protocol . $_SERVER['SERVER_ADDR'];
+include("includes/function.php");
+date_default_timezone_set("Asia/Kolkata");
+
+$getDDcrr = $_GET['date'] ?? '';
+$mldate = trim(@file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+
+if (empty($getDDcrr)) {
+    $crdate  = $mldate;
+} else {
+    $crdate  = $getDDcrr;
+}
+
+$filePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Portal_Main_Bulk_File.txt_$crdate";
+
+if (file_exists($filePath) && is_readable($filePath)) {
+    $fileLines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    if ($fileLines !== false && !empty($fileLines)) {
+        $firstLine = array_shift($fileLines);
+        $parts = explode(",", $firstLine);
+        $MasterDecider = array_shift($parts);
+    } else {
+        $MasterDecider = "PR"; // fallback if file empty
+        error_log("Config.php: File $filePath is empty");
+    }
+} else {
+    $MasterDecider = "PR"; // fallback if file missing
+    error_log("Config.php: File $filePath not found or not readable");
+}
+
+switch ($MasterDecider) {
+    case "SUTLEJ":
+        $DBdecider = 'PR';
+        break;
+    case "KRISHNA":
+        $DBdecider = 'DR(No Auto Switch)';
+        break;
+    case "HIMALAYA":
+        $DBdecider = 'NR(No Auto Switch)';
+        break;
+    default:
+        $DBdecider = 'PR';
+        break;
+}
+
+$nslookup = trim(@file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/nslookup.txt"));
+
+function encrypt_decrypt($action, $string) {
+    if ($action == 'encrypt') {
+        $output = base64_encode(bin2hex($string));
+    } else if ($action == 'decrypt') {
+        $output = pack("H*", base64_decode($string));
+    } else {
+        $output = null;
+    }
+    return $output;
+}
+?>
