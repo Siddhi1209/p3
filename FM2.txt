@@ -1,262 +1,132 @@
-Got it 👍 You want a complete lecture script (without slides) that you can directly use when speaking. I’ll write it like a flowing classroom explanation, with examples, analogies, and small pauses so it feels natural.
 
-
----
-
-🎤 Full Lecture Script: UNIX File System, Directories & Kernel
-
-
----
-
-1. Introduction
-
-“Good morning everyone,
-
-Today we are going to learn about the UNIX File System and Directories, and also the Kernel, which is the core of UNIX.
-
-One special thing about UNIX is that everything is treated as a file. Whether it is a program, a text document, a directory, or even hardware like a printer or a hard disk – UNIX sees it as a file.
-
-The UNIX file system provides a tree-like structure to store and organize all these files.”
-
-
----
-
-2. UNIX File System Hierarchy
-
-“Let’s start with the structure.
-
-At the very top, there is the root directory, written as a single forward slash /.
-
-From this root, all other directories branch out, just like branches of a tree.
-
-Some important directories are:
-
-/bin – stores essential UNIX commands like ls, cp, and mv.
-
-/etc – contains system configuration files, like user accounts and network settings.
-
-/home – this is where each user gets their personal space. For example, /home/siddhi.
-
-/usr – contains applications and libraries installed for users.
-
-/var – holds variable data like log files and emails.
-
-/tmp – is for temporary files, which get deleted automatically after some time.
-
-
-So, you can imagine the UNIX file system as a family tree, where the root / is the ancestor, and all other directories are children and grandchildren.”
-
-
----
-
-3. Types of Files
-
-“In UNIX, not all files are the same. We have different types:
-
-1. Regular files – these are normal files that contain text, data, or programs.
-
-
-2. Directories – special files that store other files.
-
-
-3. Device files – represent hardware like disks and terminals. For example, /dev/sda represents a hard disk.
-
-
-4. Links – shortcuts to files.
-
-
-5. Sockets and FIFOs – used for communication between programs.
-
-
-
-So, UNIX treats everything as a file, but depending on the type, they serve different purposes.”
-
-
----
-
-4. Important Directory Examples
-
-“Let me quickly explain with examples:
-
-If you type cd /etc in the terminal, you go inside the configuration files folder.
-
-If you type ls /bin, you will see commands stored there, like cat, echo, and grep.
-
-If you go to /home, you will see directories for each user. For example, /home/student1, /home/student2.
-
-
-This makes it very organized.”
-
-
----
-
-5. Pathnames
-
-“There are two ways to refer to files in UNIX:
-
-Absolute path – starts from the root /.
-Example: /home/siddhi/docs/file.txt.
-
-Relative path – starts from the current working directory.
-Example: docs/file.txt.
-
-
-To check where you are, you use pwd.
-To change directory, you use cd.
-And to list files, you use ls.
-
-So these three commands – pwd, cd, and ls – are your best friends in UNIX.”
-
-
----
-
-6. Directory Commands
-
-“To manage directories, we have simple commands:
-
-mkdir to make a new directory.
-
-rmdir to remove an empty directory.
-
-If installed, tree can show the whole directory structure in a nice tree format.
-
-
-Example:
-
-mkdir project
-cd project
-mkdir src bin doc
-
-Now, inside project, you have three folders: src, bin, and doc.”
-
-
----
-
-7. File System Operations
-
-“In UNIX, we often need to handle files:
-
-View files → cat, more, less.
-
-Copy → cp.
-
-Move or rename → mv.
-
-Delete → rm.
-
-Permissions → ls -l to check, and chmod to change.
-
-
-This is how we interact with files on a daily basis.”
-
-
----
-
-8. Inodes
-
-“Now, every file in UNIX is identified by something called an inode.
-
-Think of the inode as the ID card of a file. It doesn’t store the file’s content but it stores information about the file, such as:
-
-File type,
-
-Size,
-
-Owner and permissions,
-
-Timestamps (created, modified, accessed),
-
-And where the actual data blocks are stored on disk.
-
-
-So whenever UNIX needs to find or open a file, it looks at the inode.”
-
-
----
-
-9. Special Files: Device Files, Links, Sockets, and FIFOs
-
-“Some files are special:
-
-Device Files: They are like remote controls for hardware. Example: /dev/null discards everything written to it, like a black hole.
-
-Links: Shortcuts. A hard link is like giving another name to the same file, while a soft link (symbolic link) is like a Windows shortcut pointing to the original.
-
-Sockets: These are communication channels between programs, like a telephone line. Example: web server and browser talk using sockets.
-
-FIFOs (Named Pipes): These act like queues. The first program that writes goes first, the second waits in line, and so on – like a shop counter.”
-
-
-
----
-
-10. The Kernel
-
-“Now comes the most important part – the Kernel.
-
-The Kernel is the core of the UNIX operating system.
-It is always running in the background.
-
-What does it do?
-
-1. Process Management – decides which program runs and when.
-
-
-2. Memory Management – gives RAM to programs, and uses virtual memory if RAM is full.
-
-
-3. File System Management – handles file operations, permissions, and inodes.
-
-
-4. Device Management – talks to hardware through drivers.
-
-
-5. System Calls & Security – provides services like opening files, and ensures one user cannot access another’s private files.
-
-
-
-👉 In simple words: The Kernel is the brain of UNIX. It manages CPU, memory, files, and devices, and acts as a bridge between software and hardware.
-
-If we draw a small diagram, it looks like this:
-
-Applications (like ls, cat, editor)
-        ↑
-      Shell (command line)
-        ↑
-      Kernel (the brain)
-        ↑
-Hardware (CPU, Memory, Devices)
-
-So the kernel is in the middle – controlling everything.”
-
-
----
-
-11. Recap
-
-“To summarize today’s lecture:
-
-The UNIX file system is hierarchical, starting with root /.
-
-Important directories are /bin, /etc, /home, /usr, /var, and /tmp.
-
-Everything in UNIX is treated as a file – even devices and communication channels.
-
-Inodes store the identity of files.
-
-Special files include device files, links, sockets, and FIFOs.
-
-And finally, the Kernel is the brain of UNIX, managing all resources and bridging hardware with software.
-
-
-That’s all for today. Thank you! Now I’d be happy to take any questions.”
-
-
----
-
-✅ This is a ready-made lecture script. You can read it as it is, or adjust the tone to your style.
-
-Would you like me to also prepare a one-page cheat sheet (summary) you can carry with you while teaching, just in case you forget something?
-
-
-
+<?php
+        include("../config.php");
+        $mldate = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+        $sys_stat = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/sys_stat1.txt"));
+        $getDDcrr = $_GET['date'];
+        if(empty($getDDcrr)){
+                $crdate  = $mldate;
+        }
+        else{
+                $crdate  = $getDDcrr;
+        }
+        $dateyear=trim(substr($crdate,0,4));
+        $dateyearmonth=trim(substr($crdate,0,6));
+        //$currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/".$dateyear."/".$dateyearmonth."/".$crdate."/";
+        $prevdate=date("Ymd",strtotime("-1 day",strtotime($crdate)));
+        if($mldate == $crdate){
+                $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/";
+        }
+        else{
+                $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/".$dateyear."/".$dateyearmonth."/".$crdate."/";
+        }
+
+        $filecontent=file("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/mrmax_conn.txt");
+        foreach ($filecontent as $line_num => $line) {
+                        $var = explode(":",$line);
+                        $data.= "<tr>";
+                                if($var[1]>0){
+                                        $style="style='color:red;'";
+                                        $style="style='color:white;background-color:red;'";
+                                }
+                                else{
+                                        $style="style='color:black;'";
+                                        $style="style='color:black;background-color:white;'";
+                                }
+                                $data.="<td class='text-center'$style>".($line_num+1)."</td>";
+                                $data.="<td class='text-center' $style>".$var[0]."</td>";
+                                $data.="<td class='text-center' $style>".$var[1]."</td>";
+                        $data.= "</tr>";
+                }
+
+?>
+<!DOCTYPE html>
+<html>
+<head>
+        <meta charset="UTF-8">
+        <?php header("Cache-Control:no-cache,must-revalidate");?>
+    <title>UPI(MR) Max Connection Status for 9 APPS</title>
+        <meta http-equiv="refresh" content="600">
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <link href="../css/bootstrap.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../font-awesome/css/font-awesome.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../css/AdminLTE.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../css/skins/_all-skins.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../css/compactPage.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+        <link href="../css/normalize.min.css" rel="stylesheet" >
+        <link href="../css/progress.css" rel="stylesheet" >
+        <link rel="shortcut icon" href="SBI_log.ico" type="image/x-icon">
+        <link href="../css/darklight.css" rel="stylesheet" type="text/css" />
+        <link href="../swal/swal.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+
+        <div id="dateModal" class="modal fade" role="dialog">
+                <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                                  <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                         <h4 class="panel-heading modal-title ">Enter Date </h4>
+                                  </div>
+                                  <div class="modal-body text-center">
+                                        <input type="date" class="form-control" id="ll" onchange="pageRedirection()" required>  <br>
+                                  </div>
+                        </div>
+                </div>
+        </div>
+        <style>
+        @media(max-width:990px)
+        {
+                #myheader.main-header{
+                        display: none !important;
+                }
+        }
+        .noCursor{
+                cursor:default !important;
+        }
+        .bg-tcs{
+                backgrounnd-color:#486092;
+        }
+        </style>
+</head>
+<body class="skin-blue sidebar-collapse" oncontextmenu="return false;">
+        <div class="col-md-12">
+                <div class="box box-primary box-solid">
+                        <div class="box-header bg-tcs-active">
+                                <h3 class="box-title">UPI(MR) Max Connection Status for 9 APPS</h3>
+                                <span style="float:right;font-size:18px;color:white;"><i class="fa fa-clock-o"></i> <?php echo shell_exec("ls -lrt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/mrmax_conn.txt|awk '{print $6,$7,$8}'");?></span>
+                        </div>
+                        <div class="box-body table-responsive">
+                                <table class="table table-bordered table-striped text-center" id="mrconnection">
+                                  <thead>
+                                                <tr>
+                                                        <th style="border:2px solid black;color:black;" class="text-center">#</th>
+                                                        <th style="border:2px solid black;color:black;" class="text-center">Server-APP Number</th>
+                                                        <th style="border:2px solid black;color:black;" class="text-center">MR Max Connection</th>
+                                                </tr>
+                                  </thead>
+                                  <tbody>
+                                                <?php echo $data;?>
+                                  </tbody>
+                                </table>
+                        </div>
+                </div>
+        </div>
+        <script src="../js/jQuery-2.1.3.min.js?x=<?php echo rand(5555,9999); ?>"></script>
+        <script src="../js/bootstrap.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
+        <script src="../js/app.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
+        <script src="../swal/swal.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
+        <script type="text/javascript">
+                $(document).ready(function() {
+                        swal ({
+                                title:"Don't Burden Me !",
+                                button:false,
+                                classname:"green-bg",
+                                text: "Please Close When Done",
+                                icon:"info",
+                                closeOnClickOutside:false,
+                                timer:1000
+                        })
+                        window.setTimeout(function (){
+                           window.close();
+                        },200000)
+                } );
+        </script>
