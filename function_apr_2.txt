@@ -1,1 +1,58 @@
 
+function brjobs(){
+    $data = explode("\n", file_get_contents($this->currpath."BR0501_details_9apps.txt.".$this->datecrr));
+    if(parent::checkblank($data)){ echo parent::checkblank($data); }
+
+    foreach ($data as $key2 => $value2) {
+        $vare = explode(",",$value2);
+        array_pop($vare);
+        echo "<tr>";
+
+        foreach ($vare as $k2 => $v2) {
+            switch($v2){
+                case "Master" : $server="m"; $job="BR0501";break;
+                case "Slave1" : $server="s1";$job="BR0501";break;
+                case "Slave2" : $server="s2";$job="BR0501";break;
+                case "Slave3" : $server="s3";$job="BR0501";break;
+                case "Slave4" : $server="s4";$job="BR0501";break;
+                case "Slave5" : $server="s5";$job="BR0501";break;
+                case "Slave6" : $server="s6";$job="BR0501";break;
+                case "Slave7" : $server="s7";$job="BR0501";break;
+                case "Slave8" : $server="s8";$job="BR0501";break;
+                case "Slave9" : $server="s9";$job="BR0501";break;
+                case "Slave10": $server="s10";$job="BR0501";break;
+                case "Slave11": $server="s11";$job="BR0501";break;
+                case "Slave12": $server="s12";$job="BR0501";break;
+                case "Slave13": $server="s13";$job="BR0501";break;
+                case "Slave14": $server="s14";$job="BR0501";break;
+                case "Slave15": $server="s15";$job="BR0501";break;
+            }
+
+            if($k2 == '0' && $vare != '' && $v2 != 'Total' ){
+                echo "<th style='background-color:#1f3f92;color:white;' class='text-center'>
+                        <a target='_blank' style='color:white' 
+                           href='job_status.php?job=$job&server=$server&date=".$this->datecrr."'>".$v2."</a>
+                      </th>";
+            }
+            elseif($key2 > 15 ){
+                if($k2 == 10){
+                    // ✅ safe division and casting
+                    $denominator = (float)($vare[6] ?? 0);
+                    $numerator   = (float)($vare[7] ?? 0);
+                    $percent     = ($denominator > 0) ? ($numerator * 100 / $denominator) : 0;
+
+                    echo "<td style='background-color:green;color:white;' class='text-center'>"
+                            .number_format($percent,2)."</td>";
+                }
+                else{
+                    echo "<th style='background-color:green;color:white;' class='text-center'>".$v2."</th>";
+                }
+            }
+            else {
+                echo "<td>".$v2."</td>";
+            }
+        }
+
+        echo "</tr>";
+    }
+}
