@@ -1,1 +1,37 @@
 
+public function sys_utl6() {
+    $filePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/bncr0004_pace_8app.txt." . $this->datecrr;
+
+    if (!file_exists($filePath)) {
+        echo "<tr><td colspan='17' class='text-center'>System Context file not found.</td></tr>";
+        return;
+    }
+
+    // Read file safely, skip empty lines
+    $data = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    foreach ($data as $line) {
+        $cols = explode(":", $line);
+        $fieldName = isset($cols[0]) ? trim($cols[0]) : "";
+
+        echo "<tr>";
+        echo "<th>" . htmlspecialchars($fieldName) . "</th>";
+
+        for ($i = 1; $i <= 16; $i++) {
+            $value = isset($cols[$i]) ? trim($cols[$i]) : "";
+
+            // Highlight OPERATIONAL FLAG specially
+            if (strcasecmp($fieldName, "OPERATIONAL FLAG") === 0) {
+                if (strcasecmp($value, "READY") !== 0) {
+                    echo "<td class='blink-red'>" . htmlspecialchars($value) . "</td>";
+                } else {
+                    echo "<td class='green-ok'>" . htmlspecialchars($value) . "</td>";
+                }
+            } else {
+                echo "<td>" . htmlspecialchars($value) . "</td>";
+            }
+        }
+
+        echo "</tr>";
+    }
+}
