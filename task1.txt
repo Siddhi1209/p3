@@ -1,1 +1,53 @@
+public function sys_utl6() {
+    // File and date check using MFLAGS
+    $mflagsPath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS";
+    $contextPath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/bncr0004_pace_8app.txt." . $this->datecrr;
+
+    // Check if MFLAGS exists and contains today's date
+    $today = date("Ymd");
+    if (!file_exists($mflagsPath)) {
+        echo "<tr><td colspan='17' class='text-center'>MFLAGS file not present.</td></tr>";
+        return;
+    }
+
+    $mflagsDate = trim(file_get_contents($mflagsPath));
+    if ($mflagsDate !== $today) {
+        echo "<tr><td colspan='17' class='text-center'>System Context Block file is not from today ($today).</td></tr>";
+        return;
+    }
+
+    // Now check if context file exists
+    if (!file_exists($contextPath)) {
+        echo "<tr><td colspan='17' class='text-center'>System Context Block file not found.</td></tr>";
+        return;
+    }
+
+    // Read context file
+    $data = file($contextPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    foreach ($data as $line) {
+        $cols = explode(":", $line);
+        $fieldName = isset($cols[0]) ? trim($cols[0]) : "";
+
+        echo "<tr>";
+        echo "<th>" . htmlspecialchars($fieldName) . "</th>";
+
+        for ($i = 1; $i <= 16; $i++) {
+            $value = isset($cols[$i]) ? trim($cols[$i]) : "";
+
+            // Special formatting for OPERATIONAL FLAG
+            if (strcasecmp($fieldName, "OPERATIONAL FLAG") === 0) {
+                if (strcasecmp($value, "READY") !== 0) {
+                    echo "<td class='blink-red'>" . htmlspecialchars($value) . "</td>";
+                } else {
+                    echo "<td class='green-ok'>" . htmlspecialchars($value) . "</td>";
+                }
+            } else {
+                echo "<td>" . htmlspecialchars($value) . "</td>";
+            }
+        }
+
+        echo "</tr>";
+    }
+}
 
