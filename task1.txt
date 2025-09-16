@@ -1,1 +1,39 @@
-[Sun Sep 14 13:36:38.221243 2025] [php:notice] [pid 1613089] [client 10.0.6.131:55175] PHP Fatal error:  Uncaught TypeError: Unsupported operand types: null + string in /var/www/html/pace/Online_portal/includes/eodFunct.php:448\nStack trace:\n#0 /var/www/html/pace/Online_portal/pages/eodFile.php(395): eod->injobs()\n#1 /var/www/html/pace/Online_portal/pages/eod.php(466): include('/var/www/html/p...')\n#2 {main}\n  thrown in /var/www/html/pace/Online_portal/includes/eodFunct.php on line 448, referer: https://10.0.40.8:9090/pace/Online_portal/pages/eod.php
+public function sys_utl6() {
+    $filePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/bncr0004_pace_8app.txt." . $this->datecrr;
+
+    if (!file_exists($filePath)) {
+        echo "<tr><td colspan='17' class='text-center'>System Context file not found.</td></tr>";
+        return;
+    }
+
+    $data = explode("\n", file_get_contents($filePath));
+
+    foreach ($data as $line) {
+        if (trim($line) == "") continue;
+
+        $cols = explode(":", $line);
+        $fieldName = isset($cols[0]) ? trim($cols[0]) : "";
+        echo "<tr>";
+
+        // ?? First column is the field name
+        echo "<th>" . $fieldName . "</th>";
+
+        for ($i = 1; $i <= 16; $i++) {
+            $value = isset($cols[$i]) ? trim($cols[$i]) : "";
+
+            // ?? Apply blinking red if OPERATIONAL FLAG is not READY
+            if (strtoupper($fieldName) == "OPERATIONAL FLAG") {
+                if (strtoupper($value) !== "READY") {
+                    echo "<td class='blink-red'>" . $value . "</td>";
+                } else {
+                    echo "<td class='green-ok'>" . $value . "</td>";
+                }
+            } else {
+                echo "<td>" . $value . "</td>";
+            }
+        }
+
+        echo "</tr>";
+    }
+}
+
