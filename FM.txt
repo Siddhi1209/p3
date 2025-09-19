@@ -1,44 +1,743 @@
-<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 context_block">
-        <div class="panel panel-primary">
-            <div class="panel-heading bg-tcs-active">
-                <a title="System Context Monitor" target="_blank" href="IG_heat/buildup_gapplot.php?dqp=ALL&region=online&date=<?php echo date('Y-m-d', strtotime($crdate)); ?>" style="float:left;text-decoration:none;">
-                    <i style="color:white;" class="fa fa-rss"></i>
-                </a>
-                <span style="float:right;font-size:18px;">
-                    <img src="loading-bubbles.svg"><?php echo $eod->timeUpdatedContextBlock(); ?>
-                </span>
-                System Context Block
-            </div>
-            <div class="panel-body table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>Context Block Fields</th>
-                            <th>Master</th>
-                            <th>Slave1</th>
-                            <th>Slave2</th>
-                            <th>Slave3</th>
-                            <th>Slave4</th>
-                            <th>Slave5</th>
-                            <th>Slave6</th>
-                            <th>Slave7</th>
-                            <th>Slave8</th>
-                            <th>Slave9</th>
-                            <th>Slave10</th>
-                            <th>Slave11</th>
-                            <th>Slave12</th>
-                            <th>Slave13</th>
-                            <th>Slave14</th>
-                            <th>Slave15</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $eod->sys_utl6(); ?>
-                    </tbody>
-                </table>
-            </div>
+
+<?php
+        include("../config.php");
+        $mldate = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+        $sys_stat = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/sys_stat1.txt"));
+        $getDDcrr = $_GET['date'];
+        if(empty($getDDcrr)){
+                $crdate  = $mldate;
+        }
+        else{
+                $crdate  = $getDDcrr;
+        }
+
+        $gateway=$_GET["type"];
+        $dateyear=trim(substr($crdate,0,4));
+        $dateyearmonth=trim(substr($crdate,0,6));
+        //$currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/".$dateyear."/".$dateyearmonth."/".$crdate."/";
+        $prevdate=date("Ymd",strtotime("-1 day",strtotime($crdate)));
+        if($mldate == $crdate){
+                $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/";
+        }
+        else{
+                $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/".$dateyear."/".$dateyearmonth."/".$crdate."/";
+        }
+function fileextract($filecontent,$delimiter,$divid,$tableid,$crdate){
+        $timing=shell_exec('ll -lrt '. $filecontent.'| tr -s " "|cut -d " " -f8|tail -1');
+        $gateway=$_GET["type"];
+        $data.="<div class='col-md-4' id='$divid'>";
+                        $data.="<div class='box box-primary box-solid'>";
+                                $data.="<div class='box-header text-center'>";
+                                  $data.="<h3 class='box-title'>$gateway Gateway - $divid -<span style='float:right;font-size:18px;color:black;'> $timing <span style='color:white'> on </span> $crdate </span></h3>";
+                                $data.="</div>";
+                                $data.="<div class='panel-body table-responsive'>";
+                                        $data.="<table class='table table-bordered table-striped text-center' id='$tableid'>";
+                                                $data.= "<thead>";
+                                                        $data.= "<tr style='background-color:#b0e2ff;'>";
+                                                                $data.= "<th class='text-center '>Gateway Name</th>";
+                                                                $data.= "<th class='text-center '>System Time</th>";
+                                                                $data.= "<th class='text-center colorred'>Last Update Time</th>";
+                                                                $data.= "<th class='text-center colorgreen'>Start Time</th>";
+                                                        $data.= "</tr>";
+                                                $data.= "</thead>";
+                                                $data.= "<tbody>";
+                                                $filecontentfinal=file($filecontent);
+                                                foreach ($filecontentfinal as $line_num => $line) {
+                                                        $var = explode($delimiter,$line);
+                                                        $data.= "<tr>";
+                                                                foreach ($var as $index => $eachtd) {
+                                                                        $data.="<td class='text-center' >".$eachtd."</td>";
+                                                                }
+                                                        $data.= "</tr>";
+                                                }
+                                                $data.= "</tbody>";
+                                        $data.= "</table><a href='gatewaymore.php?type=$gateway&&date=$crdate'>Back to top</a><br/><br/>";
+                                $data.= "</div>";
+                        $data.= "</div>";
+                $data.= "</div> ";
+return ($data);
+}
+
+//Function for MR 20200206
+function mrExtract($currpath,$delimiter,$crdate){
+        $filecontentfinal=explode("\n",shell_exec("cd $currpath;paste -d '|' maximumconn_i.out_$crdate maximumconn_I.out_$crdate maximumconn_a.out_$crdate maximumconn_b.out_$crdate maximumconn_c.out_$crdate maximumconn_d.out_$crdate maximumconn_e.out_$crdate maximumconn_f.out_$crdate maximumconn_g.out_$crdate;cd /var/www/html/pace/Online_portal/pages"));
+        array_pop($filecontentfinal);
+        foreach ($filecontentfinal as $line_num => $line){
+                $var = explode($delimiter,$line);
+                        $data.= "<tr>";
+
+                        foreach ($var as $index => $eachtd){
+                                if(trim($eachtd)!=""){
+                                        $data.="<td class='text-center' >".$eachtd."</td>";
+                                }
+                                else{
+                                        $data.="<td class='text-center'></td>";
+                                }
+                        }
+                        $data.= "</tr>";
+                }
+                /*elseif($var[$line_num]==""){
+                        $data.= "<tr>";
+                                $data.="<td class='text-center'>-</td>";
+                        $data.= "</tr>";
+                }*/
+return $data;
+}
+
+
+if($gateway=="B24") {
+        $finaldata =fileextract($currpath."timing_b24_m.txt.".$crdate," ","Master","example",$crdate);
+        $finaldata1=fileextract($currpath."timing_b24_s1.txt.".$crdate," ","Slave1","example1",$crdate);
+        $finaldata2=fileextract($currpath."timing_b24_s2.txt.".$crdate," ","Slave2","example2",$crdate);
+        $finaldata3=fileextract($currpath."timing_b24_s3.txt.".$crdate," ","Slave3","example3",$crdate);
+        $finaldata4=fileextract($currpath."timing_b24_s4.txt.".$crdate," ","Slave4","example4",$crdate);
+        $finaldata5=fileextract($currpath."timing_b24_s5.txt.".$crdate," ","Slave5","example5",$crdate);
+        $finaldata6=fileextract($currpath."timing_b24_s6.txt.".$crdate," ","Slave6","example6",$crdate);
+        $finaldata7=fileextract($currpath."timing_b24_s7.txt.".$crdate," ","Slave7","example7",$crdate);
+        $finaldata8=fileextract($currpath."timing_b24_s8.txt.".$crdate," ","Slave8","example8",$crdate);
+}elseif($gateway=="RTGS") {
+        $finaldata=fileextract($currpath."timing_rtgs_m.txt.".$crdate," ","Master","example",$crdate);
+        $finaldata1=fileextract($currpath."timing_rtgs_s1.txt.".$crdate," ","Slave1","example1",$crdate);
+        $finaldata2=fileextract($currpath."timing_rtgs_s2.txt.".$crdate," ","Slave2","example2",$crdate);
+        $finaldata3=fileextract($currpath."timing_rtgs_s3.txt.".$crdate," ","Slave3","example3",$crdate);
+        $finaldata4=fileextract($currpath."timing_rtgs_s4.txt.".$crdate," ","Slave4","example4",$crdate);
+        $finaldata5=fileextract($currpath."timing_rtgs_s5.txt.".$crdate," ","Slave5","example5",$crdate);
+        $finaldata6=fileextract($currpath."timing_rtgs_s6.txt.".$crdate," ","Slave6","example6",$crdate);
+        $finaldata7=fileextract($currpath."timing_rtgs_s7.txt.".$crdate," ","Slave7","example7",$crdate);
+        $finaldata8=fileextract($currpath."timing_rtgs_s8.txt.".$crdate," ","Slave8","example8",$crdate);
+}
+elseif($gateway=="Trickle") {
+        $finaldata= fileextract($currpath."timing_tric_m.txt.".$crdate," ","Master","example",$crdate);
+        $finaldata1=fileextract($currpath."timing_tric_s1.txt.".$crdate," ","Slave1","example1",$crdate);
+        $finaldata2=fileextract($currpath."timing_tric_s2.txt.".$crdate," ","Slave2","example2",$crdate);
+        $finaldata3=fileextract($currpath."timing_tric_s3.txt.".$crdate," ","Slave3","example3",$crdate);
+        $finaldata4=fileextract($currpath."timing_tric_s4.txt.".$crdate," ","Slave4","example4",$crdate);
+        $finaldata5=fileextract($currpath."timing_tric_s5.txt.".$crdate," ","Slave5","example5",$crdate);
+        $finaldata6=fileextract($currpath."timing_tric_s6.txt.".$crdate," ","Slave6","example6",$crdate);
+        $finaldata7=fileextract($currpath."timing_tric_s7.txt.".$crdate," ","Slave7","example7",$crdate);
+        $finaldata8=fileextract($currpath."timing_tric_s8.txt.".$crdate," ","Slave8","example8",$crdate);
+}
+elseif($gateway=="MR") {
+
+        $dateseven=date("Ymd",strtotime("-6 days",strtotime($crdate)));
+        //$daterange=range($finaldata,date("Ymd"));
+        //print_r($daterange);
+        for($i=strtotime($dateseven);$i<=strtotime(date('Ymd'));$i+=86400){
+                $daterange[]=date("Ymd",$i);
+        }
+        //print_r($daterange);
+        $finaldata= mrExtract($currpath,"|",$daterange[6]);
+        $finaldata1= mrExtract($currpath,"|",$daterange[5]);
+        $finaldata2= mrExtract($currpath,"|",$daterange[4]);
+        $finaldata3= mrExtract($currpath,"|",$daterange[3]);
+        $finaldata4= mrExtract($currpath,"|",$daterange[2]);
+        $finaldata5= mrExtract($currpath,"|",$daterange[1]);
+        $finaldata6= mrExtract($currpath,"|",$daterange[0]);
+
+}
+?>
+<!DOCTYPE html>
+<html>
+<head>
+        <meta charset="UTF-8">
+        <?php header("Cache-Control:no-cache,must-revalidate");?>
+    <title><?php echo $gateway; ?>_Details</title>
+        <meta http-equiv="refresh" content="600">
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <link href="../css/bootstrap.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../font-awesome/css/font-awesome.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../css/AdminLTE.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../css/skins/_all-skins.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../css/compactPage.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="../dtable/jquery.dataTables.min.css" type="text/css" >
+        <link rel="stylesheet" href="../dtable/buttons.dataTables.min.css" type="text/css">
+        <link rel="stylesheet" href="../dtable/fixedHeader.bootstrap.css" type="text/css">
+        <link href="../css/normalize.min.css" rel="stylesheet" >
+        <link href="../css/progress.css" rel="stylesheet" >
+        <link rel="shortcut icon" href="SBI_log.ico" type="image/x-icon">
+        <link href="../css/darklight.css" rel="stylesheet" type="text/css" />
+        <link href="../swal/swal.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+
+        <div id="dateModal" class="modal fade" role="dialog">
+                <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                                  <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                         <h4 class="panel-heading modal-title ">Enter Date </h4>
+                                  </div>
+                                  <div class="modal-body text-center">
+                                        <input type="date" class="form-control" id="ll" onchange="pageRedirection()" required>  <br>
+                                  </div>
+                        </div>
+                </div>
         </div>
-    </div>
-</div>
+        <style>
+                @media(max-width:990px)
+                {
+                        #myheader.main-header{
+                                display: none !important;
+                        }
+                }
+                .noCursor{
+                        cursor:default !important;
+                }
+                .bg-tcs{
+                        backgrounnd-color:#486092;
+                }
+        </style>
+</head>
+<body class="skin-blue sidebar-collapse" oncontextmenu="return false;">
+                <?php if($gateway=="B24") { ?>
+                        <section class="content">
+                                <a style="margin-bottom:2px;/*margin-left:15px;*/" href="#Master" class="btn btn-md bg-aqua-active ">Master</a>
+                                <a style="margin-bottom:2px;/*margin-left:81px*/;" href="#Slave1" class="btn btn-md bg-aqua-active ">Slave1</a>
+                                <a style="margin-bottom:2px;/*margin-left:166px*/;"href="#Slave2" class="btn btn-md bg-aqua-active ">Slave2</a>
+                                <a style="margin-bottom:2px;/*margin-left:251px*/;"href="#Slave3" class="btn btn-md bg-aqua-active ">Slave3</a>
+                                <a style="margin-bottom:2px;/*margin-left:251px*/;"href="#Slave4" class="btn btn-md bg-aqua-active ">Slave4</a>
+                                <a style="margin-bottom:2px;/*margin-left:336px*/;"href="#Slave5" class="btn btn-md bg-aqua-active ">Slave5</a>
+                                <a style="margin-bottom:2px;/*margin-left:336px*/;"href="#Slave6" class="btn btn-md bg-aqua-active ">Slave6</a>
+                                <a style="margin-bottom:2px;/*margin-left:336px*/;"href="#Slave7" class="btn btn-md bg-aqua-active ">Slave7</a>
+                                <a style="margin-bottom:2px;/*margin-left:336px*/;"href="#Slave8" class="btn btn-md bg-aqua-active ">Slave8</a>
+                                <div class="row">
+                                <center> <h3 class="box-title">B24 Gateway Status</h3> </center>
+                                        <?php echo $finaldata;?>
+                                        <?php echo $finaldata1;?>
+                                        <?php echo $finaldata2;?>
+                                </div>
+                                <div class="row">
+                                        <?php echo $finaldata3;?>
+                                        <?php echo $finaldata4;?>
+                                        <?php echo $finaldata5;?>
+                                </div>
+                                <div class="row">
+                                        <?php echo $finaldata6;?>
+                                        <?php echo $finaldata7;?>
+                                        <?php echo $finaldata8;?>
+                                </div>
+                        </section>
+                <?php }elseif($gateway=="ATM") { ?>
+                        <div class="col-md-3">
+                                <div class="small-box bg-navy-active">
+                                        <div class="inner">
+                                                        <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $yummy->timeUpdated("atmib.txt",".");?></span>
+                                                        <h4>ATM Count
+                                                                <div class="btn-group">
+                                                                        <button type="button" class="btn btn-xs btn-danger">ATM / INB Links</button>
+                                                                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="height:20px;">
+                                                                                <span class="caret" style="margin-top: -10px;"></span>
+                                                                                <span class="sr-only">Toggle Dropdown</span>
+                                                                        </button>
+                                                                        <ul class="dropdown-menu">
+                                                                                <li><a onclick="window.open('/cgi-bin/trials/bip/data/TESTING/atm_inb_summary_6apps.cgi','','height=600, width=600,scrollbars=yes,resizable=yes' );">ATM and INB Summary </a></li>
+                                                                                <li role="separator" class="divider"></li>
+                                                                                <li><a onclick="window.open('<?php echo $hostname;?>/cgi-bin/trials/bip/data/TESTING/test_atm_count.cgi','','height=600, width=600,scrollbars=yes,resizable=yes' );">   ATM online offline Summary</a></li>
+                                                                                <li role="separator" class="divider"></li>
+                                                                                <li><a onclick="window.open('<?php echo $hostname;?>/cgi-bin/trials/bip/data/multidate_atm.cgi','','height=600, width=600,scrollbars=yes,resizable=yes' );">ATM Errors </a></li>
+                                                                                <li role="separator" class="divider"></li>
+                                                                                <li><a onclick="window.open('<?php echo $hostname;?>/cgi-bin/trials/bip/data/TESTING/test_inberr.cgi_new?mldate=<?php echo $crrdate; ?>','','height=600, width=600,scrollbars=yes,resizable=yes' );">INB Errors </a></li>
+                                                                                <li role="separator" class="divider"></li>
+                                                                                <li><a onclick="window.open('<?php echo $hostname;?>/cgi-bin/trials/bip/data/TESTING/8APPS/test_inb_start.cgi?mldate=<?php echo $crrdate; ?>','','height=600, width=600,scrollbars=yes,resizable=yes' );">INB RESTART TIME </a></li>
+                                                                        </ul>
+                                                                </div>
+                                                        </h4>
+                                                <div class="table-responsive">
+                                                        <table class="table table-bordered table-striped text-center">
+                                                                <thead>
+                                                                        <tr>
+                                                                                <th style="color:green">Online</th>
+                                                                                <th style="color:red">Offline</th>
+                                                                        </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                        <tr>
+                                                                                <?php $rtgs->atm_online();      ?>
+                                                                        </tr>
+                                                                </tbody>
+                                                        </table>
+                                                </div>
+                                        </div>
+                                </div>
+                        </div>
+                        <!-- Gateway MR -->
+                        <?php } else if($gateway=="MR") { ?>
 
+                                <div class="col-md-12">
+                                        <div class="box box-primary box-solid">
+                                                <div class="box-header bg-info-active">
+                                                        <h3 class="box-title"><?php echo $gateway;?> Maximum Connection Count</h3>
+                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("NNEF_REPOST_FAIL","_");?></span>
+                                                </div>
+                                                <div class="box-body table-responsive">
+                                                        <table class="table table-bordered table-striped text-center">
+                                                                <thead>
+                                                                        <tr>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Master</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave1</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave2</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave3</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave4</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave5</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave6</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave7</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave8</span></th>
+                                                                        </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                        <?php echo $finaldata;?>
+                                                                </tbody>
+                                                        </table>
+                                                </div>
+                                        </div>
+                                </div>
+                                <!--<div class="col-md-12">
+                                        <div class="box box-primary box-solid">
+                                                <div class="box-header bg-info-active">
+                                                        <h3 class="box-title"><?php echo $gateway;?> Maximum Connection Count</h3>
+                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("NNEF_REPOST_FAIL","_");?></span>
+                                                </div>
+                                                <div class="box-body table-responsive">
+                                                        <table class="table table-bordered table-striped text-center">
+                                                                <thead>
+                                                                        <tr>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Master</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave1</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave2</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave3</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave4</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave5</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave6</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave7</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave8</span></th>
+                                                                        </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                        <?php echo $finaldata1;?>
+                                                                </tbody>
+                                                        </table>
+                                                </div>
+                                        </div>
+                                </div>
+                                <div class="col-md-12">
+                                        <div class="box box-primary box-solid">
+                                                <div class="box-header bg-info-active">
+                                                        <h3 class="box-title"><?php echo $gateway;?> Maximum Connection Count</h3>
+                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("NNEF_REPOST_FAIL","_");?></span>
+                                                </div>
+                                                <div class="box-body table-responsive">
+                                                        <table class="table table-bordered table-striped text-center">
+                                                                <thead>
+                                                                        <tr>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Master</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave1</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave2</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave3</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave4</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave5</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave6</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave7</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave8</span></th>
+                                                                        </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                        <?php echo $finaldata2;?>
+                                                                </tbody>
+                                                        </table>
+                                                </div>
+                                        </div>
+                                </div>
+                                <div class="col-md-12">
+                                        <div class="box box-primary box-solid">
+                                                <div class="box-header bg-info-active">
+                                                        <h3 class="box-title"><?php echo $gateway;?> Maximum Connection Count</h3>
+                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("NNEF_REPOST_FAIL","_");?></span>
+                                                </div>
+                                                <div class="box-body table-responsive">
+                                                        <table class="table table-bordered table-striped text-center">
+                                                                <thead>
+                                                                        <tr>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Master</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave1</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave2</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave3</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave4</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave5</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave6</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave7</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave8</span></th>
+                                                                        </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                        <?php echo $finaldata3;?>
+                                                                </tbody>
+                                                        </table>
+                                                </div>
+                                        </div>
+                                </div>
+                                <div class="col-md-12">
+                                        <div class="box box-primary box-solid">
+                                                <div class="box-header bg-info-active">
+                                                        <h3 class="box-title"><?php echo $gateway;?> Maximum Connection Count</h3>
+                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("NNEF_REPOST_FAIL","_");?></span>
+                                                </div>
+                                                <div class="box-body table-responsive">
+                                                        <table class="table table-bordered table-striped text-center">
+                                                                <thead>
+                                                                        <tr>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Master</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave1</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave2</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave3</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave4</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave5</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave6</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave7</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave8</span></th>
+                                                                        </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                        <?php echo $finaldata4;?>
+                                                                </tbody>
+                                                        </table>
+                                                </div>
+                                        </div>
+                                </div>
+                                <div class="col-md-12">
+                                        <div class="box box-primary box-solid">
+                                                <div class="box-header bg-info-active">
+                                                        <h3 class="box-title"><?php echo $gateway;?> Maximum Connection Count</h3>
+                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("NNEF_REPOST_FAIL","_");?></span>
+                                                </div>
+                                                <div class="box-body table-responsive">
+                                                        <table class="table table-bordered table-striped text-center">
+                                                                <thead>
+                                                                        <tr>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Master</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave1</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave2</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave3</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave4</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave5</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave6</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave7</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave8</span></th>
+                                                                        </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                        <?php echo $finaldata5;?>
+                                                                </tbody>
+                                                        </table>
+                                                </div>
+                                        </div>
+                                </div>
+                                <div class="col-md-12">
+                                        <div class="box box-primary box-solid">
+                                                <div class="box-header bg-info-active">
+                                                        <h3 class="box-title"><?php echo $gateway;?> Maximum Connection Count</h3>
+                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("NNEF_REPOST_FAIL","_");?></span>
+                                                </div>
+                                                <div class="box-body table-responsive">
+                                                        <table class="table table-bordered table-striped text-center">
+                                                                <thead>
+                                                                        <tr>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Master</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave1</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave2</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave3</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave4</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave5</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave6</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave7</span></th>
+                                                                                <th><span class="btn btn-md bg-aqua-active ">Slave8</span></th>
+                                                                        </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                        <?php echo $finaldata6;?>
+                                                                </tbody>
+                                                        </table>
+                                                </div>
+                                        </div>
+                                </div>-->
+                        <?php } else if($gateway=="INB") { ?>
 
+                                <div class="col-md-3">
+                                        <div class="small-box bg-tcs-active">
+                                                <div class="inner">
+                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("atmib.txt",".");?></span>
+                                                        <h4><?php echo $gateway;?> Count</h4>
+                                                        <div class="table-responsive">
+                                                                <table class="table table-bordered table-striped text-center">
+                                                                        <thead>
+                                                                                <tr>
+                                                                                        <th style="color:blue">Total</th>
+                                                                                        <th style="color:green">Successful</th>
+                                                                                        <th style="color:red">Failure</th>
+                                                                                        <th style="color:#371fa3">Pending</th>
+                                                                                </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                                <tr>
+                                                                                        <?php $rtgs->inb_offline();?>
+                                                                                </tr>
+                                                                        </tbody>
+                                                                </table>
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                        <?php } else if($gateway=="Trickle") { ?>
+                        <section class="content">
+                                <a style="margin-bottom:2px;/*margin-left:15px;*/" href="#Master" class="btn btn-md bg-aqua-active ">Master</a>
+                                <a style="margin-bottom:2px;/*margin-left:81px*/;" href="#Slave1" class="btn btn-md bg-aqua-active ">Slave1</a>
+                                <a style="margin-bottom:2px;/*margin-left:166px*/;"href="#Slave2" class="btn btn-md bg-aqua-active ">Slave2</a>
+                                <a style="margin-bottom:2px;/*margin-left:251px*/;"href="#Slave3" class="btn btn-md bg-aqua-active ">Slave3</a>
+                                <a style="margin-bottom:2px;/*margin-left:251px*/;"href="#Slave4" class="btn btn-md bg-aqua-active ">Slave4</a>
+                                <a style="margin-bottom:2px;/*margin-left:336px*/;"href="#Slave5" class="btn btn-md bg-aqua-active ">Slave5</a>
+                                <a style="margin-bottom:2px;/*margin-left:336px*/;"href="#Slave6" class="btn btn-md bg-aqua-active ">Slave6</a>
+                                <a style="margin-bottom:2px;/*margin-left:336px*/;"href="#Slave7" class="btn btn-md bg-aqua-active ">Slave7</a>
+                                <a style="margin-bottom:2px;/*margin-left:336px*/;"href="#Slave8" class="btn btn-md bg-aqua-active ">Slave8</a>
+                                <div class="row">
+                                 <center> <h3 class="box-title"><?php echo $gateway;?> Status</h3> </center>
+                                        <?php echo $finaldata;?>
+                                        <?php echo $finaldata1;?>
+                                        <?php echo $finaldata2;?>
+                                </div>
+                                <div class="row">
+                                        <?php echo $finaldata3;?>
+                                        <?php echo $finaldata4;?>
+                                        <?php echo $finaldata5;?>
+                                </div>
+                                <div class="row">
+                                        <?php echo $finaldata6;?>
+                                        <?php echo $finaldata7;?>
+                                        <?php echo $finaldata8;?>
+                                </div>
+                        </section>
+                        <?php } else if($gateway=="RTGS") { ?>
+                        <section class="content">
+                                <a style="margin-bottom:2px;/*margin-left:15px;*/" href="#Master" class="btn btn-md bg-aqua-active ">Master</a>
+                                <a style="margin-bottom:2px;/*margin-left:81px*/;" href="#Slave1" class="btn btn-md bg-aqua-active ">Slave1</a>
+                                <a style="margin-bottom:2px;/*margin-left:166px*/;"href="#Slave2" class="btn btn-md bg-aqua-active ">Slave2</a>
+                                <a style="margin-bottom:2px;/*margin-left:251px*/;"href="#Slave3" class="btn btn-md bg-aqua-active ">Slave3</a>
+                                <a style="margin-bottom:2px;/*margin-left:251px*/;"href="#Slave4" class="btn btn-md bg-aqua-active ">Slave4</a>
+                                <a style="margin-bottom:2px;/*margin-left:336px*/;"href="#Slave5" class="btn btn-md bg-aqua-active ">Slave5</a>
+                                <a style="margin-bottom:2px;/*margin-left:336px*/;"href="#Slave6" class="btn btn-md bg-aqua-active ">Slave6</a>
+                                <a style="margin-bottom:2px;/*margin-left:336px*/;"href="#Slave7" class="btn btn-md bg-aqua-active ">Slave7</a>
+                                <a style="margin-bottom:2px;/*margin-left:336px*/;"href="#Slave8" class="btn btn-md bg-aqua-active ">Slave8</a>
+                                <div class="row">
+                                        <center> <h3 class="box-title"><?php echo $gateway;?> Status</h3> </center>
+                                        <?php echo $finaldata;?>
+                                        <?php echo $finaldata1;?>
+                                        <?php echo $finaldata2;?>
+                                </div>
+                                <div class="row">
+                                        <?php echo $finaldata3;?>
+                                        <?php echo $finaldata4;?>
+                                        <?php echo $finaldata5;?>
+                                </div>
+                                <div class="row">
+                                        <?php echo $finaldata6;?>
+                                        <?php echo $finaldata7;?>
+                                        <?php echo $finaldata8;?>
+                                </div>
+                        </section>
+
+                        <?php } else if($gateway=="NEFT") { ?>
+                                <div class="col-md-6">
+                                        <div class="small-box bg-tcs-active">
+                                                <div class="inner">
+                                                  <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("neftall.txt",".");?></span>
+                                                  <h4><?php echo $gateway;?> Count</h4>
+                                                        <div class="table-responsive">
+                                                                <table class="table table-bordered table-striped">
+                                                                        <thead>
+                                                                                <tr>
+                                                                                        <th style="border:2px solid black;color:black;" class="text-center" colspan="2">Day</th>
+                                                                                        <th style="border:2px solid black;color:black;" class="text-center" colspan="2">Night</th>
+                                                                                        <th style="border:2px solid black;color:black;" class="text-center" colspan="2">Reposting Failures</th>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                        <th style="border:2px solid black;color:black;" class="text-center">OutGoing</th>
+                                                                                        <th style="border:2px solid black;color:black;" class="text-center">Incoming</th>
+                                                                                        <th style="border:2px solid black;color:black;" class="text-center">OutGoing</th>
+                                                                                        <th style="border:2px solid black;color:black;" class="text-center">Incoming</th>
+                                                                                        <th style="border:2px solid black;color:black;" class="text-center">Day</th>
+                                                                                        <th style="border:2px solid black;color:black;" class="text-center">Night</th>
+                                                                                </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                                <tr>
+                                                                                        <?php $rtgs->total_neft_yesterday();?>
+                                                                                </tr>
+                                                                        </tbody>
+                                                                </table>
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                                <div class="col-md-6">
+                                        <div class="small-box bg-tcs-active">
+                                                <div class="inner">
+                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("neftinvalid.txt",".");?></span>
+                                                        <h4><?php echo $gateway;?> Invalid Count</h4>
+                                                        <div class="table-responsive">
+                                                                <table class="table table-bordered table-striped">
+                                                                        <thead>
+                                                                                <tr>
+                                                                                        <th style="border:2px solid black;color:black;" class="text-center" colspan="2">INVALID COUNT</th>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                        <th style="border:2px solid black;color:black;" class="text-center">Day</th>
+                                                                                        <th style="border:2px solid black;color:black;" class="text-center">Night</th>
+                                                                                </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                                <tr>
+                                                                                        <?php $rtgs->total_neft_invalid();?>
+                                                                                </tr>
+                                                                        </tbody>
+                                                                </table>
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                                <div class="col-md-6">
+                                        <div class="box box-primary box-solid">
+                                                <div class="box-header bg-tcs-active">
+                                                        <h3 class="box-title"><?php echo $gateway;?> DAY Invalid UTR</h3>
+                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("neftinvalidspool.txt",".");?></span>
+                                                </div>
+                                                <div class="box-body table-responsive">
+                                                        <table class="table table-bordered table-striped text-center" id="exampledayneft">
+                                                                <thead>
+                                                                        <tr>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">TIME</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">UTR</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">AMOUNT</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">ACCOUNT_NO</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">CREDIT_BGL_ACCT</th>
+                                                                        </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                        <?php $rtgs->neft_invalid_utrlist("neftinvalidspool.txt");?>
+                                                                </tbody>
+                                                        </table>
+                                                </div>
+                                        </div>
+                                </div>
+                                <div class="col-md-6">
+                                        <div class="box box-primary box-solid">
+                                                <div class="box-header bg-tcs-active">
+                                                        <h3 class="box-title"><?php echo $gateway;?> Night Invalid UTR</h3>
+                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("neftinvalidspoolnight.txt",".");?></span>
+                                                </div>
+                                                <div class="box-body table-responsive">
+                                                        <table class="table table-bordered table-striped text-center" id="examplenightneft">
+                                                                <thead>
+                                                                        <tr>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">TIME</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">UTR</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">AMOUNT</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">ACCOUNT_NO</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">CREDIT_BGL_ACCT</th>
+                                                                        </tr>
+                                                                </thead>
+                                                            <tbody>
+                                                                        <?php $rtgs->neft_invalid_utrlist("neftinvalidspoolnight.txt");?>
+                                                            </tbody>
+                                                        </table>
+                                                </div>
+                                        </div>
+                                </div>
+                                <div class="col-md-12">
+                                        <div class="box box-primary box-solid">
+                                                <div class="box-header bg-info-active">
+                                                        <h3 class="box-title"><?php echo $gateway;?> REPOST FAIL Night</h3>
+                                                        <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("NNEF_REPOST_FAIL","_");?></span>
+                                                </div>
+                                                <div class="box-body table-responsive">
+                                                        <table class="table table-bordered table-striped text-center" id="exampleNNEF">
+                                                                <thead>
+                                                                        <tr>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">Journal No.</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">ERROR CODE</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">TXN</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">VIRTUAL DATE</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">UTR</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">DEBIT Account</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">Amount</th>
+                                                                                <th style="border:2px solid black;color:black;" class="text-center">Error Description</th>
+                                                                        </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                        <?php $rtgs->neft_repost_fail("NNEF_REPOST_FAIL");?>
+                                                                </tbody>
+                                                        </table>
+                                                </div>
+                                        </div>
+                                </div>
+                        <?php }  ?>
+                        <script src="../js/jQuery-2.1.3.min.js?x=<?php echo rand(5555,9999); ?>"></script>
+                        <script src="../js/bootstrap.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
+                        <script src="../js/app.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
+                        <script src="../swal/swal.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
+                        <script type="text/javascript" language="javascript" src="../dtable/jquery.dataTables.min.js"></script>
+                        <script type="text/javascript" language="javascript" src="../js/dataTables.fixedHeader.min.js"></script>
+                        <script type="text/javascript" language="javascript" src="../dtable/dataTables.buttons.min.js"></script>
+                        <script type="text/javascript" language="javascript" src="../dtable/jszip.min.js"></script>
+                        <script type="text/javascript" language="javascript" src="../dtable/pdfmake.min.js"></script>
+                        <script type="text/javascript" language="javascript" src="../dtable/vfs_fonts.js"></script>
+                        <script type="text/javascript" language="javascript" src="../dtable/buttons.html5.min.js"></script>
+                        <script src="../swal/swal.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
+                        <script type="text/javascript">
+                                $(document).ready(function (){
+                                        swal ({
+                                                title:"Don't Burden Me !",
+                                                button:false,
+                                                classname:"green-bg",
+                                                text: "Please Close When Done",
+                                                icon:"info",
+                                                closeOnClickOutside:false,
+                                                timer:1000
+                                        });
+                                        window.setTimeout(function (){
+                                           window.close();
+                                        },200000);
+                                        $('#exampledayneft').DataTable( {
+                                                order: [[ 0, "asc" ]],
+                                                dom: 'Bfrtip',
+                                                fixedHeader:true,
+                                                bSort:true,
+                                                iDisplayLength:100,
+                                                bLengthChange:false,
+                                                buttons: [
+                                                        'copyHtml5',
+                                                        'pdfHtml5'
+                                                ]
+                                        } );
+                                        $('#examplenightneft').DataTable( {
+                                                order: [[ 0, "asc" ]],
+                                                dom: 'Bfrtip',
+                                                fixedHeader:true,
+                                                bSort:true,
+                                                iDisplayLength:100,
+                                                bLengthChange:false,
+                                                buttons: [
+                                                        'copyHtml5',
+                                                        'pdfHtml5'
+                                                ]
+                                        } );
+                                        $('#exampleNNEF').DataTable( {
+                                                dom: 'Bfrtip',
+                                                fixedHeader:true,
+                                                bSort:true,
+                                                iDisplayLength:100,
+                                                bLengthChange:false,
+                                                buttons: [
+                                                        'copyHtml5',
+                                                        'pdfHtml5'
+                                                ]
+                                        } );
+                                });
+                        </script>
+						
+						
