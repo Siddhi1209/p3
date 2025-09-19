@@ -1,37 +1,124 @@
 
-public function sys_utl6() {
-    $filePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/bncr0004_pace_8app.txt." . $this->datecrr;
-
-    if (!file_exists($filePath)) {
-        echo "<tr><td colspan='17' class='text-center'>System Context file not found.</td></tr>";
-        return;
-    }
-
-    // Read file safely, skip empty lines
-    $data = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-    foreach ($data as $line) {
-        $cols = explode(":", $line);
-        $fieldName = isset($cols[0]) ? trim($cols[0]) : "";
-
-        echo "<tr>";
-        echo "<th>" . htmlspecialchars($fieldName) . "</th>";
-
-        for ($i = 1; $i <= 16; $i++) {
-            $value = isset($cols[$i]) ? trim($cols[$i]) : "";
-
-            // Highlight OPERATIONAL FLAG specially
-            if (strcasecmp($fieldName, "OPERATIONAL FLAG") === 0) {
-                if (strcasecmp($value, "READY") !== 0) {
-                    echo "<td class='blink-red'>" . htmlspecialchars($value) . "</td>";
-                } else {
-                    echo "<td class='green-ok'>" . htmlspecialchars($value) . "</td>";
-                }
-            } else {
-                echo "<td>" . htmlspecialchars($value) . "</td>";
-            }
+<?php
+        include("../config.php");
+        $mldate = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+        $sys_stat = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/sys_stat1.txt"));
+        $getDDcrr = $_GET['date'];
+        if(empty($getDDcrr)){
+                $crdate  = $mldate;
+        }
+        else{
+                $crdate  = $getDDcrr;
+        }
+        $dateyear=trim(substr($crdate,0,4));
+        $dateyearmonth=trim(substr($crdate,0,6));
+        //$currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/".$dateyear."/".$dateyearmonth."/".$crdate."/";
+        $prevdate=date("Ymd",strtotime("-1 day",strtotime($crdate)));
+        if($mldate == $crdate){
+                $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/";
+        }
+        else{
+                $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/".$dateyear."/".$dateyearmonth."/".$crdate."/";
         }
 
-        echo "</tr>";
-    }
-}
+?>
+<!DOCTYPE html>
+<html>
+<head>
+        <meta charset="UTF-8">
+        <?php header("Cache-Control:no-cache,must-revalidate");?>
+    <title>NEFT Repost Fail Details Page</title>
+        <meta http-equiv="refresh" content="600">
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <link href="../css/bootstrap.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../font-awesome/css/font-awesome.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../css/AdminLTE.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../css/skins/_all-skins.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../css/compactPage.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+        <link href="../css/normalize.min.css" rel="stylesheet" >
+        <link href="../css/progress.css" rel="stylesheet" >
+        <link rel="stylesheet" href="../dtable/jquery.dataTables.min.css" type="text/css" >
+        <link rel="stylesheet" href="../dtable/buttons.dataTables.min.css" type="text/css">
+        <link rel="stylesheet" href="../dtable/fixedHeader.bootstrap.css" type="text/css">
+        <link rel="shortcut icon" href="SBI_log.ico" type="image/x-icon">
+        <link href="../css/darklight.css" rel="stylesheet" type="text/css" />
+
+        <div id="dateModal" class="modal fade" role="dialog">
+                <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                                  <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                         <h4 class="panel-heading modal-title ">Enter Date </h4>
+                                  </div>
+                                  <div class="modal-body text-center">
+                                        <input type="date" class="form-control" id="ll" onchange="pageRedirection()" required>  <br>
+                                  </div>
+                        </div>
+                </div>
+        </div>
+        <style>
+        @media(max-width:990px)
+        {
+                #myheader.main-header{
+                        display: none !important;
+                }
+        }
+        .noCursor{
+                cursor:default !important;
+        }
+        .bg-tcs{
+                backgrounnd-color:#486092;
+        }
+        </style>
+</head>
+<body class="skin-blue sidebar-collapse" oncontextmenu="return false;">
+        <div class="col-md-6">
+                <div class="box box-primary box-solid">
+                        <div class="box-header bg-tcs-active">
+                                <h3 class="box-title">NEFT REPOST FAIL Night TOTAL</h3>
+                        </div>
+                        <div class="box-body table-responsive">
+                                <table class="table table-bordered table-striped text-center" id="neftrepost">
+                                  <thead>
+                                                <tr>
+                                                        <th style="border:2px solid black;color:black;" class="text-center">DATE</th>
+                                                        <th style="border:2px solid black;color:black;" class="text-center">Journal No.</th>
+                                                        <th style="border:2px solid black;color:black;" class="text-center">ERROR CODE</th>
+                                                        <th style="border:2px solid black;color:black;" class="text-center">TXN</th>
+                                                        <th style="border:2px solid black;color:black;" class="text-center">VIRTUAL DATE</th>
+                                                        <th style="border:2px solid black;color:black;" class="text-center">UTR</th>
+                                                </tr>
+                                  </thead>
+                                  <tbody>
+                                                <?php $rtgs->neft_repost_fail_all("NNEF_ALL.txt");?>
+                                  </tbody>
+                                </table>
+                        </div>
+                </div>
+        </div>
+        <script src="../js/jQuery-2.1.3.min.js?x=<?php echo rand(5555,9999); ?>"></script>
+        <script src="../js/bootstrap.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
+        <script src="../js/app.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
+        <script type="text/javascript" language="javascript" src="../dtable/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" language="javascript" src="../js/dataTables.fixedHeader.min.js"></script>
+        <script type="text/javascript" language="javascript" src="../dtable/dataTables.buttons.min.js"></script>
+        <script type="text/javascript" language="javascript" src="../dtable/jszip.min.js"></script>
+        <script type="text/javascript" language="javascript" src="../dtable/pdfmake.min.js"></script>
+        <script type="text/javascript" language="javascript" src="../dtable/vfs_fonts.js"></script>
+        <script type="text/javascript" language="javascript" src="../dtable/buttons.html5.min.js"></script><script type="text/javascript">
+                $(document).ready(function() {
+                        $('#neftrepost').DataTable( {
+                                order: [[ 0, "desc" ]],
+                                dom: 'Bfrtip',
+                                fixedHeader:true,
+                                bSort:true,
+                                iDisplayLength:25,
+                                bLengthChange:false,
+                                buttons: [
+                                        'copyHtml5',
+                                        'pdfHtml5'
+                                ]
+                        } );
+                        console.log(jQuery().jquery);
+                } );
+        </script>
