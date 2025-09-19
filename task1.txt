@@ -1,124 +1,105 @@
+     function gateway() {
+    date_default_timezone_set('Asia/Kolkata');
+    $date = $this->datecrr;
 
-<?php
-        include("../config.php");
-        $mldate = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
-        $sys_stat = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/sys_stat1.txt"));
-        $getDDcrr = $_GET['date'];
-        if(empty($getDDcrr)){
-                $crdate  = $mldate;
-        }
-        else{
-                $crdate  = $getDDcrr;
-        }
-        $dateyear=trim(substr($crdate,0,4));
-        $dateyearmonth=trim(substr($crdate,0,6));
-        //$currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/".$dateyear."/".$dateyearmonth."/".$crdate."/";
-        $prevdate=date("Ymd",strtotime("-1 day",strtotime($crdate)));
-        if($mldate == $crdate){
-                $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/";
-        }
-        else{
-                $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/".$dateyear."/".$dateyearmonth."/".$crdate."/";
-        }
+    $mainFilePath = $this->currpath . "gateway.txt_8app." . $date;
+    $yonoFilePath = $this->currpath . "gateway_yono.txt_8app." . $date;
+    $serverStatusPath = $this->singlepath . "Server_Status.txt";
+    $onlReStatusPath = $this->currpath . "onl_re_status.txt_" . $date;
 
-?>
-<!DOCTYPE html>
-<html>
-<head>
-        <meta charset="UTF-8">
-        <?php header("Cache-Control:no-cache,must-revalidate");?>
-    <title>NEFT Repost Fail Details Page</title>
-        <meta http-equiv="refresh" content="600">
-        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
-    <link href="../css/bootstrap.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
-    <link href="../font-awesome/css/font-awesome.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
-    <link href="../css/AdminLTE.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
-    <link href="../css/skins/_all-skins.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
-    <link href="../css/compactPage.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
-        <link href="../css/normalize.min.css" rel="stylesheet" >
-        <link href="../css/progress.css" rel="stylesheet" >
-        <link rel="stylesheet" href="../dtable/jquery.dataTables.min.css" type="text/css" >
-        <link rel="stylesheet" href="../dtable/buttons.dataTables.min.css" type="text/css">
-        <link rel="stylesheet" href="../dtable/fixedHeader.bootstrap.css" type="text/css">
-        <link rel="shortcut icon" href="SBI_log.ico" type="image/x-icon">
-        <link href="../css/darklight.css" rel="stylesheet" type="text/css" />
+    $data = file_exists($mainFilePath) ? explode("\n", trim(@file_get_contents($mainFilePath))) : [];
+    $datayono = file_exists($yonoFilePath) ? @file($yonoFilePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
+    $data1 = file_exists($serverStatusPath) ? array_pad(explode("\n", trim(@file_get_contents($serverStatusPath))), 9, 0) : array_fill(0, 9, 0);
+    $data2 = file_exists($onlReStatusPath) ? trim(@file_get_contents($onlReStatusPath)) : "0";
 
-        <div id="dateModal" class="modal fade" role="dialog">
-                <div class="modal-dialog modal-sm">
-                        <div class="modal-content">
-                                  <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                         <h4 class="panel-heading modal-title ">Enter Date </h4>
-                                  </div>
-                                  <div class="modal-body text-center">
-                                        <input type="date" class="form-control" id="ll" onchange="pageRedirection()" required>  <br>
-                                  </div>
-                        </div>
-                </div>
-        </div>
-        <style>
-        @media(max-width:990px)
-        {
-                #myheader.main-header{
-                        display: none !important;
+    $dataserver = 'Connectivity,' . implode(",", $data1);
+    $checkrc = 'Misc Job,' . $data2;
+
+    $serverarray = array('job name', 'm', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', 's11', 's12', 's13', 's14', 's15');
+
+    array_pop($data); // Remove last empty line if any
+    $data = array_merge($data, $datayono);
+    array_push($data, $dataserver, $checkrc);
+
+    if (parent::checkblank($data)) {
+        echo parent::checkblank($data);
+    }
+
+    foreach ($data as $line_num => $line) {
+        $var = explode(",", $line);
+        echo "<tr>";
+        foreach ($var as $k3 => $v3) {
+            $vall = strtoupper(trim($v3 ?? ''));
+            $server = $serverarray[$k3] ?? 'UNKNOWN';
+
+            $linkRC = "window.open('checkrc.php?servername=$server','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+            $linkTCP = ($var[0] ?? '') === 'MR Gateway' ? "window.open('maxtcp.php?servername=$server','','height=800,width=1400,scrollbars=yes,resizable=yes');" : "";
+
+            if ($k3 == 0) {
+                $gateway_type = explode(" ", $v3);
+                $dateParam = $_GET['date'] ?? $date;
+                $link = "window.open('gatewaymore.php?type={$gateway_type[0]}&&date={$dateParam}','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                echo "<th><a onclick=\"$link\">" . htmlspecialchars($v3) . "</a></th>";
+            } elseif (($var[0] ?? '') === "TF Gateway" && $k3 != 3) {
+                echo "<td style='color:black;'><i class='fa fa-minus'></i></td>";
+            } elseif ($k3 > 0 && $vall === 'RUNNING') {
+                echo "<td style='color:green;'><i class='fa fa-check'></i></td>";
+            } elseif ($k3 > 0 && $vall === 'MAXTCP') {
+                echo "<td><i style='color:red;' class='fa fa-bolt'></i></td>";
+            } elseif ($k3 > 0 && $vall === 'NOT RUNNING') {
+                echo "<td onclick=\"$linkTCP\"><i class='fa fa-close' style='color:red;'></i></td>";
+            } elseif ($k3 > 0 && str_contains($vall, 'NOT UPDATING')) {
+                echo "<td style='color:#f39c12;'><i class='fa fa-fw fa-warning'></i></td>";
+            } elseif ($k3 > 0 && $vall === 'NOT ENCRYPTED') {
+                echo "<td style='color:navy;'><i class='fa fa-fw fa-chain-broken'></i></td>";
+            } elseif ($k3 > 0 && $vall === 'RC RUNNING') {
+                echo "<td class='glow' style='color:white;' onclick=\"$linkRC\">Check RC</td>";
+            } elseif ($k3 > 0 && str_contains($vall, 'ERROR')) {
+                echo "<td class='glow' title=\"$vall\" style='color:white;'>ERROR</td>";
+            } elseif ($k3 > 0 && str_contains($vall, 'NO TXN')) {
+                echo "<td class='glow' title=\"$vall\"><i class='fa fa-exclamation'></i></td>";
+            } elseif ($k3 > 0 && str_contains($vall, 'UTP TXN')) {
+                echo "<td style='color:white;'><i title='To check if it is false or not goto monitorp/pace and fire utptxn.sh <gateway_name -- b24|atm|mr|inb>' class='fa fa-bell' style='color:red;'></i></td>";
+            } elseif ($k3 > 0 && str_contains($vall, 'TIMESTAMP FREEZED')) {
+                echo "<td class='glow' title=\"$vall\" style='color:white;'><i class='fa fa-ban'></i></td>";
+            } elseif ($k3 > 0 && str_contains($vall, 'ABORT')) {
+                echo "<td class='glow' title=\"$vall\" style='color:white;'>$vall</td>";
+            } elseif ($k3 > 0 && ($vall === 'NO CHECK RC')) {
+                echo "<td style='color:#fff;background-color:#38ada9;'>NONE</td>";
+            } elseif ($k3 > 0 && ($vall === 'NA' || $vall === 'SUNDAY')) {
+                echo "<td style='color:black;'><i class='fa fa-minus'></i></td>";
+            } elseif ($line_num == 16 && $vall === 'Y') {
+                echo "<td title='Server Up' style='color:green;'><i class='fa fa-fw fa-check'></i></td>";
+            } elseif ($line_num == 16 && $vall === 'N') {
+                echo "<td class='glow'><i class='fa fa-fw fa-close'></i></td>";
+            } elseif ($line_num == 16 && $vall == '0') {
+                echo "<td><i title='Not updating' style='color:#f39c12;' class='fa fa-fw fa-warning'></i></td>";
+            } elseif ($line_num == 17 && $vall == '0') {
+                $link = "window.open('rcdetails.php?servername=$server','','height=800,width=600,scrollbars=yes,resizable=yes');";
+                echo "<td title='Server Up' style='color:green;'><i class='fa fa-fw fa-check'></i></td>";
+            } elseif ($line_num == 17 && is_numeric($vall) && $vall > 0) {
+                $link = "window.open('rcdetails.php?servername=$server','','height=800,width=600,scrollbars=yes,resizable=yes');";
+                echo "<td onclick=\"$link\" style='cursor:pointer;' class='glow text-center' title=\"$vall\"><i style='color:white;' class='fa fa-fw fa-close'></i></td>";
+            } elseif ($line_num == 17 && $vall == '-1') {
+                $link = "window.open('rcdetails.php?servername=$server','','height=800,width=600,scrollbars=yes,resizable=yes');";
+                echo "<td onclick=\"$link\" style='cursor:pointer;' class='text-center' title=\"$vall\"><i style='color:#f39c12;' class='fa fa-fw fa-warning'></i></td>";
+            } elseif ($line_num == 11 && str_contains(trim($vall), ":")) {
+                $removeColon = str_replace(":", "", trim($vall));
+                $removeColonTime = strtotime($removeColon);
+                $currtime = strtotime(date("Ymd Hi"));
+                $difftime = $currtime - $removeColonTime;
+                if ($difftime > 600) {
+                    echo "<td style='background-color:#EAB543;color:#000'>" . htmlspecialchars($vall) . "</td>";
+                } else {
+                    echo "<td style='color:#000'>" . htmlspecialchars($vall) . "</td>";
                 }
+            } else {
+                echo "<td>" . htmlspecialchars($vall) . "</td>";
+            }
         }
-        .noCursor{
-                cursor:default !important;
-        }
-        .bg-tcs{
-                backgrounnd-color:#486092;
-        }
-        </style>
-</head>
-<body class="skin-blue sidebar-collapse" oncontextmenu="return false;">
-        <div class="col-md-6">
-                <div class="box box-primary box-solid">
-                        <div class="box-header bg-tcs-active">
-                                <h3 class="box-title">NEFT REPOST FAIL Night TOTAL</h3>
-                        </div>
-                        <div class="box-body table-responsive">
-                                <table class="table table-bordered table-striped text-center" id="neftrepost">
-                                  <thead>
-                                                <tr>
-                                                        <th style="border:2px solid black;color:black;" class="text-center">DATE</th>
-                                                        <th style="border:2px solid black;color:black;" class="text-center">Journal No.</th>
-                                                        <th style="border:2px solid black;color:black;" class="text-center">ERROR CODE</th>
-                                                        <th style="border:2px solid black;color:black;" class="text-center">TXN</th>
-                                                        <th style="border:2px solid black;color:black;" class="text-center">VIRTUAL DATE</th>
-                                                        <th style="border:2px solid black;color:black;" class="text-center">UTR</th>
-                                                </tr>
-                                  </thead>
-                                  <tbody>
-                                                <?php $rtgs->neft_repost_fail_all("NNEF_ALL.txt");?>
-                                  </tbody>
-                                </table>
-                        </div>
-                </div>
-        </div>
-        <script src="../js/jQuery-2.1.3.min.js?x=<?php echo rand(5555,9999); ?>"></script>
-        <script src="../js/bootstrap.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
-        <script src="../js/app.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
-        <script type="text/javascript" language="javascript" src="../dtable/jquery.dataTables.min.js"></script>
-        <script type="text/javascript" language="javascript" src="../js/dataTables.fixedHeader.min.js"></script>
-        <script type="text/javascript" language="javascript" src="../dtable/dataTables.buttons.min.js"></script>
-        <script type="text/javascript" language="javascript" src="../dtable/jszip.min.js"></script>
-        <script type="text/javascript" language="javascript" src="../dtable/pdfmake.min.js"></script>
-        <script type="text/javascript" language="javascript" src="../dtable/vfs_fonts.js"></script>
-        <script type="text/javascript" language="javascript" src="../dtable/buttons.html5.min.js"></script><script type="text/javascript">
-                $(document).ready(function() {
-                        $('#neftrepost').DataTable( {
-                                order: [[ 0, "desc" ]],
-                                dom: 'Bfrtip',
-                                fixedHeader:true,
-                                bSort:true,
-                                iDisplayLength:25,
-                                bLengthChange:false,
-                                buttons: [
-                                        'copyHtml5',
-                                        'pdfHtml5'
-                                ]
-                        } );
-                        console.log(jQuery().jquery);
-                } );
-        </script>
+        echo "</tr>";
+    }
+}
+
+
+
