@@ -1,105 +1,25 @@
-     function gateway() {
-    date_default_timezone_set('Asia/Kolkata');
-    $date = $this->datecrr;
-
-    $mainFilePath = $this->currpath . "gateway.txt_8app." . $date;
-    $yonoFilePath = $this->currpath . "gateway_yono.txt_8app." . $date;
-    $serverStatusPath = $this->singlepath . "Server_Status.txt";
-    $onlReStatusPath = $this->currpath . "onl_re_status.txt_" . $date;
-
-    $data = file_exists($mainFilePath) ? explode("\n", trim(@file_get_contents($mainFilePath))) : [];
-    $datayono = file_exists($yonoFilePath) ? @file($yonoFilePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
-    $data1 = file_exists($serverStatusPath) ? array_pad(explode("\n", trim(@file_get_contents($serverStatusPath))), 9, 0) : array_fill(0, 9, 0);
-    $data2 = file_exists($onlReStatusPath) ? trim(@file_get_contents($onlReStatusPath)) : "0";
-
-    $dataserver = 'Connectivity,' . implode(",", $data1);
-    $checkrc = 'Misc Job,' . $data2;
-
-    $serverarray = array('job name', 'm', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', 's11', 's12', 's13', 's14', 's15');
-
-    array_pop($data); // Remove last empty line if any
-    $data = array_merge($data, $datayono);
-    array_push($data, $dataserver, $checkrc);
-
-    if (parent::checkblank($data)) {
-        echo parent::checkblank($data);
-    }
-
-    foreach ($data as $line_num => $line) {
-        $var = explode(",", $line);
-        echo "<tr>";
-        foreach ($var as $k3 => $v3) {
-            $vall = strtoupper(trim($v3 ?? ''));
-            $server = $serverarray[$k3] ?? 'UNKNOWN';
-
-            $linkRC = "window.open('checkrc.php?servername=$server','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-            $linkTCP = ($var[0] ?? '') === 'MR Gateway' ? "window.open('maxtcp.php?servername=$server','','height=800,width=1400,scrollbars=yes,resizable=yes');" : "";
-
-            if ($k3 == 0) {
-                $gateway_type = explode(" ", $v3);
-                $dateParam = $_GET['date'] ?? $date;
-                $link = "window.open('gatewaymore.php?type={$gateway_type[0]}&&date={$dateParam}','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-                echo "<th><a onclick=\"$link\">" . htmlspecialchars($v3) . "</a></th>";
-            } elseif (($var[0] ?? '') === "TF Gateway" && $k3 != 3) {
-                echo "<td style='color:black;'><i class='fa fa-minus'></i></td>";
-            } elseif ($k3 > 0 && $vall === 'RUNNING') {
-                echo "<td style='color:green;'><i class='fa fa-check'></i></td>";
-            } elseif ($k3 > 0 && $vall === 'MAXTCP') {
-                echo "<td><i style='color:red;' class='fa fa-bolt'></i></td>";
-            } elseif ($k3 > 0 && $vall === 'NOT RUNNING') {
-                echo "<td onclick=\"$linkTCP\"><i class='fa fa-close' style='color:red;'></i></td>";
-            } elseif ($k3 > 0 && str_contains($vall, 'NOT UPDATING')) {
-                echo "<td style='color:#f39c12;'><i class='fa fa-fw fa-warning'></i></td>";
-            } elseif ($k3 > 0 && $vall === 'NOT ENCRYPTED') {
-                echo "<td style='color:navy;'><i class='fa fa-fw fa-chain-broken'></i></td>";
-            } elseif ($k3 > 0 && $vall === 'RC RUNNING') {
-                echo "<td class='glow' style='color:white;' onclick=\"$linkRC\">Check RC</td>";
-            } elseif ($k3 > 0 && str_contains($vall, 'ERROR')) {
-                echo "<td class='glow' title=\"$vall\" style='color:white;'>ERROR</td>";
-            } elseif ($k3 > 0 && str_contains($vall, 'NO TXN')) {
-                echo "<td class='glow' title=\"$vall\"><i class='fa fa-exclamation'></i></td>";
-            } elseif ($k3 > 0 && str_contains($vall, 'UTP TXN')) {
-                echo "<td style='color:white;'><i title='To check if it is false or not goto monitorp/pace and fire utptxn.sh <gateway_name -- b24|atm|mr|inb>' class='fa fa-bell' style='color:red;'></i></td>";
-            } elseif ($k3 > 0 && str_contains($vall, 'TIMESTAMP FREEZED')) {
-                echo "<td class='glow' title=\"$vall\" style='color:white;'><i class='fa fa-ban'></i></td>";
-            } elseif ($k3 > 0 && str_contains($vall, 'ABORT')) {
-                echo "<td class='glow' title=\"$vall\" style='color:white;'>$vall</td>";
-            } elseif ($k3 > 0 && ($vall === 'NO CHECK RC')) {
-                echo "<td style='color:#fff;background-color:#38ada9;'>NONE</td>";
-            } elseif ($k3 > 0 && ($vall === 'NA' || $vall === 'SUNDAY')) {
-                echo "<td style='color:black;'><i class='fa fa-minus'></i></td>";
-            } elseif ($line_num == 16 && $vall === 'Y') {
-                echo "<td title='Server Up' style='color:green;'><i class='fa fa-fw fa-check'></i></td>";
-            } elseif ($line_num == 16 && $vall === 'N') {
-                echo "<td class='glow'><i class='fa fa-fw fa-close'></i></td>";
-            } elseif ($line_num == 16 && $vall == '0') {
-                echo "<td><i title='Not updating' style='color:#f39c12;' class='fa fa-fw fa-warning'></i></td>";
-            } elseif ($line_num == 17 && $vall == '0') {
-                $link = "window.open('rcdetails.php?servername=$server','','height=800,width=600,scrollbars=yes,resizable=yes');";
-                echo "<td title='Server Up' style='color:green;'><i class='fa fa-fw fa-check'></i></td>";
-            } elseif ($line_num == 17 && is_numeric($vall) && $vall > 0) {
-                $link = "window.open('rcdetails.php?servername=$server','','height=800,width=600,scrollbars=yes,resizable=yes');";
-                echo "<td onclick=\"$link\" style='cursor:pointer;' class='glow text-center' title=\"$vall\"><i style='color:white;' class='fa fa-fw fa-close'></i></td>";
-            } elseif ($line_num == 17 && $vall == '-1') {
-                $link = "window.open('rcdetails.php?servername=$server','','height=800,width=600,scrollbars=yes,resizable=yes');";
-                echo "<td onclick=\"$link\" style='cursor:pointer;' class='text-center' title=\"$vall\"><i style='color:#f39c12;' class='fa fa-fw fa-warning'></i></td>";
-            } elseif ($line_num == 11 && str_contains(trim($vall), ":")) {
-                $removeColon = str_replace(":", "", trim($vall));
-                $removeColonTime = strtotime($removeColon);
-                $currtime = strtotime(date("Ymd Hi"));
-                $difftime = $currtime - $removeColonTime;
-                if ($difftime > 600) {
-                    echo "<td style='background-color:#EAB543;color:#000'>" . htmlspecialchars($vall) . "</td>";
-                } else {
-                    echo "<td style='color:#000'>" . htmlspecialchars($vall) . "</td>";
-                }
-            } else {
-                echo "<td>" . htmlspecialchars($vall) . "</td>";
-            }
-        }
-        echo "</tr>";
-    }
-}
-
-
-
+#!/usr/bin/ksh
+dat=`date| awk '{print $2,$3}'`
+while :
+do
+        var=`cat $HOME/pace/sys_stat1.txt|awk '{print $1}'`
+        if [ $var != D ]
+        then
+                /home/monitorp/newpace/scripts/ONLINE/channel_port_matrix.sh
+                cat /fns/id/r/data/file/MFLAGS|cut -c 9-16 > $HOME/pace/EOD/MFLAGS1
+                sleep 300
+        else
+                cat /fns/id/r/data/file/MFLAGS|cut -c 9-16 > $HOME/pace/MFLAGS_D
+                #$npscripts/ONLINE/moni.sh
+                ./sms_delay.sh
+                ./yonoport.sh
+                ./rtgsngingateway.sh
+                ./rtgsngackin.sh
+                ./rtgs_outgoing_psg.sh
+                ./post_count_IN0820.sh
+                /home/monitorp/newpace/scripts/ONLINE/channel_port_matrix.sh
+                cd /home/monitorp/newpace/scripts/ONLINE
+                ./checkreplica_new.sh
+                cd -
+        fi
+done
