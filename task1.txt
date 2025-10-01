@@ -1,25 +1,362 @@
-#!/usr/bin/ksh
-dat=`date| awk '{print $2,$3}'`
-while :
-do
-        var=`cat $HOME/pace/sys_stat1.txt|awk '{print $1}'`
-        if [ $var != D ]
-        then
-                /home/monitorp/newpace/scripts/ONLINE/channel_port_matrix.sh
-                cat /fns/id/r/data/file/MFLAGS|cut -c 9-16 > $HOME/pace/EOD/MFLAGS1
-                sleep 300
-        else
-                cat /fns/id/r/data/file/MFLAGS|cut -c 9-16 > $HOME/pace/MFLAGS_D
-                #$npscripts/ONLINE/moni.sh
-                ./sms_delay.sh
-                ./yonoport.sh
-                ./rtgsngingateway.sh
-                ./rtgsngackin.sh
-                ./rtgs_outgoing_psg.sh
-                ./post_count_IN0820.sh
-                /home/monitorp/newpace/scripts/ONLINE/channel_port_matrix.sh
-                cd /home/monitorp/newpace/scripts/ONLINE
-                ./checkreplica_new.sh
-                cd -
-        fi
-done
+
+<?php
+error_reporting(1);
+include("../config.php");
+date_default_timezone_set('Asia/Kolkata');
+//echo $_GET['date'];
+        if($_GET['date']== ''){
+                $crdate=trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+        }
+        else{
+                $crdate=$_GET['date'];
+        }
+        if(isset($_POST['key']) && $_POST['key'] == 'datemodified'){
+                $modifiedtime= shell_exec("ls -lrt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/mr_PORT_DT_app1.txt.$crdate|awk '{print $6,$7,$8}'");
+                echo json_encode($modifiedtime);
+                exit();
+        }
+
+        if(isset($_POST['key']) && $_POST['key'] == 'matrix'){
+                $urldate=$_POST['urldate'];
+                $mldate=trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+                if($urldate =='null' || $urldate==$mldate){
+                        $crdate = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+                        $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/";
+                }
+                elseif($urldate!=$mldate){
+                        $crdate=$urldate;
+                        $dateyear=trim(substr($crdate,0,4));
+                        $dateyearmonth=trim(substr($crdate,0,6));
+                        $prevdate=date("Ymd",strtotime("-1 day",strtotime($crdate)));
+                        $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/".$dateyear."/".$dateyearmonth."/".$crdate."/";
+                }
+                else{
+                        $crdate = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
+                        $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/";
+                }
+                $gatewaytype=$_POST['gatewaytype'];
+                function filenamepp($currpath,$gatewaytype,$appname,$crdate){
+                        $filecontentforport=file($currpath.$gatewaytype."_PORT_DT_".$appname.".txt.".$crdate);
+                        foreach ($filecontentforport as $line_num => $line) {
+                                $portarraycontent=explode('/',$line);
+                                $portdatalast[]=$portarraycontent[0];
+                        }
+                        $wholearray[]=array(array_values(array_unique($portdatalast)),$appname);
+                        //$wholearray[]=array($portdatalast,$appname);
+                        return $wholearray;
+                }
+                $filecontent1=filenamepp($currpath,$gatewaytype,"app1",$crdate);
+                $filecontent2=filenamepp($currpath,$gatewaytype,"app2",$crdate);
+                $filecontent3=filenamepp($currpath,$gatewaytype,"app3",$crdate);
+                $filecontent4=filenamepp($currpath,$gatewaytype,"app4",$crdate);
+                $filecontent5=filenamepp($currpath,$gatewaytype,"app5",$crdate);
+                $filecontent6=filenamepp($currpath,$gatewaytype,"app6",$crdate);
+                $filecontent7=filenamepp($currpath,$gatewaytype,"app7",$crdate);
+                $filecontent8=filenamepp($currpath,$gatewaytype,"app8",$crdate);
+                $filecontent9=filenamepp($currpath,$gatewaytype,"app9",$crdate);
+                $filecontent10=filenamepp($currpath,$gatewaytype,"app10",$crdate);
+                $filecontent11=filenamepp($currpath,$gatewaytype,"app11",$crdate);
+                $filecontent12=filenamepp($currpath,$gatewaytype,"app12",$crdate);
+                $filecontent13=filenamepp($currpath,$gatewaytype,"app13",$crdate);
+                $filecontent14=filenamepp($currpath,$gatewaytype,"app14",$crdate);
+                $filecontent15=filenamepp($currpath,$gatewaytype,"app15",$crdate);
+                $filecontent16=filenamepp($currpath,$gatewaytype,"app16",$crdate);
+
+
+
+                $filecontent=array_merge($filecontent1,$filecontent2,$filecontent3,$filecontent4,$filecontent5,$filecontent6,$filecontent7,$filecontent8,$filecontent9,$filecontent10,$filecontent11,$filecontent12,$filecontent13,$filecontent14,$filecontent15,$filecontent16);
+                //print_r($filecontent);
+                //foreach ($filecontent as $line_num => $line) {
+                //              foreach($line[0] as $linenum1=>$portdatafinal){
+                //              $varexplode=explode('/',$portdatafinal);
+                //              $port[]=$varexplode[0];
+                //      }
+                //      $finalarrayforport[]=array($port,$line[1]);
+                //}
+                //echo json_encode($currpath);
+                echo json_encode($filecontent);
+                exit();
+        }
+        function getport($gateway){
+                $portfileatm=file("card_folder/port/".$gateway."_port.txt");
+                $a=array();
+                for($l=1;$l<=12;$l++){
+                        echo "<td>"     ;
+                                echo "<table class=".$gateway."app".$l.">";
+                                        echo "<tbody>";
+                                                $k=0;
+                                                foreach ($portfileatm as $index => $portline) {
+                                                        $explodeall= explode(",",$portline);
+                                                        $portarray[]=$explodeall[1];
+                                                }
+                                                $arraysize=count($portarray);
+                                                for($i=0;$i<=$arraysize;$i++){
+                                                        echo "<tr>";
+                                                                for($j=0;$j<=2;$j++){
+                                                                        $a[$i][$j]=$portarray[$k];
+                                                                        $k++;
+                                                                        if($a[$i][$j]!=''){
+                                                                                //echo "<td class='tdstyle'>".$a[$i][$j]."</td>";
+                                                                                echo "<td class='tdstyle'><span class='btn btn-success' style='padding:8px;position:relative;'>".$a[$i][$j]."</span></td>";
+                                                                        }
+                                                                }
+                                                        echo "</tr>";
+                                                }
+                                        echo "</tbody>";
+                                echo "</table>";
+                        echo "</td>";
+                        unset($portarray);
+                        //unset($a);
+                };
+        }
+?>
+<html>
+<head>
+        <meta charset="UTF-8">
+        <!--<meta http-equiv='refresh' content='100'>-->
+        <META HTTP-EQUIV='CACHE-CONTROL' CONTENT='NO-CACHE'>
+    <title>Channel Error Matrix</title>
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <meta content='Geetika Singh' name='developer'>
+    <link rel="stylesheet" href="../css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="../css/AdminLTE.min.css" type="text/css" />
+    <link rel="stylesheet" href="../css/skins/_all-skins.min.css" type="text/css" />
+        <link rel="stylesheet" href="../dtable/jquery.dataTables.min.css" type="text/css" >
+        <style>
+        .glow{
+                animation: glowing 1500ms infinite;
+                }
+                @keyframes glowing{
+                0%{background-color:black;box-shadow:0 0 3px black;}
+                50%{background-color:#FF0000;box-shadow:0 0 40px black;}
+                100%{background-color:black;box-shadow:0 0 3px black;}
+        }
+        .tdstyle{
+                /*padding: 0.1px;*/
+        line-height: 1.5;
+        vertical-align: top;
+       /* border: 1px solid #ddd;*/
+           text-align:center;
+        }
+
+        p{
+                text-align:center;
+                position:relative;
+                margin:16px;
+                font-weight:bold;
+                font-size: 12px;
+        }
+
+        .btn-success { /* Goldenrod outline on the hexagon */
+                font-weight:bold;
+                cursor:default;
+                font-size: 12px;
+                text-align:center;
+                width: 4.3rem;
+                height: 3.6rem;
+                display: inline-block;
+                background-color: #008d4c;
+                clip-path: polygon(50% 0, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+                color:white;
+                padding:1px;
+        }
+        .btn-success:hover{
+                transform:scale(1.2);
+                transition: transform 0.2s;
+                background-color: #e2ad27;
+        }
+
+        .table-bordered>thead>tr>th, .table-bordered>tbody>tr>th, .table-bordered>tfoot>tr>th, .table-bordered>thead>tr>td, .table-bordered>tbody>tr>td, .table-bordered>tfoot>tr>td {
+                 border: 8px solid #2e2986;
+        }
+        .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+           /* padding: 1px;*/
+        }
+        </style>
+</head>
+<body>
+        <div class="col-xs-12 alldiv" style=" margin-top: 10px;">
+          <div class="box box-success box-solid">
+                <div class="box-header bg-tcs-active text-center">
+                  <h3 class="box-title">Channel Matrix for Date </h3> <span style="color:#00e7ff;font-weight:bold;font-size:18px;"><?php echo $crdate ;?></span><span class="datemodified" style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo shell_exec("ls -lrt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/mr_PORT_DT_app1.txt.$crdate|awk '{print $6,$7,$8}'");?></span>
+                </span>
+                </div>
+                <div class="box-body table-responsive">
+                        <table class="table table-bordered table-striped table-responsive"  style='width:70%; max-width: 100%;margin-bottom: 2%;'>
+                                <thead >
+                                        <tr class="bg-navy" >
+                                                <th style="width:95px;">Gateway</th>
+                                                <th class="text-center">APP1</th>
+                                                <th class="text-center">APP2</th>
+                                                <th class="text-center">APP3</th>
+                                                <th class="text-center">APP4</th>
+                                                <th class="text-center">APP5</th>
+                                                <th class="text-center">APP6</th>
+                                                <th class="text-center">APP7</th>
+                                                <th class="text-center">APP8</th>
+                                                <th class="text-center">APP9</th>
+                                                <th class="text-center">APP10</th>
+                                                <th class="text-center">APP11</th>
+                                                <th class="text-center">APP12</th>
+                                                <th class="text-center">APP13</th>
+                                                <th class="text-center">APP14</th>
+                                                <th class="text-center">APP15</th>
+                                                <th class="text-center">APP16</th>
+
+                                        </tr>
+                                </thead>
+                                <tbody>
+                                        <tr>
+                                                <td class="bg-purple">MR</td>
+                                                <?php echo getport("mr");?>
+                                        </tr>
+                                        <tr>
+                                                <td class="bg-purple">INB</td>
+                                                <?php echo getport("inb");?>
+                                        </tr>
+                                        <tr>
+                                                <td class="bg-purple">ATM</td>
+                                                <?php echo getport("atm");?>
+                                        </tr>
+                                        <tr>
+                                                <td class="bg-purple">B24</td>
+                                                <?php echo getport("b24");?>
+                                        </tr>
+                                        <!--<tr>
+                                                <td class="bg-purple">B24</td>
+                                                <?php //echo getport("b24");?>
+                                        </tr>-->
+                                </tbody>
+                        </table>
+                </div>
+                <div class="col-md-6">
+                        <table class="table table-bordered table-striped table-responsive col-md-6">
+                                <thead >
+                                        <tr class="bg-navy" >
+                                                <th style="width:95px;">Gateway</th>
+                                                <th class="text-center">Error Details That Are being Monitored</th>
+                                        </tr>
+                                </thead>
+                                <tbody>
+                                        <tr>
+                                                <td class="bg-purple">1</td>
+                                                <td class="bg-purple">Maximum limit for Active Connections Reached</td>
+                                        </tr>
+                                        <tr>
+                                                <td class="bg-purple">2</td>
+                                                <td class="bg-purple">Queue [Name of Queue] Not Enabled .So quiting</td>
+                                        </tr>
+                                        <tr>
+                                                <td class="bg-purple">3</td>
+                                                <td class="bg-purple">Error in enable_input of TRMQ Queue</td>
+                                        </tr>
+                                        <tr>
+                                                <td class="bg-purple">4</td>
+                                                <td class="bg-purple">Thread got alarm, Timeout!</td>
+                                        </tr>
+                                        <!--<tr>
+                                                <td class="bg-purple">3</td>
+                                                <td class="bg-purple">Threshold reached</td>
+                                        </tr>
+                                        <tr>
+                                                <td class="bg-purple">4</td>
+                                                <td class="bg-purple">Time out in getting APP response</td>
+                                        </tr>-->
+                                </tbody>
+                        </table>
+                </div>
+          </div>
+        </div>
+
+        <script src="../js/jQuery-3.3.1.min.js" type="text/javascript"></script>
+        <script src="../js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="../js/app.min.js" type="text/javascript"></script>
+        <script src="../dtable/jquery.dataTables.min.js" type="text/javascript"></script>
+        <script type="text/javascript">
+                $(document).ready(function() {
+                        var url=new URL(window.location.href);
+                        var urldate=url.searchParams.get('date');
+                        gatewayajax("mr");
+                        gatewayajax("inb");
+                        gatewayajax("atm");
+                        gatewayajax("b24");
+                        datemodified();
+
+                } );
+                function datemodified(){
+                        $.ajax({
+                                        type:"POST",
+                                        url:"gateway_matrix.php",
+                                        data:"key=datemodified",
+                                        success:function(datemodival){
+                                                console.log(datemodival);
+                                                var datemodival1=JSON.parse(datemodival);
+                                                $(".datemodified").text(datemodival1);
+                                        }
+                        })
+                }
+                function gatewayajax(gatewayname){
+                        console.clear();
+                                var url=new URL(window.location.href);
+                                var urldate=url.searchParams.get('date');
+                                $.ajax({
+                                        type:"POST",
+                                        url:"gateway_matrix.php",
+                                        data:"key=matrix&gatewaytype="+gatewayname+"&urldate="+urldate,
+                                        success:function(jsondata){
+                                                //console.log(jsondata);
+                                                //console.log(gatewayname);
+
+                                                var jsonport=JSON.parse(jsondata);
+                                                //console.log(jsondata)
+                                                $(jsonport).each(function(a,b){
+                                                        //console.log(b);
+                                                        $($("."+gatewayname+jsonport[a][1]).children().find("td")).each(function(c,d){
+                                                                var rowval = $(this).text();
+                                                                var td=$(this);
+                                                                console.log(jsonport[a][0]);
+                                                                if(jsonport[a][0]){
+                                                                        $(jsonport[a]).each(function(e,f){
+                                                                                $(jsonport[a][e]).each(function(g,h){
+                                                                                        //console.log(jsonport[a]);
+                                                                                        if($.trim(rowval)==jsonport[a][e][g]){
+                                                                                                //$(td).find('span').addClass("glow");
+                                                                                                $(td).find('span').addClass("glow");
+                                                                                                $(td).find('span').wrapInner('<a target=_blank style="color:white;" href='+window.location.origin+'/pace/Online_portal/pages/gateway_matrix_error.php?date='+urldate+'&&gatewaytype='+gatewayname+'&&port='+jsonport[a][e][g]+'&&app='+jsonport[a][1]+'>');
+                                                                                                /*--INFINITE LOOP BROWSER WILL HANG
+
+                                                                                                $(td).on('click',function(){
+                                                                                                        window.open('gateway_matrix_error.php?date='+urldate+'&&gatewaytype='+gatewayname+'&&port='+jsonport[a][e][g]+'&&app='+jsonport[a][1],'_blank');
+                                                                                                })*/
+                                                                                                return false;
+                                                                                        }
+                                                                                        else if(($.trim(rowval)!=jsonport[a][e][g])){
+                                                                                                $(td).find('span').removeClass("glow");
+                                                                                                $(td).find('a').contents().unwrap();
+                                                                                        }
+                                                                                        else{
+                                                                                                $(td).find('span').removeClass("glow");
+                                                                                                $(td).find('a').contents().unwrap();
+                                                                                        }
+                                                                                })
+                                                                        })
+                                                                }
+                                                                else{
+                                                                        $(td).find('span').removeClass("glow");
+                                                                        $(td).find('a').contents().unwrap();
+                                                                }
+                                                        })
+                                                })
+                                        }
+                                })
+                        }
+                        setInterval('gatewayajax("mr")',5000);
+                        setInterval('gatewayajax("inb")',5000);
+                        setInterval('gatewayajax("atm")',5000);
+                        setInterval('gatewayajax("b24")',5000);
+                        setInterval('datemodified()',60000);
+        </script>
+        </body>
+<html>
+
