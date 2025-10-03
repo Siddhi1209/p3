@@ -1,1 +1,33 @@
-[Fri Oct 03 11:02:38.775706 2025] [php:notice] [pid 1981013] [client 10.0.6.182:64544] Config.php: File /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Portal_Main_Bulk_File.txt_20251003 not found or not readable, referer: https://10.0.40.8:9090/pace/Online_portal/pages/rtgsng_ack_in.php
+ function night_queue1(){
+                $data1 = explode("\n", file_get_contents($this->currpath."status_queue_9apps.txt.".$this->datecrr));
+                //echo $this->currpath."status_queue_9apps.txt.".$this->datecrr;
+                //$data1 = explode("\n", file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/EOD/status_queue_9apps.txt.20190402"));
+                if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
+                $data = $this->throwRed($data1,',');
+                foreach ($data as $key2 => $value2) {
+                        $vare = explode(",",$value2);
+                        echo "<tr>";
+                        foreach ($vare as $k2 => $v2){
+                                if($k2 == '0' && $vare != '' ){
+                                        //echo "<th style='background-color:#1f3f92;color:white;' class='text-center'>".$v2."</th>";
+                                        $linkreplica="window.open('queue_replica_night.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                                        echo "<th style='background-color:#1f3f92;color:white;' class='text-center'><a style='color:white;cursor:pointer;' onclick=$linkreplica>".$v2."</th>";
+                                }
+                                //elseif($k2 > '0' &&  $v2 >= '1' && $v2 <= '40' && trim($v2) != 'NQKE') {
+                                //      echo "<td class='text-center' style='background-color:#db8b0b;color:white;'>".$v2."</td>";
+                                //}
+                                //elseif($k2 > '0' &&  $v2 > 1000 && trim($v2) != 'NQKE') {
+                                elseif($k2 > '0' &&  $v2 > 500 && trim($v2) != 'NQKE') {
+                                        echo "<td class='text-center' style='background-color:red;color:white;'>".(intval($v2))."</td>";
+                                }
+                                elseif(trim($v2) == 'NQKE'){
+                                        #echo "<td style='color:white;background-color:#FF0000;'><i class='fa fa-thumbs-down'></i></td>";
+                                        echo "<td style='color:white;background-color:#00c0ef;'><i class='fa fa-minus'></i></td>";
+                                }
+                                else {
+                                        echo "<td title='$v2' class='text-center'>0</td>";
+                                }
+                        }
+                        echo "</tr>";
+                }
+        }
