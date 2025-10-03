@@ -19,21 +19,22 @@
         else{
                 $currpath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/".$dateyear."/".$dateyearmonth."/".$crdate."/";
         }
+
 ?>
 <!DOCTYPE html>
 <html>
 <head>
         <meta charset="UTF-8">
         <?php header("Cache-Control:no-cache,must-revalidate");?>
-        <title>RTGS INCOMING GATEWAY MONITORING Page</title>
+    <title>RTGS INCOMING ACK MONITORING Page</title>
         <meta http-equiv="refresh" content="600">
-        <meta content='Geetika Singh' name='developer'>
+        <meta content='Vedant Mane' name='developer'>
         <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
-        <link href="../css/bootstrap.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
-        <link href="../font-awesome/css/font-awesome.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
-        <link href="../css/AdminLTE.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
-        <link href="../css/skins/_all-skins.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
-        <link href="../css/compactPage.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../css/bootstrap.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../font-awesome/css/font-awesome.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../css/AdminLTE.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../css/skins/_all-skins.min.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
+    <link href="../css/compactPage.css?x=<?php echo rand(5555,9999); ?>" rel="stylesheet" type="text/css" />
         <link href="../css/normalize.min.css" rel="stylesheet" >
         <link href="../css/progress.css" rel="stylesheet" >
         <link rel="stylesheet" href="../dtable/jquery.dataTables.min.css" type="text/css" >
@@ -45,19 +46,19 @@
         <div id="dateModal" class="modal fade" role="dialog">
                 <div class="modal-dialog modal-sm">
                         <div class="modal-content">
-                                <div class="modal-header">
+                                  <div class="modal-header">
                                         <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                        <h4 class="panel-heading modal-title ">Enter Date </h4>
-                                </div>
-                                <div class="modal-body text-center">
+                                         <h4 class="panel-heading modal-title ">Enter Date </h4>
+                                  </div>
+                                  <div class="modal-body text-center">
                                         <input type="date" class="form-control" id="ll" onchange="pageRedirection()" required>  <br>
-                                </div>
+                                  </div>
                         </div>
                 </div>
         </div>
-
         <style>
-        @media(max-width:990px){
+        @media(max-width:990px)
+        {
                 #myheader.main-header{
                         display: none !important;
                 }
@@ -75,15 +76,11 @@
                 <div class="box box-primary box-solid">
                         <div class="box-header bg-tcs-active">
                                 <!--<h3 class="box-title">RTGS INCOMING GATEWAY MONITORING</h3>-->
-                                <h3 class="box-title">RTGS INCOMING GATEWAY MONITORING </h3> 
-                                <span class="datemodified" style="float:right;font-size:18px;">
-                                        <i class="fa fa-fw fa-clock-o"></i>
-                                        <?php echo shell_exec("ls -lrt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/rtgsngingateway_12apps.txt.$crdate|awk '{print $6,$7,$8}'");?>
-                                </span>
+                                <h3 class="box-title">RTGS INCOMING ACK MONITORING </h3> <span class="datemodified" style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo shell_exec("ls -lrt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/rtgsng_ack_in_12apps.txt.$crdate|awk '{print $6,$7,$8}'");?></span>
                         </div>
                         <div class="box-body table-responsive">
                                 <table class="table table-bordered table-striped text-center" id="neftrepost">
-                                        <thead>
+                                  <thead>
                                                 <tr>
                                                         <th class="text-center">ERROR</th>
                                                         <th class="text-center">M</th>
@@ -104,36 +101,40 @@
                                                         <th class="text-center">S15</th>
                                                 </tr>
                                         </thead>
-                                        <tbody>
+                                  <tbody>
                                         <?php
                                                 echo "<tr>";
-                                                $data = file("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/rtgsngingateway_12apps.txt.".$crdate);
-                                                echo "<td style='color:black;'>01ERR 0546</td>";
+                                                $data = file("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/rtgsng_ack_in_12apps.txt.".$crdate);
+                                                //print_r($data);
+                                                echo "<td style='color:black;'>01ERR 0146</td>";
                                                 foreach($data as $key=>$value){
                                                         $each_data = explode(",",$value);
-                                                        foreach($each_data as $index => $value1){
-                                                                if (is_numeric($value1) && number_format($value1) == '0') {
-                                                                        echo "<td style='color:green;'><i class='fa fa-check'></i></td>";
-                                                                }
-                                                                elseif (is_numeric($value1) && number_format($value1) > 0) {
-                                                                        echo "<td style='color:red;'><i class='fa fa-close'></i></td>";
-                                                                }
-                                                                elseif ($value1 === 'NA') {
-                                                                        echo "<td style='color:black;'><i class='fa fa-minus'></i></td>";
-                                                                }
-                                                                else {
-                                                                        echo "<td style='color:black;'><i class='fa fa-minus'></i></td>";
-                                                                }
+                                                        //print_r($each_data);
+                                                        //if($each_data[0] > 0){
+                                                                foreach($each_data as $index => $value1){
+                                                                        //echo $value1;
+                                                                        if( number_format($value1) == '0') {
+                                                                                echo "<td style='color:green;'><i class='fa fa-check'></i></td>";
+                                                                        }
+                                                                        elseif( number_format($value1) > 0) {
+                                                                                echo "<td style='color:red;' ><i class='fa fa-close'></i></td>";
+                                                                        }
+                                                                        elseif($value1 == 'NA') {
+                                                                                echo "<td style='color:black;'><i class='fa fa-minus'></i></td>";
+                                                                        }
+                                                                        else{
+
+                                                                                echo "<td style='color:black;'><i class='fa fa-minus'></i></td>";
+                                                                        }
                                                         }
-                                                }
+                                                        }
                                                 echo "</tr>";
                                         ?>
-                                        </tbody>
+                                </tbody>
                                 </table>
                         </div>
                 </div>
         </div>
-
         <script src="../js/jQuery-2.1.3.min.js?x=<?php echo rand(5555,9999); ?>"></script>
         <script src="../js/bootstrap.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
         <script src="../js/app.min.js?x=<?php echo rand(5555,9999); ?>" type="text/javascript"></script>
@@ -143,10 +144,9 @@
         <script type="text/javascript" language="javascript" src="../dtable/jszip.min.js"></script>
         <script type="text/javascript" language="javascript" src="../dtable/pdfmake.min.js"></script>
         <script type="text/javascript" language="javascript" src="../dtable/vfs_fonts.js"></script>
-        <script type="text/javascript" language="javascript" src="../dtable/buttons.html5.min.js"></script>
-        <script type="text/javascript">
+        <script type="text/javascript" language="javascript" src="../dtable/buttons.html5.min.js"></script><script type="text/javascript">
                 $(document).ready(function() {
-                        $('#neftrepost').DataTable({
+                        $('#neftrepost').DataTable( {
                                 order: [[ 0, "desc" ]],
                                 dom: 'Bfrtip',
                                 fixedHeader:true,
@@ -157,9 +157,6 @@
                                         'copyHtml5',
                                         'pdfHtml5'
                                 ]
-                        });
-                });
+                        } );
+                } );
         </script>
-</body>
-</html>
-
