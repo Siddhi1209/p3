@@ -1,1 +1,77 @@
 
+function night_queue1(){
+    $data1 = explode("\n", file_get_contents($this->currpath."status_queue_9apps.txt.".$this->datecrr));
+    if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
+    $data = $this->throwRed($data1,',');
+
+    // Known queues that are always NQKE (baseline ones that should go at the bottom)
+    $alwaysNqke = ["CTAQ","CTBQ","CTCQ","CTDQ","CREQ","CRFQ","CRGQ","CRHQ","CRIQ","CRCQ"];
+
+    $criticalQueues   = [];
+    $activeQueues     = [];
+    $unexpectedNqke   = [];
+    $expectedNqke     = [];
+
+    // Separate queues into groups
+    foreach ($data as $key2 => $value2) {
+        $vare = explode(",",$value2);
+        $queueName = trim($vare[0]);
+
+        if(in_array("NQKE", $vare)) {
+            if(in_array($queueName, $alwaysNqke)) {
+                $expectedNqke[] = $vare;   // permanent NQKE → bottom
+            } else {
+                $unexpectedNqke[] = $vare; // new down → top
+            }
+        } 
+        elseif(max(array_map('intval', array_filter($vare, 'is_numeric'))) > 500) {
+            $criticalQueues[] = $vare;     // Critical (>500) → very top
+        }
+        else {
+            $activeQueues[] = $vare;       // Normal
+        }
+    }
+
+    // 1. Critical queues (red > 500)
+    foreach ($criticalQueues as $vare) {
+        $this->printQueueRowOriginal($vare);
+    }
+
+    // 2. Unexpected NQKE queues (newly down → top with thumbs down)
+    foreach ($unexpectedNqke as $vare) {
+        $this->printQueueRowOriginal($vare);
+    }
+
+    // 3. Active queues
+    foreach ($activeQueues as $vare) {
+        $this->printQueueRowOriginal($vare);
+    }
+
+    // 4. Expected NQKE queues (baseline, always down) → bottom
+    foreach ($expectedNqke as $vare) {
+        $this->printQueueRowOriginal($vare);
+    }
+}
+
+private function printQueueRowOriginal($vare) {
+    echo "<tr>";
+    foreach ($vare as $k2 => $v2){
+        if($k2 == '0' && $vare != '' ){
+            $linkreplica="window.open('queue_replica_night.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+            echo "<th style='background-color:#1f3f92;color:white;' class='text-center'>
+                    <a style='color:white;cursor:pointer;' onclick=$linkreplica>".$v2."</a>
+                  </th>";
+        }
+        elseif($k2 > '0' && $v2 > 500 && trim($v2) != 'NQKE') {
+            echo "<td class='text-center' style='background-color:red;color:white;'>".(intval($v2))."</td>";
+        }
+        elseif(trim($v2) == 'NQKE'){
+            // Changed from blue dash to red thumbs-down
+            echo "<td style='color:white;background-color:#FF0000;'><i class='fa fa-thumbs-down'></i></td>";
+        }
+        else {
+            echo "<td title='$v2' class='text-center'>0</td>";
+        }
+    }
+    echo "</tr>";
+}
