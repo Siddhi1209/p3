@@ -1,1 +1,1 @@
-impdp directory=ICSA dumpfile=$file logfile=$logname.log remap_schema=FNSONLI:ARCHSBI remap_table=ICSA:INHOIMP  table_exists_action=truncate parallel=16 remap_tablespace=TSDATA_500M_E:TSDATA_200M_A
+
