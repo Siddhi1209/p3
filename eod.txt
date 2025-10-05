@@ -1,1 +1,10 @@
 
+impdp directory=ICSA_021020025 \
+dumpfile=icsa_021020025_%U.dmp \
+logfile=ICSA_02101015_import.log \
+remap_schema=FNSONLI:ARCHSBI \
+remap_table=ICSA_021020025:ICSA_02101015 \
+parallel=16 \
+remap_tablespace=TSDATA_1M:TSDATA_200M_A \
+remap_tablespace=TSDATA_500M_E:TSDATA_200M_A \
+table_exists_action=truncate
