@@ -1,44 +1,66 @@
-<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
-                                                                                                <div class="panel panel-primary">
-                                                                                                        <div class="panel-heading bg-green">
-                                                                                                                <span style="float:right;font-size:18px;"><i class="fa fa-fw fa-clock-o"></i><?php echo $eod->timeUpdated("status_queue_9apps.txt",".");?></span>
-                                                                                                                Queue Buildup Details
-                                                                                        <a title="Burj Khalifa(Q Buildup MRI)" target="_blank" href="IG_heat/buildup_gapplot.php?dqp=ALL&region=eod&date=<?php echo date("Y-m-d",strtotime($crdate)); ?>" style="float:left;text-decoration:none;"><i style="color:white;" class="fa fa-rss"></i></a>
-                                                                                                        </div>
-                                                                                                        <div class="panel-body table-adjust" style="height: 68vh !important;"  >
-                                                                                                                <table class="table table-bordered table-responsive table-striped text-center">
-                                                                                                                        <thead>
-                                                                                                                                <tr>
-                                                                                                                                        <th style="width:93px;">Queue Name</th>
-                                                                                                                                        <th>M</a></th>
-                                                                                                                                        <th>S1</a></th>
-                                                                                                                                        <th>S2</a></th>
-                                                                                                                                        <th>S3</a></th>
-                                                                                                                                        <th>S4</a></th>
-                                                                                                                                        <th>S5</a></th>
-                                                                                                                                        <th>S6</a></th>
-                                                                                                                                        <th>S7</a></th>
-                                                                                                                                        <th>S8</a></th>
-                                                                                                                                        <th>S9</a></th>
-                                                                                                                                        <th>S10</a></th>
-                                                                                                                                        <th>S11</a></th>
-                                                                                                                                        <th>S12</a></th>
-                                                                                                                                        <th>S13</a></th>
-                                                                                                                                        <th>S14</a></th>
-                                                                                                                                        <th>S15</a></th>
+Processing object type TABLE_EXPORT/TABLE/TABLE
+ORA-39083: Object type TABLE:"ARCHSBI"."ICSA_02101015" failed to create with error:
+ORA-00959: tablespace 'TSDATA_1M' does not exist
 
+Failing sql is:
+CREATE TABLE "ARCHSBI"."ICSA_02101015" ("ICSA_SOC_NO" CHAR(3 BYTE) NOT NULL ENABLE, "ICSA_INSTR_NO" CHAR(8 BYTE) NOT NULL ENABLE, "ICSA_ACCT_NO" CHAR(16 BYTE) NOT NULL ENABLE, "ICSA_TRN_DATE" NUMBER(9,0) NOT NULL ENABLE, "ICSA_TRN_TIME" CHAR(8 BYTE) NOT NULL ENABLE, "ICSA_JRNL_NO" NUMBER(9,0) DEFAULT (0), "ICSA_BRANCH_NO" CHAR(5 BYTE) DEFAULT (LPAD(CHR(0),005,CHR(0))), "ICSA_CLRNG_TYPE" CHAR(1 BYTE) DEFAULT (LPAD(CHR(0),001,CHR(0))), "ICSA_CITY_CODE" NUMBER(3,0) DEFAULT (0), "ICSA_BANK_CODE" NUMBER(3,0) DEFAULT (0), "ICSA_BRCH_CODE" NUMBER(3,0) DEFAULT (0), "ICSA_INSTR_TYPE" CHAR(2 BYTE) DEFAULT (LPAD(CHR(0),002,CHR(0))), "ICSA_INSTR_AMT" NUMBER(17,3) DEFAULT (0), "ICSA_INSTR_DATE" NUMBER(9,0) DEFAULT (0), "ICSA_INSTR_STA" CHAR(2 BYTE) DEFAULT (LPAD(CHR(0),002,CHR(0))), "ICSA_PAYEE_NAME" CHAR(80 BYTE) DEFAULT (LPAD(CHR(0),080,CHR(0))), "ICSA_DISH_CODE" CHAR(2 BYTE) DEFAULT (LPAD(CHR(0),002,CHR(0))), "ICSA_DISH_REASON" CHAR(50 BYTE) DEFAULT (LPAD(CHR(0),050,CHR(0))), "ICSA_MAKER_ID" NUMBER(7,0) DEFAULT (0), "ICSA_CHCKR_ID" NUMBER(7,0) DEFAULT (0), "ICSA_SESSN_TYPE" CHAR(1 BYTE) DEFAULT (LPAD(CHR(0),001,CHR(0)))) SEGMENT CREATION IMMEDIATE PCTFREE 5 PCTUSED 90 INITRANS 5 MAXTRANS 255  NOCOMPRESS LOGGING STORAGE(INITIAL 1048576 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645 PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) TABLESPACE "TSDATA_1M"
 
-                                                                                                                                </tr>
-                                                                                                                        </thead>
-                                                                                                                        <tbody>
-                                                                                                                        <?php
-                                                                                                                                $eod->night_queue1();
-                                                                                                                        ?>
-                                                                                                                        </tbody>
-                                                                                                                </table>
-                                                                                                        </div>
-                                                                                                </div>
-                                                                                        </div>
-                                                                                </div>
+Processing object type TABLE_EXPORT/TABLE/TABLE_DATA
+Processing object type TABLE_EXPORT/TABLE/GRANT/OWNER_GRANT/OBJECT_GRANT
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."SELECT" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
 
-																				
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."DELETE" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."INSERT" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."SELECT" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."SELECT" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."SELECT" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."UPDATE" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."ALTER" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."READ" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."ON COMMIT REFRESH" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."QUERY REWRITE" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."DEBUG" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."FLASHBACK" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."ALTER" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."DELETE" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."INDEX" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."INSERT" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."SELECT" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."UPDATE" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."REFERENCES" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."READ" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."ON COMMIT REFRESH" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."QUERY REWRITE" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."DEBUG" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+ORA-39112: Dependent object type OBJECT_GRANT:"ARCHSBI"."FLASHBACK" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+Processing object type TABLE_EXPORT/TABLE/INDEX/INDEX
+ORA-39112: Dependent object type INDEX:"ARCHSBI"."ICSAPK_021020025" skipped, base object type TABLE:"ARCHSBI"."ICSA_021020025" creation failed
+
+Processing object type TABLE_EXPORT/TABLE/INDEX/STATISTICS/INDEX_STATISTICS
+Processing object type TABLE_EXPORT/TABLE/STATISTICS/TABLE_STATISTICS
+Processing object type TABLE_EXPORT/TABLE/STATISTICS/MARKER
+Job "QUERYI"."SYS_IMPORT_FULL_18" completed with 27 error(s) at Sun Oct 5 12:17:52 2025 elapsed 0 00:00:20
