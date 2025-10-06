@@ -1,198 +1,40 @@
-Username: queryi
-Password:
+Here’s a professional draft mail you can send back to Apnomics team 👇
 
-Connected to: Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
-Master table "QUERYI"."SYS_IMPORT_FULL_18" successfully loaded/unloaded
-Starting "QUERYI"."SYS_IMPORT_FULL_18":  queryi/******** directory=ICSA_021020025 dumpfile=icsa_021020025_%U.dmp logfile=ICSA_02101015_import.log remap_schema=FNSONLI:ARCHSBI remap_table=ICSA_021020025:ICSA_02101015 parallel=16 remap_tablespace=TSDATA_1M:TSDATA_200M_A remap_tablespace=TSDATA_500M_E:TSDATA_200M_A table_exists_action=truncate
-Processing object type TABLE_EXPORT/TABLE/TABLE
-Processing object type TABLE_EXPORT/TABLE/TABLE_DATA
-. . imported "ARCHSBI"."ICSA_02101015"                   3.990 GB 108693037 rows
-Processing object type TABLE_EXPORT/TABLE/GRANT/OWNER_GRANT/OBJECT_GRANT
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
 
-Failing sql is:
-GRANT SELECT ON "ARCHSBI"."ICSA_02101015" TO "FNS_ROLE_ASK"
+---
 
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
+Subject: Feedback on Job Section Implementation & Access Request
 
-Failing sql is:
-GRANT DELETE ON "ARCHSBI"."ICSA_02101015" TO "FNS_ROLE_UPD"
+Dear Team,
 
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
+We have reviewed the Job Section implementation shared by you. The current design is not aligned with our existing portal structure. Please note the following observations and required changes:
 
-Failing sql is:
-GRANT INSERT ON "ARCHSBI"."ICSA_02101015" TO "FNS_ROLE_UPD"
+1. The present implementation is time-based whereas our requirement is a matrix-based live dashboard (Jobs vs Servers).
 
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
 
-Failing sql is:
-GRANT SELECT ON "ARCHSBI"."ICSA_02101015" TO "FNS_ROLE_UPD"
+2. Status indicators are limited to ✓ and ✗, but our system uses multiple indicators (✔ OK, ⚠ No Data, – NA, ❌ Not Running, ❗ Timestamp Frozen, etc.) along with a legend for clarity.
 
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
 
-Failing sql is:
-GRANT SELECT ON "ARCHSBI"."ICSA_02101015" TO "QUERYI"
+3. Important fields like Check RC, System Idle, Last Update, Connectivity, Misc Job are missing.
 
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
 
-Failing sql is:
-GRANT SELECT ON "ARCHSBI"."ICSA_02101015" TO "QBLINKI"
+4. Alerting is absent – any failures or issues should be highlighted immediately in red/orange, as in the current setup.
 
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
 
-Failing sql is:
-GRANT UPDATE ON "ARCHSBI"."ICSA_02101015" TO "FNS_ROLE_UPD"
+5. Only a few jobs are displayed, whereas the dashboard should include all gateways and servers (B24, ATM, INB, MR, TF Gateway, Trickle Feed, RTGS, NEFT, MQ Server, etc.).
 
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
 
-Failing sql is:
-GRANT ALTER ON "ARCHSBI"."ICSA_02101015" TO "FNS_ROLE_UPD"
 
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
+Additionally, regarding your request for production server access to run scripts, please note that such access cannot be granted directly. You are requested to take formal approval from the Bank through the proper channel before proceeding.
 
-Failing sql is:
-GRANT READ ON "ARCHSBI"."ICSA_02101015" TO "FNS_ROLE_UPD"
+Kindly align the design as per the current system and re-share for review.
 
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
+Best Regards,
+[Your Name]
 
-Failing sql is:
-GRANT ON COMMIT REFRESH ON "ARCHSBI"."ICSA_02101015" TO "FNS_ROLE_UPD"
 
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
+---
 
-Failing sql is:
-GRANT QUERY REWRITE ON "ARCHSBI"."ICSA_02101015" TO "FNS_ROLE_UPD"
+Do you want me to also prepare a comparison screenshot table (Expected vs Delivered) to attach in the email for better clarity?
 
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT DEBUG ON "ARCHSBI"."ICSA_02101015" TO "FNS_ROLE_UPD"
-
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT FLASHBACK ON "ARCHSBI"."ICSA_02101015" TO "FNS_ROLE_UPD"
-
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT ALTER ON "ARCHSBI"."ICSA_02101015" TO "FNSONLID"
-
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT DELETE ON "ARCHSBI"."ICSA_02101015" TO "FNSONLID"
-
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT INDEX ON "ARCHSBI"."ICSA_02101015" TO "FNSONLID"
-
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT INSERT ON "ARCHSBI"."ICSA_02101015" TO "FNSONLID"
-
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT SELECT ON "ARCHSBI"."ICSA_02101015" TO "FNSONLID"
-
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT UPDATE ON "ARCHSBI"."ICSA_02101015" TO "FNSONLID"
-
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT REFERENCES ON "ARCHSBI"."ICSA_02101015" TO "FNSONLID"
-
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT READ ON "ARCHSBI"."ICSA_02101015" TO "FNSONLID"
-
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT ON COMMIT REFRESH ON "ARCHSBI"."ICSA_02101015" TO "FNSONLID"
-
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT QUERY REWRITE ON "ARCHSBI"."ICSA_02101015" TO "FNSONLID"
-
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT DEBUG ON "ARCHSBI"."ICSA_02101015" TO "FNSONLID"
-
-ORA-39083: Object type OBJECT_GRANT failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-GRANT FLASHBACK ON "ARCHSBI"."ICSA_02101015" TO "FNSONLID"
-
-Processing object type TABLE_EXPORT/TABLE/INDEX/INDEX
-ORA-39083: Object type INDEX failed to create with error:
-ORA-31625: Schema ARCHSBI is needed to import this object, but is unaccessible
-ORA-01031: insufficient privileges
-
-Failing sql is:
-CREATE UNIQUE INDEX "ARCHSBI"."ICSAPK_021020025" ON "ARCHSBI"."ICSA_02101015" ("ICSA_SOC_NO", "ICSA_INSTR_NO", "ICSA_ACCT_NO", "ICSA_TRN_DATE", "ICSA_TRN_TIME") PCTFREE 5 INITRANS 5 MAXTRANS 255  STORAGE(INITIAL 1048576 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645 PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT) TABLESPACE "TSIDX_1M" PARALLEL 1
-
-Processing object type TABLE_EXPORT/TABLE/INDEX/STATISTICS/INDEX_STATISTICS
-Processing object type TABLE_EXPORT/TABLE/STATISTICS/TABLE_STATISTICS
-Processing object type TABLE_EXPORT/TABLE/STATISTICS/MARKER
-Job "QUERYI"."SYS_IMPORT_FULL_18" completed with 26 error(s) at Sun Oct 5 12:27:51 2025 elapsed 0 00:02:35
 
