@@ -1,40 +1,175 @@
-Here’s a professional draft mail you can send back to Apnomics team 👇
+#!/bin/ksh
+#*****************************************************************************************************************************#
+#       JOB      : Technical control for RSYNC                                                                                #
+#       PURPOSE  : The job will check current CBS working site and place suitable $card/drserver.card for $sh/RSYNC-DR-APPL.sh#
+#       CREATED BY : DEEPAK LAKSHMANAN and NITIN NAIK (PSO Team)                                                              #
+#       DATE : 21 FEB 2024                                                                                                    #
+#*****************************************************************************************************************************#
+>$HOME/Filehash_All_servers.txt
+>$HOME/Filehash_Diff.txt
+
+################# VALIDATING FILEHASH OF CARDFILES BEFORE COPYING ON MASTER #################
+
+cd $card
+cat drservercard_filehash.card|while read i
+do
+Card=`echo ${i} |awk '{print $1}'`
+hash_out=`filehash -f $Card | awk '{print $2}'`
+grep $hash_out drservercard_filehash.card
+if [ $? -eq 0 ]
+then
+echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] Filehash proper for cards present in filehash.card" >>$sysout/zerobyte.log
+else
+echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] Filehash is not proper for cards present in filehash.card" >>$sysout/zerobyte.log
+exit 2
+fi
+done
+
+################# VALIDATING CASES #################
+
+cases=$1
+
+if [ $cases = 'case1' ]
+then
+        PR_card='drserver_PR_DR.card'
+        DR_card='drserver_DR_PR.card'
+        NR_card='drserver_NR_PR.card'
+
+        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] Starting case1 : cards to be used if production is on PR site $PR_card or on DR site $DR_card or on $NR_card respectively ">>$sysout/zerobyte.log
+
+elif [ $cases = 'case2' ]
+then
+        PR_card='drserver_PR_NR.card'
+        DR_card='drserver_DR_NR.card'
+        NR_card='drserver_NR_DR.card'
+
+        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] Starting case2 : cards to be used if production is on PR site $PR_card or on DR site $DR_card or on $NR_card respectively ">>$sysout/zerobyte.log
+
+else
+        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] Please use only valid argument, either 'case1' or 'case2'">>$sysout/zerobyte.log
+        exit 4
+
+fi
+
+################# COPYING THE CARDFILES #################
+
+second_octate=`getip app1.core | awk -F '.' '{print $2}'`
+cd $card
+if [ $second_octate -eq 0 ]
+then
+        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] CBS is at PR, copying $PR_card as drserver.card" >>$sysout/zerobyte.log
+        cp $PR_card drserver.card
+
+        if [ $? -eq 0 ]
+        then
+        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] CP was proper " >>$sysout/zerobyte.log
+        else
+        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] CP was not proper , Kindly check ${PR_card} is present in $card path or not in SUTLEJ" >>$sysout/zerobyte.log
+        exit 10;
+        fi
+                Server_IP='PR_servers_ip.card'
+                for i in `cat PR_servers_ip.card`
+                do
+                scp drserver.card fnsonli@${i}:$card/drserver.card
+                done
+
+                if [ $? -eq 0 ]
+                then
+                    echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] SCP was proper " >>$sysout/zerobyte.log
+                else
+                    echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] SCP was not proper , Kindly check for AUTH_MAX and directory permissions in PR site" >>$sysout/zerobyte.log
+
+                    exit 11;
+                fi
 
 
----
+elif [ $second_octate -eq 176 ]
+then
+        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] CBS is at DR, copying $DR_card as drserver.card" >>$sysout/zerobyte.log
+        cp $DR_card drserver.card
 
-Subject: Feedback on Job Section Implementation & Access Request
+        if [ $? -eq 0 ]
+        then
+        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] CP was proper " >>$sysout/zerobyte.log
+        else
+        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] CP was not proper , Kindly check $DR_card is present in $card path or not in KRISHNA" >>$sysout/zerobyte.log
+        exit 10;
+        fi
+                Server_IP='DR_servers_ip.card'
+                for i in `cat DR_servers_ip.card`
+                do
+                scp drserver.card fnsonli@${i}:$card/drserver.card
+                done
 
-Dear Team,
-
-We have reviewed the Job Section implementation shared by you. The current design is not aligned with our existing portal structure. Please note the following observations and required changes:
-
-1. The present implementation is time-based whereas our requirement is a matrix-based live dashboard (Jobs vs Servers).
-
-
-2. Status indicators are limited to ✓ and ✗, but our system uses multiple indicators (✔ OK, ⚠ No Data, – NA, ❌ Not Running, ❗ Timestamp Frozen, etc.) along with a legend for clarity.
-
-
-3. Important fields like Check RC, System Idle, Last Update, Connectivity, Misc Job are missing.
-
-
-4. Alerting is absent – any failures or issues should be highlighted immediately in red/orange, as in the current setup.
-
-
-5. Only a few jobs are displayed, whereas the dashboard should include all gateways and servers (B24, ATM, INB, MR, TF Gateway, Trickle Feed, RTGS, NEFT, MQ Server, etc.).
-
-
-
-Additionally, regarding your request for production server access to run scripts, please note that such access cannot be granted directly. You are requested to take formal approval from the Bank through the proper channel before proceeding.
-
-Kindly align the design as per the current system and re-share for review.
-
-Best Regards,
-[Your Name]
+                if [ $? -eq 0 ]
+                then
+                    echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] SCP was proper " >>$sysout/zerobyte.log
+                else
+                    echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] SCP was not proper , Kindly check for AUTH_MAX and directory permissions in DR site" >>$sysout/zerobyte.log
+                    exit 11;
+                fi
 
 
----
+else [ $second_octate -eq 189 ]
+        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] CBS is at NR, copying $NR_card as drserver.card" >>$sysout/zerobyte.log
+        cp $NR_card drserver.card
 
-Do you want me to also prepare a comparison screenshot table (Expected vs Delivered) to attach in the email for better clarity?
+        if [ $? -eq 0 ]
+        then
+        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] CP was proper " >>$sysout/zerobyte.log
+        else
+        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] CP was not proper , Kindly check $NR_card is present in $card path or not in HIMALAYA" >>$sysout/zerobyte.log
+        exit 10;
+        fi
+                Server_IP='NR_servers_ip.card'
+                for i in `cat NR_servers_ip.card`
+                do
+                scp drserver.card fnsonli@${i}:$card/drserver.card
+                done
 
+                if [ $? -eq 0 ]
+                then
+                    echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] SCP was proper " >>$sysout/zerobyte.log
+                else
+                    echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] SCP was not proper , Kindly check for AUTH_MAX and directory permissions in NR site" >>$sysout/zerobyte.log
+                    exit 11;
+                fi
+fi
+
+
+
+################# VALIDATING FILEHASH #################
+for i in `cat $Server_IP`
+do
+ssh -q $i 'echo `hostname`":\c"';
+ssh -q $i "export PATH=/fns:$PATH;. ./.profile 1>/dev/null 2>/dev/null;filehash -f /fns/i/r/card/drserver.card|awk '{print\$2}'"
+done >> $HOME/Filehash_All_servers.txt
+
+if [ $? -eq 0 ]
+then
+    echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] Filehash_All_servers.txt has been created successfully in /home/fnsonli  " >>$sysout/zerobyte.log
+else
+    echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] Unable to get FILEHASH of drserver.card from all apps kindly check for AUTH_MAX" >>$sysout/zerobyte.log
+exit 9;
+fi
+
+master_filehash=`filehash -f $card/drserver.card|awk '{print $2}'`
+
+grep -v $master_filehash $HOME/Filehash_All_servers.txt >>$HOME/Filehash_Diff.txt
+
+cat $HOME/Filehash_Diff.txt|while read line
+do
+diff_app=`echo $line|awk -F ':' '{print $1}'`
+echo "Filehash is not proper of drserver.card in APP${diff_app} Kindly check once" >>$sysout/zerobyte.log
+done
+
+count_diff=`wc -l $HOME/Filehash_Diff.txt|awk '{print $1}'`
+
+if [ $count_diff -eq 0 ]
+then
+    echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] FILEHASH is proper across all apps JOB has been completed successfully " >>$sysout/zerobyte.log
+else
+    echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] Difference in filehash observed kindly check $HOME/Filehash_Diff.txt for more" >>$sysout/zerobyte.log
+    exit 15;
+fi
 
