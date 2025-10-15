@@ -1,1 +1,84 @@
 
+function status_queue() {
+    $filePath = $this->currpath . "status_queue_8app.txt." . $this->datecrr;
+    $rawLines = @file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    if (!$rawLines || !is_array($rawLines) || count($rawLines) === 0) {
+        echo "<tr><td colspan='16' class='text-center'>No data (file missing or empty)</td></tr>";
+        return;
+    }
+
+    $data1 = [];
+    foreach ($rawLines as $line) {
+        $line = preg_replace('/^\xEF\xBB\xBF/', '', $line);
+        $line = trim($line);
+        if ($line === '') continue;
+
+        // Get queue name
+        $parts = explode(',', $line, 2);
+        $qname = trim($parts[0]);
+
+        // Hide VV3Q (case-insensitive)
+        if (strcasecmp($qname, 'VV3Q') === 0) continue;
+
+        // Replace NQKE -> -1
+        $data1[] = str_replace('NQKE', '-1', $line);
+    }
+
+    if (empty($data1)) {
+        echo "<tr><td colspan='16' class='text-center'>No valid queue data</td></tr>";
+        return;
+    }
+
+    $data = $this->throwRed($data1, ',');
+    if (empty($data)) $data = $data1;
+
+    foreach ($data as $row) {
+        if ($row === '') continue;
+        $cells = explode(',', $row);
+        echo "<tr>";
+
+        foreach ($cells as $k2 => $v2) {
+            $v2t  = trim((string)$v2);
+            $plain = trim(html_entity_decode(strip_tags($v2t)));
+            $v2n   = preg_match('/^-?\d+$/', $plain) ? (int)$plain : null;
+
+            if ($k2 === 0) {
+                $link = "window.open('queuereplica.php?queue=" . urlencode($plain) .
+                        "&&date=" . $this->datecrr .
+                        "','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                echo "<th><a onclick=\"$link\">" . htmlspecialchars($plain, ENT_QUOTES) . "</a></th>";
+                continue;
+            }
+
+            if ($plain === 'NQKE' || $v2n === -1) {
+                echo "<td><i class='fa fa-thumbs-down' style='color:red'></i></td>";
+                continue;
+            }
+
+            if ($v2n !== null && $v2n >= 1 && $v2n < 99) {
+                echo "<td title='" . htmlspecialchars($plain, ENT_QUOTES) . "'>0</td>";
+                continue;
+            }
+
+            if ($v2n !== null && $v2n >= 99 && $v2n < 500) {
+                echo "<td class='bg-yellow text-center'>" . htmlspecialchars($plain, ENT_QUOTES) . "</td>";
+                continue;
+            }
+
+            if ($v2n !== null && $v2n >= 500) {
+                echo "<td class='bg-red-active'>" . htmlspecialchars($plain, ENT_QUOTES) . "</td>";
+                continue;
+            }
+
+            echo "<td>" . htmlspecialchars($plain, ENT_QUOTES) . "</td>";
+        }
+
+        echo "</tr>";
+    }
+}
+
+function status_queue1() {
+    // identical behavior — reuses the same logic safely
+    $this->status_queue();
+}
