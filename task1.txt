@@ -1,64 +1,88 @@
 
-<?php
-error_reporting(1);
-$protocol = "https://";
-$ip = $_SERVER['SERVER_ADDR'];
-$hostname = $protocol . $_SERVER['SERVER_ADDR'];
-include("includes/function.php");
-date_default_timezone_set("Asia/Kolkata");
+        function status_queue() {
+    // (1) Read the data file safely (no shell_exec)
+    $filePath = $this->currpath . "status_queue_8app.txt." . $this->datecrr;
+    $rawLines = @file($filePath, FILE_IGNORE_NEW_LINES);    // false if unreadable
 
-$getDDcrr = $_GET['date'] ?? '';
-$mldate = trim(@file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/MFLAGS_D"));
-
-if (empty($getDDcrr)) {
-    $crdate  = $mldate;
-} else {
-    $crdate  = $getDDcrr;
-}
-
-$filePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/Portal_Main_Bulk_File.txt_$crdate";
-
-if (file_exists($filePath) && is_readable($filePath)) {
-    $fileLines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-    if ($fileLines !== false && !empty($fileLines)) {
-        $firstLine = array_shift($fileLines);
-        $parts = explode(",", $firstLine);
-        $MasterDecider = array_shift($parts);
-    } else {
-        $MasterDecider = "PR"; // fallback if file empty
-        error_log("Config.php: File $filePath is empty");
+    if (!$rawLines || !is_array($rawLines) || count($rawLines) === 0) {
+        echo "<tr><td colspan='16' class='text-center'>No data (file missing or empty)</td></tr>";
+        return;
     }
-} else {
-    $MasterDecider = "PR"; // fallback if file missing
-    error_log("Config.php: File $filePath not found or not readable");
-}
 
-switch ($MasterDecider) {
-    case "SUTLEJ":
-        $DBdecider = 'PR';
-        break;
-    case "KRISHNA":
-        $DBdecider = 'DR(No Auto Switch)';
-        break;
-    case "HIMALAYA":
-        $DBdecider = 'NR(No Auto Switch)';
-        break;
-    default:
-        $DBdecider = 'PR';
-        break;
-}
-
-$nslookup = trim(@file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/nslookup.txt"));
-
-function encrypt_decrypt($action, $string) {
-    if ($action == 'encrypt') {
-        $output = base64_encode(bin2hex($string));
-    } else if ($action == 'decrypt') {
-        $output = pack("H*", base64_decode($string));
-    } else {
-        $output = null;
+    // (2) Filter: drop blank & any case of VV3Q; normalize NQKE -> -1
+    $data1 = [];
+    foreach ($rawLines as $line) {
+        if ($line === '' || stripos($line, 'VV3Q') !== false) continue;  // case-insensitive
+        $data1[] = str_replace('NQKE', '-1', rtrim($line, "\r\n"));
     }
-    return $output;
+
+    // If still blank, nothing to render
+    if (parent::checkblank($data1)) return;
+
+    // (3) Let your helper transform rows; it may inject markup
+    $data = $this->throwRed($data1, ',');
+
+    foreach ($data as $row) {
+        if ($row === '') continue;
+        $cells = explode(',', $row);
+        echo "<tr>";
+
+        foreach ($cells as $k2 => $v2) {
+            // text that may include markup from throwRed
+            $v2t = trim((string)$v2);
+
+            // plain text for numeric logic
+            $plain  = trim(html_entity_decode(strip_tags($v2t)));
+            $v2n    = preg_match('/^-?\d+$/', $plain) ? (int)$plain : null;
+
+            if ($k2 === 0) {
+                // queue name cell with popup
+                $link = "window.open('queuereplica.php?queue=" . urlencode($plain) .
+                        "&&date=" . $this->datecrr .
+                        "','','height=800,width=1400,scrollbars=yes,resizable=yes');";
+                echo "<th><a onclick=\"$link\">" . htmlspecialchars($plain, ENT_QUOTES) . "</a></th>";
+                continue;
+            }
+
+            // 👎 for NQKE or -1
+            if ($plain === 'NQKE' || $v2n === -1) {
+                echo "<td><i class='fa fa-thumbs-down' style='color:red'></i></td>";
+                continue;
+            }
+
+            // <99 → 0 (your test: change to 'A' if you want to verify)
+            if ($v2n !== null && $v2n >= 1 && $v2n < 99) {
+                echo "<td title='" . htmlspecialchars($plain, ENT_QUOTES) . "'>0</td>";
+                continue;
+            }
+
+            // 99..499 → yellow
+            if ($v2n !== null && $v2n >= 99 && $v2n < 500) {
+                echo "<td class='bg-yellow text-center'>" . htmlspecialchars($plain, ENT_QUOTES) . "</td>";
+                continue;
+            }
+
+            // ≥500 → red
+            if ($v2n !== null && $v2n >= 500) {
+                echo "<td class='bg-red-active'>" . htmlspecialchars($plain, ENT_QUOTES) . "</td>";
+                continue;
+            }
+
+            // default: print plain value
+            echo "<td>" . htmlspecialchars($plain, ENT_QUOTES) . "</td>";
+        }
+
+        echo "</tr>";
+    }
 }
-?>
+
+-------------------------------------------------------------
+I will share the code to monitor Queue bildup in funcion along
+with function in php. in this the file while it is displaying 
+status_queue_8app.txt has BL1Q and VV3Q but these queues are not 
+getting displayed in the portal only queues till BLTQ are getting displayed.
+i want all the queues to get displayed.
+
+
+
+-=
