@@ -1,13 +1,1 @@
-function throwRed($dataArr,$param){
-                $temp = array(); $g = array();
-                for($i=0;$i<(count($dataArr)-1);$i++){
-                        $y = explode($param,$dataArr[$i]);array_shift($y);rsort($y);
-                        if($y[0] > 0 || $y[0] < 0 ){
-                                $temp[] = $dataArr[$i];
-                        }
-                        else{
-                                $g[] = $dataArr[$i];
-                        }
-                }
-                return array_merge($temp,$g);
-        }
+
