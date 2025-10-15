@@ -1,1 +1,40 @@
 
+function throwRed($dataArr, $param) {
+    $temp = [];
+    $g = [];
+
+    if (!is_array($dataArr) || count($dataArr) === 0) {
+        return [];
+    }
+
+    foreach ($dataArr as $line) {
+        // split into fields; first field is queue name
+        $parts = explode($param, $line);
+        if (count($parts) <= 1) {
+            $g[] = $line;
+            continue;
+        }
+
+        array_shift($parts); // remove queue name
+
+        // find a non-zero numeric value among fields (including negatives)
+        $hasNonZero = false;
+        foreach ($parts as $p) {
+            $p = trim($p);
+            if ($p === '') continue;
+            // treat numeric strings (including negative) as numbers
+            if (is_numeric($p) && ((int)$p) !== 0) {
+                $hasNonZero = true;
+                break;
+            }
+        }
+
+        if ($hasNonZero) {
+            $temp[] = $line;
+        } else {
+            $g[] = $line;
+        }
+    }
+
+    return array_merge($temp, $g);
+}
