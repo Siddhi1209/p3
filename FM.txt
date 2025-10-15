@@ -1,11 +1,11 @@
 
-function night_queue1(){
+    function night_queue1(){
     $data1 = explode("\n", file_get_contents($this->currpath."status_queue_9apps.txt.".$this->datecrr));
     if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
     $data = $this->throwRed($data1,',');
 
     // Known queues that are always NQKE (baseline ones that should go at the bottom)
-    $alwaysNqke = ["CTAQ","CTBQ","CTCQ","CTDQ","CREQ","CRFQ","CRGQ","CRHQ","CRIQ","CRCQ"];
+    $alwaysNqke = ["CTAQ","CRCQ","ONLQ","CTDQ","PF1Q","RESPQ","SDVQ","VV1Q","VV2Q","VV3Q","ARCQ","KCCQ","FA1Q","SFDQ"];
 
     $criticalQueues   = [];
     $activeQueues     = [];
@@ -19,13 +19,13 @@ function night_queue1(){
 
         if(in_array("NQKE", $vare)) {
             if(in_array($queueName, $alwaysNqke)) {
-                $expectedNqke[] = $vare;   // permanent NQKE → bottom (red cross)
+                $expectedNqke[] = $vare;   // permanent NQKE b bottom
             } else {
-                $unexpectedNqke[] = $vare; // new down → top (red thumbs-down)
+                $unexpectedNqke[] = $vare; // new down b top
             }
-        } 
+        }
         elseif(max(array_map('intval', array_filter($vare, 'is_numeric'))) > 500) {
-            $criticalQueues[] = $vare;     // Critical (>500) → very top
+            $criticalQueues[] = $vare;     // Critical (>500) b very top
         }
         else {
             $activeQueues[] = $vare;       // Normal
@@ -34,26 +34,26 @@ function night_queue1(){
 
     // 1. Critical queues (red > 500)
     foreach ($criticalQueues as $vare) {
-        $this->printQueueRowOriginal($vare, 'critical');
+        $this->printQueueRowOriginal($vare);
     }
 
-    // 2. Unexpected NQKE queues (newly down → top)
+    // 2. Unexpected NQKE queues (newly down b top with thumbs down)
     foreach ($unexpectedNqke as $vare) {
-        $this->printQueueRowOriginal($vare, 'unexpected');
+        $this->printQueueRowOriginal($vare);
     }
 
     // 3. Active queues
     foreach ($activeQueues as $vare) {
-        $this->printQueueRowOriginal($vare, 'active');
+        $this->printQueueRowOriginal($vare);
     }
 
-    // 4. Expected NQKE queues (always down → bottom)
+    // 4. Expected NQKE queues (baseline, always down) b bottom
     foreach ($expectedNqke as $vare) {
-        $this->printQueueRowOriginal($vare, 'expected');
+        $this->printQueueRowOriginal($vare);
     }
 }
 
-private function printQueueRowOriginal($vare, $type = 'active') {
+private function printQueueRowOriginal($vare) {
     echo "<tr>";
     foreach ($vare as $k2 => $v2){
         if($k2 == '0' && $vare != '' ){
@@ -62,18 +62,16 @@ private function printQueueRowOriginal($vare, $type = 'active') {
                     <a style='color:white;cursor:pointer;' onclick=$linkreplica>".$v2."</a>
                   </th>";
         }
-        elseif($k2 > '0' && $v2 > 500 && trim($v2) != 'NQKE') {
-            echo "<td class='text-center' style='background-color:red;color:white;'>".(intval($v2))."</td>";
+
+        elseif($k2 > '0' && $v2 >= '99' && $v2 < '499'){
+                echo "<td style='background-color: #f39c12;color:white;' class='text-center'>".$v2."</td>";
+        }
+        elseif($k2 > '0' &&  $v2 > 499 && trim($v2) != 'NQKE') {
+                echo "<td class='text-center' style='background-color:red;color:white;'>".(intval($v2))."</td>";
         }
         elseif(trim($v2) == 'NQKE'){
-            // Different icons for unexpected vs expected NQKE
-            if($type === 'unexpected'){
-                // Newly down → red thumbs-down
-                echo "<td style='color:white;background-color:#FF0000;'><i class='fa fa-thumbs-down'></i></td>";
-            } else {
-                // Always down → red cross
-                echo "<td style='color:white;background-color:#FF0000;'><i class='fa fa-times'></i></td>";
-            }
+            // Changed from blue dash to red thumbs-down
+            echo "<td style='color:white;background-color:#FF0000;'><i class='fa fa-thumbs-down'></i></td>";
         }
         else {
             echo "<td title='$v2' class='text-center'>0</td>";
@@ -81,3 +79,4 @@ private function printQueueRowOriginal($vare, $type = 'active') {
     }
     echo "</tr>";
 }
+
