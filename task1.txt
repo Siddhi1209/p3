@@ -1,51 +1,24 @@
-
-function status_queue() {
-    // Build full file path
+        function status_queue1() {
+    // (1) Read the data file safely (no shell_exec)
     $filePath = $this->currpath . "status_queue_8app.txt." . $this->datecrr;
+    $rawLines = @file($filePath, FILE_IGNORE_NEW_LINES);
 
-    // Safely read file lines (ignore empty ones)
-    $rawLines = @file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-    // If file missing or empty
     if (!$rawLines || !is_array($rawLines) || count($rawLines) === 0) {
         echo "<tr><td colspan='16' class='text-center'>No data (file missing or empty)</td></tr>";
         return;
     }
 
-    // ---------------------------
-    // Step 1 : Clean + filter lines
-    // ---------------------------
+    // (2) Filter: drop blank & VV3Q (any case); normalize NQKE -> -1
     $data1 = [];
     foreach ($rawLines as $line) {
-        // Remove any UTF-8 BOM (very common when first line written by C program)
-        $line = preg_replace('/^\xEF\xBB\xBF/', '', $line);
-
-        // Trim spaces / CRLF
-        $line = trim($line);
-
-        // Skip empty or VV3Q queues only
         if ($line === '' || stripos($line, 'VV3Q') !== false) continue;
-
-        // Replace NQKE with -1 for uniformity
-        $line = str_replace('NQKE', '-1', $line);
-
-        $data1[] = $line;
+        $data1[] = str_replace('NQKE', '-1', rtrim($line, "\r\n"));
     }
 
-    // If after filtering nothing remains
-    if (empty($data1)) {
-        echo "<tr><td colspan='16' class='text-center'>No valid queue data</td></tr>";
-        return;
-    }
+    if (parent::checkblank($data1)) return;
 
-    // ---------------------------
-    // Step 2 : Transform rows
-    // ---------------------------
     $data = $this->throwRed($data1, ',');
 
-    // ---------------------------
-    // Step 3 : Render table
-    // ---------------------------
     foreach ($data as $row) {
         if ($row === '') continue;
         $cells = explode(',', $row);
@@ -53,10 +26,9 @@ function status_queue() {
 
         foreach ($cells as $k2 => $v2) {
             $v2t = trim((string)$v2);
-            $plain = trim(html_entity_decode(strip_tags($v2t)));
-            $v2n = preg_match('/^-?\d+$/', $plain) ? (int)$plain : null;
+            $plain  = trim(html_entity_decode(strip_tags($v2t)));
+            $v2n    = preg_match('/^-?\d+$/', $plain) ? (int)$plain : null;
 
-            // ---- Queue name cell (first column)
             if ($k2 === 0) {
                 $link = "window.open('queuereplica.php?queue=" . urlencode($plain) .
                         "&&date=" . $this->datecrr .
@@ -65,7 +37,6 @@ function status_queue() {
                 continue;
             }
 
-            // ---- Special cells logic
             if ($plain === 'NQKE' || $v2n === -1) {
                 echo "<td><i class='fa fa-thumbs-down' style='color:red'></i></td>";
                 continue;
@@ -86,7 +57,6 @@ function status_queue() {
                 continue;
             }
 
-            // Default case
             echo "<td>" . htmlspecialchars($plain, ENT_QUOTES) . "</td>";
         }
 
