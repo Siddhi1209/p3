@@ -1,95 +1,245 @@
+#!/usr/bin/ksh
+out_file=/home/monitorp/newpace/data
+mdf=`cut -c 9-16 $data/file/MFLAGS`
+cur_date=`date | cut -c5-10`
+>${out_file}/req_job_status.txt
+if [ -s /home/monitorp/newpace/scripts/ONLINE/REQ_JOB_LIST.card ]
+then
+        cat /home/monitorp/newpace/scripts/ONLINE/REQ_JOB_LIST.card | grep -v '^#' | while read line
+        do
+                i=`echo ${line} | awk -F ',' '{print $1}'`
+                job_flag=`echo ${line} | awk -F ',' '{print $2}'`
+                log_check_flag=`echo ${line} | awk -F ',' '{print $3}'`
+                if [ "${job_flag}" = "Y" ]
+                then
+                        job_check=`ps -fu fnsonlid | grep -w ${i} | grep -Ev 'grep|vim'`
+                        if [ $? -eq 1 ]
+                        then
+                                if [ ${log_check_flag} = "Y" ]
+                                then
 
-function night_queue1(){
-    $data1 = explode("\n", file_get_contents($this->currpath."status_queue_9apps.txt.".$this->datecrr));
-    if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
-    $data = $this->throwRed($data1,',');
+                                        if [ ! -f $sysout/${i}* ]
+                                        then
+                                                echo "`hostname`,${i},NR" >>${out_file}/req_job_status.txt
+                                        else
+                                                file_name=`ls -lrt $sysout/${i}* grep "${cur_date}" | tail -1 | awk '{print $NF}'`
+                                                check_rc=`grep 'RC =' ${file_name} | grep -i end | awk '{print $NF}' | tail -1`
+                                                if [ ${check_rc} -eq 0 ]
+                                                then
+                                                        ps -fu fnsonlid | grep -w ${i} | grep -Ev 'grep|vim'
+                                                        if [ $? -eq 1 ]
+                                                        then
+                                                                echo "`hostname`,${i},NR" >>${out_file}/req_job_status.txt
+                                                        else
+                                                                echo "`hostname`,${i},RU" >>${out_file}/req_job_status.txt
+                                                        fi
+                                                else
+                                                        echo "`hostname`,${i},CR" >>${out_file}/req_job_status.txt
+                                                fi
+                                        fi
+                                else
+                                        echo "`hostname`,${i},NR" >>${out_file}/req_job_status.txt
+                                fi
+                        else
+                                if [ ${log_check_flag} = "Y" ]
+                                then
+                                        file_time=`ll -rtl $sysout/${i}* | grep "${cur_date}" | tail -1 | awk '{print $8}'`
+                                        curr_time=`date | awk '{print $4}' | cut -c 1-5`
+                                        tim_diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_time $curr_time`
+                                        if [ ${tim_diff} -gt 60 ]
+                                        then
+                                                echo "`hostname`,${i},NU" >>${out_file}/req_job_status.txt
+                                        else
+                                                echo "`hostname`,${i},RU" >>${out_file}/req_job_status.txt
+                                        fi
+                                else
+                                        echo "`hostname`,${i},RU" >>${out_file}/req_job_status.txt
+                                fi
+                        fi
+                fi
+        done
+else
+        echo "`hostname`,NANA - No entry in Cardfile" >>${out_file}/req_job_status.txt
+fi
+################################################### SY1000  ##################################################                      [BY CHINMAY]
 
-    // Known queues that are always NQKE (baseline ones that should go at the bottom)
-    $alwaysNqke = ["CTAQ","CRCQ","ONLQ","CTDQ","PF1Q","RESPQ","SDVQ","VV1Q","VV2Q","VV3Q","ARCQ","KCCQ","FA1Q","SFDQ"];
+out_file=/home/monitorp/newpace/data
+cur_date=`date | cut -c5-10`
+file_name=`ls -lrt $sysout/SY1000_???*out | grep "${cur_date}" | head -1 | awk '{print $NF}'`
+x=""
 
-    $criticalQueues   = [];
-    $activeQueues     = [];
-    $unexpectedNqke   = [];
-    $expectedNqke     = [];
+check_rc=`grep 'RC =' ${file_name} | grep -i end | awk '{print $NF}' | tail -1`
+if [  ${check_rc} -eq ${x} ]
+then
+check_rc=0
+fi
+rcode=`grep 'RETURN CODE' ${file_name} | awk '{print $5}'`
+if [  ${rcode} -eq ${x} ]
+then
+rcode=0
+fi
+if [ ${check_rc} -eq 0 ] && [ ${rcode} -eq 0 ]
+then
+        ps -fu fnsonlid | grep -w SY1000 | grep -Ev 'grep|vim'
+        if [ $? -eq 1 ]
+        then
+        echo "`hostname`,SY1000,NR" >> ${out_file}/req_job_status.txt
+        else
+        echo "`hostname`,SY1000,RU" >> ${out_file}/req_job_status.txt
+        fi
+else
+        echo "`hostname`,SY1000,CR" >> ${out_file}/req_job_status.txt
+fi
 
-    // Separate queues into groups
-    foreach ($data as $key2 => $value2) {
-        $value2 = trim($value2);
-        if ($value2 === '') continue; // skip blank lines
-        $vare = explode(",",$value2);
-        $queueName = trim($vare[0]);
+#################################################################################################################
+$npscripts/UTILITIES/ftc_onl.sh ${out_file}/req_job_status.txt  req_job_status_m.txt_${mdf}
+$npscripts/UTILITIES/ftc_onl.sh ${out_file}/NT000_file_status.txt NT000_file_status.txt_${mdf}
+$npscripts/UTILITIES/ftc_onl.sh $HOME/pace/space_check_median.txt space_check_median.txt
+$npscripts/UTILITIES/ftc_onl.sh $HOME/pace/TBforward_status.txt TBforward_status.txt
 
-        if(in_array("NQKE", $vare)) {
-            if(in_array($queueName, $alwaysNqke)) {
-                $expectedNqke[] = $vare;   // permanent NQKE -> bottom
-            } else {
-                $unexpectedNqke[] = $vare; // new down -> top
-            }
-        }
-        elseif(max(array_map('intval', array_filter($vare, 'is_numeric'))) > 499) {
-            $criticalQueues[] = $vare;     // Critical (>499) -> very top
-        }
-        else {
-            $activeQueues[] = $vare;       // Normal
-        }
-    }
 
-    // 1. Critical queues (red > 499)
-    foreach ($criticalQueues as $vare) {
-        $this->printQueueRowOriginal($vare, 'critical');
-    }
+##################################### DCOG SERVER APPLICATION LOG MOUNTPOINT SPACE CHECK ##################################
+nar_ip=`grep DCOG1 /opt/TouchBase/config/officedbsbi.txt | awk -F 'ftphost=' '{print $2}' | awk -F '|' '{print $1}'`
+nar_user=`grep DCOG1 /opt/TouchBase/config/officedbsbi.txt | awk -F 'user=' '{print $2}' | awk -F '|' '{print $1}'`
+nar_port=`grep DCOG1 /opt/TouchBase/config/officedbsbi.txt | awk -F 'sport=' '{print $2}' | awk -F '|' '{print $1}'`
 
-    // 2. Unexpected NQKE queues (newly down -> top)
-    foreach ($unexpectedNqke as $vare) {
-        $this->printQueueRowOriginal($vare, 'unexpected');
-    }
+mul_ip=`grep DCOGDR /opt/TouchBase/config/officedbsbi.txt | awk -F 'ftphost=' '{print $2}' | awk -F '|' '{print $1}'`
+HIMALAYA:/home/monitorp/newpace/scripts/ONLINE:-)
+HIMALAYA:/home/monitorp/newpace/scripts/ONLINE:-)
+HIMALAYA:/home/monitorp/newpace/scripts/ONLINE:-)
+HIMALAYA:/home/monitorp/newpace/scripts/ONLINE:-)cat online_requested_job_check.sh
+#!/usr/bin/ksh
+out_file=/home/monitorp/newpace/data
+mdf=`cut -c 9-16 $data/file/MFLAGS`
+cur_date=`date | cut -c5-10`
+>${out_file}/req_job_status.txt
+if [ -s /home/monitorp/newpace/scripts/ONLINE/REQ_JOB_LIST.card ]
+then
+        cat /home/monitorp/newpace/scripts/ONLINE/REQ_JOB_LIST.card | grep -v '^#' | while read line
+        do
+                i=`echo ${line} | awk -F ',' '{print $1}'`
+                job_flag=`echo ${line} | awk -F ',' '{print $2}'`
+                log_check_flag=`echo ${line} | awk -F ',' '{print $3}'`
+                if [ "${job_flag}" = "Y" ]
+                then
+                        job_check=`ps -fu fnsonlid | grep -w ${i} | grep -Ev 'grep|vim'`
+                        if [ $? -eq 1 ]
+                        then
+                                if [ ${log_check_flag} = "Y" ]
+                                then
 
-    // 3. Active queues
-    foreach ($activeQueues as $vare) {
-        $this->printQueueRowOriginal($vare, 'active');
-    }
+                                        if [ ! -f $sysout/${i}* ]
+                                        then
+                                                echo "`hostname`,${i},NR" >>${out_file}/req_job_status.txt
+                                        else
+                                                file_name=`ls -lrt $sysout/${i}* grep "${cur_date}" | tail -1 | awk '{print $NF}'`
+                                                check_rc=`grep 'RC =' ${file_name} | grep -i end | awk '{print $NF}' | tail -1`
+                                                if [ ${check_rc} -eq 0 ]
+                                                then
+                                                        ps -fu fnsonlid | grep -w ${i} | grep -Ev 'grep|vim'
+                                                        if [ $? -eq 1 ]
+                                                        then
+                                                                echo "`hostname`,${i},NR" >>${out_file}/req_job_status.txt
+                                                        else
+                                                                echo "`hostname`,${i},RU" >>${out_file}/req_job_status.txt
+                                                        fi
+                                                else
+                                                        echo "`hostname`,${i},CR" >>${out_file}/req_job_status.txt
+                                                fi
+                                        fi
+                                else
+                                        echo "`hostname`,${i},NR" >>${out_file}/req_job_status.txt
+                                fi
+                        else
+                                if [ ${log_check_flag} = "Y" ]
+                                then
+                                        file_time=`ll -rtl $sysout/${i}* | grep "${cur_date}" | tail -1 | awk '{print $8}'`
+                                        curr_time=`date | awk '{print $4}' | cut -c 1-5`
+                                        tim_diff=`$npscripts/UTILITIES/getTimeDiff.pl $file_time $curr_time`
+                                        if [ ${tim_diff} -gt 60 ]
+                                        then
+                                                echo "`hostname`,${i},NU" >>${out_file}/req_job_status.txt
+                                        else
+                                                echo "`hostname`,${i},RU" >>${out_file}/req_job_status.txt
+                                        fi
+                                else
+                                        echo "`hostname`,${i},RU" >>${out_file}/req_job_status.txt
+                                fi
+                        fi
+                fi
+        done
+else
+        echo "`hostname`,NANA - No entry in Cardfile" >>${out_file}/req_job_status.txt
+fi
+################################################### SY1000  ##################################################                      [BY CHINMAY]
 
-    // 4. Expected NQKE queues (baseline, always down) -> bottom
-    foreach ($expectedNqke as $vare) {
-        $this->printQueueRowOriginal($vare, 'expected');
-    }
-}
+out_file=/home/monitorp/newpace/data
+cur_date=`date | cut -c5-10`
+file_name=`ls -lrt $sysout/SY1000_???*out | grep "${cur_date}" | head -1 | awk '{print $NF}'`
+x=""
 
-private function printQueueRowOriginal($vare, $type = 'active') {
-    echo "<tr>";
-    foreach ($vare as $k2 => $v2){
-        if($k2 == '0' && $vare != '' ){
-            $linkreplica="window.open('queue_replica_night.php?queue=".urlencode($v2)."&&date=".$this->datecrr."','','height=800,width=1400,scrollbars=yes,resizable=yes');";
-            echo "<th style='background-color:#1f3f92;color:white;' class='text-center'>
-                    <a style='color:white;cursor:pointer;' onclick=$linkreplica>".$v2."</a>
-                  </th>";
-        }
+check_rc=`grep 'RC =' ${file_name} | grep -i end | awk '{print $NF}' | tail -1`
+if [  ${check_rc} -eq ${x} ]
+then
+check_rc=0
+fi
+rcode=`grep 'RETURN CODE' ${file_name} | awk '{print $5}'`
+if [  ${rcode} -eq ${x} ]
+then
+rcode=0
+fi
+if [ ${check_rc} -eq 0 ] && [ ${rcode} -eq 0 ]
+then
+        ps -fu fnsonlid | grep -w SY1000 | grep -Ev 'grep|vim'
+        if [ $? -eq 1 ]
+        then
+        echo "`hostname`,SY1000,NR" >> ${out_file}/req_job_status.txt
+        else
+        echo "`hostname`,SY1000,RU" >> ${out_file}/req_job_status.txt
+        fi
+else
+        echo "`hostname`,SY1000,CR" >> ${out_file}/req_job_status.txt
+fi
 
-        // Orange between 99–499
-        elseif($k2 > '0' && $v2 >= '99' && $v2 < '499'){
-            echo "<td style='background-color:#f39c12;color:white;' class='text-center'>".$v2."</td>";
-        }
+#################################################################################################################
+$npscripts/UTILITIES/ftc_onl.sh ${out_file}/req_job_status.txt  req_job_status_m.txt_${mdf}
+$npscripts/UTILITIES/ftc_onl.sh ${out_file}/NT000_file_status.txt NT000_file_status.txt_${mdf}
+$npscripts/UTILITIES/ftc_onl.sh $HOME/pace/space_check_median.txt space_check_median.txt
+$npscripts/UTILITIES/ftc_onl.sh $HOME/pace/TBforward_status.txt TBforward_status.txt
 
-        // Red for >499 (same as your original)
-        elseif($k2 > '0' &&  $v2 > '499' && trim($v2) != 'NQKE') {
-            echo "<td class='text-center' style='background-color:red;color:white;'>".(intval($v2))."</td>";
-        }
 
-        // NQKE conditions
-        elseif(trim($v2) == 'NQKE'){
-            if($type === 'unexpected'){
-                // Newly down -> red thumbs-down
-                echo "<td style='color:white;background-color:#FF0000;'><i class='fa fa-thumbs-down'></i></td>";
-            } else {
-                // Always down -> red cross
-                echo "<td style='color:white;background-color:#FF0000;'><i class='fa fa-times'></i></td>";
-            }
-        }
+##################################### DCOG SERVER APPLICATION LOG MOUNTPOINT SPACE CHECK ##################################
+nar_ip=`grep DCOG1 /opt/TouchBase/config/officedbsbi.txt | awk -F 'ftphost=' '{print $2}' | awk -F '|' '{print $1}'`
+nar_user=`grep DCOG1 /opt/TouchBase/config/officedbsbi.txt | awk -F 'user=' '{print $2}' | awk -F '|' '{print $1}'`
+nar_port=`grep DCOG1 /opt/TouchBase/config/officedbsbi.txt | awk -F 'sport=' '{print $2}' | awk -F '|' '{print $1}'`
 
-        // Default 0
-        else {
-            echo "<td title='$v2' class='text-center'>0</td>";
-        }
-    }
-    echo "</tr>";
-}
+mul_ip=`grep DCOGDR /opt/TouchBase/config/officedbsbi.txt | awk -F 'ftphost=' '{print $2}' | awk -F '|' '{print $1}'`
+mul_user=`grep DCOGDR /opt/TouchBase/config/officedbsbi.txt | awk -F 'user=' '{print $2}' | awk -F '|' '{print $1}'`
+mul_port=`grep DCOGDR /opt/TouchBase/config/officedbsbi.txt | awk -F 'sport=' '{print $2}' | awk -F '|' '{print $1}'`
+
+ssh -oPort=${nar_port} ${nar_user}@${nar_ip} "bdf | grep -E '/sbi_report_data/ftp/stage|/Application_log' | grep "%" | awk '{print \$4" "\$5}'" >${out_file}/narmada_sp_chk.log
+ssh -oPort=${nar_port} ${nar_user}@${nar_ip} "bdf | grep -E '/var' | grep "%" | awk '{print "\$5" "\$6"}'" >>${out_file}/narmada_sp_chk.log
+
+#newmountpointadd=`ssh -oPort=${nar_port} ${nar_user}@${nar_ip} "bdf | grep -w '/sbi_report_data'| grep "%" | awk '{print $4" "$5}'|head -1"`
+#ssh -oPort=2322 rptftp@10.0.40.4 bdf | grep -w '/sbi_report_data'| grep "%" | awk '{print \$4" "\$5}'" | head -1>>${out_file}/narmada_sp_chk.log
+ssh -oPort=${mul_port} ${mul_user}@${mul_ip} "bdf | grep -E '/sbi_report_data/ftp/stage|/Application_log' | grep "%" | awk '{print \$4" "\$5}'" >${out_file}/mulai_sp_chk.log
+>${out_file}/dcog_srvr_spa_ut_chk.log
+val=`ssh -oPort=${nar_port} ${nar_user}@${nar_ip} "bdf | grep -w '/sbi_report_data'| grep "%" |head -1 "`
+valawk=`echo $val|awk '{print \$4" "\$5}'`
+echo "narmada,$valawk">>${out_file}/dcog_srvr_spa_ut_chk.log
+
+val=`ssh -oPort=${nar_port} ${nar_user}@${nar_ip} "bdf | grep -w '/var'| grep "%" |head -1 "`
+valawk=`echo $val|awk '{print \$5" "\$6}'`
+echo "narmada,$valawk">>${out_file}/dcog_srvr_spa_ut_chk.log
+
+for i in narmada mulai
+do
+        mon=`cut -c 9-14 $data/file/MFLAGS`
+        for j in Application_log ${mon}
+        do
+                sp_chk=`grep "${j}" ${out_file}/${i}_sp_chk.log`
+                echo "${i},${sp_chk}" >>${out_file}/dcog_srvr_spa_ut_chk.log
+        done
+done
+mv ${out_file}/dcog_srvr_spa_ut_chk.log ${out_file}/dcog_server_space_utilisation_check.log
+$npscripts/UTILITIES/ftc_onl.sh ${out_file}/dcog_server_space_utilisation_check.log dcog_server_space_utilisation_check.log
