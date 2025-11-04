@@ -1,1 +1,102 @@
 
+public static function queue_buildup_details($flag, $bool)
+{
+    // Build the file path
+    $filepath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/production_history/queue/online/$flag." . timedisplay::dateUp();
+
+    // Check if file exists
+    if (!file_exists($filepath)) {
+        echo "<thead><tr><th><span class='btn btn-danger'>File not found: $filepath</span></th></tr></thead>";
+        return;
+    }
+
+    // Read file safely
+    $fileContent = trim(file_get_contents($filepath));
+    if ($fileContent === '') {
+        echo "<thead><tr><th><span class='btn btn-warning'>No Data Available</span></th></tr></thead>";
+        return;
+    }
+
+    $data1 = explode("\n", $fileContent);
+
+    // Fetch repost time
+    $repostqueuebasedTime = shell_exec("cat " . timedisplay::pathgiver() . "repost_time_forqueue.txt." . timedisplay::dateUp());
+    $timeornot = strpos($repostqueuebasedTime, ":");
+
+    if ($timeornot === false) {
+        $queuebasedHour = "05";
+        $queuebasedMin = "00";
+    } else {
+        $queuebasedHour = explode(":", trim($repostqueuebasedTime));
+        $queuebasedMin = explode(":", trim($repostqueuebasedTime));
+    }
+
+    // -----------------------
+    // HEADER CREATION
+    // -----------------------
+    if ($bool == 0) {
+        echo "<thead>";
+        $header = explode(",", trim($data1[0]));
+        echo "<tr>";
+        foreach ($header as $col) {
+            $col = trim($col);
+            echo "<th style='background-color:#1f3f92;color:white;' class='text-center'>{$col}</th>";
+        }
+        echo "</tr>";
+        echo "</thead>";
+        return;
+    }
+
+    // -----------------------
+    // BODY CREATION (sorted descending by time)
+    // -----------------------
+    if ($bool == 1) {
+        // Remove header if exists
+        if (count($data1) > 1) {
+            array_shift($data1);
+        }
+
+        $rows = [];
+        foreach ($data1 as $line) {
+            $line = trim($line);
+            if ($line === '') continue;
+
+            $cols = explode(",", $line);
+            $time = trim($cols[0]);
+
+            // Convert time like 13:38:44.379.109 → 133844379109
+            $sortableKey = preg_replace('/[^0-9]/', '', $time);
+
+            // Avoid key collision (duplicate times)
+            while (isset($rows[$sortableKey])) {
+                $sortableKey .= rand(0, 9);
+            }
+
+            $rows[$sortableKey] = $cols;
+        }
+
+        // Sort descending by time
+        krsort($rows, SORT_NUMERIC);
+
+        echo "<tbody>";
+        foreach ($rows as $cols) {
+            echo "<tr>";
+            foreach ($cols as $i => $val) {
+                $val = trim($val);
+
+                if ($i == 0) {
+                    // Time column
+                    echo "<td style='background-color:#1f3f92;color:white;' class='text-center'>{$val}</td>";
+                } elseif ($val !== '' && is_numeric($val) && intval($val) > 20) {
+                    // High queue count
+                    echo "<td style='background-color:red;color:white;' class='text-center'>{$val}</td>";
+                } else {
+                    // Normal cell
+                    echo "<td style='background-color:green;color:white;' class='text-center'>-</td>";
+                }
+            }
+            echo "</tr>";
+        }
+        echo "</tbody>";
+    }
+}
