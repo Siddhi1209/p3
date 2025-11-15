@@ -1,1 +1,31 @@
 
+<header class="main-header" id="myheader" style="min-width: 173vw;">
+
+    <!-- LOGO KEPT AS-IS -->
+    <a href="smart.php"
+       title="Smart Monitoring and Reporting tool By TATA Consultancy Services Developed By CBS-PSO Team."
+       class="logo bg-black-active welcomepso">
+        <img src="../img/smart_logo_2016_small.jpg"
+             alt="TCS logo"
+             style="background-color:#fff;margin-left:-30px;margin-top:-43px;width:245px;height:135px;">
+    </a>
+
+    <!-- CLEAN TITLE BAR WITH NO LINE BELOW -->
+    <div style="
+        width:100%;
+        background:#111;
+        padding:12px 5px;
+        text-align:center;
+        color:#fff;
+        font-size:26px;
+        font-weight:bold;
+        letter-spacing:1px;
+    ">
+        OFFLINE Reports Portal
+    </div>
+
+</header>
+
+<!-- ✨ REMOVED THE ENTIRE BUTTON STRIP BELOW THE HEADER -->
+<!-- The following section is intentionally left empty -->
+<section class="content-header" style="display:none;"></section>
