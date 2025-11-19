@@ -1,11 +1,1 @@
 
-<!-- ===== LEGENDS BUTTON BELOW HEADER (CENTERED) ===== -->
-<div style="width:100%; text-align:center; margin:10px 0;">
-    <a href="legends.php" target="_blank">
-        <button class="btn btn-info" 
-                style="font-size:16px; padding:6px 18px; border-radius:6px;">
-            Legends
-        </button>
-    </a>
-</div>
-<!-- =================================================== -->
