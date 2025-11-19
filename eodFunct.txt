@@ -1,1 +1,76 @@
 
+<!-- ========================== -->
+<!--   SYSTEM UTILIZATION BOX   -->
+<!-- ========================== -->
+<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+    <div class="box box-primary box-solid">
+        <div class="box-header bg-tcs-active text-center">
+            <h3 class="box-title">System Utilization</h3>
+            <span style="float:right;font-size:18px;">
+                <img src="loading-bubbles.svg">
+                <?php echo $yummy->timeUpdated("topstat_8apps.txt","."); ?>
+            </span>
+        </div>
+
+        <div class="box-body table-responsive" style="max-height:600px; overflow-y:auto;">
+            <table class="table table-bordered table-striped text-center">
+                <thead>
+                    <tr>
+                        <th>Server</th>
+                        <th>Time</th>
+                        <th>Total Process</th>
+                        <th>Zombies</th>
+                        <th>Idle(%)</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <?php 
+                        // MAIN SYSTEM UTILIZATION TABLE
+                        $yummy->sys_utl1();  
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- ========================== -->
+<!--    SPACE UTILIZATION BOX   -->
+<!-- ========================== -->
+<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+    <div class="box box-primary box-solid">
+        <div class="box-header bg-tcs-active text-center">
+            <h3 class="box-title">Space Utilization</h3>
+            <span style="float:right;font-size:18px;">
+                <img src="loading-bubbles.svg">
+                <?php echo $yummy->timeUpdated("space_8app.txt","."); ?>
+            </span>
+        </div>
+
+        <div class="box-body table-responsive" style="max-height:600px; overflow-y:auto;">
+            <table class="table table-bordered table-striped text-center">
+                <thead>
+                    <tr>
+                        <th>Server</th>
+                        <th>/data (%)</th>
+                        <th>/spool (%)</th>
+                        <th>/sysout (%)</th>
+                        <th>/tmp (%)</th>
+                        <th>/opt (%)</th>
+                        <th>/usr (%)</th>
+                        <th>/var (%)</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <?php 
+                        // MAIN SPACE UTILIZATION TABLE
+                        $yummy->sys_utl2();  
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
