@@ -1,1 +1,43 @@
 
+<header class="main-header" id="myheader" style="width: 100%">
+
+    <!-- Left Logo -->
+    <div style="display:flex; align-items:center; background:white; padding:10px;">
+        <img src="../img/smart_logo_2016_small.jpg"
+             alt="TCS logo"
+             style="width:200px; height:auto;">
+    </div>
+
+    <!-- Center Heading -->
+    <div style="
+        width:100%;
+        background:#ffffff;
+        padding:18px 0;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        border-bottom:1px solid #ddd;
+    ">
+        <span style="color:#003366; font-size:28px; font-weight:700; letter-spacing:1px;">
+            OFFLINE REPORTS PORTAL
+        </span>
+    </div>
+
+</header>
+
+<!-- Legends Button -->
+<div style="text-align:center; margin:12px 0;">
+    <a href="legends.php" target="_blank">
+        <button style="
+            background:#004b87;
+            color:white;
+            padding:9px 22px;
+            border:none;
+            border-radius:6px;
+            font-size:15px;
+            font-weight:600;
+            box-shadow:0px 2px 6px rgba(0,0,0,0.15);
+            cursor:pointer;
+        ">Legends</button>
+    </a>
+</div>
