@@ -1,4 +1,3 @@
-
    <?php
                 /*$sys_stat = trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/sys_stat1.txt"));
                 if($_GET['date'] == '' && $sys_stat == 'N'){
@@ -92,8 +91,8 @@
                                                                                         </table>
                                                                                         <div >
                                                                                                 <span style="float:right;background-color:white;color:black;cursor:default;" class="btn btn-sm btn-primary legends_btn">
-                                                                                                        <!--<span class="na_btn"><i style="color:black" class='fa fa-fw fa-minus'></i>NA</span>-->
-                                                                                                        <span class="na_btn"><i style="color:black" class='fa fa-fw fa-minus'></i>NA</span>
+                                                                                                        <span class="na_btn"><i style="color:black" class='fa fa-fw fa-minus'></i>NA</span>-->
+                                                                                                         <span class="na_btn"><i style="color:black" class='fa fa-fw fa-minus'></i>NA</span>
                                                                                                         <span class="running_btn"><i style="color:green" class='fa fa-check'></i>OK</span>
                                                                                                         <span class="noUpdating_btn"><i style="color:#f39c12" class='fa fa-fw fa-warning'></i>No Data</span>
                                                                                                         <span class="noencryption_btn"><i style="color:navy" class='fa fa-fw fa-chain-broken'></i>Not Encrypted</span>
@@ -101,7 +100,7 @@
                                                                                                         <span class="timeFreezed_btn"><i style="color:red" class='fa fa-fw fa-exclamation'></i>TIMESTAMP FREEZED</span>
                                                                                                         <span class="max_btn"><i style="color:red" class='fa fa-bolt'></i>MAX TCP</span>
                                                                                                         <!--<span class="unable_btn"><i style="color:red" class='fa fa-bell'></i>Unable To Process</span>-->
-                                                                                                        <span class="not_btn"><i style="color:red" class='fa fa-close'></i>Not Running</span>
+                                                                                                         <span class="not_btn"><i style="color:red" class='fa fa-close'></i>Not Running</span>
                                                                                                         <span class="app_btn"><i style="color:red" class='fa fa-thumbs-down'></i>App Down</span>
                                                                                                 </span>
                                                                                         </div>
@@ -113,7 +112,7 @@
                                                                         <div class="box box-primary box-solid">
                                                                                 <div class="box-header bg-tcs-active text-center">
 
-                                                                                        <h3 class="box-title">Queue Buildup is there </h3>
+                                                                                        <h3 class="box-title">Queue Buildup</h3>
                                                                                         <?php
                                                                                             function safe_read($path) {
                                                                                                 return file_exists($path) ? trim(file_get_contents($path)) : '';
@@ -305,6 +304,10 @@
                                                                                                                 <th class="text-center">S9</th>
                                                                                                                 <th class="text-center">S10</th>
                                                                                                                 <th class="text-center">S11</th>
+                                                                                                                <th class="text-center">S12</th>
+                                                                                                                <th class="text-center">S13</th>
+                                                                                                                <th class="text-center">S14</th>
+                                                                                                                <th class="text-center">S15</th>
                                                                                                         </tr>
                                                                                                 </thead>
                                                                                                 <tbody>
@@ -1018,7 +1021,7 @@
                                                                                                 </thead>
                                                                                                 <tbody>
                                                                                                         <?php
-                                                                                                                echo msl::but_stat();
+                                                                                                              //  echo msl::but_stat();
                                                                                                                 echo msl::but_stat1();
                                                                                                         ?>
                                                                                                 </tbody>
@@ -1383,6 +1386,9 @@
                                                                                                         <th >S10</th>
                                                                                                         <th >S11</th>
                                                                                                         <th >S12</th>
+                                                                                                        <th >S13</th>
+                                                                                                        <th >S14</th>
+                                                                                                        <th >S15</th>
                                                                                                         <th >Total</th>
                                                                                                 </tr>
                                                                                         </thead>
@@ -1445,6 +1451,10 @@
                                                                                                         <th>S9</th>
                                                                                                         <th>S10</th>
                                                                                                         <th>S11</th>
+                                                                                                        <th>S12</th>
+                                                                                                        <th>S13</th>
+                                                                                                        <th>S14</th>
+                                                                                                        <th>S15</th>
                                                                                                 </tr>
                                                                                         </thead>
                                                                                         <tbody>
