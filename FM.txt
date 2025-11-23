@@ -1,54 +1,15 @@
-function night_queue1(){
-    $data1 = explode("\n", file_get_contents($this->currpath."status_queue_9apps.txt.".$this->datecrr));
-    if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
-    $data = $this->throwRed($data1,',');
+I have a production portal.
+the flow of this portal is as follows.
+it is used for monitoring 16 application servers.
+which have today's date in the MFLAGS and portal server also has todays date.
+so script runs on these 16 application servers, this script generates a file
+which is scp to portal server and in portal server there is a script merge_files_9apps which
+merges all the file into 1 file and then .php code in portal reads and displays it.
 
-    // Known queues that are always NQKE (baseline ones that should go at the bottom)
-    $alwaysNqke = ["CTAQ","CRCQ","ONLQ","CTDQ","PF1Q","RESPQ","SDVQ","VV1Q","VV2Q","VV3Q","ARCQ","KCCQ","FA1Q","SFDQ","GLAQ"];
+Now i have to make another portal for another set of servers 
+so my script is ready but MFLAGS date of these servers are differenr from portal server.
 
-    $criticalQueues   = [];
-    $activeQueues     = [];
-    $unexpectedNqke   = [];
-    $expectedNqke     = [];
+so how shoul i merge it.
+i will give you merge_files_9apps script. Present in portal server.
 
-    // Separate queues into groups
-    foreach ($data as $key2 => $value2) {
-        $vare = explode(",",$value2);
-        $queueName = trim($vare[0]);
-
-        if(in_array("NQKE", $vare)) {
-            if(in_array($queueName, $alwaysNqke)) {
-                $expectedNqke[] = $vare;   // permanent NQKE b^F^R bottom (red cross)
-            } else {
-                $unexpectedNqke[] = $vare; // new down b^F^R top (red thumbs-down)
-            }
-        }
-        elseif(max(array_map('intval', array_filter($vare, 'is_numeric'))) > 500) {
-            $criticalQueues[] = $vare;     // Critical (>500) b^F^R very top
-        }
-        else {
-            $activeQueues[] = $vare;       // Normal
-        }
-    }
-
-    // 1. Critical queues (red > 500)
-    foreach ($criticalQueues as $vare) {
-        $this->printQueueRowOriginal($vare, 'critical');
-    }
-
-    // 2. Unexpected NQKE queues (newly down b^F^R top)
-    foreach ($unexpectedNqke as $vare) {
-        $this->printQueueRowOriginal($vare, 'unexpected');
-    }
-
-    // 3. Active queues
-    foreach ($activeQueues as $vare) {
-        $this->printQueueRowOriginal($vare, 'active');
-    }
-
-    // 4. Expected NQKE queues (always down b^F^R bottom)
-    foreach ($expectedNqke as $vare) {
-        $this->printQueueRowOriginal($vare, 'expected');
-    }
-}
 
