@@ -1,1 +1,69 @@
 
+#!/bin/bash
+
+# ------------------------------------------------------------
+# 1. Read the PORTAL MFLAGS date (PHP expects this date)
+# ------------------------------------------------------------
+dt_portal=$(cat MFLAGS_D | awk '{print $1}')
+echo "Portal MFLAGS date = $dt_portal"
+
+# ------------------------------------------------------------
+# 2. Auto-detect SERVER FILE DATE from ANY incoming file
+# ------------------------------------------------------------
+dt_server=$(ls topstat_*.txt.* | head -1 | awk -F"." '{print $NF}')
+echo "Server file date   = $dt_server"
+
+echo ""
+echo "Merging using:"
+echo "   Server date = $dt_server"
+echo "   Output date = $dt_portal"
+echo ""
+
+# ------------------------------------------------------------
+# 3. TOPSTAT MERGE USING paste -d (horizontal merge)
+#    → Edit this block to add more servers
+# ------------------------------------------------------------
+paste -d" " \
+    topstat_m.txt.$dt_server \
+    topstat_s1.txt.$dt_server \
+    topstat_s2.txt.$dt_server \
+    topstat_s3.txt.$dt_server \
+    topstat_s4.txt.$dt_server \
+    topstat_s5.txt.$dt_server \
+    topstat_s6.txt.$dt_server \
+    topstat_s7.txt.$dt_server \
+    topstat_s8.txt.$dt_server \
+    > topstat_8apps.txt.$dt_portal
+
+echo "TOPSTAT merged → topstat_8apps.txt.$dt_portal"
+echo ""
+
+
+# ------------------------------------------------------------
+# 4. SPACE MERGE USING paste -d (horizontal merge)
+#    → Edit this block to add more servers
+# ------------------------------------------------------------
+paste -d" " \
+    space_m.txt.$dt_server \
+    space_s1.txt.$dt_server \
+    space_s2.txt.$dt_server \
+    space_s3.txt.$dt_server \
+    space_s4.txt.$dt_server \
+    space_s5.txt.$dt_server \
+    space_s6.txt.$dt_server \
+    space_s7.txt.$dt_server \
+    space_s8.txt.$dt_server \
+    > space_8app.txt.$dt_portal
+
+echo "SPACE merged → space_8app.txt.$dt_portal"
+echo ""
+
+# ------------------------------------------------------------
+# 5. Completion confirmation
+# ------------------------------------------------------------
+echo "=============================="
+echo "       MERGE COMPLETE         "
+echo "=============================="
+echo " topstat_8apps.txt.$dt_portal"
+echo " space_8app.txt.$dt_portal"
+echo ""
