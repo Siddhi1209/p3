@@ -1,55 +1,54 @@
+function night_queue1(){
+    $data1 = explode("\n", file_get_contents($this->currpath."status_queue_9apps.txt.".$this->datecrr));
+    if(parent::checkblank($data1)){ echo parent::checkblank($data1);}
+    $data = $this->throwRed($data1,',');
 
-<header class="main-header" id="myheader" style="width: 100%; background:white;">
+    // Known queues that are always NQKE (baseline ones that should go at the bottom)
+    $alwaysNqke = ["CTAQ","CRCQ","ONLQ","CTDQ","PF1Q","RESPQ","SDVQ","VV1Q","VV2Q","VV3Q","ARCQ","KCCQ","FA1Q","SFDQ","GLAQ"];
 
-    <!-- FLEX HEADER -->
-    <div style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        padding:10px 20px;
-        border-bottom:1px solid #ccc;
-    ">
+    $criticalQueues   = [];
+    $activeQueues     = [];
+    $unexpectedNqke   = [];
+    $expectedNqke     = [];
 
-        <!-- LOGO LEFT -->
-        <img src="../img/smart_logo_2016_small.jpg"
-             style="height:70px; width:auto;">
+    // Separate queues into groups
+    foreach ($data as $key2 => $value2) {
+        $vare = explode(",",$value2);
+        $queueName = trim($vare[0]);
 
-        <!-- PERFECT CENTRE HEADING -->
-        <div style="
-            flex-grow:1;
-            text-align:center;
-            margin-right:70px;   /* balances logo width */
-        ">
-            <span style="
-                font-size:28px;
-                font-weight:700;
-                color:#003366;
-                letter-spacing:1px;
-            ">
-                OFFLINE REPORTS PORTAL
-            </span>
-        </div>
+        if(in_array("NQKE", $vare)) {
+            if(in_array($queueName, $alwaysNqke)) {
+                $expectedNqke[] = $vare;   // permanent NQKE b^F^R bottom (red cross)
+            } else {
+                $unexpectedNqke[] = $vare; // new down b^F^R top (red thumbs-down)
+            }
+        }
+        elseif(max(array_map('intval', array_filter($vare, 'is_numeric'))) > 500) {
+            $criticalQueues[] = $vare;     // Critical (>500) b^F^R very top
+        }
+        else {
+            $activeQueues[] = $vare;       // Normal
+        }
+    }
 
-        <!-- EMPTY DIV FOR BALANCE -->
-        <div style="width:70px;"></div>
+    // 1. Critical queues (red > 500)
+    foreach ($criticalQueues as $vare) {
+        $this->printQueueRowOriginal($vare, 'critical');
+    }
 
-    </div>
+    // 2. Unexpected NQKE queues (newly down b^F^R top)
+    foreach ($unexpectedNqke as $vare) {
+        $this->printQueueRowOriginal($vare, 'unexpected');
+    }
 
-</header>
+    // 3. Active queues
+    foreach ($activeQueues as $vare) {
+        $this->printQueueRowOriginal($vare, 'active');
+    }
 
-<!-- LEGENDS BUTTON BELOW HEADER -->
-<div style="text-align:center; margin:12px 0;">
-    <a href="legends.php" target="_blank">
-        <button style="
-            background:#004b87;
-            color:white;
-            padding:9px 22px;
-            border:none;
-            border-radius:6px;
-            font-size:15px;
-            font-weight:600;
-            box-shadow:0px 2px 6px rgba(0,0,0,0.15);
-            cursor:pointer;
-        ">Legends</button>
-    </a>
-</div>
+    // 4. Expected NQKE queues (always down b^F^R bottom)
+    foreach ($expectedNqke as $vare) {
+        $this->printQueueRowOriginal($vare, 'expected');
+    }
+}
+
