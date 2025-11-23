@@ -1,1 +1,55 @@
 
+<header class="main-header" id="myheader" style="width: 100%; background:white;">
+
+    <!-- FLEX HEADER -->
+    <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:10px 20px;
+        border-bottom:1px solid #ccc;
+    ">
+
+        <!-- LOGO LEFT -->
+        <img src="../img/smart_logo_2016_small.jpg"
+             style="height:70px; width:auto;">
+
+        <!-- PERFECT CENTRE HEADING -->
+        <div style="
+            flex-grow:1;
+            text-align:center;
+            margin-right:70px;   /* balances logo width */
+        ">
+            <span style="
+                font-size:28px;
+                font-weight:700;
+                color:#003366;
+                letter-spacing:1px;
+            ">
+                OFFLINE REPORTS PORTAL
+            </span>
+        </div>
+
+        <!-- EMPTY DIV FOR BALANCE -->
+        <div style="width:70px;"></div>
+
+    </div>
+
+</header>
+
+<!-- LEGENDS BUTTON BELOW HEADER -->
+<div style="text-align:center; margin:12px 0;">
+    <a href="legends.php" target="_blank">
+        <button style="
+            background:#004b87;
+            color:white;
+            padding:9px 22px;
+            border:none;
+            border-radius:6px;
+            font-size:15px;
+            font-weight:600;
+            box-shadow:0px 2px 6px rgba(0,0,0,0.15);
+            cursor:pointer;
+        ">Legends</button>
+    </a>
+</div>
