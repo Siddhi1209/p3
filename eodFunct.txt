@@ -1,1 +1,50 @@
 
+function schl_transaction(){
+    $data = file($this->currpath."schl_data.".$this->datecrr);
+    $data1 = file($this->currpath."neft_incoming.txt.".$this->datecrr);
+
+    $natsfmq = shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/NAT_utr.txt|grep ".$this->datecrr);
+
+    if(count($data1) > 1){
+        $errorstring = explode(":", $data1[3]);
+        $pushelement = "NEFT INCOMING QUERY ERROR,".$errorstring[0].'('.$errorstring[1].')';
+    } else {
+        $pushelement = $data1[0];
+    }
+
+    // FIX added here to avoid PHP8 fatal error
+    if (!is_array($data)) {
+        $data = [];
+    }
+    array_push($data, $pushelement);
+
+    if(parent::checkblank($data)) { echo parent::checkblank($data); }
+
+    foreach ($data as $line_num => $line){
+        echo "<tr>";
+        $var = explode(",",$line);
+
+        foreach ($var as $k3 => $v3){
+            if($k3 == '0'){
+                if($line_num == 0){
+                    echo "<th style='background-color:#cdc;color:black;' title='StockHolding Corporation of India Limited (SHCIL)' class='text-center'>".$v3."</th>";
+                } else {
+                    echo "<th style='background-color:#cdc;color:black;' class='text-center'>".$v3."</th>";
+                }
+            }
+            elseif($k3 == 1 && $v3 == 0){
+                echo "<th class='bg-green text-center'>Please Check</th>";
+            }
+            elseif($k3 == 2 && $v3 > 100){
+                echo "<th style='background-color:red;color:white;' class='text-center'>".$v3."</th>";
+            }
+            elseif($k3 == 3 && trim($v3) == "ERROR"){
+                echo "<th class='bg-red text-center'>".$v3."</th>";
+            }
+            else{
+                echo "<td class='text-center' style='font-weight:bold;'>".$v3."</td>";
+            }
+        }
+        echo "</tr>";
+    }
+}
