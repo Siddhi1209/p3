@@ -1,15 +1,1 @@
-I have a production portal.
-the flow of this portal is as follows.
-it is used for monitoring 16 application servers.
-which have today's date in the MFLAGS and portal server also has todays date.
-so script runs on these 16 application servers, this script generates a file
-which is scp to portal server and in portal server there is a script merge_files_9apps which
-merges all the file into 1 file and then .php code in portal reads and displays it.
-
-Now i have to make another portal for another set of servers 
-so my script is ready but MFLAGS date of these servers are differenr from portal server.
-
-so how shoul i merge it.
-i will give you merge_files_9apps script. Present in portal server.
-
-
+[Tue Dec 02 08:19:23.789597 2025] [php:notice] [pid 3207903] [client 10.0.6.143:62959] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, bool given in /var/www/html/pace/Online_portal/includes/function_apr.php:1373\nStack trace:\n#0 /var/www/html/pace/Online_portal/includes/function_apr.php(1373): array_push(false, 'NEFT INCOMING P...')\n#1 /var/www/html/pace/Online_portal/pages/monitorFile_apr.php(413): rtgs->schl_transaction()\n#2 /var/www/html/pace/Online_portal/pages/smart_cbssbi.php(974): include('/var/www/html/p...')\n#3 {main}\n  thrown in /var/www/html/pace/Online_portal/includes/function_apr.php on line 1373, referer: https://10.0.40.8:9090/pace/Online_portal/pages/smart_cbssbi.php
