@@ -1,1 +1,35 @@
-[Tue Dec 02 08:19:23.789597 2025] [php:notice] [pid 3207903] [client 10.0.6.143:62959] PHP Fatal error:  Uncaught TypeError: array_push(): Argument #1 ($array) must be of type array, bool given in /var/www/html/pace/Online_portal/includes/function_apr.php:1373\nStack trace:\n#0 /var/www/html/pace/Online_portal/includes/function_apr.php(1373): array_push(false, 'NEFT INCOMING P...')\n#1 /var/www/html/pace/Online_portal/pages/monitorFile_apr.php(413): rtgs->schl_transaction()\n#2 /var/www/html/pace/Online_portal/pages/smart_cbssbi.php(974): include('/var/www/html/p...')\n#3 {main}\n  thrown in /var/www/html/pace/Online_portal/includes/function_apr.php on line 1373, referer: https://10.0.40.8:9090/pace/Online_portal/pages/smart_cbssbi.php
+
+rptdb1(180):DAY:/home/fnsonlid/pace:-)cat top_pace_m
+#!/usr/bin/ksh
+>$HOME/pace/top_statR_a
+top -f $HOME/pace/top_statR_a
+pro=`cat $HOME/pace/top_stat_m|grep processes|awk '{print $1}'`
+run=`cat $HOME/pace/top_stat_m|grep processes|awk '{print $5}'`
+sleep=`cat $HOME/pace/top_stat_m|grep processes|awk '{print $3}'`
+zombies=`cat $HOME/pace/top_stat_m|grep processes|awk '{print $7}'`
+if [ -z "$zombies" ]
+then
+zombies=0
+fi
+user=`cat $HOME/pace/top_stat_m|grep avg|awk '{print $3}'|cut -d "%" -f1`
+sys=`cat $HOME/pace/top_stat_m|grep avg|awk '{print $5}'|cut -d "%" -f1`
+idle=`cat $HOME/pace/top_stat_m|grep avg|awk '{print $6}'|cut -d "%" -f1`
+tim=`date|awk '{print $4}'|cut -c 1-5`
+echo "`hostname` $tim $pro $run $sleep $zombies $user $sys $idle" > $HOME/pace/topstatR_a.txt
+cd $HOME/pace
+dt=`cat /fns/id/r/data/file/MFLAGS|cut -c 9-16`
+#(cat $HOME/pace/topstat_m.txt; echo $ )|send_dev_mandavi 9 $dt
+ftc.sh $HOME/pace/topstat_m.txt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/topstatR_a.txt.$dt
+rptdb1(180):DAY:/home/fnsonlid/pace:-)
+rptdb1(180):DAY:/home/fnsonlid/pace:-)
+rptdb1(180):DAY:/home/fnsonlid/pace:-)
+rptdb1(180):DAY:/home/fnsonlid/pace:-)date
+Mon Dec  8 12:38:34 IST 2025
+
+
+I above mentioned script. in this script instread of using dt from MFLAGS,
+I want to use dt from date command. from date commnad i want my script to take
+date like 20251208 from Mon Dec  8 12:38:34 IST 2025. Is it possible.
+
+
+
