@@ -1,35 +1,199 @@
+#** Start of PVCS Information ******************************
+# $Archive:   //TCSSBI/archives/BANCS-24/cat/cfpd0006-arc  $/archives/Retail/cat/cfpd0006-arc  $/archives/Retail/cat/cfpd0006-arc  $/archives/Retail/cat/cfpd0006-arc  $/archives/Retail/cat/cfpd0006-arc  $
+# $Revision:   3.3  $
+# $Modtime:   17 Jul 2015 12:55:28  $
+# $Author:   feml  $
+# $Date:   17 Jul 2015 13:53:56  $
+#** End of PVCS Information ********************************
+pgm=`basename $0`
+tab_owner=fnsonl${REGION}
+#====================== START OF IR 260307 =========================
+sysdt=$(cut -c1-8 $data/file/MFLAGS)
+log_file=$pgm."$BANCS_DQPTYPE"."$sysdt".log
 
-rptdb1(180):DAY:/home/fnsonlid/pace:-)cat top_pace_m
-#!/usr/bin/ksh
->$HOME/pace/top_statR_a
-top -f $HOME/pace/top_statR_a
-pro=`cat $HOME/pace/top_stat_m|grep processes|awk '{print $1}'`
-run=`cat $HOME/pace/top_stat_m|grep processes|awk '{print $5}'`
-sleep=`cat $HOME/pace/top_stat_m|grep processes|awk '{print $3}'`
-zombies=`cat $HOME/pace/top_stat_m|grep processes|awk '{print $7}'`
-if [ -z "$zombies" ]
-then
-zombies=0
+# following function prints the given text into the log file
+PRINT_LOG() {
+         echo "$@" >> ${sysout}/${log_file}
+
+          if [ $AUTOSYS_MODE = "Y" ];then
+                echo "\n[`date|awk '{print $2\" \"$3\" \"$4}'`] :$pgm ERROR in `hostname`:$@" >> ${sysout}/zerobyte.log
+          fi
+   }
+
+# following function print the given text onto screen and to the log file as well
+DISP_AND_LOG() {
+      echo "$@"
+      PRINT_LOG "$@"
+ }
+#====================== END OF IR 260307 ===========================
+#====================================================================
+# Check if submitted from CONTROL region
+#====================================================================
+if [ "$FNS_SYSNUM" -eq "$CTRL_SYSNUM" ]; then
+   echo $pgm: "DELETING REGION AND SYSTEM records in SYSC ..."
+   if [ $BANCS_DB_TYPE = ORA ] ; then
+     if [ $BANCS_MULTI_APPS = "Y" ]; then
+      if [ $MASTER_DQPTYPE = $BANCS_DQPTYPE ] ; then
+      sqlplus \/ << rbb
+   set heading off
+   delete from ${tab_owner}.sysc
+   where target_level != '04'
+and region_no = '$BANCS_DQPTYPE';
+rbb
+     else
+    sqlplus \/ << rbb
+    set heading off
+    delete from sysc
+    where target_level != '04'
+   and region_no = '$BANCS_DQPTYPE';
+rbb
+     fi
+else
+      sqlplus \/ << rbb
+   set heading off
+   delete from ${tab_owner}.sysc
+   where target_level != '04'
+and region_no = '$BANCS_DQPTYPE';
+rbb
 fi
-user=`cat $HOME/pace/top_stat_m|grep avg|awk '{print $3}'|cut -d "%" -f1`
-sys=`cat $HOME/pace/top_stat_m|grep avg|awk '{print $5}'|cut -d "%" -f1`
-idle=`cat $HOME/pace/top_stat_m|grep avg|awk '{print $6}'|cut -d "%" -f1`
-tim=`date|awk '{print $4}'|cut -c 1-5`
-echo "`hostname` $tim $pro $run $sleep $zombies $user $sys $idle" > $HOME/pace/topstatR_a.txt
-cd $HOME/pace
-dt=`cat /fns/id/r/data/file/MFLAGS|cut -c 9-16`
-#(cat $HOME/pace/topstat_m.txt; echo $ )|send_dev_mandavi 9 $dt
-ftc.sh $HOME/pace/topstat_m.txt /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/topstatR_a.txt.$dt
-rptdb1(180):DAY:/home/fnsonlid/pace:-)
-rptdb1(180):DAY:/home/fnsonlid/pace:-)
-rptdb1(180):DAY:/home/fnsonlid/pace:-)
-rptdb1(180):DAY:/home/fnsonlid/pace:-)date
-Mon Dec  8 12:38:34 IST 2025
+   elif [ $BANCS_DB_TYPE = SQL ] ; then
+          SQL_SID=`echo $ORACLE_SID|dd conv=ucase 2>/dev/null`
+          osql -E -S $SQL_CONNECT -d $SQL_SID -o/tmp/trun.out << ENDINPUT
+          delete from SYSC where convert(CHAR,TARGET_LEVEL) != '04'
+          go
+ENDINPUT
+   else
+      if [ $BANCS_DB_TYPE = INF ] ; then
+dbaccess fns << rbb
+delete from sysc
+where target_level != '04';
+rbb
+      fi
+   fi
+   echo $pgm: "Submitted from Control region."
+   echo $pgm: "SYSC Region and System records deleted ... (no program involved)"
+   echo $pgm: "Recreating Region and System records through SY0006 ..."
+fi
+
+#====================================================================
+# Check if submitted from DAY region
+#====================================================================
+if [ "$FNS_SYSNUM" -eq "$DAY_SYSNUM" ]; then
+   echo $pgm: "DELETING DAY SYSTEM record in SYSC ..."
+   if [ $BANCS_DB_TYPE = ORA ] ; then
+      sqlplus \/ << rbb
+set heading off
+delete from sysc
+where system_no = '0$DAY_SYSNUM' and target_level != '04'
+and region_no = '$BANCS_DQPTYPE';
+rbb
+   elif [ $BANCS_DB_TYPE = SQL ] ; then
+          SQL_SID=`echo $ORACLE_SID|dd conv=ucase 2>/dev/null`
+          osql -E -S $SQL_CONNECT -d $SQL_SID -o/tmp/trun.out << ENDINPUT
+          delete from SYSC where convert(CHAR,SYSTEM_NO) = '0$DAY_SYSNUM' and convert(CHAR,TARGET_LEVEL) != '04'
+                go
+ENDINPUT
+   else
+      if [ $BANCS_DB_TYPE = INF ] ; then
+         dbaccess fns << rbb
+delete from sysc
+where system_no = '0$DAY_SYSNUM' and target_level != '04';
+rbb
+      fi
+   fi
+   echo $pgm: "Submitted from DAY system."
+   echo $pgm: "SYSC DAY System record deleted ... (no program involved)"
+   echo $pgm: "Recreating DAY System records through SY0006 ..."
+fi
+
+#====================================================================
+# Check if submitted from NIGHT region
+#====================================================================
+if [ "$FNS_SYSNUM" -eq "$NIGHT_SYSNUM" ]; then
+   echo $pgm: "DELETING NIGHT SYSTEM record in SYSC ..."
+   if [ $BANCS_DB_TYPE = ORA ] ; then
+      sqlplus \/ << rbb
+set heading off
+delete from sysc
+where system_no = '0$NIGHT_SYSNUM' and target_level != '04'
+and region_no = '$BANCS_DQPTYPE';
+rbb
+   elif [ $BANCS_DB_TYPE = SQL ] ; then
+          SQL_SID=`echo $ORACLE_SID|dd conv=ucase 2>/dev/null`
+          osql -E -S $SQL_CONNECT -d $SQL_SID -o/tmp/trun.out << ENDINPUT
+          delete from SYSC where convert(CHAR,SYSTEM_NO) = '0$NIGHT_SYSNUM' and convert(CHAR,TARGET_LEVEL) != '04'
+          go
+ENDINPUT
+   else
+      if [ $BANCS_DB_TYPE = INF ] ; then
+         dbaccess fns << rbb
+delete from sysc
+where system_no = '0$NIGHT_SYSNUM' and target_level != '04';
+rbb
+      fi
+   fi
+   echo $pgm: "Submitted from NIGHT system."
+   echo $pgm: "SYSC NIGHT System record deleted ... (no program involved)"
+   echo $pgm: "Recreating NIGHT System records through SY0006 ..."
+fi
+
+#====================================================================
+# Check if submitted from NON-24H Region
+#====================================================================
+if [ "$FNS_SYSNUM" -eq "$NON24H_SYSNUM" ]; then
+   echo $pgm: "DELETING REGION AND SYSTEM records in SYSC ..."
+   if [ $BANCS_DB_TYPE = ORA ] ; then
+      sqlplus \/ << rbb
+set heading off
+delete from sysc
+where target_level != '04'
+and region_no = '$BANCS_DQPTYPE';
+rbb
+   elif [ $BANCS_DB_TYPE = SQL ] ; then
+          SQL_SID=`echo $ORACLE_SID|dd conv=ucase 2>/dev/null`
+          osql -E -S $SQL_CONNECT -d $SQL_SID -o/tmp/trun.out << ENDINPUT
+          delete from SYSC where convert(CHAR,SYSTEM_NO) = '0$FNS_SYSNUM' and convert(CHAR,TARGET_LEVEL) != '04'
+          go
+ENDINPUT
+   else
+      if [ $BANCS_DB_TYPE = INF ] ; then
+         dbaccess fns << rbb
+delete from sysc
+where target_level != '04';
+rbb
+      fi
+   fi
+   echo $pgm: "Submitted from non24h system."
+   echo $pgm: "SYSC Region and System records deleted ... (no program involved)"
+   echo $pgm: "Recreating Region and System records through SY0006 ..."
+fi
 
 
-I above mentioned script. in this script instread of using dt from MFLAGS,
-I want to use dt from date command. from date commnad i want my script to take
-date like 20251208 from Mon Dec  8 12:38:34 IST 2025. Is it possible.
-
-
-
+export DD_MFLAGS=$data/file/MFLAGS
+cmd="run.sh -t"
+while getopts bdfinrto: c ; do
+   case $c in
+      b) cmd="run.sh -b" ;;
+      d) cmd="run.sh -d";;
+      f) cmd="run.sh -f";;
+      i) cmd=runi.sh;;
+      n) cmd=runni.sh;;
+      r) cmd=runr.sh;;
+      t) cmd="run.sh -t";;
+      o) echo $pgm: invalid option $c ;;
+   esac
+done
+shift `expr $OPTIND - 1`
+$cmd  SY0006
+#========================== START OF IR 260307 =========================================
+return_status=$?
+if [ $return_status -ne 0 ];then
+     if [ $AUTOSYS_MODE = "Y" ];then
+           DISP_AND_LOG  "Not a valid status."
+     exit 1;
+     else
+     DISP_AND_LOG  "cfpd0006 ended with errors."
+exit 1;
+   fi
+fi
+#======================== END OF IR 260307 ============================================
