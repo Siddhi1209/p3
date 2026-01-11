@@ -1,1 +1,34 @@
 
+Dear Team,
+
+During the recent issue where queue buildup was observed in DP9Q post DB switch, we performed a detailed analysis of the queue logs.
+
+While reviewing the logs, it was observed that extensive details related to FT000 were captured. However, DB link visibility/details were not available in the queue logs, which delayed identification of the DB link issue from REF to ARCHSBI.
+
+Since the root cause was eventually traced to a DB link connectivity issue, having DB link-related information logged in the queue logs would help in faster diagnosis and resolution of similar issues in the future.
+
+Request you to please review and consider adding DB link visibility/details in the queue logs, wherever feasible.
+
+This enhancement will be helpful during incident analysis and will reduce dependency on multiple checks across teams.
+
+Please let us know your views on the same.
+
+Regards,
+PSO Team
+
+
+
+Dear Team,
+
+During the recent incident where queue buildup was observed in DP9Q post DB switch, we did a detailed check of the queue logs as part of our analysis.
+
+We noticed that the logs contained a lot of detailed information related to FT000, which was helpful. However, DB link visibility was not available in the queue logs, and because of this, identifying the DB link issue from REF to ARCHSBI took additional time.
+
+Since the eventual root cause was a DB link connectivity issue, having DB link-related details reflected in the queue logs would make troubleshooting quicker and smoother in similar situations.
+
+Request you to please check and let us know if it is possible to add DB link visibility/details in the queue logs going forward.
+
+This would be very helpful from an operational and incident analysis perspective.
+
+Thanks and regards,
+PSO Team8
