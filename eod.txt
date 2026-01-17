@@ -1,1 +1,10 @@
+expdp / \
+directory=ATCH_25060032_DUMP \
+dumpfile=ATCH_25060032_%U.dmp \
+logfile=ATCH_25060032.log \
+tables=ATCH_25060032 \
+compression=all \
+parallel=8 \
+cluster=n \
+data_pump_tablespace=USERS &
 
