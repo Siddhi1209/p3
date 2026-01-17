@@ -1,34 +1,52 @@
+RPTAPPL4 /fns/id/r/spool/shreya )cat dumps.sh
+for i in `cat /fns/id/r/spool/shreya/tables`
+do
+sqlplus -s \/ <<EOF
+alter session force  parallel query;
+create or replace directory ${i}_DUMP as '/fns/id/r/spool/shreya/Deepika/';
+grant all on directory ${i}_DUMP to public;
+commit;
+exit;
+EOF
+expdp / directory=${i}_DUMP dumpfile=${i}_%U.dmp logfile=${i}.log tables=${i}  compression=all  parallel=32 cluster=n &
+done
 
-Dear Team,
+RPTAPPL4 /fns/id/r/spool/shreya )
+RPTAPPL4 /fns/id/r/spool/shreya )
+RPTAPPL4 /fns/id/r/spool/shreya )ksh -x dumps.sh
++ cat /fns/id/r/spool/shreya/tables
++ sqlplus -s /
++ 0<<
+alter session force  parallel query;
+create or replace directory ATCH_25060032_DUMP as '/fns/id/r/spool/shreya/Deepika/';
+grant all on directory ATCH_25060032_DUMP to public;
+commit;
+exit;
 
-During the recent issue where queue buildup was observed in DP9Q post DB switch, we performed a detailed analysis of the queue logs.
-
-While reviewing the logs, it was observed that extensive details related to FT000 were captured. However, DB link visibility/details were not available in the queue logs, which delayed identification of the DB link issue from REF to ARCHSBI.
-
-Since the root cause was eventually traced to a DB link connectivity issue, having DB link-related information logged in the queue logs would help in faster diagnosis and resolution of similar issues in the future.
-
-Request you to please review and consider adding DB link visibility/details in the queue logs, wherever feasible.
-
-This enhancement will be helpful during incident analysis and will reduce dependency on multiple checks across teams.
-
-Please let us know your views on the same.
-
-Regards,
-PSO Team
+Session altered.
 
 
+Directory created.
 
-Dear Team,
 
-During the recent incident where queue buildup was observed in DP9Q post DB switch, we did a detailed check of the queue logs as part of our analysis.
+Grant succeeded.
 
-We noticed that the logs contained a lot of detailed information related to FT000, which was helpful. However, DB link visibility was not available in the queue logs, and because of this, identifying the DB link issue from REF to ARCHSBI took additional time.
 
-Since the eventual root cause was a DB link connectivity issue, having DB link-related details reflected in the queue logs would make troubleshooting quicker and smoother in similar situations.
+Commit complete.
 
-Request you to please check and let us know if it is possible to add DB link visibility/details in the queue logs going forward.
+RPTAPPL4 /fns/id/r/spool/shreya )+ expdp / directory=ATCH_25060032_DUMP dumpfile=ATCH_25060032_%U.dmp logfile=ATCH_25060032.log tables=ATCH_25060032 compression=all parallel=32 cluster=n
 
-This would be very helpful from an operational and incident analysis perspective.
+Export: Release 19.0.0.0.0 - Production on Sat Jan 17 09:22:00 2026
+Version 19.26.0.0.0
 
-Thanks and regards,
-PSO Team8
+Copyright (c) 1982, 2019, Oracle and/or its affiliates.  All rights reserved.
+
+Connected to: Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+ORA-31626: job does not exist
+ORA-31633: unable to create master table "FNSONLI.SYS_EXPORT_TABLE_05"
+ORA-06512: at "SYS.DBMS_SYS_ERROR", line 95
+ORA-06512: at "SYS.KUPV$FT", line 1163
+ORA-60019: Creating initial extent of size 14 in tablespace of extent size 5
+ORA-06512: at "SYS.KUPV$FT", line 1056
+ORA-06512: at "SYS.KUPV$FT", line 1044
+
