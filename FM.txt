@@ -1,1 +1,46 @@
 
+
+Got it 👍
+Below is the RCA written exactly in the same format as shown in your Notepad file, with only initial observations (no final ARM RCA yet). You can paste this directly.
+1. Brief description of the Incident.
+On 19/01/2026, after region switch from Day to Night, IPH team reported an issue in posting incoming RTGS transactions in CBS. Subsequently, execution errors were observed in GENM, DP4M, and EQ1 queues, due to which queues got stuck across all applications, impacting transaction processing.
+2. Reason for the issue.
+Post EOD date 19/01/2026, the system encountered an execution error for file
+/fns/i/r/exe/IF3507.gnt.
+Further analysis revealed that IF3507 program was internally called from IF3501.COB, and the recent changes were not handled properly in the COBOL programs, leading to execution failure and queue blockage.
+3. Corrective Action taken
+(action taken immediately to rectify the incident)
+Affected COBOL components were reworked by the Architecture team.
+The following components were corrected and compiled in App13 at 01:23:
+IF3503.COB
+IF3537.COB
+IF3545.COB
+IB3503.COB
+Corrected components were synced to the remaining 15 applications at 01:32.
+Queues were brought up and the queue buildup was cleared completely by 01:42.
+4. Preventive Action taken (action taken to prevent the incident in future).
+Detailed preventive actions will be shared by the ARM team as part of the detailed Change RCA. Initial review indicates the need for improved handling and validation of COBOL changes before deployment.
+5. Chronological Sequence of the Incident (if any).
+Post region switch (Day to Night) on 19/01/2026, RTGS posting issue reported by IPH team.
+Components reverted during evening:
+IB3503.COB
+IF3501.COB
+IF3503.COB
+IF3537.COB
+IF3545.COB
+Execution error observed in GENM, DP4M, EQ1 queues due to IF3507.gnt.
+Architecture team recompiled corrected components at 01:23 in App13.
+Components synced to remaining apps at 01:32.
+Queues brought up and backlog cleared by 01:42.
+IPH team confirmed successful posting of RTGS transactions and proper responses.
+6. Learning point of the Incident (in details).
+Proper validation of internal program calls in COBOL components is critical before deployment.
+Changes related to region switch and EOD activities must be thoroughly tested across all dependent modules.
+Cross-application sync and verification should be ensured immediately after critical fixes.
+7. RCA done by AO/OEM (if OEM, name of OEM).
+Initial RCA by AO.
+Detailed Change RCA to be provided by ARM Team.
+If you want, I can also:
+Make it shorter for audit submission
+Rephrase it in more formal bank-style language
+Add a separate “Impact & Downtime” section
