@@ -1,16 +1,1 @@
-New_AC_*_20260119.dat 
-
-LONGRUN_JOB_REF2_depd0092 and LONGRUN_JOB_REF2_depd0093 are responsible for the generation of New_AC_*_20260119.dat file.
-
-These jobs are scheduled in LONGRUN_JOB_MULTIAPP box.
-
-On the success condition of LONGRUN_JOB_REF2_depd0093 job, LONGRUN_JOB_REF2_New_AC_send job gets triggered , which is creates a ftplist for sends the 
-file to te destination.
-
-we have observed that LONGRUN_JOB_REF2_New_AC_send job got triggered but created a zerobyte ftplist. Due to which the files were not sent to the 
-destination. Kindly analyze.
-
-
-
-
 
