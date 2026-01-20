@@ -1,52 +1,16 @@
-RPTAPPL4 /fns/id/r/spool/shreya )cat dumps.sh
-for i in `cat /fns/id/r/spool/shreya/tables`
-do
-sqlplus -s \/ <<EOF
-alter session force  parallel query;
-create or replace directory ${i}_DUMP as '/fns/id/r/spool/shreya/Deepika/';
-grant all on directory ${i}_DUMP to public;
-commit;
-exit;
-EOF
-expdp / directory=${i}_DUMP dumpfile=${i}_%U.dmp logfile=${i}.log tables=${i}  compression=all  parallel=32 cluster=n &
-done
+New_AC_*_20260119.dat 
 
-RPTAPPL4 /fns/id/r/spool/shreya )
-RPTAPPL4 /fns/id/r/spool/shreya )
-RPTAPPL4 /fns/id/r/spool/shreya )ksh -x dumps.sh
-+ cat /fns/id/r/spool/shreya/tables
-+ sqlplus -s /
-+ 0<<
-alter session force  parallel query;
-create or replace directory ATCH_25060032_DUMP as '/fns/id/r/spool/shreya/Deepika/';
-grant all on directory ATCH_25060032_DUMP to public;
-commit;
-exit;
+LONGRUN_JOB_REF2_depd0092 and LONGRUN_JOB_REF2_depd0093 are responsible for the generation of New_AC_*_20260119.dat file.
 
-Session altered.
+These jobs are scheduled in LONGRUN_JOB_MULTIAPP box.
+
+On the success condition of LONGRUN_JOB_REF2_depd0093 job, LONGRUN_JOB_REF2_New_AC_send job gets triggered , which is creates a ftplist for sends the 
+file to te destination.
+
+we have observed that LONGRUN_JOB_REF2_New_AC_send job got triggered but created a zerobyte ftplist. Due to which the files were not sent to the 
+destination. Kindly analyze.
 
 
-Directory created.
 
 
-Grant succeeded.
-
-
-Commit complete.
-
-RPTAPPL4 /fns/id/r/spool/shreya )+ expdp / directory=ATCH_25060032_DUMP dumpfile=ATCH_25060032_%U.dmp logfile=ATCH_25060032.log tables=ATCH_25060032 compression=all parallel=32 cluster=n
-
-Export: Release 19.0.0.0.0 - Production on Sat Jan 17 09:22:00 2026
-Version 19.26.0.0.0
-
-Copyright (c) 1982, 2019, Oracle and/or its affiliates.  All rights reserved.
-
-Connected to: Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
-ORA-31626: job does not exist
-ORA-31633: unable to create master table "FNSONLI.SYS_EXPORT_TABLE_05"
-ORA-06512: at "SYS.DBMS_SYS_ERROR", line 95
-ORA-06512: at "SYS.KUPV$FT", line 1163
-ORA-60019: Creating initial extent of size 14 in tablespace of extent size 5
-ORA-06512: at "SYS.KUPV$FT", line 1056
-ORA-06512: at "SYS.KUPV$FT", line 1044
 
