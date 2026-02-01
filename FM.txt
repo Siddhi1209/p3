@@ -1,46 +1,157 @@
+4377654025
+sutlej:cbsprodm:/home/cbsprodm/Deepika:-)ksh -x NRD_DETAILS.sh_1
++ DATE=20260131
++ cd /fns/id/r/data/PRODSUPP
++ cat /home/cbsprodm/Deepika/account_numbers.txt
++ echo ACCOUNT NUMBER : 4377654025
++ 1>> /home/cbsprodm/Deepika/total_accounts_20260131.txt
++ echo ======================================================================
++ 1>> /home/cbsprodm/Deepika/total_accounts_20260131.txt
++ grep ^202601
++ 1>> /home/cbsprodm/Deepika/total_accounts_20260131.txt
++ acd_bkp_jrnl_day 4377654025
++ echo ======================================================================
++ 1>> /home/cbsprodm/Deepika/total_accounts_20260131.txt
++ cd /home/cbsprodm/Deepika/
++ 1> FXAD_DETAILS_20260131.txt
++ + cat from_date.txt
+k=20260101
++ + cat to_date.txt
+j=20260131
++ DB_QUERY select to_char(to_date(20260101,'YYYYMMDD'),'J')-2415020  from dual;
++ + sqlplus -s queryi/Apr!2015
++ 0<<
+set verify off;
+set pages 0;
+set head off;
+select to_char(to_date(20260101,'YYYYMMDD'),'J')-2415020  from dual;
+exit
+from_date=                                          46022
++ DB_QUERY1 select to_char(to_date(20260131,'YYYYMMDD'),'J')-2415020 from dual;
++ + sqlplus -s queryi/Apr!2015
++ 0<<
+set verify off;
+set pages 0;
+set head off;
+select to_char(to_date(20260131,'YYYYMMDD'),'J')-2415020 from dual;
+exit
+to_date=                                            46052
++ cat /home/cbsprodm/Deepika/account_numbers.txt
++ sqlplus -s queryi/Apr!2015
++ 0<<
+set head off;
+set feedback off;
+set pages 0;
+set colsep '|';
+spool /home/cbsprodm/Deepika/4377654025_FXAD_DETAILS.txt;
+select 'ACCOUNT NUMBER : 4377654025' from dual;
+select 'ACCT|MFX_DEAL_DATE|MFX_TXN_DATE|TXN_NO|JOURNAL_NO|AMOUNT' from dual;
+select ACCT,MFX_DEAL_DATE,MFX_TXN_DATE,TXN_NO,JOURNAL_NO,AMOUNT from fxad where INST_NO='003' and ACCT='0000004377654025' and MFX_TXN_DATE between                                          46022 and                                       46052;
+spool off;
+exit
+ACCOUNT NUMBER : 4377654025
+ACCT|MFX_DEAL_DATE|MFX_TXN_DATE|TXN_NO|JOURNAL_NO|AMOUNT
++ cat /home/cbsprodm/Deepika/account_numbers.txt
++ echo ======================================================================
++ 1>> FXAD_DETAILS_20260131.txt
++ cat /home/cbsprodm/Deepika/4377654025_FXAD_DETAILS.txt
++ 1>> FXAD_DETAILS_20260131.txt
++ echo ======================================================================
++ 1>> FXAD_DETAILS_20260131.txt
++ cat /home/cbsprodm/Deepika/account_numbers.txt
++ rm /home/cbsprodm/Deepika/4377654025_FXAD_DETAILS.txt
+sutlej:cbsprodm:/home/cbsprodm/Deepika:-)cat NRD_DETAILS.sh_1
 
+DATE=20260131
+cd /fns/id/r/data/PRODSUPP
+for i in `cat /home/cbsprodm/Deepika/account_numbers.txt`
+do
+echo "ACCOUNT NUMBER : $i" >> /home/cbsprodm/Deepika/total_accounts_20260131.txt
+echo "======================================================================" >>/home/cbsprodm/Deepika/total_accounts_20260131.txt
+acd_bkp_jrnl_day $i | grep ^202601 >> /home/cbsprodm/Deepika/total_accounts_20260131.txt
+echo "======================================================================" >>/home/cbsprodm/Deepika/total_accounts_20260131.txt
+done
+cd /home/cbsprodm/Deepika/
+>FXAD_DETAILS_$DATE.txt
+k=`cat from_date.txt`
+j=`cat to_date.txt`
+DB_QUERY()
+{
+from_date=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD <<EOD
+set verify off;
+set pages 0;
+set head off;
+$@
+exit
+EOD`
+}
+DB_QUERY1()
+{
+to_date=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD <<EOD
+set verify off;
+set pages 0;
+set head off;
+$@
+exit
+EOD`
+}
 
-Got it 👍
-Below is the RCA written exactly in the same format as shown in your Notepad file, with only initial observations (no final ARM RCA yet). You can paste this directly.
-1. Brief description of the Incident.
-On 19/01/2026, after region switch from Day to Night, IPH team reported an issue in posting incoming RTGS transactions in CBS. Subsequently, execution errors were observed in GENM, DP4M, and EQ1 queues, due to which queues got stuck across all applications, impacting transaction processing.
-2. Reason for the issue.
-Post EOD date 19/01/2026, the system encountered an execution error for file
-/fns/i/r/exe/IF3507.gnt.
-Further analysis revealed that IF3507 program was internally called from IF3501.COB, and the recent changes were not handled properly in the COBOL programs, leading to execution failure and queue blockage.
-3. Corrective Action taken
-(action taken immediately to rectify the incident)
-Affected COBOL components were reworked by the Architecture team.
-The following components were corrected and compiled in App13 at 01:23:
-IF3503.COB
-IF3537.COB
-IF3545.COB
-IB3503.COB
-Corrected components were synced to the remaining 15 applications at 01:32.
-Queues were brought up and the queue buildup was cleared completely by 01:42.
-4. Preventive Action taken (action taken to prevent the incident in future).
-Detailed preventive actions will be shared by the ARM team as part of the detailed Change RCA. Initial review indicates the need for improved handling and validation of COBOL changes before deployment.
-5. Chronological Sequence of the Incident (if any).
-Post region switch (Day to Night) on 19/01/2026, RTGS posting issue reported by IPH team.
-Components reverted during evening:
-IB3503.COB
-IF3501.COB
-IF3503.COB
-IF3537.COB
-IF3545.COB
-Execution error observed in GENM, DP4M, EQ1 queues due to IF3507.gnt.
-Architecture team recompiled corrected components at 01:23 in App13.
-Components synced to remaining apps at 01:32.
-Queues brought up and backlog cleared by 01:42.
-IPH team confirmed successful posting of RTGS transactions and proper responses.
-6. Learning point of the Incident (in details).
-Proper validation of internal program calls in COBOL components is critical before deployment.
-Changes related to region switch and EOD activities must be thoroughly tested across all dependent modules.
-Cross-application sync and verification should be ensured immediately after critical fixes.
-7. RCA done by AO/OEM (if OEM, name of OEM).
-Initial RCA by AO.
-Detailed Change RCA to be provided by ARM Team.
-If you want, I can also:
-Make it shorter for audit submission
-Rephrase it in more formal bank-style language
-Add a separate “Impact & Downtime” section
+DB_QUERY "select to_char(to_date($k,'YYYYMMDD'),'J')-2415020  from dual;"
+DB_QUERY1 "select to_char(to_date($j,'YYYYMMDD'),'J')-2415020 from dual;"
+for i in `cat /home/cbsprodm/Deepika/account_numbers.txt`
+do
+sqlplus -s $ORA_LOGIN/$ORA_PASSWD <<EOF
+set head off;
+set feedback off;
+set pages 0;
+set colsep '|';
+spool /home/cbsprodm/Deepika/${i}_FXAD_DETAILS.txt;
+select 'ACCOUNT NUMBER : $i' from dual;
+select 'ACCT|MFX_DEAL_DATE|MFX_TXN_DATE|TXN_NO|JOURNAL_NO|AMOUNT' from dual;
+select ACCT,MFX_DEAL_DATE,MFX_TXN_DATE,TXN_NO,JOURNAL_NO,AMOUNT from fxad where INST_NO='003' and ACCT='000000$i' and MFX_TXN_DATE between $from_date and $to_date;
+spool off;
+exit
+EOF
+done
+for i in `cat /home/cbsprodm/Deepika/account_numbers.txt`
+do
+echo "======================================================================" >> FXAD_DETAILS_$DATE.txt
+cat  /home/cbsprodm/Deepika/${i}_FXAD_DETAILS.txt >> FXAD_DETAILS_$DATE.txt
+echo "======================================================================" >> FXAD_DETAILS_$DATE.txt
+done
+for i in `cat /home/cbsprodm/Deepika/account_numbers.txt`
+do
+rm /home/cbsprodm/Deepika/${i}_FXAD_DETAILS.txt
+done
+
+sutlej:cbsprodm:/home/cbsprodm/Deepika:-)ls -lrt
+total 346768
+drwxr-xr-x   2 cbsprodm   users           96 Aug  1  2025 GCAP
+-rw-r--r--   1 cbsprodm   users         2505 Sep  5 11:54 mr_1.txt
+-rw-r--r--   1 cbsprodm   users         5824 Sep  5 11:54 GAD_1.txt
+-rw-r--r--   1 cbsprodm   users         9996 Sep  5 11:54 payment_1.txt
+-rw-r--r--   1 cbsprodm   users           25 Sep  5 11:54 numbers.txt
+-rw-r--r--   1 cbsprodm   users          756 Sep  5 11:54 error.txt
+-rw-r--r--   1 cbsprodm   users        95193 Sep  5 11:54 FXAD_DETAILS_20250831.txt
+-rw-r--r--   1 cbsprodm   users      174467245 Sep  5 11:54 inb.491021.98888.141789.2308250327
+-rw-r--r--   1 cbsprodm   users           50 Sep  9 10:14 ip.txt
+-rwxrwxrwx   1 cbsprodm   users        13216 Sep 13 16:01 GAD5.txt
+-rw-r--r--   1 cbsprodm   users          452 Sep 14 13:17 GAD.txt
+-rw-r--r--   1 cbsprodm   users        18823 Oct  1 13:39 FXAD_DETAILS_20250930.txt
+-rw-r--r--   1 cbsprodm   users      1589741 Nov  1 17:08 total_accounts.txt
+-rw-r--r--   1 cbsprodm   users       420155 Nov  1 17:14 FXAD_DETAILS_20251031.txt
+-rw-r--r--   1 cbsprodm   users        90616 Dec  1 14:09 FXAD_DETAILS_20251130.txt
+-rw-r--r--   1 cbsprodm   users       401576 Jan  1 15:27 total_accounts_20251130.txt
+-rw-r--r--   1 cbsprodm   users       177202 Jan  1 17:24 total_accounts_20251231.txt
+-rw-r--r--   1 cbsprodm   users        67094 Jan  1 17:25 FXAD_DETAILS_20251231.txt
+-rwxr-xr--   1 cbsprodm   users         2012 Feb  1 17:36 NRD_DETAILS.sh_1
+-rwxr-xr--   1 cbsprodm   users            9 Feb  1 17:36 from_date.txt
+-rwxr-xr--   1 cbsprodm   users            9 Feb  1 17:37 to_date.txt
+-rw-r--r--   1 cbsprodm   users           11 Feb  1 17:39 account_numbers.txt
+-rw-r--r--   1 cbsprodm   users          170 Feb  1 17:39 total_accounts_20260131.txt
+-rw-r--r--   1 cbsprodm   users          304 Feb  1 17:39 FXAD_DETAILS_20260131.txt
+sutlej:cbsprodm:/home/cbsprodm/Deepika:-)cat FXAD_DETAILS_20260131.txt
+======================================================================
+ACCOUNT NUMBER : 4377654025
+ACCT|MFX_DEAL_DATE|MFX_TXN_DATE|TXN_NO|JOURNAL_NO|AMOUNT
+======================================================================
