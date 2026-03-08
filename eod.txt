@@ -1,4 +1,4 @@
-
+During the scheduled GL activity, Region Up was expected to trigger through REGION_UP_NR job on NR servers via Autosys. However, %id_bancs.kill_% jobs got stuck across all 16 application servers. During the recovery activity, bancs.kill_emergency was inadvertently triggered on PRAPP14 instead of NRAPP14, due to which PRAPP14 went down, impacting the application temporarily.
 Got it — since NRSTUB database went down (not filesystem), the RCA should reflect that clearly. Here is the corrected human-style RCA:
 No.
 Particulars
@@ -27,4 +27,5 @@ TCS PSO Online Team
 If you want, I can also make this even better for SBI/TCS submission by:
 slightly reducing the mention of manual command mistake (managers usually prefer that style), and
 making it look exactly like a typical BANCS production RCA.
+
 
