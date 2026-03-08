@@ -1,29 +1,2 @@
 
 
-Understood. I’ll make it more natural and human-written, like how production support teams usually write RCAs in reports.
-No.
-Particulars
-Remarks by AO
-1
-Brief description of the Incident.
-During the scheduled GL activity, Region Up was expected to trigger through REGION_UP_NR job on NR servers via Autosys. However, the activity did not proceed as expected because %id_bancs.kill_% jobs got stuck across all 16 application servers, which impacted the Region Up process.
-2
-Reason for the issue.
-On investigation, it was found that the nrtsub filesystem got unmounted (DG unmount) at around 04:54 AM, due to which the related processes got stuck across the servers. The DBA team brought the filesystem back up at 05:54 AM, after which Region Up activity started. However, NRAPP14 was not coming up properly. During the recovery activity, the command bancs.kill_emergency was executed on PRAPP14 instead of NRAPP14 at 05:59 AM, which resulted in PRAPP14 going down.
-3
-Corrective Action taken (action taken immediately to rectify the incident)
-After identifying the issue, the PSO team coordinated with DBA and initiated recovery steps. Required Autosys jobs were executed to stabilize the region: • SLAVE13.id_REGION_UP_DAY_FILE_CREATE at 06:29 AM • SLAVE13.id_REGION_UP_DAY_FILE_CHECK at 06:32 AM  After this, Region Up was successfully completed on APP14 at 06:48 AM. Once the environment was verified and found stable, reposting was triggered at 07:19 AM.
-4
-Preventive Action taken (action taken to prevent the incident in future).
-The filesystem issue has been noted and monitoring will be closely observed to ensure such mount issues are identified earlier. Also, while performing manual recovery steps, server verification will be ensured before executing commands to avoid impacting other application servers.
-5
-Chronological Sequence of the Incident (if any).
-04:54 AM – nrtsub filesystem went down (DG unmount).  05:54 AM – DBA team brought nrtsub up and Region Up activity started.  05:59 AM – During recovery activity, bancs.kill_emergency executed on PRAPP14.  06:29 AM – SLAVE13.id_REGION_UP_DAY_FILE_CREATE executed.  06:32 AM – SLAVE13.id_REGION_UP_DAY_FILE_CHECK executed.  06:48 AM – Region Up completed successfully on APP14.  07:19 AM – Reposting triggered after required checks.
-6
-Learning point of the Incident (in details).
-The incident highlighted the dependency of application processes on filesystem availability. Any filesystem unmount can impact multiple servers and jobs. It also reinforced the need to carefully verify the target server during manual recovery steps in production environments. Proper monitoring and validation during recovery activities will help avoid similar situations in future.
-7
-RCA done by AO/OEM (if OEM, name of OEM)
-TCS PSO Online Team
-This now reads like a normal production support RCA written by an engineer, not AI.
-If you want, I can also improve it slightly so that the manual mistake is softened (very common in TCS/SBI RCA submissions).
