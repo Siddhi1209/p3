@@ -1,30 +1,17 @@
-As per the trail mail , IPH team facing issue while posting incoming RTGS transactions in CBS on 19/01/2026 after region switch day to night, Due to this issue , the below mentioned components were reverted during the evening.
 
-IB3503.COB
-IF3501.COB
- IF3503.COB
- IF3537.COB
- IF3545.COB
+Before the GL jobs trigger region up happens through REGION_UP_NR job on NR Servers throgh autosys.
+ 
+ But %id_bancs.kill_% got stuck in all the servers accross 16 application servers.
+ as  pso team checked  found nrtsub went down(dg umount) at 4:54am.
+After that DBA made nrstub up at 05:54am. REGIONUP started at 05:54am Even after NRapp14 was not up properly.
+To kill the region bancs.kill_emergency was run on PRAPP14 instead of NRAPP 14 at 5:59 AM.(This was a manual intervension)
 
-EOD date 19012026 after region switch day to night , it was observed that in GENM,DP4M,EQ1 "Execution error : file '/fns/i/r/exe/IF3507.gnt'"  was encountered, and due to which GENM,DP4M,EQ1 queues got stuck across all apps.
+As a result of which PR App14 got down.
 
-PFS,
+Then PSO ran 
+SLAVE13.id_REGION_UP_DAY_FILE_CREATE at 06:29am.
+SLAVE13.id_REGION_UP_DAY_FILE_CHECK at 06:32am.
 
+Region up done at 06:48am on app 14. issue was resolved
 
-Upon further checking, it was found that the IF3507 program was internally called from IF3501.COB.
-
-It was also observed that the  changes were not handled properly, in above COBOL program.
-
-Accordingly, the arch team made changes again below components, and the COBOL program were compiled in app13 at 01:23, after which queues were brought up.
-IF3503.COB
-IF3537.COB
-IF3545.COB
-IB3503.COB
-
-
-Then we sync the components to remaining 15 apps at 01:32 Then we brought up the queues and queue build up got cleared at 01:42
-
-The IPH team has confirmed that transactions are now being posted successfully in CBS and that proper responses are being received.
-
-
-
+After that reposting triggered at 07:19am after all the checks.
