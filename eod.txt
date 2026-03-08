@@ -1,17 +1,1 @@
 
-Before the GL jobs trigger region up happens through REGION_UP_NR job on NR Servers throgh autosys.
- 
- But %id_bancs.kill_% got stuck in all the servers accross 16 application servers.
- as  pso team checked  found nrtsub went down(dg umount) at 4:54am.
-After that DBA made nrstub up at 05:54am. REGIONUP started at 05:54am Even after NRapp14 was not up properly.
-To kill the region bancs.kill_emergency was run on PRAPP14 instead of NRAPP 14 at 5:59 AM.(This was a manual intervension)
-
-As a result of which PR App14 got down.
-
-Then PSO ran 
-SLAVE13.id_REGION_UP_DAY_FILE_CREATE at 06:29am.
-SLAVE13.id_REGION_UP_DAY_FILE_CHECK at 06:32am.
-
-Region up done at 06:48am on app 14. issue was resolved
-
-After that reposting triggered at 07:19am after all the checks.
