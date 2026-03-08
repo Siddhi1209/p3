@@ -1,2 +1,30 @@
 
+Got it — since NRSTUB database went down (not filesystem), the RCA should reflect that clearly. Here is the corrected human-style RCA:
+No.
+Particulars
+Remarks by AO
+1
+Brief description of the Incident.
+During the scheduled GL activity, Region Up was expected to trigger through REGION_UP_NR job on NR servers via Autosys. However, the process did not proceed as expected as %id_bancs.kill_% jobs got stuck across all 16 application servers, which delayed the Region Up activity.
+2
+Reason for the issue.
+On investigation, it was observed that the NRSTUB database went down at around 04:54 AM, due to which the related processes got stuck across the application servers. The DBA team brought the NRSTUB database back up at 05:54 AM, after which the Region Up activity started. However, NRAPP14 was not coming up properly during the process. During the recovery activity, bancs.kill_emergency was executed on PRAPP14 instead of NRAPP14 at 05:59 AM, due to which PRAPP14 went down.
+3
+Corrective Action taken (action taken immediately to rectify the incident)
+After identifying the issue, the PSO team coordinated with the DBA team and initiated the required recovery steps. The following jobs were executed to stabilize the region: • SLAVE13.id_REGION_UP_DAY_FILE_CREATE at 06:29 AM • SLAVE13.id_REGION_UP_DAY_FILE_CHECK at 06:32 AM  After the above activities, Region Up was successfully completed on APP14 at 06:48 AM. Once the environment was verified and found stable, reposting was triggered at 07:19 AM.
+4
+Preventive Action taken (action taken to prevent the incident in future).
+The incident has been noted and close monitoring of the NRSTUB database availability will be ensured during critical batch activities. Additionally, while performing manual recovery steps, proper verification of the target server will be done before executing commands to avoid impacting other application servers.
+5
+Chronological Sequence of the Incident (if any).
+04:54 AM – NRSTUB database went down.  05:54 AM – DBA team brought NRSTUB database up and Region Up activity started.  05:59 AM – During recovery activity, bancs.kill_emergency executed on PRAPP14.  06:29 AM – SLAVE13.id_REGION_UP_DAY_FILE_CREATE executed.  06:32 AM – SLAVE13.id_REGION_UP_DAY_FILE_CHECK executed.  06:48 AM – Region Up completed successfully on APP14.  07:19 AM – Reposting triggered after required checks.
+6
+Learning point of the Incident (in details).
+The incident highlighted the dependency of application processes on NRSTUB database availability. Any disruption in the database impacts multiple application servers and batch activities. It also emphasized the need for careful validation during manual recovery steps in the production environment. Proper monitoring and verification during such activities will help avoid similar situations in future.
+7
+RCA done by AO/OEM (if OEM, name of OEM)
+TCS PSO Online Team
+If you want, I can also make this even better for SBI/TCS submission by:
+slightly reducing the mention of manual command mistake (managers usually prefer that style), and
+making it look exactly like a typical BANCS production RCA.
 
