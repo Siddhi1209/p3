@@ -1,1 +1,13 @@
 
+Hi Team,
+
+The gateway monitoring portal has been updated to enhance visibility of job status.
+
+A blinking indicator has been implemented for the “Not Running” status in the Jobs section. When a gateway process is detected as not running, the corresponding cell will now blink to highlight the issue more prominently and help in quicker identification during monitoring.
+
+This change does not impact any existing monitoring logic and is only a visual enhancement for better alert visibility.
+
+Please let me know if any issues are observed.
+
+Regards,
+Siddhi
