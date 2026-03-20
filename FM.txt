@@ -1,3 +1,28 @@
+
+
+
+Here’s a clean and professional version of the steps from your image:
+Procedure to Handle Long-Running Queries
+Initial Check – Queue Status
+Verify whether the queue is actively updating by monitoring the log file:
+Bash
+Copy code
+tail -f CIF.1.021
+Process Verification at Filesystem Level
+If the queue is not updating, check whether the corresponding Process ID (PID) is active at the filesystem level.
+Coordinate with the DBA team to identify the query and its associated bind variables for the long-running process.
+Terminate Process at Filesystem Level
+If required, terminate the identified long-running process using the appropriate command:
+Bash
+Copy code
+killrep CIF.1.021
+Database-Level Confirmation and Action
+After terminating the process, confirm with the DBA team whether the query is still running in the database.
+If it is still active, request the DBA team to terminate the query at the database level.
+If you want, I can also convert this into SOP format (with headings, roles, and impact) or make it suitable for email/document submission in TCS style.
+
+
+
 #!/bin/ksh
 pgm=`basename $0`
 rm -f $sysout/$pgm.log
