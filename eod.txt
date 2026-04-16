@@ -1,44 +1,44 @@
-)ksh -x moni.sh
-+ inputfile=gateway_i.txt
-+ main
-+ 1> /home/monitorp/newpace/data/gateway_i.txt
-+ + cut -c 9-16 /fns/id/r/data/file/MFLAGS
-dt=20260416
-+ + cut -c5-10
-+ date
-gdate=Apr 16
-+ /home/monitorp/newpace/scripts/UTILITIES/check_job.sh B24
-+ [ 0 -eq 0 ]
-+ + ps -fufnsonli
-+ grep B24GWBL
-+ wc -l
-+ grep -v -e grep -e print
-B24=44
-+ + grep B24REP /home/fnsonli/.profile
-+ awk -F = {print $2}
-+ grep -v #
-B24RE=45
-+ + ps -fufnsonli
-+ grep B24GWBLENC
-+ wc -l
-+ grep -v -e grep -e print
-B24enc=11
-+ DB_QUERY select count(1) from gtin@master_3_link where dqp_type='i' and gateway='b24gw' and enc_flag='Y'
-+ sqlplus -s queryi/Apr!2015
-+ 0<<
-        set feedback off
-        set head off
-        set pages 0
-        select count(1) from gtin@master_3_link where dqp_type='i' and gateway='b24gw' and enc_flag='Y';
-        commit;
-        exit;
-        EOF
-+ export queryResult=   11
-+ + echo 11
-gtin_b24enc_count=11
-+ cd /fns/i/r/sysout
-+ [ 44 -eq 45 ]
-+ GENERATE_FILE B24 Gateway NOT RUNNING
-+ [ i = i ]
-+ echo B24 Gateway,NOT RUNNING
-+ 1>> /home/monitorp/newpace/data/gateway_i.txt
+ fnsonli  5167     1  1  Apr 14  ?         6:03 B24GWBLTLS -d 1 -r 21 -lrf 40
+ fnsonli 10420     1  1  Apr 14  ?        400:24 B24GWBLTLS -d 1 -r 25 -lrf 40
+ fnsonli 26517     1  1  Apr 14  ?         0:34 B24GWBLTLS -d 1 -r 117 -lrf 40
+ fnsonli  2984     1  0 00:01:21 ?         0:21 B24GWBLTLS -d 1 -r 07 -lrf 40
+ fnsonli 21910     1  0 00:02:11 ?         0:00 B24GWBL -d 1 -r 24 -lrf 40
+ fnsonli 23120     1  0 00:02:15 ?         0:03 B24GWBLENC -d 1 -r 74 -lrf 40
+ fnsonli 28187     1  0 00:02:30 ?         0:03 B24GWBLENC -d 1 -r 81 -lrf 40
+ fnsonli 19244     1  0 00:01:59 ?         0:21 B24GWBLTLS -d 1 -r 16 -lrf 40
+ fnsonli 27012     1  0 00:02:28 ?         0:03 B24GWBLENC -d 1 -r 80 -lrf 40
+ fnsonli 58422     1  0 00:01:03 ?         0:28 B24GWBLTLS -d 1 -r 01 -lrf 40
+ fnsonli 59430     1  0 00:01:07 ?         0:22 B24GWBLTLS -d 1 -r 03 -lrf 40
+ fnsonli  6761     1  0  Apr 14  ?         0:41 B24GWBLTLS -d 1 -r 22 -lrf 40
+ fnsonli 33354     1  0 00:02:37 ?         0:03 B24GWBLENC -d 1 -r 84 -lrf 40
+ fnsonli  1754     1  0  Apr 14  ?         0:31 B24GWBLTLS -d 1 -r 12 -lrf 40
+ fnsonli 17504     1  0 00:01:54 ?         0:21 B24GWBLTLS -d 1 -r 13 -lrf 40
+ fnsonli  1643     1  0  Apr 14  ?        398:09 B24GWBLTLS -d 1 -r 11 -lrf 40
+ fnsonli 30864     1  0 00:02:32 ?         0:03 B24GWBLENC -d 1 -r 82 -lrf 40
+ fnsonli 19778     1  0  Apr 14  ?         0:11 B24GWBLTLS -d 1 -r 85 -lrf 40
+ fnsonli 18325     1  0 00:01:56 ?         0:20 B24GWBLTLS -d 1 -r 15 -lrf 40
+ fnsonli 15694     1  0 00:01:50 ?         0:20 B24GWBLTLS -d 1 -r 10 -lrf 40
+ fnsonli 26334     1  0  Apr 14  ?         1:19 B24GWBLTLS -d 1 -r 116 -lrf 40
+ fnsonli 58791     1  0 00:01:05 ?         0:20 B24GWBLTLS -d 1 -r 02 -lrf 40
+ fnsonli 24583     1  0 00:02:19 ?         0:03 B24GWBLENC -d 1 -r 76 -lrf 40
+ fnsonli  2021     1  0 00:01:17 ?         0:22 B24GWBLTLS -d 1 -r 06 -lrf 40
+ fnsonli 24672     1  0  Apr 14  ?         6:40 B24GWBLTLS -d 1 -r 88 -lrf 40
+ fnsonli 36258     1  0 00:02:45 ?         0:07 B24GWBLTLS -d 1 -r 102 -lrf 40
+ fnsonli  5730     1  0 00:01:27 ?         0:21 B24GWBLTLS -d 1 -r 08 -lrf 40
+ fnsonli 20060     1  0 00:02:03 ?         0:21 B24GWBLTLS -d 1 -r 17 -lrf 40
+ fnsonli  8608     1  0  Apr 14  ?         0:39 B24GWBLTLS -d 1 -r 23 -lrf 40
+ fnsonli 20958     1  0  Apr 14  ?        399:08 B24GWBLTLS -d 1 -r 86 -lrf 40
+ fnsonli  3335     1  0  Apr 14  ?         7:00 B24GWBLTLS -d 1 -r 18 -lrf 40
+ fnsonli 35653     1  0 00:02:43 ?         0:07 B24GWBLTLS -d 1 -r 99 -lrf 40
+ fnsonli 32456     1  0 00:02:35 ?         0:03 B24GWBLENC -d 1 -r 83 -lrf 40
+ fnsonli 26046     1  0 00:02:26 ?         0:03 B24GWBLENC -d 1 -r 79 -lrf 40
+ fnsonli 25043     1  0 00:02:21 ?         0:03 B24GWBLENC -d 1 -r 77 -lrf 40
+ fnsonli 21904     1  1  Apr 14  ?        397:35 B24GWBLTLS -d 1 -r 87 -lrf 40
+ fnsonli  1364     1  0 00:01:14 ?         0:22 B24GWBLTLS -d 1 -r 05 -lrf 40
+ fnsonli 12335     1  0 00:01:40 ?         0:21 B24GWBLTLS -d 1 -r 09 -lrf 40
+ fnsonli 20869     1  0 00:02:07 ?         0:02 B24GWBLTLS -d 1 -r 19 -lrf 40
+ fnsonli 25554     1  0 00:02:24 ?         0:03 B24GWBLENC -d 1 -r 78 -lrf 40
+ fnsonli   798     1  0 00:01:11 ?         0:22 B24GWBLTLS -d 1 -r 04 -lrf 40
+ fnsonli 11943     1  0  Apr 14  ?        397:55 B24GWBLTLS -d 1 -r 70 -lrf 40
+ fnsonli 23888     1  0 00:02:17 ?         0:03 B24GWBLENC -d 1 -r 75 -lrf 40
+ fnsonli 26132     1  0  Apr 14  ?         1:49 B24GWBLTLS -d 1 -r 114 -lrf 40
