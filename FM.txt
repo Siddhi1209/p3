@@ -1,1 +1,90 @@
 
+#!/bin/ksh
+
+#############################################
+# STEP 0: ORACLE ENV
+#############################################
+export ORACLE_SID=ofsadb1
+export ORACLE_HOME=/oracle_19c/app/oracle/product/19.3
+export PATH=$ORACLE_HOME/bin:/usr/bin:/bin
+
+#############################################
+# STEP 1: GET V_DATE FROM DB
+#############################################
+V_DATE=$(sqlplus -s / <<EOF
+set heading off feedback off pages 0 verify off echo off
+select distinct V_DATE from inctarchival;
+exit;
+EOF
+)
+
+# Clean spaces/newlines
+V_DATE=$(echo "$V_DATE" | tr -d '\r' | xargs)
+
+echo "V_DATE=$V_DATE"
+
+#############################################
+# STEP 2: CONVERT DATE (DD-MON-YYYY → YYYYMMDD)
+#############################################
+V_DATE_FMT=$(echo "$V_DATE" | awk -F- '{
+mon["JAN"]="01"; mon["FEB"]="02"; mon["MAR"]="03"; mon["APR"]="04";
+mon["MAY"]="05"; mon["JUN"]="06"; mon["JUL"]="07"; mon["AUG"]="08";
+mon["SEP"]="09"; mon["OCT"]="10"; mon["NOV"]="11"; mon["DEC"]="12";
+print $3 mon[$2] $1
+}')
+
+echo "V_DATE_FMT=$V_DATE_FMT"
+
+#############################################
+# STEP 3: GET YESTERDAY DATE (AIX SAFE)
+#############################################
+YESTERDAY=$(TZ=GMT+24 date +%Y%m%d)
+
+echo "YESTERDAY=$YESTERDAY"
+
+#############################################
+# STEP 4: VALIDATION
+#############################################
+if [ "$V_DATE_FMT" != "$YESTERDAY" ]; then
+    echo "❌ Archival NOT done for yesterday"
+    exit 1
+fi
+
+echo "✅ Archival verified"
+
+#############################################
+# STEP 5: CREATE ORACLE DIRECTORY
+#############################################
+sqlplus -s / <<EOF
+create or replace directory INHO as '/fns/id/r/spool/INHO_DUMPS/INHO_DUMP_${V_DATE_FMT}';
+grant all on directory INHO to public;
+exit;
+EOF
+
+#############################################
+# STEP 6: CREATE OS DIRECTORY
+#############################################
+DUMP_PATH="/fns/id/r/spool/INHO_DUMPS/INHO_DUMP_${V_DATE_FMT}"
+
+mkdir -p "$DUMP_PATH" || {
+    echo "❌ Failed to create directory"
+    exit 1
+}
+
+cd "$DUMP_PATH" || exit 1
+
+#############################################
+# STEP 7: RUN EXPDP
+#############################################
+expdp \'/ as sysdba\' \
+directory=INHO \
+dumpfile=INHO_${V_DATE_FMT}_%U.dmp \
+logfile=INHO_${V_DATE_FMT}.log \
+parallel=4 \
+cluster=N \
+tables=FNSONLI.INHO
+
+#############################################
+# DONE
+#############################################
+echo "🎉 Export completed successfully"
