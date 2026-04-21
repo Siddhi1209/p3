@@ -1,1 +1,87 @@
 
+SQL> select V_DATE from inctarchival;
+
+V_DATE
+--------------------
+20-APR-2026
+20-APR-2026
+20-APR-2026
+20-APR-2026
+20-APR-2026
+20-APR-2026
+20-APR-2026
+20-APR-2026
+
+8 rows selected.
+
+SQL> exit
+Disconnected from Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.26.0.0.0
+ofsanr1 CONTROL /home/fnsonli/saurabh )cd $data
+ofsanr1 CONTROL /fns/id/r/data )
+ofsanr1 CONTROL /fns/id/r/data )cd file
+ofsanr1 CONTROL /fns/id/r/data/file )cut -c 9-16 MFLAGS
+20260420
+
+write a script first check n sqlplus select V_DATE from inctarchival;
+here output will be 
+
+V_DATE
+--------------------
+20-APR-2026
+20-APR-2026
+20-APR-2026
+20-APR-2026
+20-APR-2026
+20-APR-2026
+20-APR-2026
+20-APR-2026
+
+8 rows selected.
+
+here we have to check that if this date is one date less than the servers date RPTAPPL4:DAY:/fns/id/r/spool/shreya:-)date
+Tue Apr 21 10:19:24 IST 2026
+
+then then we have to print archival was done for V_DATE date whatever it is.and then run exp command you can refer below mentioned script for
+
+dumps here not need to take cat tables s the table is going to be INHO everytime.
+
+refer below mentioned manual steps.
+
+5> do sqlplus /
+
+SQL> create or replace directory INHO as '/fns/id/r/spool/INHO_DUMPS/INHO_DUMP_YYYYMMDD'; 
+
+this YYYYMMDD -- should be V_date value from inctarchival    ==============>>>> Here we are creating a Directory in sqlplus 
+
+Directory created.
+
+SQL> commit;
+
+Commit complete.
+
+SQL> exit
+
+==================================
+Exporting dumps
+==================================
+
+6> /fns/id/r/spool_new/INHO_DUMPS/INHO_DUMP_YYYYMMDD) expdp  / directory=INHO dumpfile=INHO_20260114_exp_%u.dmp logfile=INHO_20260114_exp.log compression=all parallel=32 cluster=N tables=FNSONLI.INHO. version=12.2.0
+
+(RUN THIS COMMAND AS IT IS)
+
+
+for i in `cat /fns/id/r/spool/shreya/tables`
+do
+sqlplus -s \/ <<EOF
+alter session force  parallel query;
+create or replace directory ${i}_DUMP as '/fns/id/r/spool/shreya/SHUBHAM';
+grant all on directory ${i}_DUMP to public;
+commit;
+exit;
+EOF
+expdp / directory=${i}_DUMP dumpfile=${i}_%U.dmp logfile=${i}_1.log tables=${i}  compression=all  parallel=32 cluster=n &
+done
+
+
+expdp  / directory=INHO dumpfile=INHO_20260114_exp_%u.dmp logfile=INHO_20260114_exp.log compression=all parallel=32 cluster=N tables=FNSONLI.INHO
