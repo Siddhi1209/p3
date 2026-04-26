@@ -1,1 +1,2312 @@
+RPTAPPL4:DAY:/fns/i/r/dbora/pco:-)vim SY0VVR.PCO
+000010******************************************************************
+000020*   (C) COPYRIGHT FINANCIAL NETWORK SERVICES PTY LTD. 1982       *
+000030*       ALL RIGHTS RESERVED. NO PART OF THIS PROGRAM MAY         *
+000040*       BE PHOTOCOPIED, REPRODUCED, TRANSLATED TO ANOTHER        *
+000050*       PROGRAM LANGUAGE OR USED IN ANY WAY WITHOUT THE          *
+000060*       PRIOR WRITTEN CONSENT OF FINANCIAL NETWORK SERVICES      *
+000070*       OR THE AUTHORISED SELLING AGENT.                         *
+000080*----------------------------------------------------------------*
+000090*             FINANCIAL NETWORK SERVICES PTY LTD.                *
+000100*               UNIT 6, 70 ROSEHILL STREET, REDFERN 2016         *
+000110*                   SYDNEY, AUSTRALIA.                           *
+000120*                     TEL. 318-1088                              *
+000130******************************************************************
+000140***                                                            ***
+000150***               DAY BOOK FOR VOUCHER VARIFICATION            ***
+000160***                                                            ***
+000170***               MODULE:-     SY0VVR                          ***
+000180***                                                            ***
+000190***                                                            ***
+000200***                                                            ***
+000210******************************************************************
+000220*                 P R O G R A M    H I S T O R Y
+000230*  PROGRAMMERS INITIALS TOGETHER WITH THE "SPR" NUMBER MUST BE
+000240*  REFLECTED IN COLUMNS 73-80 OF EVERY LINE/S CHANGED OR ADDED.
+000250*
+000260* PROGRAMMER : DATE :SPR NO :COMMENTS
+P22852*-----------------------------------------------------------------
+H18618* HARSH/KAAR : 20080120 : 18618 : Performance Tuning of VVR
+H18618*-----------------------------------------------------------------
+A70129* SANJEEV    : 20100106 : 70129 : VVVR CCPC
+A70129*-----------------------------------------------------------------
+H70177* HARSH/KAAR : 20100114 : 70177 : EXCLUDING VVR GENERATION FOR INB        (99922)
+H70177*-----------------------------------------------------------------
+A70366* SANJEEV ARYA : 20100326 : 70366 : VVR
+A70366*-----------------------------------------------------------------
+A70109* ADITYA CHALLA : 20100415 : 70109 : WRITING VVR FOR INB AND ATM
+A70109*----------------------------------------------------------------
+R71977* RAVITEJ   : 02092011 : 71977 : Revamp of SY1000 Secondary Update
+R71977*                                Mechanism (PHASE - II)
+R71977*-----------------------------------------------------------------
+U75556* SAJEESH    : 04122014 : 75556 : TO AVOID ORACLE ERROR OCCURED
+U75556*                                WHILE FETCHING FROM ICID TABLE
+U75556*-----------------------------------------------------------------
+000440 IDENTIFICATION DIVISION.
+000450 PROGRAM-ID. SY0VVR.
+000460 AUTHOR. Tata Consultancy Services.
+000470*DESC. DAY BOOK FOR VOUCHER VARIFICATION
+000480 DATE-WRITTEN. .
+
+000500 ENVIRONMENT DIVISION.
+000510 CONFIGURATION SECTION.
+000520 SOURCE-COMPUTER. VAX.
+000530 OBJECT-COMPUTER. VAX.
+000540 SPECIAL-NAMES.
+000550 CONSOLE IS CONS.
+000560 INPUT-OUTPUT SECTION.
+000570 FILE-CONTROL.
+000580 SELECT JR-EXTRACT  ASSIGN TO   "JREXTRACT"
+000590      ORGANIZATION IS LINE SEQUENTIAL.
+000600*****************START OF IR 70366(PERMANENTLY REVERTING)*********        ***
+R71265**START OF REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+000620************START OF IR 71265****************************
+A70366*---------- START OF IR 70366 ----------------
+A70366*SELECT JR-EXTRACT1  ASSIGN TO   "JREXTRACT1"
+A70366*      ORGANIZATION IS LINE SEQUENTIAL.
+A70366*----------- END OF IR 70366 ------------
+000670************END OF IR 71265******************************
+R71265**END OF  REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+000690*****************END   OF IR 70366(PERMANENTLY REVERTING)*********        ***
+A70109************START OF IR 70109*************
+A70109 SELECT JR-EXTRACT2 ASSIGN TO "JREXTRACT2"
+A70109         ORGANIZATION IS LINE SEQUENTIAL.
+A70109 SELECT JR-EXTRACT3 ASSIGN TO "JREXTRACT3"
+A70109         ORGANIZATION IS LINE SEQUENTIAL.
+A70109************END OF IR 70109 **************
+P22852 SELECT ATM-BRCH-FILE ASSIGN TO WS-FILE-NAME
+P22852      FILE STATUS IS WS-STATUS.
+000780 DATA DIVISION.
+P22852 FD JR-EXTRACT.
+000800   01 JR-RECORD.
+000810      03 EX-BR-NO                           PIC X(05).
+000820      03 EX-WA-USER-ID1                     PIC S9(07).
+000830      03 EX-CURRN                           PIC X(03).
+000840      03 EX-DEP-TYPE-4                      PIC X(01).
+R71265*****************START OF REVERTING IR 71265**********************
+000860**************************START OF IR 71265***********************
+000870       03 EX-TXN-AMT                         PIC S9(14)V999.
+000880*     03 EX-TXN-AMT                         PIC S9(17).
+000890**************************END OF IR 71265***********************
+R71265*******************END OF REVERTING IR 71265**********************
+000910      03 EX-JR01-TIME                       PIC X(08).
+000920      03 EX-ACCT-TYPE                       PIC X(04).
+000930      03 EX-ACCT-NO                         PIC S9(16).
+000940      03 filler                             pic X.
+000950      03 EX-TELLER-ID                       PIC S9(07).
+000960      03 EX-TEMP-INT-CAT                       PIC X(04).
+000970      03 EX-HOME-BR-NO                      PIC X(05).
+000980      03 EX-VAL-DATE                        PIC S9(09).
+000990      03 EX-TRN-TYPE                        PIC X(02).
+001000      03 EX-CHQ-NO                          PIC X(08).
+001010      03 EX-SUP-ID                          PIC S9(07).
+001020      03 EX-CHECKER1                        PIC S9(07).
+001030      03 EX-CHECKER2                        PIC S9(07).
+001040      03 EX-TRAN-CODE                       PIC X(06).
+001050      03 EX-ENQ-DESC                        PIC X(15).
+001060      03 EX-SYSTEM                          PIC X(03).
+001070      03 EX-POST-VAL-DATE                   PIC S9(09).
+001080      03 EX-BYTES                           PIC X(32).
+R71265*****************START OF REVERTING IR 71265**********************
+001100**************************START OF IR 71265***********************
+R71265*     03 EX-TEMP-ICID                       PIC 9.
+001120**************************END OF IR 71265*************************
+R71265*******************END OF REVERTING IR 71265**********************
+001140*****************START OF IR 70366(PERMANENTLY REVERTING)*********        ***
+R71265**START OF REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+001160************START OF IR 71265****************************
+A70366*-----------START OF IR 70366 -----------
+P22852*FD JR-EXTRACT1.
+001190*  01 JR-RECORD1.
+001200*     03 EX-BR-NO1                          PIC X(05).
+001210*     03 EX-WA-USER-ID11                    PIC S9(07).
+001220*     03 EX-CURRN1                          PIC X(03).
+001230*     03 EX-DEP-TYPE-41                     PIC X(01).
+001240*     03 EX-TXN-AMT1                        PIC S9(14)V999.
+001250*     03 EX-JR01-TIME1                      PIC X(08).
+001260*     03 EX-ACCT-TYPE1                      PIC X(04).
+001270*     03 EX-ACCT-NO1                        PIC S9(16).
+001280*     03 FILLER                             PIC X.
+001290*     03 EX-TELLER-ID1                      PIC S9(07).
+001300*     03 EX-TEMP-INT-CAT1                   PIC X(04).
+001310*     03 EX-HOME-BR-NO1                     PIC X(05).
+001320*     03 EX-VAL-DATE1                       PIC S9(09).
+001330*     03 EX-TRN-TYPE1                       PIC X(02).
+001340*     03 EX-CHQ-NO1                         PIC X(08).
+001350*     03 EX-SUP-ID1                         PIC S9(07).
+001360**    03 EX-CHECKER11                       PIC S9(07).
+001370*     03 EX-CHECKER21                       PIC S9(07).
+001380*     03 EX-TRAN-CODE1                      PIC X(06).
+001390*     03 EX-ENQ-DESC1                       PIC X(15).
+001400*     03 EX-SYSTEM1                         PIC X(03).
+001410*     03 EX-POST-VAL-DATE1                  PIC S9(09).
+001420*     03 EX-BYTES1                          PIC X(32).
+A70366*----------- END OF IR 70366 ------------
+001440************END   OF IR 71265****************************
+R71265**END OF  REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+001460*****************END   OF IR 70366(PERMANENTLY REVERTING)*********        ***
+A70109************START OF IR 70109*************
+A70109 FD JR-EXTRACT2.
+A70109   01 JR-RECORD2.
+A70109      03 EX-BR-NO2                          PIC X(05).
+A70109      03 EX-WA-USER-ID12                    PIC S9(07).
+A70109      03 EX-CURRN2                          PIC X(03).
+A70109      03 EX-DEP-TYPE-42                     PIC X(01).
+R71265*****************START OF REVERTING IR 71265**********************
+001550**************************START OF IR 71265***********************
+A70109       03 EX-TXN-AMT2                        PIC S9(14)V999.
+RAVIKU*
+001580*     03 EX-TXN-AMT2                         PIC S9(17).
+001590**************************END OF IR 71265*************************
+R71265*******************END OF REVERTING IR 71265**********************
+A70109      03 EX-JR01-TIME2                      PIC X(08).
+A70109      03 EX-ACCT-TYPE2                      PIC X(04).
+A70109      03 EX-ACCT-NO2                        PIC S9(16).
+A70109      03 FILLER                             PIC X.
+A70109      03 EX-TELLER-ID2                      PIC S9(07).
+A70109      03 EX-TEMP-INT-CAT2                   PIC X(04).
+A70109      03 EX-HOME-BR-NO2                     PIC X(05).
+A70109      03 EX-VAL-DATE2                       PIC S9(09).
+A70109      03 EX-TRN-TYPE2                       PIC X(02).
+A70109      03 EX-CHQ-NO2                         PIC X(08).
+A70109      03 EX-SUP-ID2                         PIC S9(07).
+A70109      03 EX-CHECKER12                       PIC S9(07).
+A70109      03 EX-CHECKER22                       PIC S9(07).
+A70109      03 EX-TRAN-CODE2                      PIC X(06).
+A70109      03 EX-ENQ-DESC2                       PIC X(15).
+A70109      03 EX-SYSTEM2                         PIC X(03).
+A70109      03 EX-POST-VAL-DATE2                  PIC S9(09).
+A70109      03 EX-BYTES2                          PIC X(32).
+R71265*****************START OF REVERTING IR 71265**********************
+001800**************************START OF IR 71265***********************
+R71265*     03 EX-TEMP-ICID2                      PIC 9.
+001820**************************END OF IR 71265*************************
+R71265*******************END OF REVERTING IR 71265**********************
+A70109 FD JR-EXTRACT3.
+A70109   01 JR-RECORD3.
+A70109      03 EX-BR-NO3                          PIC X(05).
+A70109      03 EX-WA-USER-ID13                    PIC S9(07).
+A70109      03 EX-CURRN3                          PIC X(03).
+A70109      03 EX-DEP-TYPE-43                     PIC X(01).
+R71265*****************START OF REVERTING IR 71265**********************
+001910**************************START OF IR 71265***********************
+A70109       03 EX-TXN-AMT3                        PIC S9(14)V999.
+A70109*     03 EX-TXN-AMT3                        PIC S9(17).
+001940**************************END OF IR 71265*************************
+R71265*******************END OF REVERTING IR 71265**********************
+A70109      03 EX-JR01-TIME3                      PIC X(08).
+A70109      03 EX-ACCT-TYPE3                      PIC X(04).
+A70109      03 EX-ACCT-NO3                        PIC S9(16).
+A70109      03 FILLER                             PIC X.
+A70109      03 EX-TELLER-ID3                      PIC S9(07).
+A70109      03 EX-TEMP-INT-CAT3                   PIC X(04).
+A70109      03 EX-HOME-BR-NO3                     PIC X(05).
+A70109      03 EX-VAL-DATE3                       PIC S9(09).
+A70109      03 EX-TRN-TYPE3                       PIC X(02).
+A70109      03 EX-CHQ-NO3                         PIC X(08).
+A70109      03 EX-SUP-ID3                         PIC S9(07).
+A70109      03 EX-CHECKER13                       PIC S9(07).
+A70109      03 EX-CHECKER23                       PIC S9(07).
+A70109      03 EX-TRAN-CODE3                      PIC X(06).
+A70109      03 EX-ENQ-DESC3                       PIC X(15).
+A70109      03 EX-SYSTEM3                         PIC X(03).
+A70109      03 EX-POST-VAL-DATE3                  PIC S9(09).
+A70109      03 EX-BYTES3                          PIC X(32).
+A70109***********END OF IR 70109********************************
+R71265*****************START OF REVERTING IR 71265**********************
+002160**************************START OF IR 71265***********************
+R71265*     03 EX-TEMP-ICID3                      PIC 9.
+002180**************************END OF IR 71265*************************
+R71265*******************END OF REVERTING IR 71265**********************
+002200 FD ATM-BRCH-FILE.
+P22852    01 INPUT-RECORD.
+P22852       02 ATM-BRANCH              PIC X(05).
+
+002240 WORKING-STORAGE SECTION.
+P22458 01 WA-JR.
+P22458    05 WA-TAB                            PIC X(02) VALUE "JR".
+P22458    05 WA-REPLICA                        PIC X(02) VALUE SPACES.
+P22458 01 DYNSTMT                     PIC X(9999) VARYING VALUE SPACES.
+P22852  01  WS-FILE-NAME                       PIC X(17) VALUE
+P22852                                "$card/IF1101.card".
+002310 01 WA-ATM-BRANCH-NO                PIC 9(05).
+H70177*----- START OF IR 70177 ---
+H70177 01 WA-INB-BRANCH-NO                PIC 9(05).
+/SEL
+ARYA82*---------- END OF IR 17745 ------------------
+003820     READ ATM-BRCH-FILE
+P22852     IF WS-STATUS = 0
+P22852        MOVE ATM-BRANCH    TO WA-ATM-BRANCH-NO
+P22852     ELSE
+P22852        DISPLAY " ERROR OPENING IF1101.card " WS-STATUS
+P22852        MOVE 04292         TO WA-ATM-BRANCH-NO
+P22852     END-IF
+P22852     CLOSE ATM-BRCH-FILE.
+H70177*----- START OF IR 70177 ---
+H70177     MOVE 99922 TO WA-INB-BRANCH-NO.
+H70177*----- END OF IR 70177 ---
+003930     PERFORM A100-READ-CARD THRU A109-EXIT.
+003940     EXEC SQL WHENEVER SQLERROR
+003950     DO PERFORM SQL-ERROR END-EXEC.
+003960
+003970     PERFORM A200-LOGON THRU A209-EXIT.
+P22458     MOVE PARAM-REPLICA           TO WA-REPLICA.
+003990     MOVE 0                       TO WA-USER-ID1.
+004000     PERFORM A110-GET-TODAY-DATE THRU A119-EXIT.
+P22458     PERFORM A120-MAKE-QUERY     THRU A129-QUERY-EXIT.
+P22458
+P22458 A130-DECLARE-CURSOR-JRNL.
+P22458     EXEC SQL PREPARE S1 FROM :DYNSTMT END-EXEC.
+P22458     EXEC SQL
+P22458        DECLARE GETJRNL CURSOR FOR S1
+P22458     END-EXEC.
+P22458     EXEC SQL OPEN GETJRNL  END-EXEC.
+004090*         EXEC SQL
+004100*         DECLARE GETJRNL  CURSOR FOR
+004110*             SELECT LPAD(TRIM(BRCH),5,'0'),
+004120*                 TELLER,
+004130*                 EDIT_MASK,
+004140*   DECODE(CURRENCY_CODE,'   ',SUBSTR(JR01.GL_CLASS_CODE,6,3),
+004150*                 CURRENCY_CODE),
+004160*                 JR01_TIME,
+004170*                 SUBSTR(DATA_01,1,4),
+004180*                 JR01.INT_CAT,
+004190*                 CUSM_NO,
+004200*                 HOME_BRNCH,
+004210*                 JR01.TRAN_DATE,
+004220*                 TRN_TYP,
+004230*                 SUBSTR(DATA_01,5,8),
+004240*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+004250*                 NVL(SUP_ID,0),
+004260*                 NVL(CHECKER1_ID,0),
+004270*                 NVL(CHECKER2_ID,0),
+004280*                 JR01.TRAN_CODE,
+004290*                 ENQUIRY_DESC,
+004300*                 JR01.SYST,
+004310*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+004320*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+004330*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+004340*                 NVL(POST_VAL_DATE,0),
+004350*                 DEP_TYPE_4
+004360*             FROM
+004370*                 JR01,MCAD,TXBI,OCID
+004380*             WHERE
+004390*                 (JR01.TRAN_DATE = :WA-TODAYS-DT
+004400*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+004410*                 JRNL_DATE (+) = JR01_DATE                  AND
+004420*                 JR01.BRCH >= :PARAM-FROM-BRCH              AND
+004430*                 JR01.BRCH <= :PARAM-TO-BRCH                AND
+004440*                 MCAD.JRNL_NO (+) = JR01.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR01.JR01_TIME        AND
+004460*                 SUBSTR(JR01.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+004470*                 NON_FIN_TXN_23 = '0'                       AND
+004480*                 JR01.SYST NOT LIKE 'GEN'                   AND
+004490*                 TO_CHAR(OCID.JRNL_NO (+)) = JR01.JRNL_NO   AND
+004500*                 OCID.TRAN_DATE (+) = JR01.TRAN_DATE
+004510*         UNION ALL
+004520*             SELECT LPAD(TRIM(BRCH),5,'0'),
+004530*                 TELLER,
+004540*                 EDIT_MASK,
+004550*   DECODE(CURRENCY_CODE,'   ',SUBSTR(JR02.GL_CLASS_CODE,6,3),
+004560*                 CURRENCY_CODE),
+004570*                 JR02_TIME,
+004580*                 SUBSTR(DATA_01,1,4),
+004590*                 JR02.INT_CAT,
+004600*                 CUSM_NO,
+004610*                 HOME_BRNCH,
+004620*                 JR02.TRAN_DATE,
+004630*                 TRN_TYP,
+004640*                 SUBSTR(DATA_01,5,8),
+004650*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+004660*                 NVL(SUP_ID,0),
+004670*                 NVL(CHECKER1_ID,0),
+004680*                 NVL(CHECKER2_ID,0),
+004690*                 JR02.TRAN_CODE,
+004700*                 ENQUIRY_DESC,
+004710*                 JR02.SYST,
+004720*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+004730*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+004740*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+004750*                 NVL(POST_VAL_DATE,0),
+004760*                 DEP_TYPE_4
+004770*             FROM
+004780*                 JR02,MCAD,TXBI,OCID
+004790*             WHERE
+004800*                 (JR02.TRAN_DATE = :WA-TODAYS-DT
+004810*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+004820*                 JRNL_DATE (+) = JR02_DATE                  AND
+004830*                 JR02.BRCH >= :PARAM-FROM-BRCH              AND
+004840*                 JR02.BRCH <= :PARAM-TO-BRCH                AND
+004850*                 MCAD.JRNL_NO (+) = JR02.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR02.JR02_TIME        AND
+004870*                 SUBSTR(JR02.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+004880*                 NON_FIN_TXN_23 = '0'                       AND
+004890*                 JR02.SYST NOT LIKE 'GEN'                   AND
+004900*                 TO_CHAR(OCID.JRNL_NO (+)) = JR02.JRNL_NO   AND
+004910*                 OCID.TRAN_DATE (+) = JR02.TRAN_DATE
+004920*         UNION ALL
+004930*             SELECT LPAD(TRIM(BRCH),5,'0'),
+004940*                 TELLER,
+004950*                 EDIT_MASK,
+004960*   DECODE(CURRENCY_CODE,'   ',SUBSTR(JR03.GL_CLASS_CODE,6,3),
+004970*                 CURRENCY_CODE),
+004980*                 JR03_TIME,
+004990*                 SUBSTR(DATA_01,1,4),
+005000*                 JR03.INT_CAT,
+005010*                 CUSM_NO,
+005020*                 HOME_BRNCH,
+005030*                 JR03.TRAN_DATE,
+005040*                 TRN_TYP,
+005050*                 SUBSTR(DATA_01,5,8),
+005060*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+005070*                 NVL(SUP_ID,0),
+005080*                 NVL(CHECKER1_ID,0),
+005090*                 NVL(CHECKER2_ID,0),
+005100*                 JR03.TRAN_CODE,
+005110*                 ENQUIRY_DESC,
+005120*                 JR03.SYST,
+005130*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+005140*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+005150*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+005160*                 NVL(POST_VAL_DATE,0),
+005170*                 DEP_TYPE_4
+005180*             FROM
+005190*                 JR03,MCAD,TXBI,OCID
+005200*             WHERE
+005210*                 (JR03.TRAN_DATE = :WA-TODAYS-DT
+005220*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+005230*                 JRNL_DATE (+) = JR03_DATE                  AND
+005240*                 JR03.BRCH >= :PARAM-FROM-BRCH              AND
+005250*                 JR03.BRCH <= :PARAM-TO-BRCH                AND
+005260*                 MCAD.JRNL_NO (+) = JR03.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR03.JR03_TIME        AND
+005280*                 SUBSTR(JR03.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+005290*                 NON_FIN_TXN_23 = '0'                       AND
+005300*                 JR03.SYST NOT LIKE 'GEN'                   AND
+005310*                 TO_CHAR(OCID.JRNL_NO (+)) = JR03.JRNL_NO   AND
+005320*                 OCID.TRAN_DATE (+) = JR03.TRAN_DATE
+005330*         UNION ALL
+005340*             SELECT LPAD(TRIM(BRCH),5,'0'),
+005350*                 TELLER,
+005360*                 EDIT_MASK,
+005370*   DECODE(CURRENCY_CODE,'   ',SUBSTR(JR04.GL_CLASS_CODE,6,3),
+005380*                 CURRENCY_CODE),
+005390*                 JR04_TIME,
+005400*                 SUBSTR(DATA_01,1,4),
+005410*                 JR04.INT_CAT,
+005420*                 CUSM_NO,
+005430*                 HOME_BRNCH,
+005440*                 JR04.TRAN_DATE,
+005450*                 TRN_TYP,
+005460*                 SUBSTR(DATA_01,5,8),
+005470*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+005480*                 NVL(SUP_ID,0),
+005490*                 NVL(CHECKER1_ID,0),
+005500*                 NVL(CHECKER2_ID,0),
+005510*                 JR04.TRAN_CODE,
+005520*                 ENQUIRY_DESC,
+005530*                 JR04.SYST,
+005540*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+005550*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+005560*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+005570*                 NVL(POST_VAL_DATE,0),
+005580*                 DEP_TYPE_4
+005590*             FROM
+005600*                 JR04,MCAD,TXBI,OCID
+005610*             WHERE
+005620*                 (JR04.TRAN_DATE = :WA-TODAYS-DT
+005630*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+005640*                 JRNL_DATE (+) = JR04_DATE                  AND
+005650*                 JR04.BRCH >= :PARAM-FROM-BRCH              AND
+005660*                 JR04.BRCH <= :PARAM-TO-BRCH                AND
+005670*                 MCAD.JRNL_NO (+) = JR04.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR04.JR04_TIME        AND
+005690*                 SUBSTR(JR04.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+005700*                 NON_FIN_TXN_23 = '0'                       AND
+005710*                 JR04.SYST NOT LIKE 'GEN'                   AND
+005720*                 TO_CHAR(OCID.JRNL_NO (+)) = JR04.JRNL_NO   AND
+005730*                 OCID.TRAN_DATE (+) = JR04.TRAN_DATE
+005740*         UNION ALL
+005750*             SELECT LPAD(TRIM(BRCH),5,'0'),
+005760*                 TELLER,
+005770*                 EDIT_MASK,
+005780*   DECODE(CURRENCY_CODE,'   ',SUBSTR(JR05.GL_CLASS_CODE,6,3),
+005790*                 CURRENCY_CODE),
+005800*                 JR05_TIME,
+005810*                 SUBSTR(DATA_01,1,4),
+005820*                 JR05.INT_CAT,
+005830*                 CUSM_NO,
+005840*                 HOME_BRNCH,
+005850*                 JR05.TRAN_DATE,
+005860*                 TRN_TYP,
+005870*                 SUBSTR(DATA_01,5,8),
+005880*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+005890*                 NVL(SUP_ID,0),
+005900*                 NVL(CHECKER1_ID,0),
+005910*                 NVL(CHECKER2_ID,0),
+005920*                 JR05.TRAN_CODE,
+005930*                 ENQUIRY_DESC,
+005940*                 JR05.SYST,
+005950*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+005960*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+005970*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+005980*                  NVL(POST_VAL_DATE,0),
+005990*                  DEP_TYPE_4
+006000*             FROM
+006010*                 JR05,MCAD,TXBI,OCID
+006020*             WHERE
+006030*                 (JR05.TRAN_DATE = :WA-TODAYS-DT
+006040*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+006050*                 JRNL_DATE (+) = JR05_DATE                  AND
+006060*                 JR05.BRCH >= :PARAM-FROM-BRCH              AND
+006070*                 JR05.BRCH <= :PARAM-TO-BRCH                AND
+006080*                 MCAD.JRNL_NO (+) = JR05.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR05.JR05_TIME        AND
+006100*                 SUBSTR(JR05.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+006110*                 NON_FIN_TXN_23 = '0'                       AND
+006120*                 JR05.SYST NOT LIKE 'GEN'                   AND
+006130*                 TO_CHAR(OCID.JRNL_NO (+)) = JR05.JRNL_NO   AND
+006140*                 OCID.TRAN_DATE (+) = JR05.TRAN_DATE
+006150*         UNION ALL
+006160*             SELECT LPAD(TRIM(BRCH),5,'0'),
+/SELECT
+006270*                 TRN_TYP,
+006280*                 SUBSTR(DATA_01,5,8),
+006290*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+006300*                 NVL(SUP_ID,0),
+006310*                 NVL(CHECKER1_ID,0),
+006320*                 NVL(CHECKER2_ID,0),
+006330*                 JR06.TRAN_CODE,
+006340*                 ENQUIRY_DESC,
+006350*                 JR06.SYST,
+006360*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+006370*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+006380*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+006390*                 NVL(POST_VAL_DATE,0),
+006400*                 DEP_TYPE_4
+006410*             FROM
+006420*                 JR06,MCAD,TXBI,OCID
+006430*             WHERE
+006440*                 (JR06.TRAN_DATE = :WA-TODAYS-DT
+006450*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+006460*                 JRNL_DATE (+) = JR06_DATE                  AND
+006470*                 JR06.BRCH >= :PARAM-FROM-BRCH              AND
+006480*                 JR06.BRCH <= :PARAM-TO-BRCH                AND
+006490*                 MCAD.JRNL_NO (+) = JR06.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR06.JR06_TIME        AND
+006510*                 SUBSTR(JR06.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+006520*                 NON_FIN_TXN_23 = '0'                       AND
+006530*                 JR06.SYST NOT LIKE 'GEN'                   AND
+006540*                 TO_CHAR(OCID.JRNL_NO (+)) = JR06.JRNL_NO   AND
+006550*                 OCID.TRAN_DATE (+) = JR06.TRAN_DATE
+006560*         UNION ALL
+006570*             SELECT LPAD(TRIM(BRCH),5,'0'),
+006580*                 TELLER,
+006590*                 EDIT_MASK,
+006600*    DECODE(CURRENCY_CODE,'   ',SUBSTR(JR07.GL_CLASS_CODE,6,3),
+006610*                 CURRENCY_CODE),
+006620*                 JR07_TIME,
+006630*                 SUBSTR(DATA_01,1,4),
+006640*                 JR07.INT_CAT,
+006650*                 CUSM_NO,
+006660*                 HOME_BRNCH,
+006670*                 JR07.TRAN_DATE,
+006680*                 TRN_TYP,
+006690*                 SUBSTR(DATA_01,5,8),
+006700*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+006710*                 NVL(SUP_ID,0),
+006720*                 NVL(CHECKER1_ID,0),
+006730*                 NVL(CHECKER2_ID,0),
+006740*                 JR07.TRAN_CODE,
+006750*                 ENQUIRY_DESC,
+006760*                 JR07.SYST,
+006770*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+006780*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+006790*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+006800*                 NVL(POST_VAL_DATE,0),
+006810*                 DEP_TYPE_4
+006820*             FROM
+006830*                 JR07,MCAD,TXBI,OCID
+006840*             WHERE
+006850*                 (JR07.TRAN_DATE = :WA-TODAYS-DT
+006860*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+006870*                 JRNL_DATE (+) = JR07_DATE                  AND
+006880*                 JR07.BRCH >= :PARAM-FROM-BRCH              AND
+006890*                 JR07.BRCH <= :PARAM-TO-BRCH                AND
+006900*                 MCAD.JRNL_NO (+) = JR07.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR07.JR07_TIME        AND
+006920*                 SUBSTR(JR07.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+006930*                 NON_FIN_TXN_23 = '0'                       AND
+006940*                 JR07.SYST NOT LIKE 'GEN'                   AND
+006950*                 TO_CHAR(OCID.JRNL_NO (+)) = JR07.JRNL_NO   AND
+006960*                 OCID.TRAN_DATE (+) = JR07.TRAN_DATE
+006970*         UNION ALL
+006980*             SELECT LPAD(TRIM(BRCH),5,'0'),
+/SELECT
+A70109           PERFORM MR-FILE THRU MR-FILE-EXIT
+A70109           GO TO FETCH-LOOP
+A70109        ELSE
+A70109           CONTINUE
+A70109        END-IF
+A70109     END-IF
+A70109*********** END OF IR 70109****************
+008150*****************START OF IR 70366(PERMANENTLY REVERTING)*********        ***
+R71265**START OF REVERTING IR 71265 BUT KEEPING 70366 REVERTED**********
+008170************START OF IR 71265****************************
+A70366*------------- START OF IR 70366 ---------
+008190*    MOVE ZEROS         TO WA-CCPC-COUNT
+008200*    MOVE TRAN-CODE-ARR TO WA-TRAN-CODE
+008210*    MOVE ACCT-NO      TO WA-ACCT-NO
+008220*    MOVE VAL-DATE     TO WA-TRAN-DATE
+008230*    IF WA-TRAN-CODE = 51071
+008240*       MOVE "N"         TO  WA-REC-FOUND
+008250*       MOVE "N"         TO  WA-REC-NOT-FOUND
+008260*       PERFORM G001-READ-ICID  THRU G199-EXIT
+008270*                      UNTIL WA-REC-FOUND = 'Y'
+008280*                      OR WA-REC-NOT-FOUND = 'Y'
+008290*       IF WA-REC-FOUND = 'Y'
+008300*          MOVE WI-ICID-TXN-BRCH TO WA-BRANCH-NO
+008310*       ELSE
+008320*          MOVE BR-NO TO WA-BRANCH-NO
+008330*       END-IF
+008340*    ELSE
+008350*          MOVE BR-NO TO WA-BRANCH-NO
+008360*    END-IF
+008370*    EXEC SQL
+008380*        SELECT COUNT(1) INTO :WA-CCPC-COUNT FROM BRCM
+008390*               WHERE BRCM_CPC_BRCH_NO = :WA-BRANCH-NO AND
+008400*                     BRCM_TYPE_CPC = 'C' AND ROWNUM < 2
+008410*    END-EXEC.
+008420*
+008430*    IF WA-CCPC-COUNT > 0
+008440*       MOVE WA-BYTES TO EX-BYTES1
+008450*       MOVE WA-BRANCH-NO TO EX-BR-NO1
+008460*       MOVE TELLER-ID TO EX-TELLER-ID1
+008470*       MOVE CURRN TO EX-CURRN1
+008480*       MOVE DEP-TYPE-4 TO EX-DEP-TYPE-41
+008490*       MOVE JR01-TIME-ARR TO EX-JR01-TIME1
+008500*       MOVE ACCT-TYPE-ARR TO EX-ACCT-TYPE1
+008510*       MOVE TEMP-INT-CAT-ARR TO EX-TEMP-INT-CAT1
+008520*       MOVE ACCT-NO TO EX-ACCT-NO1
+008530*       MOVE HOME-BR-NO TO EX-HOME-BR-NO1
+008540*       MOVE VAL-DATE TO EX-VAL-DATE1
+008550*       MOVE TRN-TYPE-ARR TO EX-TRN-TYPE1
+008560*       MOVE CHQ-NO-ARR TO EX-CHQ-NO1
+008570*       MOVE TXN-AMT TO EX-TXN-AMT1
+008580*       MOVE SUP-ID TO EX-SUP-ID1
+008590*       MOVE CHECKER1 TO EX-CHECKER11
+008600*       MOVE CHECKER2 TO EX-CHECKER21
+008610*       MOVE TRAN-CODE-ARR TO EX-TRAN-CODE1
+008620*       MOVE ENQ-DESC-ARR TO EX-ENQ-DESC1
+008630*       MOVE SYSTEM-ARR TO EX-SYSTEM1
+008640*       MOVE WA-USER-ID1 TO EX-WA-USER-ID11
+H18618*       MOVE ZEROS TO EX-POST-VAL-DATE1
+008660*       WRITE JR-RECORD1
+008670*    ELSE
+A70366*------------- END OF IR 70366 ---------------
+008690************END   OF IR 71265****************************
+/SELECT
+010660     DISPLAY " ".
+010670     DISPLAY SQLERRMC.
+010680     EXEC SQL ROLLBACK WORK RELEASE END-EXEC.
+H18181     CALL "ABORT".
+H18181* STOP RUN.
+010710******************************
+010720
+010730 A100-READ-CARD.
+010740     CALL "UTCARD" USING WA-PARM.
+010750 A109-EXIT.
+010760  EXIT.
+010770
+010780 A110-GET-TODAY-DATE.
+010790     CALL "UT1999" USING
+010800                         UT1999CA-CALL-AREA
+010810     MOVE UT1999CA-DD  TO UT0030-DATE-DD
+010820     MOVE UT1999CA-MM  TO UT0030-DATE-MM
+010830     MOVE UT1999CA-CC  TO UT0030-DATE-CC
+010840     MOVE UT1999CA-YY  TO UT0030-DATE-YY
+010850     MOVE 1            TO UT0030-FUNCTION
+010860     CALL "UT0030" USING
+010870                         UT0030-FUNCTION
+010880                         UT0030-DATE-AREA
+010890                         UT0030-BINARY-DATE
+010900     MOVE UT0030-BINARY-DATE TO WA-TODAYS-DT.
+010910 A119-EXIT.
+010920     EXIT.
+
+P22458  A120-MAKE-QUERY.
+P22458    STRING
+P22458     "SELECT LPAD(TRIM(BRCH),5,'0'),"
+P22458     "TELLER,"
+P22458                  "EDIT_MASK,"
+P22458    "DECODE(CURRENCY_CODE,'   ',SUBSTR("
+P22458         WA-JR
+P22458               ".GL_CLASS_CODE,6,3),"
+P22458                 " CURRENCY_CODE),"
+P22458                  WA-JR
+P22458                 "_TIME,"
+P22458                  "SUBSTR(DATA_01,1,4),"
+P22458                  WA-JR
+P22458                  ".INT_CAT,"
+P22458                  "CUSM_NO,"
+P22458                  "HOME_BRNCH,"
+P22458                  WA-JR
+P22458                 ".TRAN_DATE,"
+P22458                 " TRN_TYP,"
+P22458                 " SUBSTR(DATA_01,5,8),"
+P22458                 " ABS(BASECONV.CONVDATA(DATA_01,13,8)),"
+R71977****************START OF IR 71977*********************
+P22458*                " NVL(SUP_ID,0),"
+P22458*                " NVL(CHECKER1_ID,0),"
+P22458*                " NVL(CHECKER2_ID,0),"
+R71977                 " NVL(" WA-JR ".SUP_ID,0),"
+R71977                 " NVL(" WA-JR ".CHECKER1_ID,0),"
+R71977                 " NVL(" WA-JR ".CHECKER2_ID,0),"
+R71977*****************END OF IR 71977*********************
+P22458                 WA-JR
+P22458                 ".TRAN_CODE,"
+P22458                 " ENQUIRY_DESC,"
+P22458                 WA-JR
+P22458                 ".SYST,"
+/SELECT
+P22458                  WA-JR
+P22458                  "_TIME  AND"
+011970********************END OF IR 71265******************************
+R71265*******************END OF REVERTING IR 71265**********************
+P22458                  " SUBSTR("
+P22458                   WA-JR
+P22458                   ".TRAN_CODE,2,6)= TXBI.TRAN_CODE AND "
+P22458                 " NON_FIN_TXN_23 = '0' AND "
+P22458                 WA-JR
+H18618******************* START OF IR 18618 *************
+H18618                 ".SYST NOT LIKE 'GEN'"
+H18618*                ".SYST NOT LIKE 'GEN'  AND"
+H18618*                " TO_CHAR(OCID.JRNL_NO (+)) ="
+H18618*                  WA-JR
+H18618*                 ".JRNL_NO   AND"
+H18618*                " OCID.TRAN_DATE (+) = "
+H18618*                WA-JR
+H18618*                ".TRAN_DATE"
+H18181*                 " ORDER BY "
+H18181*                 " 1"
+H18618******************* END OF IR 18618 *************
+P22458                 DELIMITED BY SIZE INTO DYNSTMT-ARR
+P22458                 EXHIBIT NAMED DYNSTMT.
+P22458*            END-EXEC.
+P22458  A129-QUERY-EXIT.
+P22458      EXIT.
+ARYA82*----------------- START OF IR 17745-----------------
+012220 G001-READ-ICID.
+012230      EXEC SQL
+012240      DECLARE GETICID CURSOR FOR
+012250              SELECT ICID_BRANCH_NO,
+012260                     ICID_CLRNG_TYPE,
+012270                     ICID_INSTR_NO,
+012280                     ICID_ACCT_NO,
+012290                     ICID_CLEAR_ACCT,
+012300                     ICID_JRNL_NO,
+012310                     ICID_TXN_BRCH
+012320              FROM ICID
+012330              WHERE ICID_SOC_NO = '003' AND
+012340                    ICID_BRANCH_NO = :HOME-BR-NO  AND
+012350                    ICID_CLRNG_TYPE = 'O' AND
+012360                    ICID_INSTR_NO = :CHQ-NO AND
+012370                    ICID_ACCT_NO = :WA-ACCT-NO AND
+012380                    ICID_TRN_DATE = :WA-TRAN-DATE
+012390     END-EXEC.
+012400     EXEC SQL
+012410          OPEN GETICID
+012420     END-EXEC.
+012430     IF SQLCODE NOT = ZEROS
+012440        DISPLAY " ICID ERROR WHILE OPENING CURSOR" SQLCODE
+U75556************** START OF IR 75556 **************************
+U75556        MOVE "Y" TO WA-REC-NOT-FOUND
+U75556        EXEC SQL
+U75556             CLOSE GETICID
+U75556        END-EXEC
+U75556        GO TO G199-EXIT
+U75556************** END OF IR 75556 ****************************
+012520     END-IF
+012530     IF SQLCODE = ZEROS
+012540        EXEC SQL
+012550             FETCH GETICID
+012560                     INTO :WI-ICID-BRANCH-NO,
+?SELECT
+010660     DISPLAY " ".
+010670     DISPLAY SQLERRMC.
+010680     EXEC SQL ROLLBACK WORK RELEASE END-EXEC.
+H18181     CALL "ABORT".
+H18181* STOP RUN.
+010710******************************
+010720
+010730 A100-READ-CARD.
+010740     CALL "UTCARD" USING WA-PARM.
+010750 A109-EXIT.
+010760  EXIT.
+010770
+010780 A110-GET-TODAY-DATE.
+010790     CALL "UT1999" USING
+010800                         UT1999CA-CALL-AREA
+010810     MOVE UT1999CA-DD  TO UT0030-DATE-DD
+010820     MOVE UT1999CA-MM  TO UT0030-DATE-MM
+010830     MOVE UT1999CA-CC  TO UT0030-DATE-CC
+010840     MOVE UT1999CA-YY  TO UT0030-DATE-YY
+010850     MOVE 1            TO UT0030-FUNCTION
+010860     CALL "UT0030" USING
+010870                         UT0030-FUNCTION
+010880                         UT0030-DATE-AREA
+010890                         UT0030-BINARY-DATE
+010900     MOVE UT0030-BINARY-DATE TO WA-TODAYS-DT.
+010910 A119-EXIT.
+010920     EXIT.
+
+P22458  A120-MAKE-QUERY.
+P22458    STRING
+P22458     "SELECT LPAD(TRIM(BRCH),5,'0'),"
+P22458     "TELLER,"
+P22458                  "EDIT_MASK,"
+P22458    "DECODE(CURRENCY_CODE,'   ',SUBSTR("
+P22458         WA-JR
+P22458               ".GL_CLASS_CODE,6,3),"
+P22458                 " CURRENCY_CODE),"
+P22458                  WA-JR
+P22458                 "_TIME,"
+P22458                  "SUBSTR(DATA_01,1,4),"
+P22458                  WA-JR
+P22458                  ".INT_CAT,"
+P22458                  "CUSM_NO,"
+P22458                  "HOME_BRNCH,"
+P22458                  WA-JR
+P22458                 ".TRAN_DATE,"
+P22458                 " TRN_TYP,"
+P22458                 " SUBSTR(DATA_01,5,8),"
+P22458                 " ABS(BASECONV.CONVDATA(DATA_01,13,8)),"
+R71977****************START OF IR 71977*********************
+P22458*                " NVL(SUP_ID,0),"
+P22458*                " NVL(CHECKER1_ID,0),"
+P22458*                " NVL(CHECKER2_ID,0),"
+R71977                 " NVL(" WA-JR ".SUP_ID,0),"
+R71977                 " NVL(" WA-JR ".CHECKER1_ID,0),"
+R71977                 " NVL(" WA-JR ".CHECKER2_ID,0),"
+R71977*****************END OF IR 71977*********************
+P22458                 WA-JR
+P22458                 ".TRAN_CODE,"
+P22458                 " ENQUIRY_DESC,"
+P22458                 WA-JR
+P22458                 ".SYST,"
+H18181* "DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE"
+H18181* "(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)"
+H18181* ",CHECKER1_ID),CHECKER2_ID),SUP_ID),"
+H18618************* START OF IR 18618 *********
+H18618*                " NVL(POST_VAL_DATE,0),"
+H18618************* END OF IR 18618 *********
+ARYA82*-------------- START OF IR 17745 ------------
+P22458                 " DEP_TYPE_4,"
+011360*                "SUBSTR(DATA_01,93,10),"
+011370*                "MCURR_TRAN_CODE,"
+011380                 WA-JR
+011390                 ".JRNL_NO"
+ARYA82*----------- END OF IR 17745 ---------------
+011410*                " DEP_TYPE_4"
+P22458             " FROM "
+P22458                  WA-JR
+H18618************* START OF IR 18618 *********
+H18618*               ",MCAD,TXBI,OCID"
+R71265*****************START OF REVERTING IR 71265**********************
+011470********************START OF IR 71265*****************************
+011480                ",MCAD,TXBI"
+H18618*               ",TXBI"
+011500********************END   OF IR 71265*****************************
+R71265*******************END OF REVERTING IR 71265**********************
+H18618************* END OF IR 18618 *********
+P22458                " WHERE"
+P22458                 " ("
+P22458                WA-JR
+P22458                ".TRAN_DATE = "
+P22458                 WA-TODAYS-DT
+P22458                 " OR POST_DATE = "
+P22458                 WA-TODAYS-DT
+P22458                 ")  AND "
+R71265*****************START OF REVERTING IR 71265**********************
+011620********************START OF IR 71265*****************************
+P22458                 "  JRNL_DATE (+) ="
+P22458                  WA-JR
+P22458                  "_DATE  AND "
+011660*************************END OF IR 71265**************************
+R71265*******************END OF REVERTING IR 71265**********************
+P22682                 WA-JR
+P22682                 ".BRCH >= "
+P22682                 PARAM-FROM-BRCH
+P22682                 " AND "
+P22682                WA-JR
+P22682                ".BRCH <= "
+P22682                 PARAM-TO-BRCH
+P22682                 " AND "
+A70109******************START OF IR 70109*************
+P22852*                 WA-JR
+H70177*----- START OF IR 70177 ---
+H70177*                ".BRCH <> "
+H70177*                 WA-ATM-BRANCH-NO
+H70177*                ".BRCH NOT IN "
+H70177*                 " (" WA-ATM-BRANCH-NO "," WA-INB-BRANCH-NO ")"
+H70177*----- END OF IR 70177 ---
+P22852*                 " AND "
+A70109***************END OF IR 70109**************
+R71265*****************START OF REVERTING IR 71265**********************
+011870********************START OF IR 71265*****************************
+011880*
+P22458                 " MCAD.JRNL_NO (+) = "
+P22458                 WA-JR
+P22458                 ".JRNL_NO  AND"
+P22458                 " MCAD.JRNL_TIME (+) = "
+P22458                  WA-JR
+P22458                  "."
+P22458                  WA-JR
+P22458                  "_TIME  AND"
+011970********************END OF IR 71265******************************
+R71265*******************END OF REVERTING IR 71265**********************
+P22458                  " SUBSTR("
+P22458                   WA-JR
+P22458                   ".TRAN_CODE,2,6)= TXBI.TRAN_CODE AND "
+P22458                 " NON_FIN_TXN_23 = '0' AND "
+P22458                 WA-JR
+H18618******************* START OF IR 18618 *************
+H18618                 ".SYST NOT LIKE 'GEN'"
+H18618*                ".SYST NOT LIKE 'GEN'  AND"
+H18618*                " TO_CHAR(OCID.JRNL_NO (+)) ="
+H18618*                  WA-JR
+H18618*                 ".JRNL_NO   AND"
+H18618*                " OCID.TRAN_DATE (+) = "
+H18618*                WA-JR
+H18618*                ".TRAN_DATE"
+H18181*                 " ORDER BY "
+H18181*                 " 1"
+H18618******************* END OF IR 18618 *************
+P22458                 DELIMITED BY SIZE INTO DYNSTMT-ARR
+P22458                 EXHIBIT NAMED DYNSTMT.
+P22458*            END-EXEC.
+P22458  A129-QUERY-EXIT.
+P22458      EXIT.
+ARYA82*----------------- START OF IR 17745-----------------
+012220 G001-READ-ICID.
+012230      EXEC SQL
+012240      DECLARE GETICID CURSOR FOR
+012250              SELECT ICID_BRANCH_NO,
+012260                     ICID_CLRNG_TYPE,
+012270                     ICID_INSTR_NO,
+012280                     ICID_ACCT_NO,
+012290                     ICID_CLEAR_ACCT,
+012300                     ICID_JRNL_NO,
+012310                     ICID_TXN_BRCH
+012320              FROM ICID
+012330              WHERE ICID_SOC_NO = '003' AND
+012340                    ICID_BRANCH_NO = :HOME-BR-NO  AND
+012350                    ICID_CLRNG_TYPE = 'O' AND
+012360                    ICID_INSTR_NO = :CHQ-NO AND
+012370                    ICID_ACCT_NO = :WA-ACCT-NO AND
+012380                    ICID_TRN_DATE = :WA-TRAN-DATE
+012390     END-EXEC.
+012400     EXEC SQL
+012410          OPEN GETICID
+012420     END-EXEC.
+012430     IF SQLCODE NOT = ZEROS
+012440        DISPLAY " ICID ERROR WHILE OPENING CURSOR" SQLCODE
+U75556************** START OF IR 75556 **************************
+U75556        MOVE "Y" TO WA-REC-NOT-FOUND
+U75556        EXEC SQL
+U75556             CLOSE GETICID
+U75556        END-EXEC
+U75556        GO TO G199-EXIT
+U75556************** END OF IR 75556 ****************************
+012520     END-IF
+012530     IF SQLCODE = ZEROS
+012540        EXEC SQL
+012550             FETCH GETICID
+012560                     INTO :WI-ICID-BRANCH-NO,
+012570                          :WI-ICID-CLRNG-TYPE,
+012580                          :WI-ICID-INSTR-NO,
+P22682                 PARAM-FROM-BRCH
+P22682                 " AND "
+P22682                WA-JR
+P22682                ".BRCH <= "
+P22682                 PARAM-TO-BRCH
+P22682                 " AND "
+A70109******************START OF IR 70109*************
+P22852*                 WA-JR
+H70177*----- START OF IR 70177 ---
+H70177*                ".BRCH <> "
+H70177*                 WA-ATM-BRANCH-NO
+H70177*                ".BRCH NOT IN "
+H70177*                 " (" WA-ATM-BRANCH-NO "," WA-INB-BRANCH-NO ")"
+H70177*----- END OF IR 70177 ---
+P22852*                 " AND "
+A70109***************END OF IR 70109**************
+R71265*****************START OF REVERTING IR 71265**********************
+011870********************START OF IR 71265*****************************
+011880*
+P22458                 " MCAD.JRNL_NO (+) = "
+P22458                 WA-JR
+P22458                 ".JRNL_NO  AND"
+P22458                 " MCAD.JRNL_TIME (+) = "
+P22458                  WA-JR
+P22458                  "."
+P22458                  WA-JR
+P22458                  "_TIME  AND"
+011970********************END OF IR 71265******************************
+R71265*******************END OF REVERTING IR 71265**********************
+P22458                  " SUBSTR("
+P22458                   WA-JR
+P22458                   ".TRAN_CODE,2,6)= TXBI.TRAN_CODE AND "
+P22458                 " NON_FIN_TXN_23 = '0' AND "
+P22458                 WA-JR
+H18618******************* START OF IR 18618 *************
+H18618                 ".SYST NOT LIKE 'GEN'"
+H18618*                ".SYST NOT LIKE 'GEN'  AND"
+H18618*                " TO_CHAR(OCID.JRNL_NO (+)) ="
+H18618*                  WA-JR
+H18618*                 ".JRNL_NO   AND"
+H18618*                " OCID.TRAN_DATE (+) = "
+H18618*                WA-JR
+H18618*                ".TRAN_DATE"
+H18181*                 " ORDER BY "
+H18181*                 " 1"
+H18618******************* END OF IR 18618 *************
+P22458                 DELIMITED BY SIZE INTO DYNSTMT-ARR
+P22458                 EXHIBIT NAMED DYNSTMT.
+P22458*            END-EXEC.
+P22458  A129-QUERY-EXIT.
+P22458      EXIT.
+ARYA82*----------------- START OF IR 17745-----------------
+012220 G001-READ-ICID.
+012230      EXEC SQL
+012240      DECLARE GETICID CURSOR FOR
+012250              SELECT ICID_BRANCH_NO,
+012260                     ICID_CLRNG_TYPE,
+012270                     ICID_INSTR_NO,
+012280                     ICID_ACCT_NO,
+012290                     ICID_CLEAR_ACCT,
+012300                     ICID_JRNL_NO,
+012310                     ICID_TXN_BRCH
+RPTAPPL4:DAY:/fns/i/r/dbora/pco:-)vim SY0VVR.PCO
+RPTAPPL4:DAY:/fns/i/r/dbora/pco:-)cat SY0VVR.PCO
+000010******************************************************************
+000020*   (C) COPYRIGHT FINANCIAL NETWORK SERVICES PTY LTD. 1982       *
+000030*       ALL RIGHTS RESERVED. NO PART OF THIS PROGRAM MAY         *
+000040*       BE PHOTOCOPIED, REPRODUCED, TRANSLATED TO ANOTHER        *
+000050*       PROGRAM LANGUAGE OR USED IN ANY WAY WITHOUT THE          *
+000060*       PRIOR WRITTEN CONSENT OF FINANCIAL NETWORK SERVICES      *
+000070*       OR THE AUTHORISED SELLING AGENT.                         *
+000080*----------------------------------------------------------------*
+000090*             FINANCIAL NETWORK SERVICES PTY LTD.                *
+000100*               UNIT 6, 70 ROSEHILL STREET, REDFERN 2016         *
+000110*                   SYDNEY, AUSTRALIA.                           *
+000120*                     TEL. 318-1088                              *
+000130******************************************************************
+000140***                                                            ***
+000150***               DAY BOOK FOR VOUCHER VARIFICATION            ***
+000160***                                                            ***
+000170***               MODULE:-     SY0VVR                          ***
+000180***                                                            ***
+000190***                                                            ***
+000200***                                                            ***
+000210******************************************************************
+000220*                 P R O G R A M    H I S T O R Y
+000230*  PROGRAMMERS INITIALS TOGETHER WITH THE "SPR" NUMBER MUST BE
+000240*  REFLECTED IN COLUMNS 73-80 OF EVERY LINE/S CHANGED OR ADDED.
+000250*
+000260* PROGRAMMER : DATE :SPR NO :COMMENTS
+P22852*-----------------------------------------------------------------
+H18618* HARSH/KAAR : 20080120 : 18618 : Performance Tuning of VVR
+H18618*-----------------------------------------------------------------
+A70129* SANJEEV    : 20100106 : 70129 : VVVR CCPC
+A70129*-----------------------------------------------------------------
+H70177* HARSH/KAAR : 20100114 : 70177 : EXCLUDING VVR GENERATION FOR INB        (99922)
+H70177*-----------------------------------------------------------------
+A70366* SANJEEV ARYA : 20100326 : 70366 : VVR
+A70366*-----------------------------------------------------------------
+A70109* ADITYA CHALLA : 20100415 : 70109 : WRITING VVR FOR INB AND ATM
+A70109*----------------------------------------------------------------
+R71977* RAVITEJ   : 02092011 : 71977 : Revamp of SY1000 Secondary Update
+R71977*                                Mechanism (PHASE - II)
+R71977*-----------------------------------------------------------------
+U75556* SAJEESH    : 04122014 : 75556 : TO AVOID ORACLE ERROR OCCURED
+U75556*                                WHILE FETCHING FROM ICID TABLE
+U75556*-----------------------------------------------------------------
+000440 IDENTIFICATION DIVISION.
+000450 PROGRAM-ID. SY0VVR.
+000460 AUTHOR. Tata Consultancy Services.
+000470*DESC. DAY BOOK FOR VOUCHER VARIFICATION
+000480 DATE-WRITTEN. .
+
+000500 ENVIRONMENT DIVISION.
+000510 CONFIGURATION SECTION.
+000520 SOURCE-COMPUTER. VAX.
+000530 OBJECT-COMPUTER. VAX.
+000540 SPECIAL-NAMES.
+000550 CONSOLE IS CONS.
+000560 INPUT-OUTPUT SECTION.
+000570 FILE-CONTROL.
+000580 SELECT JR-EXTRACT  ASSIGN TO   "JREXTRACT"
+000590      ORGANIZATION IS LINE SEQUENTIAL.
+000600*****************START OF IR 70366(PERMANENTLY REVERTING)*********        ***
+R71265**START OF REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+000620************START OF IR 71265****************************
+A70366*---------- START OF IR 70366 ----------------
+A70366*SELECT JR-EXTRACT1  ASSIGN TO   "JREXTRACT1"
+A70366*      ORGANIZATION IS LINE SEQUENTIAL.
+A70366*----------- END OF IR 70366 ------------
+000670************END OF IR 71265******************************
+R71265**END OF  REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+000690*****************END   OF IR 70366(PERMANENTLY REVERTING)*********        ***
+A70109************START OF IR 70109*************
+A70109 SELECT JR-EXTRACT2 ASSIGN TO "JREXTRACT2"
+A70109         ORGANIZATION IS LINE SEQUENTIAL.
+A70109 SELECT JR-EXTRACT3 ASSIGN TO "JREXTRACT3"
+A70109         ORGANIZATION IS LINE SEQUENTIAL.
+A70109************END OF IR 70109 **************
+P22852 SELECT ATM-BRCH-FILE ASSIGN TO WS-FILE-NAME
+P22852      FILE STATUS IS WS-STATUS.
+000780 DATA DIVISION.
+P22852 FD JR-EXTRACT.
+000800   01 JR-RECORD.
+000810      03 EX-BR-NO                           PIC X(05).
+000820      03 EX-WA-USER-ID1                     PIC S9(07).
+000830      03 EX-CURRN                           PIC X(03).
+000840      03 EX-DEP-TYPE-4                      PIC X(01).
+R71265*****************START OF REVERTING IR 71265**********************
+000860**************************START OF IR 71265***********************
+000870       03 EX-TXN-AMT                         PIC S9(14)V999.
+000880*     03 EX-TXN-AMT                         PIC S9(17).
+000890**************************END OF IR 71265***********************
+R71265*******************END OF REVERTING IR 71265**********************
+000910      03 EX-JR01-TIME                       PIC X(08).
+000920      03 EX-ACCT-TYPE                       PIC X(04).
+000930      03 EX-ACCT-NO                         PIC S9(16).
+000940      03 filler                             pic X.
+000950      03 EX-TELLER-ID                       PIC S9(07).
+000960      03 EX-TEMP-INT-CAT                       PIC X(04).
+000970      03 EX-HOME-BR-NO                      PIC X(05).
+000980      03 EX-VAL-DATE                        PIC S9(09).
+000990      03 EX-TRN-TYPE                        PIC X(02).
+001000      03 EX-CHQ-NO                          PIC X(08).
+001010      03 EX-SUP-ID                          PIC S9(07).
+001020      03 EX-CHECKER1                        PIC S9(07).
+001030      03 EX-CHECKER2                        PIC S9(07).
+001040      03 EX-TRAN-CODE                       PIC X(06).
+001050      03 EX-ENQ-DESC                        PIC X(15).
+001060      03 EX-SYSTEM                          PIC X(03).
+001070      03 EX-POST-VAL-DATE                   PIC S9(09).
+001080      03 EX-BYTES                           PIC X(32).
+R71265*****************START OF REVERTING IR 71265**********************
+001100**************************START OF IR 71265***********************
+R71265*     03 EX-TEMP-ICID                       PIC 9.
+001120**************************END OF IR 71265*************************
+R71265*******************END OF REVERTING IR 71265**********************
+001140*****************START OF IR 70366(PERMANENTLY REVERTING)*********        ***
+R71265**START OF REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+001160************START OF IR 71265****************************
+A70366*-----------START OF IR 70366 -----------
+P22852*FD JR-EXTRACT1.
+001190*  01 JR-RECORD1.
+001200*     03 EX-BR-NO1                          PIC X(05).
+001210*     03 EX-WA-USER-ID11                    PIC S9(07).
+001220*     03 EX-CURRN1                          PIC X(03).
+001230*     03 EX-DEP-TYPE-41                     PIC X(01).
+001240*     03 EX-TXN-AMT1                        PIC S9(14)V999.
+001250*     03 EX-JR01-TIME1                      PIC X(08).
+001260*     03 EX-ACCT-TYPE1                      PIC X(04).
+001270*     03 EX-ACCT-NO1                        PIC S9(16).
+001280*     03 FILLER                             PIC X.
+001290*     03 EX-TELLER-ID1                      PIC S9(07).
+001300*     03 EX-TEMP-INT-CAT1                   PIC X(04).
+001310*     03 EX-HOME-BR-NO1                     PIC X(05).
+001320*     03 EX-VAL-DATE1                       PIC S9(09).
+001330*     03 EX-TRN-TYPE1                       PIC X(02).
+001340*     03 EX-CHQ-NO1                         PIC X(08).
+001350*     03 EX-SUP-ID1                         PIC S9(07).
+001360**    03 EX-CHECKER11                       PIC S9(07).
+001370*     03 EX-CHECKER21                       PIC S9(07).
+001380*     03 EX-TRAN-CODE1                      PIC X(06).
+001390*     03 EX-ENQ-DESC1                       PIC X(15).
+001400*     03 EX-SYSTEM1                         PIC X(03).
+001410*     03 EX-POST-VAL-DATE1                  PIC S9(09).
+001420*     03 EX-BYTES1                          PIC X(32).
+A70366*----------- END OF IR 70366 ------------
+001440************END   OF IR 71265****************************
+R71265**END OF  REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+001460*****************END   OF IR 70366(PERMANENTLY REVERTING)*********        ***
+A70109************START OF IR 70109*************
+A70109 FD JR-EXTRACT2.
+A70109   01 JR-RECORD2.
+A70109      03 EX-BR-NO2                          PIC X(05).
+A70109      03 EX-WA-USER-ID12                    PIC S9(07).
+A70109      03 EX-CURRN2                          PIC X(03).
+A70109      03 EX-DEP-TYPE-42                     PIC X(01).
+R71265*****************START OF REVERTING IR 71265**********************
+001550**************************START OF IR 71265***********************
+A70109       03 EX-TXN-AMT2                        PIC S9(14)V999.
+RAVIKU*
+001580*     03 EX-TXN-AMT2                         PIC S9(17).
+001590**************************END OF IR 71265*************************
+R71265*******************END OF REVERTING IR 71265**********************
+A70109      03 EX-JR01-TIME2                      PIC X(08).
+A70109      03 EX-ACCT-TYPE2                      PIC X(04).
+A70109      03 EX-ACCT-NO2                        PIC S9(16).
+A70109      03 FILLER                             PIC X.
+A70109      03 EX-TELLER-ID2                      PIC S9(07).
+A70109      03 EX-TEMP-INT-CAT2                   PIC X(04).
+A70109      03 EX-HOME-BR-NO2                     PIC X(05).
+A70109      03 EX-VAL-DATE2                       PIC S9(09).
+A70109      03 EX-TRN-TYPE2                       PIC X(02).
+A70109      03 EX-CHQ-NO2                         PIC X(08).
+A70109      03 EX-SUP-ID2                         PIC S9(07).
+A70109      03 EX-CHECKER12                       PIC S9(07).
+A70109      03 EX-CHECKER22                       PIC S9(07).
+A70109      03 EX-TRAN-CODE2                      PIC X(06).
+A70109      03 EX-ENQ-DESC2                       PIC X(15).
+A70109      03 EX-SYSTEM2                         PIC X(03).
+A70109      03 EX-POST-VAL-DATE2                  PIC S9(09).
+A70109      03 EX-BYTES2                          PIC X(32).
+R71265*****************START OF REVERTING IR 71265**********************
+001800**************************START OF IR 71265***********************
+R71265*     03 EX-TEMP-ICID2                      PIC 9.
+001820**************************END OF IR 71265*************************
+R71265*******************END OF REVERTING IR 71265**********************
+A70109 FD JR-EXTRACT3.
+A70109   01 JR-RECORD3.
+A70109      03 EX-BR-NO3                          PIC X(05).
+A70109      03 EX-WA-USER-ID13                    PIC S9(07).
+A70109      03 EX-CURRN3                          PIC X(03).
+A70109      03 EX-DEP-TYPE-43                     PIC X(01).
+R71265*****************START OF REVERTING IR 71265**********************
+001910**************************START OF IR 71265***********************
+A70109       03 EX-TXN-AMT3                        PIC S9(14)V999.
+A70109*     03 EX-TXN-AMT3                        PIC S9(17).
+001940**************************END OF IR 71265*************************
+R71265*******************END OF REVERTING IR 71265**********************
+A70109      03 EX-JR01-TIME3                      PIC X(08).
+A70109      03 EX-ACCT-TYPE3                      PIC X(04).
+A70109      03 EX-ACCT-NO3                        PIC S9(16).
+A70109      03 FILLER                             PIC X.
+A70109      03 EX-TELLER-ID3                      PIC S9(07).
+A70109      03 EX-TEMP-INT-CAT3                   PIC X(04).
+A70109      03 EX-HOME-BR-NO3                     PIC X(05).
+A70109      03 EX-VAL-DATE3                       PIC S9(09).
+A70109      03 EX-TRN-TYPE3                       PIC X(02).
+A70109      03 EX-CHQ-NO3                         PIC X(08).
+A70109      03 EX-SUP-ID3                         PIC S9(07).
+A70109      03 EX-CHECKER13                       PIC S9(07).
+A70109      03 EX-CHECKER23                       PIC S9(07).
+A70109      03 EX-TRAN-CODE3                      PIC X(06).
+A70109      03 EX-ENQ-DESC3                       PIC X(15).
+A70109      03 EX-SYSTEM3                         PIC X(03).
+A70109      03 EX-POST-VAL-DATE3                  PIC S9(09).
+A70109      03 EX-BYTES3                          PIC X(32).
+A70109***********END OF IR 70109********************************
+R71265*****************START OF REVERTING IR 71265**********************
+002160**************************START OF IR 71265***********************
+R71265*     03 EX-TEMP-ICID3                      PIC 9.
+002180**************************END OF IR 71265*************************
+R71265*******************END OF REVERTING IR 71265**********************
+002200 FD ATM-BRCH-FILE.
+P22852    01 INPUT-RECORD.
+P22852       02 ATM-BRANCH              PIC X(05).
+
+002240 WORKING-STORAGE SECTION.
+P22458 01 WA-JR.
+P22458    05 WA-TAB                            PIC X(02) VALUE "JR".
+P22458    05 WA-REPLICA                        PIC X(02) VALUE SPACES.
+P22458 01 DYNSTMT                     PIC X(9999) VARYING VALUE SPACES.
+P22852  01  WS-FILE-NAME                       PIC X(17) VALUE
+P22852                                "$card/IF1101.card".
+002310 01 WA-ATM-BRANCH-NO                PIC 9(05).
+H70177*----- START OF IR 70177 ---
+H70177 01 WA-INB-BRANCH-NO                PIC 9(05).
+H70177*----- END OF IR 70177 ---
+P22852 01  WS-STATUS                           PIC 9(2).
+H18181 01 WA-EDIT-MASK.
+002370     05 FILLER                            PIC X(4).
+002380     05 WA-TRAN-SIGN                      PIC X.
+002390     05 FILLER                            PIC X(25).
+002400     05 WA-PROCESS-MASK                   PIC X(04).
+002410 01 PUAREA.
+002420     03 WA-BYTES                          PIC X(32).
+002430     03 WA-BYTES-R REDEFINES WA-BYTES
+002440        OCCURS 32 TIMES INDEXED BY BITS-I PIC X.
+002450     03 BITS                              PIC X(04).
+ARYA82*------------- START OF IR 17745 ------
+ARYA82 01 WA-REC-FOUND                 PIC X(01) VALUE "N".
+ARYA82 01 WA-REC-NOT-FOUND             PIC X(01) VALUE "N".
+ARYA82 01 WA-TRAN-CODE                  PIC 9(6).
+ARYA82 01 WA-ACCT-NO                    PIC X(16).
+ARYA82 01 WA-TRAN-DATE                  PIC X(9).
+ARYA82*------------- END OF IR  17745 -------
+002530*****************START OF IR 70366(PERMANENTLY REVERTING)*********        ***
+R71265**START OF REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+002550************START OF IR 71265****************************
+A70366*--------------- START OF IR 70366 ---------
+A70366*01 WA-BRANCH-NO                  PIC X(05).
+A70366*01 WA-CCPC-COUNT                 PIC 9(2).
+A70366*--------------- END OF IR 70366 -----------
+002600************END   OF IR 71265****************************
+R71265**END OF  REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+002620*****************END   OF IR 70366(PERMANENTLY REVERTING)*********        ***
+R71265*****************START OF REVERTING IR 71265**********************
+002640**************************START OF IR 71265***********************
+R71265*01 WA-TEMP-ICID                  PIC 9.
+002660**************************END OF IR 71265*************************
+R71265*******************END OF REVERTING IR 71265**********************
+002680 01 WA-INDEX                             PIC 9(02) VALUE 0.
+002690 01 WORK-AREA.
+002700    03 WA-PARM.
+002710       05 PARM-DATA.
+002720          07 FILLER                      PIC X(17).
+002730          07 PARAM-SOC                   PIC 9(3).
+002740          07 FILLER                      PIC X(01).
+002750          07 PARAM-LANG-CODE             PIC 9(02).
+002760          07 FILLER                      PIC X(01).
+P22458          07 PARAM-REPLICA               PIC 9(02).
+P22682          07 FILLER                      PIC X(01).
+P22682          07 PARAM-FROM-BRCH             PIC X(5).
+P22682          07 FILLER                      PIC X(01).
+P22682          07 PARAM-TO-BRCH               PIC X(5).
+002820
+002830    COPY MISERR01    IN LIBRYMIS.
+
+002850 01 TEMP-INT-CAT                         PIC X(04) VARYING.
+002860 01 FILLER                               pic X(1).
+002870    COPY DBIOCALL             IN LIBRYMIS.
+002880    COPY DBIOMODCA            IN LIBRYMIS.
+002890         03    FILLER                        PIC X(2120).
+002900    COPY DBIOORAST            IN LIBRYMIS.
+002910    COPY DBIOMODNAME          IN LIBRYMIS.
+002920    COPY SY0344CA             IN LIBRYRPT.
+002930    COPY UT1999CA             IN LIBRYMIS.
+002940    COPY UT0030CA             IN LIBRYMIS.
+
+002960     EXEC SQL BEGIN DECLARE SECTION END-EXEC.
+002970 01 INST-NO                              PIC X(03) VARYING.
+002980 01 ACCT-TYPE                            PIC X(04) VARYING.
+002990 01 JR01-TIME                            PIC X(08) VARYING.
+003000 01 BR-NO                                PIC X(05).
+003010 01 HOME-BR-NO                           PIC X(05).
+003020 01 CURRN                                PIC X(03).
+003030 01 CHQ-NO                               PIC X(08) VARYING.
+003040 01 TRN-TYPE                             PIC X(02) VARYING.
+003050 01 ACCT-NO                              PIC S9(16) COMP-3.
+003060 01 VAL-DATE                             PIC S9(09) COMP.
+003070 01 POST-VAL-DATE                        PIC S9(09) COMP.
+003080 01 TXN-AMT                              PIC S9(17) COMP-3.
+003090 01 TELLER-ID                            PIC S9(07) COMP.
+003100 01 EDIT-MASK                            PIC X(34).
+003110 01 DEP-TYPE-4                           PIC X(01).
+ARYA82*----------- START OF IR 17745 -------------------
+ARYA82 01 WA-JRNL-NO                           PIC X(09).
+ARYA82*------------ END OF IR 17745 -------------------
+003150 01 CHECKER1                             PIC S9(07) COMP.
+003160 01 CHECKER2                             PIC S9(07) COMP.
+003170 01 TRAN-CODE                            PIC X(06) VARYING.
+003180 01 MCURR_TRAN_CODE                      PIC X(06) VARYING.
+003190 01 GEN-CHQ-NO                           PIC X(08) VARYING.
+003200 01 MCURR-TRAN-CODE                      PIC X(06) VARYING.
+003210 01 SUP-ID                               PIC S9(07) COMP.
+003220 01 WA-USER-ID1                          PIC S9(07) COMP.
+003230 01 CUSTOMER-NO                          PIC S9(16) COMP-3.
+003240 01 WA-BRANCH-CODE                       PIC S9(05) COMP.
+003250 01 WA-FRM-BRANCH-NO                     PIC S9(05) COMP.
+003260 01 WA-TO-BRANCH-NO                      PIC S9(05) COMP.
+003270 01 WA-ACCT-TYPE                         PIC X(04) VARYING.
+003280 01 WA-INT-CAT                           PIC X(04) VARYING.
+003290 01 WA-INST-NO                           PIC X(03) VARYING.
+003300 01 WA-TODAYS-DT                         PIC S9(9) .
+003310 01 ENQ-DESC                             PIC X(15) VARYING.
+003320 01 SYSTEM                               PIC X(03) VARYING.
+003330 01 DESCRIPT                             PIC X(30) VARYING.
+003340 01 LONP-PROD-NAME                       PIC X(30) VARYING.
+003350 01 WA-NO-ACCT                           PIC 9(4).
+ARYA82*--------- START OF IR 17745 --------
+ARYA82 01 WI-ICID-BRANCH-NO       PIC X(05).
+ARYA82 01 WI-ICID-CLRNG-TYPE      PIC X(01).
+ARYA82 01 WI-ICID-INSTR-NO        PIC X(08).
+ARYA82 01 WI-ICID-ACCT-NO         PIC X(16).
+ARYA82 01 WI-ICID-CLEAR-ACCT      PIC 9(16).
+ARYA82 01 WI-ICID-JRNL-NO         PIC 9(09).
+ARYA82 01 WI-ICID-TXN-BRCH        PIC X(05).
+ARYA82*--------- END OF IR 17745 ----------
+R71265*****************START OF REVERTING IR 71265**********************
+003460******************START OF IR 71265*****************
+003470*01 COUNT-ICDD                           PIC 9(04) VALUE 0.
+003480******************END OF IR 71265*****************
+R71265*******************END OF REVERTING IR 71265**********************
+003500     EXEC SQL END DECLARE SECTION END-EXEC.
+003510     EXEC SQL INCLUDE SQLCA END-EXEC.
+003520
+003530 PROCEDURE DIVISION.
+003540 A000-MAIN.
+003550     OPEN OUTPUT JR-EXTRACT
+003560*****************START OF IR 70366(PERMANENTLY REVERTING)*********        ***
+R71265**START OF REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+003580************START OF IR 71265****************************
+A70366*-----------  START OF IR 70366 ---------
+003600*    OPEN OUTPUT JR-EXTRACT1.
+A70366*------------- END OF IR 70366 ----------
+003620************END  OF IR 71265****************************
+R71265**END OF  REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+003640*****************END   OF IR 70366(PERMANENTLY REVERTING)*********        ***
+A70109************* START OF IR 70109*************
+A70109    OPEN OUTPUT JR-EXTRACT2.
+A70109    OPEN OUTPUT JR-EXTRACT3.
+A70109************* END OF IR 70109***************
+003690     OPEN INPUT ATM-BRCH-FILE
+ARYA82*------------ START OF IR 17745 -----------------
+ARYA82     INITIALIZE WA-JRNL-NO
+003720                WI-ICID-BRANCH-NO
+003730                WI-ICID-CLRNG-TYPE
+003740                WI-ICID-INSTR-NO
+003750                WI-ICID-ACCT-NO
+003760                WI-ICID-CLEAR-ACCT
+003770                WI-ICID-JRNL-NO
+003780                WA-TRAN-CODE
+003790                WA-ACCT-NO
+003800                WA-TRAN-DATE.
+ARYA82*---------- END OF IR 17745 ------------------
+003820     READ ATM-BRCH-FILE
+P22852     IF WS-STATUS = 0
+P22852        MOVE ATM-BRANCH    TO WA-ATM-BRANCH-NO
+P22852     ELSE
+P22852        DISPLAY " ERROR OPENING IF1101.card " WS-STATUS
+P22852        MOVE 04292         TO WA-ATM-BRANCH-NO
+P22852     END-IF
+P22852     CLOSE ATM-BRCH-FILE.
+H70177*----- START OF IR 70177 ---
+H70177     MOVE 99922 TO WA-INB-BRANCH-NO.
+H70177*----- END OF IR 70177 ---
+003930     PERFORM A100-READ-CARD THRU A109-EXIT.
+003940     EXEC SQL WHENEVER SQLERROR
+003950     DO PERFORM SQL-ERROR END-EXEC.
+003960
+003970     PERFORM A200-LOGON THRU A209-EXIT.
+P22458     MOVE PARAM-REPLICA           TO WA-REPLICA.
+003990     MOVE 0                       TO WA-USER-ID1.
+004000     PERFORM A110-GET-TODAY-DATE THRU A119-EXIT.
+P22458     PERFORM A120-MAKE-QUERY     THRU A129-QUERY-EXIT.
+P22458
+P22458 A130-DECLARE-CURSOR-JRNL.
+P22458     EXEC SQL PREPARE S1 FROM :DYNSTMT END-EXEC.
+P22458     EXEC SQL
+P22458        DECLARE GETJRNL CURSOR FOR S1
+P22458     END-EXEC.
+P22458     EXEC SQL OPEN GETJRNL  END-EXEC.
+004090*         EXEC SQL
+004100*         DECLARE GETJRNL  CURSOR FOR
+004110*             SELECT LPAD(TRIM(BRCH),5,'0'),
+004120*                 TELLER,
+004130*                 EDIT_MASK,
+004140*   DECODE(CURRENCY_CODE,'   ',SUBSTR(JR01.GL_CLASS_CODE,6,3),
+004150*                 CURRENCY_CODE),
+004160*                 JR01_TIME,
+004170*                 SUBSTR(DATA_01,1,4),
+004180*                 JR01.INT_CAT,
+004190*                 CUSM_NO,
+004200*                 HOME_BRNCH,
+004210*                 JR01.TRAN_DATE,
+004220*                 TRN_TYP,
+004230*                 SUBSTR(DATA_01,5,8),
+004240*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+004250*                 NVL(SUP_ID,0),
+004260*                 NVL(CHECKER1_ID,0),
+004270*                 NVL(CHECKER2_ID,0),
+004280*                 JR01.TRAN_CODE,
+004290*                 ENQUIRY_DESC,
+004300*                 JR01.SYST,
+004310*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+004320*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+004330*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+004340*                 NVL(POST_VAL_DATE,0),
+004350*                 DEP_TYPE_4
+004360*             FROM
+004370*                 JR01,MCAD,TXBI,OCID
+004380*             WHERE
+004390*                 (JR01.TRAN_DATE = :WA-TODAYS-DT
+004400*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+004410*                 JRNL_DATE (+) = JR01_DATE                  AND
+004420*                 JR01.BRCH >= :PARAM-FROM-BRCH              AND
+004430*                 JR01.BRCH <= :PARAM-TO-BRCH                AND
+004440*                 MCAD.JRNL_NO (+) = JR01.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR01.JR01_TIME        AND
+004460*                 SUBSTR(JR01.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+004470*                 NON_FIN_TXN_23 = '0'                       AND
+004480*                 JR01.SYST NOT LIKE 'GEN'                   AND
+004490*                 TO_CHAR(OCID.JRNL_NO (+)) = JR01.JRNL_NO   AND
+004500*                 OCID.TRAN_DATE (+) = JR01.TRAN_DATE
+004510*         UNION ALL
+004520*             SELECT LPAD(TRIM(BRCH),5,'0'),
+004530*                 TELLER,
+004540*                 EDIT_MASK,
+004550*   DECODE(CURRENCY_CODE,'   ',SUBSTR(JR02.GL_CLASS_CODE,6,3),
+004560*                 CURRENCY_CODE),
+004570*                 JR02_TIME,
+004580*                 SUBSTR(DATA_01,1,4),
+004590*                 JR02.INT_CAT,
+004600*                 CUSM_NO,
+004610*                 HOME_BRNCH,
+004620*                 JR02.TRAN_DATE,
+004630*                 TRN_TYP,
+004640*                 SUBSTR(DATA_01,5,8),
+004650*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+004660*                 NVL(SUP_ID,0),
+004670*                 NVL(CHECKER1_ID,0),
+004680*                 NVL(CHECKER2_ID,0),
+004690*                 JR02.TRAN_CODE,
+004700*                 ENQUIRY_DESC,
+004710*                 JR02.SYST,
+004720*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+004730*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+004740*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+004750*                 NVL(POST_VAL_DATE,0),
+004760*                 DEP_TYPE_4
+004770*             FROM
+004780*                 JR02,MCAD,TXBI,OCID
+004790*             WHERE
+004800*                 (JR02.TRAN_DATE = :WA-TODAYS-DT
+004810*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+004820*                 JRNL_DATE (+) = JR02_DATE                  AND
+004830*                 JR02.BRCH >= :PARAM-FROM-BRCH              AND
+004840*                 JR02.BRCH <= :PARAM-TO-BRCH                AND
+004850*                 MCAD.JRNL_NO (+) = JR02.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR02.JR02_TIME        AND
+004870*                 SUBSTR(JR02.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+004880*                 NON_FIN_TXN_23 = '0'                       AND
+004890*                 JR02.SYST NOT LIKE 'GEN'                   AND
+004900*                 TO_CHAR(OCID.JRNL_NO (+)) = JR02.JRNL_NO   AND
+004910*                 OCID.TRAN_DATE (+) = JR02.TRAN_DATE
+004920*         UNION ALL
+004930*             SELECT LPAD(TRIM(BRCH),5,'0'),
+004940*                 TELLER,
+004950*                 EDIT_MASK,
+004960*   DECODE(CURRENCY_CODE,'   ',SUBSTR(JR03.GL_CLASS_CODE,6,3),
+004970*                 CURRENCY_CODE),
+004980*                 JR03_TIME,
+004990*                 SUBSTR(DATA_01,1,4),
+005000*                 JR03.INT_CAT,
+005010*                 CUSM_NO,
+005020*                 HOME_BRNCH,
+005030*                 JR03.TRAN_DATE,
+005040*                 TRN_TYP,
+005050*                 SUBSTR(DATA_01,5,8),
+005060*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+005070*                 NVL(SUP_ID,0),
+005080*                 NVL(CHECKER1_ID,0),
+005090*                 NVL(CHECKER2_ID,0),
+005100*                 JR03.TRAN_CODE,
+005110*                 ENQUIRY_DESC,
+005120*                 JR03.SYST,
+005130*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+005140*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+005150*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+005160*                 NVL(POST_VAL_DATE,0),
+005170*                 DEP_TYPE_4
+005180*             FROM
+005190*                 JR03,MCAD,TXBI,OCID
+005200*             WHERE
+005210*                 (JR03.TRAN_DATE = :WA-TODAYS-DT
+005220*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+005230*                 JRNL_DATE (+) = JR03_DATE                  AND
+005240*                 JR03.BRCH >= :PARAM-FROM-BRCH              AND
+005250*                 JR03.BRCH <= :PARAM-TO-BRCH                AND
+005260*                 MCAD.JRNL_NO (+) = JR03.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR03.JR03_TIME        AND
+005280*                 SUBSTR(JR03.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+005290*                 NON_FIN_TXN_23 = '0'                       AND
+005300*                 JR03.SYST NOT LIKE 'GEN'                   AND
+005310*                 TO_CHAR(OCID.JRNL_NO (+)) = JR03.JRNL_NO   AND
+005320*                 OCID.TRAN_DATE (+) = JR03.TRAN_DATE
+005330*         UNION ALL
+005340*             SELECT LPAD(TRIM(BRCH),5,'0'),
+005350*                 TELLER,
+005360*                 EDIT_MASK,
+005370*   DECODE(CURRENCY_CODE,'   ',SUBSTR(JR04.GL_CLASS_CODE,6,3),
+005380*                 CURRENCY_CODE),
+005390*                 JR04_TIME,
+005400*                 SUBSTR(DATA_01,1,4),
+005410*                 JR04.INT_CAT,
+005420*                 CUSM_NO,
+005430*                 HOME_BRNCH,
+005440*                 JR04.TRAN_DATE,
+005450*                 TRN_TYP,
+005460*                 SUBSTR(DATA_01,5,8),
+005470*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+005480*                 NVL(SUP_ID,0),
+005490*                 NVL(CHECKER1_ID,0),
+005500*                 NVL(CHECKER2_ID,0),
+005510*                 JR04.TRAN_CODE,
+005520*                 ENQUIRY_DESC,
+005530*                 JR04.SYST,
+005540*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+005550*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+005560*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+005570*                 NVL(POST_VAL_DATE,0),
+005580*                 DEP_TYPE_4
+005590*             FROM
+005600*                 JR04,MCAD,TXBI,OCID
+005610*             WHERE
+005620*                 (JR04.TRAN_DATE = :WA-TODAYS-DT
+005630*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+005640*                 JRNL_DATE (+) = JR04_DATE                  AND
+005650*                 JR04.BRCH >= :PARAM-FROM-BRCH              AND
+005660*                 JR04.BRCH <= :PARAM-TO-BRCH                AND
+005670*                 MCAD.JRNL_NO (+) = JR04.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR04.JR04_TIME        AND
+005690*                 SUBSTR(JR04.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+005700*                 NON_FIN_TXN_23 = '0'                       AND
+005710*                 JR04.SYST NOT LIKE 'GEN'                   AND
+005720*                 TO_CHAR(OCID.JRNL_NO (+)) = JR04.JRNL_NO   AND
+005730*                 OCID.TRAN_DATE (+) = JR04.TRAN_DATE
+005740*         UNION ALL
+005750*             SELECT LPAD(TRIM(BRCH),5,'0'),
+005760*                 TELLER,
+005770*                 EDIT_MASK,
+005780*   DECODE(CURRENCY_CODE,'   ',SUBSTR(JR05.GL_CLASS_CODE,6,3),
+005790*                 CURRENCY_CODE),
+005800*                 JR05_TIME,
+005810*                 SUBSTR(DATA_01,1,4),
+005820*                 JR05.INT_CAT,
+005830*                 CUSM_NO,
+005840*                 HOME_BRNCH,
+005850*                 JR05.TRAN_DATE,
+005860*                 TRN_TYP,
+005870*                 SUBSTR(DATA_01,5,8),
+005880*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+005890*                 NVL(SUP_ID,0),
+005900*                 NVL(CHECKER1_ID,0),
+005910*                 NVL(CHECKER2_ID,0),
+005920*                 JR05.TRAN_CODE,
+005930*                 ENQUIRY_DESC,
+005940*                 JR05.SYST,
+005950*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+005960*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+005970*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+005980*                  NVL(POST_VAL_DATE,0),
+005990*                  DEP_TYPE_4
+006000*             FROM
+006010*                 JR05,MCAD,TXBI,OCID
+006020*             WHERE
+006030*                 (JR05.TRAN_DATE = :WA-TODAYS-DT
+006040*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+006050*                 JRNL_DATE (+) = JR05_DATE                  AND
+006060*                 JR05.BRCH >= :PARAM-FROM-BRCH              AND
+006070*                 JR05.BRCH <= :PARAM-TO-BRCH                AND
+006080*                 MCAD.JRNL_NO (+) = JR05.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR05.JR05_TIME        AND
+006100*                 SUBSTR(JR05.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+006110*                 NON_FIN_TXN_23 = '0'                       AND
+006120*                 JR05.SYST NOT LIKE 'GEN'                   AND
+006130*                 TO_CHAR(OCID.JRNL_NO (+)) = JR05.JRNL_NO   AND
+006140*                 OCID.TRAN_DATE (+) = JR05.TRAN_DATE
+006150*         UNION ALL
+006160*             SELECT LPAD(TRIM(BRCH),5,'0'),
+006170*                 TELLER,
+006180*                 EDIT_MASK,
+006190*    DECODE(CURRENCY_CODE,'   ',SUBSTR(JR06.GL_CLASS_CODE,6,3),
+006200*                 CURRENCY_CODE),
+006210*                 JR06_TIME,
+006220*                 SUBSTR(DATA_01,1,4),
+006230*                 JR06.INT_CAT,
+006240*                 CUSM_NO,
+006250*                 HOME_BRNCH,
+006260*                 JR06.TRAN_DATE,
+006270*                 TRN_TYP,
+006280*                 SUBSTR(DATA_01,5,8),
+006290*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+006300*                 NVL(SUP_ID,0),
+006310*                 NVL(CHECKER1_ID,0),
+006320*                 NVL(CHECKER2_ID,0),
+006330*                 JR06.TRAN_CODE,
+006340*                 ENQUIRY_DESC,
+006350*                 JR06.SYST,
+006360*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+006370*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+006380*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+006390*                 NVL(POST_VAL_DATE,0),
+006400*                 DEP_TYPE_4
+006410*             FROM
+006420*                 JR06,MCAD,TXBI,OCID
+006430*             WHERE
+006440*                 (JR06.TRAN_DATE = :WA-TODAYS-DT
+006450*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+006460*                 JRNL_DATE (+) = JR06_DATE                  AND
+006470*                 JR06.BRCH >= :PARAM-FROM-BRCH              AND
+006480*                 JR06.BRCH <= :PARAM-TO-BRCH                AND
+006490*                 MCAD.JRNL_NO (+) = JR06.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR06.JR06_TIME        AND
+006510*                 SUBSTR(JR06.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+006520*                 NON_FIN_TXN_23 = '0'                       AND
+006530*                 JR06.SYST NOT LIKE 'GEN'                   AND
+006540*                 TO_CHAR(OCID.JRNL_NO (+)) = JR06.JRNL_NO   AND
+006550*                 OCID.TRAN_DATE (+) = JR06.TRAN_DATE
+006560*         UNION ALL
+006570*             SELECT LPAD(TRIM(BRCH),5,'0'),
+006580*                 TELLER,
+006590*                 EDIT_MASK,
+006600*    DECODE(CURRENCY_CODE,'   ',SUBSTR(JR07.GL_CLASS_CODE,6,3),
+006610*                 CURRENCY_CODE),
+006620*                 JR07_TIME,
+006630*                 SUBSTR(DATA_01,1,4),
+006640*                 JR07.INT_CAT,
+006650*                 CUSM_NO,
+006660*                 HOME_BRNCH,
+006670*                 JR07.TRAN_DATE,
+006680*                 TRN_TYP,
+006690*                 SUBSTR(DATA_01,5,8),
+006700*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+006710*                 NVL(SUP_ID,0),
+006720*                 NVL(CHECKER1_ID,0),
+006730*                 NVL(CHECKER2_ID,0),
+006740*                 JR07.TRAN_CODE,
+006750*                 ENQUIRY_DESC,
+006760*                 JR07.SYST,
+006770*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+006780*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+006790*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+006800*                 NVL(POST_VAL_DATE,0),
+006810*                 DEP_TYPE_4
+006820*             FROM
+006830*                 JR07,MCAD,TXBI,OCID
+006840*             WHERE
+006850*                 (JR07.TRAN_DATE = :WA-TODAYS-DT
+006860*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+006870*                 JRNL_DATE (+) = JR07_DATE                  AND
+006880*                 JR07.BRCH >= :PARAM-FROM-BRCH              AND
+006890*                 JR07.BRCH <= :PARAM-TO-BRCH                AND
+006900*                 MCAD.JRNL_NO (+) = JR07.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR07.JR07_TIME        AND
+006920*                 SUBSTR(JR07.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+006930*                 NON_FIN_TXN_23 = '0'                       AND
+006940*                 JR07.SYST NOT LIKE 'GEN'                   AND
+006950*                 TO_CHAR(OCID.JRNL_NO (+)) = JR07.JRNL_NO   AND
+006960*                 OCID.TRAN_DATE (+) = JR07.TRAN_DATE
+006970*         UNION ALL
+006980*             SELECT LPAD(TRIM(BRCH),5,'0'),
+006990*                 TELLER,
+007000*                 EDIT_MASK,
+007010*    DECODE(CURRENCY_CODE,'   ',SUBSTR(JR08.GL_CLASS_CODE,6,3),
+007020*                 CURRENCY_CODE),
+007030*                 JR08_TIME,
+007040*                 SUBSTR(DATA_01,1,4),
+007050*                 JR08.INT_CAT,
+007060*                 CUSM_NO,
+007070*                 HOME_BRNCH,
+007080*                 JR08.TRAN_DATE,
+007090*                 TRN_TYP,
+007100*                 SUBSTR(DATA_01,5,8),
+007110*                 ABS(BASECONV.CONVDATA(DATA_01,13,8)),
+007120*                 NVL(SUP_ID,0),
+007130*                 NVL(CHECKER1_ID,0),
+007140*                 NVL(CHECKER2_ID,0),
+007150*                 JR08.TRAN_CODE,
+007160*                 ENQUIRY_DESC,
+007170*                 JR08.SYST,
+007180*DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE
+007190*(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)
+007200*,CHECKER1_ID),CHECKER2_ID),SUP_ID),
+007210*                 NVL(POST_VAL_DATE,0),
+007220*                 DEP_TYPE_4
+007230*             FROM
+007240*                 JR08,MCAD,TXBI,OCID
+007250*             WHERE
+007260*                 (JR08.TRAN_DATE = :WA-TODAYS-DT
+007270*                 OR POST_DATE = :WA-TODAYS-DT)              AND
+007280*                 JRNL_DATE (+) = JR08_DATE                  AND
+007290*                 JR08.BRCH >= :PARAM-FROM-BRCH              AND
+007300*                 JR08.BRCH <= :PARAM-TO-BRCH                AND
+007310*                 MCAD.JRNL_NO (+) = JR08.JRNL_NO            AND
+G21328*                 MCAD.JRNL_TIME (+) = JR08.JR08_TIME        AND
+007330*                 SUBSTR(JR08.TRAN_CODE,2,6)= TXBI.TRAN_CODE AND
+007340*                 NON_FIN_TXN_23 = '0'                       AND
+007350*                 JR08.SYST NOT LIKE 'GEN'                   AND
+007360*                 TO_CHAR(OCID.JRNL_NO (+)) = JR08.JRNL_NO   AND
+007370*                 OCID.TRAN_DATE (+) = JR08.TRAN_DATE
+007380*             ORDER BY
+M21615*                 1,20,4,22,13,5,6,8
+007400*         END-EXEC.
+007410*    EXEC SQL OPEN GETJRNL  END-EXEC.
+007420 FETCH-LOOP.
+A70129*------------ START OF IR 70129 ----------
+007440*    EXEC SQL WHENEVER NOT FOUND
+007450*    DO PERFORM SIGN-OFF END-EXEC.
+A70129*------------ END OF IR 70129 ----------
+
+007480     EXEC SQL FETCH GETJRNL
+007490            INTO :BR-NO,
+007500                 :TELLER-ID,
+007510                 :EDIT-MASK,
+007520                 :CURRN,
+007530                 :JR01-TIME,
+007540                 :ACCT-TYPE,
+007550                 :TEMP-INT-CAT,
+007560                 :ACCT-NO,
+007570                 :HOME-BR-NO,
+007580                 :VAL-DATE,
+007590                 :TRN-TYPE,
+007600                 :CHQ-NO,
+007610                 :TXN-AMT,
+007620                 :SUP-ID,
+007630                 :CHECKER1,
+007640                 :CHECKER2,
+007650                 :TRAN-CODE,
+007660                 :ENQ-DESC,
+007670                 :SYSTEM,
+H18181*                :WA-USER-ID1,
+H18618************* START OF IR 18618 *********
+H18618*                :POST-VAL-DATE,
+H18618************* END OF IR 18618 *********
+007720                 :DEP-TYPE-4,
+ARYA82*------------- START OF IR 17745 ----------
+ARYA82                 :WA-JRNL-NO
+ARYA82*------------ END OF IR 17745 ---------------
+007760     END-EXEC.
+A70129*------------ START OF IR 70129 ----------
+007780     IF SQLCODE IN SQLCA NOT = ZEROS
+007790        PERFORM SIGN-OFF
+007800     END-IF
+A70129*------------ END OF IR 70129 ----------
+007820     IF SUP-ID = 0
+007830         IF CHECKER2 = 0
+007840            IF CHECKER1 = 0
+007850               MOVE TELLER-ID TO WA-USER-ID1
+007860            ELSE
+007870               MOVE CHECKER1 TO WA-USER-ID1
+007880            END-IF
+007890         ELSE
+007900            MOVE CHECKER2 TO WA-USER-ID1
+007910         END-IF
+007920      ELSE
+007930          MOVE SUP-ID TO WA-USER-ID1
+007940      END-IF
+007950      MOVE SPACES    TO WA-TRAN-SIGN.
+007960      MOVE EDIT-MASK TO WA-EDIT-MASK.
+007970      MOVE WA-PROCESS-MASK TO BITS.
+007980      CALL "UT0022" USING PUAREA.
+A70109***********START OF IR 70109*************
+A70764*-------------CHANGES START FOR IR-70764 POS VVR-------
+A70109     IF (BR-NO = 04292 OR 99922) OR
+008020         (TELLER-ID = 9042924 OR 9900001)
+A70764*------------CHANGES END FOR IR-70764 POS VVR----------
+A70109        PERFORM ATM-INB THRU ATM-INB-EXIT
+A70109        GO TO FETCH-LOOP
+A70109     ELSE
+A70109        IF TELLER-ID = 9992222
+A70109           PERFORM MR-FILE THRU MR-FILE-EXIT
+A70109           GO TO FETCH-LOOP
+A70109        ELSE
+A70109           CONTINUE
+A70109        END-IF
+A70109     END-IF
+A70109*********** END OF IR 70109****************
+008150*****************START OF IR 70366(PERMANENTLY REVERTING)*********        ***
+R71265**START OF REVERTING IR 71265 BUT KEEPING 70366 REVERTED**********
+008170************START OF IR 71265****************************
+A70366*------------- START OF IR 70366 ---------
+008190*    MOVE ZEROS         TO WA-CCPC-COUNT
+008200*    MOVE TRAN-CODE-ARR TO WA-TRAN-CODE
+008210*    MOVE ACCT-NO      TO WA-ACCT-NO
+008220*    MOVE VAL-DATE     TO WA-TRAN-DATE
+008230*    IF WA-TRAN-CODE = 51071
+008240*       MOVE "N"         TO  WA-REC-FOUND
+008250*       MOVE "N"         TO  WA-REC-NOT-FOUND
+008260*       PERFORM G001-READ-ICID  THRU G199-EXIT
+008270*                      UNTIL WA-REC-FOUND = 'Y'
+008280*                      OR WA-REC-NOT-FOUND = 'Y'
+008290*       IF WA-REC-FOUND = 'Y'
+008300*          MOVE WI-ICID-TXN-BRCH TO WA-BRANCH-NO
+008310*       ELSE
+008320*          MOVE BR-NO TO WA-BRANCH-NO
+008330*       END-IF
+008340*    ELSE
+008350*          MOVE BR-NO TO WA-BRANCH-NO
+008360*    END-IF
+008370*    EXEC SQL
+008380*        SELECT COUNT(1) INTO :WA-CCPC-COUNT FROM BRCM
+008390*               WHERE BRCM_CPC_BRCH_NO = :WA-BRANCH-NO AND
+008400*                     BRCM_TYPE_CPC = 'C' AND ROWNUM < 2
+008410*    END-EXEC.
+008420*
+008430*    IF WA-CCPC-COUNT > 0
+008440*       MOVE WA-BYTES TO EX-BYTES1
+008450*       MOVE WA-BRANCH-NO TO EX-BR-NO1
+008460*       MOVE TELLER-ID TO EX-TELLER-ID1
+008470*       MOVE CURRN TO EX-CURRN1
+008480*       MOVE DEP-TYPE-4 TO EX-DEP-TYPE-41
+008490*       MOVE JR01-TIME-ARR TO EX-JR01-TIME1
+008500*       MOVE ACCT-TYPE-ARR TO EX-ACCT-TYPE1
+008510*       MOVE TEMP-INT-CAT-ARR TO EX-TEMP-INT-CAT1
+008520*       MOVE ACCT-NO TO EX-ACCT-NO1
+008530*       MOVE HOME-BR-NO TO EX-HOME-BR-NO1
+008540*       MOVE VAL-DATE TO EX-VAL-DATE1
+008550*       MOVE TRN-TYPE-ARR TO EX-TRN-TYPE1
+008560*       MOVE CHQ-NO-ARR TO EX-CHQ-NO1
+008570*       MOVE TXN-AMT TO EX-TXN-AMT1
+008580*       MOVE SUP-ID TO EX-SUP-ID1
+008590*       MOVE CHECKER1 TO EX-CHECKER11
+008600*       MOVE CHECKER2 TO EX-CHECKER21
+008610*       MOVE TRAN-CODE-ARR TO EX-TRAN-CODE1
+008620*       MOVE ENQ-DESC-ARR TO EX-ENQ-DESC1
+008630*       MOVE SYSTEM-ARR TO EX-SYSTEM1
+008640*       MOVE WA-USER-ID1 TO EX-WA-USER-ID11
+H18618*       MOVE ZEROS TO EX-POST-VAL-DATE1
+008660*       WRITE JR-RECORD1
+008670*    ELSE
+A70366*------------- END OF IR 70366 ---------------
+008690************END   OF IR 71265****************************
+R71265**END OF  REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+008710*****************END   OF IR 70366(PERMANENTLY REVERTING)*********        ***
+008720      MOVE WA-BYTES TO EX-BYTES
+008730*****************START OF IR 70366(PERMANENTLY REVERTING)*********        ***
+R71265**START OF REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+008750************START OF IR 71265****************************
+A70366*------------- START OF IR 70366 -----------
+008770      MOVE BR-NO TO EX-BR-NO
+008780*     MOVE WA-BRANCH-NO TO EX-BR-NO
+A70366*------------- END OF IR 70366 --------------
+008800************END  OF IR 71265****************************
+R71265**END OF  REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+008820*****************END   OF IR 70366(PERMANENTLY REVERTING)*********        ***
+008830      MOVE TELLER-ID TO EX-TELLER-ID
+H18181*     MOVE EDIT-MASK TO EX-EDIT-MASK
+008850     MOVE CURRN TO EX-CURRN
+008860     MOVE DEP-TYPE-4 TO EX-DEP-TYPE-4
+008870     MOVE JR01-TIME-ARR TO EX-JR01-TIME
+008880     MOVE ACCT-TYPE-ARR TO EX-ACCT-TYPE
+008890     MOVE TEMP-INT-CAT-ARR TO EX-TEMP-INT-CAT
+008900     MOVE ACCT-NO TO EX-ACCT-NO
+008910     MOVE HOME-BR-NO TO EX-HOME-BR-NO
+008920     MOVE VAL-DATE TO EX-VAL-DATE
+008930     MOVE TRN-TYPE-ARR TO EX-TRN-TYPE
+008940     MOVE CHQ-NO-ARR TO EX-CHQ-NO
+008950     MOVE TXN-AMT TO EX-TXN-AMT
+008960     MOVE SUP-ID TO EX-SUP-ID
+008970     MOVE CHECKER1 TO EX-CHECKER1
+008980     MOVE CHECKER2 TO EX-CHECKER2
+008990     MOVE TRAN-CODE-ARR TO EX-TRAN-CODE
+009000     MOVE ENQ-DESC-ARR TO EX-ENQ-DESC
+009010     MOVE SYSTEM-ARR TO EX-SYSTEM
+009020     MOVE WA-USER-ID1 TO EX-WA-USER-ID1
+H18618************* START OF IR 18618 *********
+H18618*    MOVE POST-VAL-DATE TO EX-POST-VAL-DATE
+H18618     MOVE ZEROS TO EX-POST-VAL-DATE
+H18618************* END OF IR 18618 *********
+009070*****************START OF IR 70366(PERMANENTLY REVERTING)*********        ***
+R71265**START OF REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+009090************START OF IR 71265****************************
+A70366*--------------- START OF IR 70366 --------------
+ARYA82*----------- START OF IR 17745 -----------------------
+009120     MOVE EX-TRAN-CODE TO WA-TRAN-CODE
+009130     MOVE ACCT-NO      TO WA-ACCT-NO
+009140     MOVE VAL-DATE     TO WA-TRAN-DATE
+009150*       MOVE 0 TO WA-TEMP-ICID
+009160*    IF WA-TRAN-CODE = 51170
+009170*       PERFORM G001-READ-ICDD  THRU G199-ICDD-EXIT
+009180*    END-IF
+009190     IF WA-TRAN-CODE = 51071
+009200        MOVE "N"         TO  WA-REC-FOUND
+009210        MOVE "N"         TO  WA-REC-NOT-FOUND
+009220        PERFORM G001-READ-ICID  THRU G199-EXIT
+009230                       UNTIL WA-REC-FOUND = 'Y'
+009240                       OR WA-REC-NOT-FOUND = 'Y'
+009250        IF WA-REC-FOUND = 'Y'
+009260           MOVE WI-ICID-TXN-BRCH TO EX-BR-NO
+R71265*          MOVE 1 TO WA-TEMP-ICID
+009280*       ELSE
+R71265*          MOVE 0 TO WA-TEMP-ICID
+009300        END-IF
+009310     END-IF
+R71265*       MOVE WA-TEMP-ICID TO EX-TEMP-ICID
+009330*********************END OF IR 71265************************
+A70366*--------------- END OF IR 70366 -----------------
+009350************END OF IR 71265****************************
+R71265**END OF  REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+009370*****************END   OF IR 70366(PERMANENTLY REVERTING)*********        ***
+009380     WRITE JR-RECORD
+ARYA82*----------- END OF IR 17745 -------------------------
+009400*****************START OF IR 70366(PERMANENTLY REVERTING)*********        ***
+R71265**START OF REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+009420************START OF IR 71265****************************
+A70366*--------------------- START OF IR 70366 -----------
+A70366*   END-IF
+A70366*--------------- END OF IR 70366 -----------------
+009460************END  OF IR 71265****************************
+R71265**END OF  REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+009480*****************END   OF IR 70366(PERMANENTLY REVERTING)*********        ***
+H18181
+009500     GO TO FETCH-LOOP.
+
+009520
+A70109*************START OF IR 70109*************
+A70109 ATM-INB.
+A70109  MOVE WA-BYTES TO EX-BYTES2
+A70109  MOVE BR-NO TO EX-BR-NO2
+A70109  MOVE TELLER-ID TO EX-TELLER-ID2
+A70109  MOVE CURRN TO EX-CURRN2
+A70109  MOVE DEP-TYPE-4 TO EX-DEP-TYPE-42
+A70109  MOVE JR01-TIME-ARR TO EX-JR01-TIME2
+A70109  MOVE ACCT-TYPE-ARR TO EX-ACCT-TYPE2
+A70109  MOVE TEMP-INT-CAT-ARR TO EX-TEMP-INT-CAT2
+A70109  MOVE ACCT-NO TO EX-ACCT-NO2
+******************START IR-70109 UAT OBSERVATION**********
+******************START IR-70109*******************
+A70109  MOVE HOME-BR-NO TO EX-HOME-BR-NO2
+009670*  MOVE BR-NO TO EX-HOME-BR-NO2
+******************END IR-70109*********************
+******************END IR-70109 UAT OBSERVATION**********
+A70109  MOVE VAL-DATE TO EX-VAL-DATE2
+A70109  MOVE TRN-TYPE-ARR TO EX-TRN-TYPE2
+A70109  MOVE CHQ-NO-ARR TO EX-CHQ-NO2
+A70109  MOVE TXN-AMT TO EX-TXN-AMT2
+A70109  MOVE SUP-ID TO EX-SUP-ID2
+A70109  MOVE CHECKER1 TO EX-CHECKER12
+A70109  MOVE CHECKER2 TO EX-CHECKER22
+A70109  MOVE TRAN-CODE-ARR TO EX-TRAN-CODE2
+A70109  MOVE ENQ-DESC-ARR TO EX-ENQ-DESC2
+A70109  MOVE SYSTEM-ARR TO EX-SYSTEM2
+A70109  MOVE WA-USER-ID1 TO EX-WA-USER-ID12
+A70109  MOVE ZEROS TO EX-POST-VAL-DATE2
+R71265*****************START OF REVERTING IR 71265**********************
+009830**************************START OF IR 71265***********************
+R71265* MOVE ZEROS TO EX-TEMP-ICID2
+009850**************************END OF IR 71265*************************
+R71265*******************END OF REVERTING IR 71265**********************
+A70109  WRITE JR-RECORD2.
+A70109 ATM-INB-EXIT.
+A70109        EXIT.
+
+
+A70109 MR-FILE.
+A70109  MOVE WA-BYTES TO EX-BYTES3
+A70109  MOVE BR-NO TO EX-BR-NO3
+A70109  MOVE TELLER-ID TO EX-TELLER-ID3
+A70109  MOVE CURRN TO EX-CURRN3
+A70109  MOVE DEP-TYPE-4 TO EX-DEP-TYPE-43
+A70109  MOVE JR01-TIME-ARR TO EX-JR01-TIME3
+A70109  MOVE ACCT-TYPE-ARR TO EX-ACCT-TYPE3
+A70109  MOVE TEMP-INT-CAT-ARR TO EX-TEMP-INT-CAT3
+A70109  MOVE ACCT-NO TO EX-ACCT-NO3
+A70764*---------------CHANGES FOR IR-70764 POS VVR-------
+A70109  MOVE HOME-BR-NO TO EX-HOME-BR-NO3
+010040*  MOVE BR-NO TO EX-HOME-BR-NO3
+A70764*---------------CHANGES END FOR IR-70764 POS VVR---
+A70109  MOVE VAL-DATE TO EX-VAL-DATE3
+A70109  MOVE TRN-TYPE-ARR TO EX-TRN-TYPE3
+A70109  MOVE CHQ-NO-ARR TO EX-CHQ-NO3
+A70109  MOVE TXN-AMT TO EX-TXN-AMT3
+A70109  MOVE SUP-ID TO EX-SUP-ID3
+A70109  MOVE CHECKER1 TO EX-CHECKER13
+A70109  MOVE CHECKER2 TO EX-CHECKER23
+A70109  MOVE TRAN-CODE-ARR TO EX-TRAN-CODE3
+A70109  MOVE ENQ-DESC-ARR TO EX-ENQ-DESC3
+A70109  MOVE SYSTEM-ARR TO EX-SYSTEM3
+A70109  MOVE WA-USER-ID1 TO EX-WA-USER-ID13
+A70109  MOVE ZEROS TO EX-POST-VAL-DATE3
+R71265*****************START OF REVERTING IR 71265**********************
+010190**************************START OF IR 71265***********************
+R71265* MOVE ZEROS TO EX-TEMP-ICID3
+010210**************************END OF IR 71265*************************
+R71265*******************END OF REVERTING IR 71265**********************
+A70109  WRITE JR-RECORD3.
+A70109 MR-FILE-EXIT.
+A70109        EXIT.
+A70109***************END OF IR 70109***********
+
+
+010290 A200-LOGON.
+010300     CALL "DBIO".
+010310     MOVE 95                  TO DBIO-CALL-FUNC.
+010320     CALL "DBIO" USING DBIO-CALL-PARAM
+010330                       DBIO-CALL-SYS-AREA
+010340                       DBIO-CALL-KEY-AREA
+010350                       DBIO-CALL-STATUS.
+010360     IF DBIO-CALL-STATUS = "****"
+010370        DISPLAY "SYGENL:(A200-LOGON) GOOD DB SIGNON"
+010380     ELSE
+010390        DISPLAY "SYGENL:(A200-LOGON) OPEN ERROR - "
+010400     END-IF.
+010410 A209-EXIT.
+010420     EXIT.
+010430
+010440 SIGN-OFF.
+010450     close JR-EXTRACT.
+010460*****************START OF IR 70366(PERMANENTLY REVERTING)*********        ***
+R71265**START OF REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+010480************START OF IR 71265****************************
+A70366*-------------- START OF IR 70366 ------
+010500*    close JR-EXTRACT1.
+A70366*--------------- END OF IR 70366 --------
+010520************END OF IR 71265****************************
+R71265**END OF  REVERTING IR 71265 BUT KEEPING 70366 REVERTED*****
+010540*****************END   OF IR 70366(PERMANENTLY REVERTING)*********        ***
+A70109*************START OF IR 70109***********
+A70109     CLOSE JR-EXTRACT2.
+A70109     CLOSE JR-EXTRACT3.
+A70109*********END OF IR 70109****************
+010590     IF SQLCODE IN SQLCA = 1403
+010600     COPY MISERR02 IN LIBRYMIS.
+010610 STOP RUN.
+010620 SQL-ERROR.
+010630     EXEC SQL WHENEVER SQLERROR CONTINUE END-EXEC.
+010640     DISPLAY " ".
+010650     DISPLAY "ORACLE ERROR DETECTED:".
+010660     DISPLAY " ".
+010670     DISPLAY SQLERRMC.
+010680     EXEC SQL ROLLBACK WORK RELEASE END-EXEC.
+H18181     CALL "ABORT".
+H18181* STOP RUN.
+010710******************************
+010720
+010730 A100-READ-CARD.
+010740     CALL "UTCARD" USING WA-PARM.
+010750 A109-EXIT.
+010760  EXIT.
+010770
+010780 A110-GET-TODAY-DATE.
+010790     CALL "UT1999" USING
+010800                         UT1999CA-CALL-AREA
+010810     MOVE UT1999CA-DD  TO UT0030-DATE-DD
+010820     MOVE UT1999CA-MM  TO UT0030-DATE-MM
+010830     MOVE UT1999CA-CC  TO UT0030-DATE-CC
+010840     MOVE UT1999CA-YY  TO UT0030-DATE-YY
+010850     MOVE 1            TO UT0030-FUNCTION
+010860     CALL "UT0030" USING
+010870                         UT0030-FUNCTION
+010880                         UT0030-DATE-AREA
+010890                         UT0030-BINARY-DATE
+010900     MOVE UT0030-BINARY-DATE TO WA-TODAYS-DT.
+010910 A119-EXIT.
+010920     EXIT.
+
+P22458  A120-MAKE-QUERY.
+P22458    STRING
+P22458     "SELECT LPAD(TRIM(BRCH),5,'0'),"
+P22458     "TELLER,"
+P22458                  "EDIT_MASK,"
+P22458    "DECODE(CURRENCY_CODE,'   ',SUBSTR("
+P22458         WA-JR
+P22458               ".GL_CLASS_CODE,6,3),"
+P22458                 " CURRENCY_CODE),"
+P22458                  WA-JR
+P22458                 "_TIME,"
+P22458                  "SUBSTR(DATA_01,1,4),"
+P22458                  WA-JR
+P22458                  ".INT_CAT,"
+P22458                  "CUSM_NO,"
+P22458                  "HOME_BRNCH,"
+P22458                  WA-JR
+P22458                 ".TRAN_DATE,"
+P22458                 " TRN_TYP,"
+P22458                 " SUBSTR(DATA_01,5,8),"
+P22458                 " ABS(BASECONV.CONVDATA(DATA_01,13,8)),"
+R71977****************START OF IR 71977*********************
+P22458*                " NVL(SUP_ID,0),"
+P22458*                " NVL(CHECKER1_ID,0),"
+P22458*                " NVL(CHECKER2_ID,0),"
+R71977                 " NVL(" WA-JR ".SUP_ID,0),"
+R71977                 " NVL(" WA-JR ".CHECKER1_ID,0),"
+R71977                 " NVL(" WA-JR ".CHECKER2_ID,0),"
+R71977*****************END OF IR 71977*********************
+P22458                 WA-JR
+P22458                 ".TRAN_CODE,"
+P22458                 " ENQUIRY_DESC,"
+P22458                 WA-JR
+P22458                 ".SYST,"
+H18181* "DECODE(NVL(SUP_ID,0),0,DECODE(NVL(CHECKER2_ID,0),0,DECODE"
+H18181* "(NVL(CHECKER1_ID,0),0,DECODE(TELLER,0,'0000000',TELLER)"
+H18181* ",CHECKER1_ID),CHECKER2_ID),SUP_ID),"
+H18618************* START OF IR 18618 *********
+H18618*                " NVL(POST_VAL_DATE,0),"
+H18618************* END OF IR 18618 *********
+ARYA82*-------------- START OF IR 17745 ------------
+P22458                 " DEP_TYPE_4,"
+011360*                "SUBSTR(DATA_01,93,10),"
+011370*                "MCURR_TRAN_CODE,"
+011380                 WA-JR
+011390                 ".JRNL_NO"
+ARYA82*----------- END OF IR 17745 ---------------
+011410*                " DEP_TYPE_4"
+P22458             " FROM "
+P22458                  WA-JR
+H18618************* START OF IR 18618 *********
+H18618*               ",MCAD,TXBI,OCID"
+R71265*****************START OF REVERTING IR 71265**********************
+011470********************START OF IR 71265*****************************
+011480                ",MCAD,TXBI"
+H18618*               ",TXBI"
+011500********************END   OF IR 71265*****************************
+R71265*******************END OF REVERTING IR 71265**********************
+H18618************* END OF IR 18618 *********
+P22458                " WHERE"
+P22458                 " ("
+P22458                WA-JR
+P22458                ".TRAN_DATE = "
+P22458                 WA-TODAYS-DT
+P22458                 " OR POST_DATE = "
+P22458                 WA-TODAYS-DT
+P22458                 ")  AND "
+R71265*****************START OF REVERTING IR 71265**********************
+011620********************START OF IR 71265*****************************
+P22458                 "  JRNL_DATE (+) ="
+P22458                  WA-JR
+P22458                  "_DATE  AND "
+011660*************************END OF IR 71265**************************
+R71265*******************END OF REVERTING IR 71265**********************
+P22682                 WA-JR
+P22682                 ".BRCH >= "
+P22682                 PARAM-FROM-BRCH
+P22682                 " AND "
+P22682                WA-JR
+P22682                ".BRCH <= "
+P22682                 PARAM-TO-BRCH
+P22682                 " AND "
+A70109******************START OF IR 70109*************
+P22852*                 WA-JR
+H70177*----- START OF IR 70177 ---
+H70177*                ".BRCH <> "
+H70177*                 WA-ATM-BRANCH-NO
+H70177*                ".BRCH NOT IN "
+H70177*                 " (" WA-ATM-BRANCH-NO "," WA-INB-BRANCH-NO ")"
+H70177*----- END OF IR 70177 ---
+P22852*                 " AND "
+A70109***************END OF IR 70109**************
+R71265*****************START OF REVERTING IR 71265**********************
+011870********************START OF IR 71265*****************************
+011880*
+P22458                 " MCAD.JRNL_NO (+) = "
+P22458                 WA-JR
+P22458                 ".JRNL_NO  AND"
+P22458                 " MCAD.JRNL_TIME (+) = "
+P22458                  WA-JR
+P22458                  "."
+P22458                  WA-JR
+P22458                  "_TIME  AND"
+011970********************END OF IR 71265******************************
+R71265*******************END OF REVERTING IR 71265**********************
+P22458                  " SUBSTR("
+P22458                   WA-JR
+P22458                   ".TRAN_CODE,2,6)= TXBI.TRAN_CODE AND "
+P22458                 " NON_FIN_TXN_23 = '0' AND "
+P22458                 WA-JR
+H18618******************* START OF IR 18618 *************
+H18618                 ".SYST NOT LIKE 'GEN'"
+H18618*                ".SYST NOT LIKE 'GEN'  AND"
+H18618*                " TO_CHAR(OCID.JRNL_NO (+)) ="
+H18618*                  WA-JR
+H18618*                 ".JRNL_NO   AND"
+H18618*                " OCID.TRAN_DATE (+) = "
+H18618*                WA-JR
+H18618*                ".TRAN_DATE"
+H18181*                 " ORDER BY "
+H18181*                 " 1"
+H18618******************* END OF IR 18618 *************
+P22458                 DELIMITED BY SIZE INTO DYNSTMT-ARR
+P22458                 EXHIBIT NAMED DYNSTMT.
+P22458*            END-EXEC.
+P22458  A129-QUERY-EXIT.
+P22458      EXIT.
+ARYA82*----------------- START OF IR 17745-----------------
+012220 G001-READ-ICID.
+012230      EXEC SQL
+012240      DECLARE GETICID CURSOR FOR
+012250              SELECT ICID_BRANCH_NO,
+012260                     ICID_CLRNG_TYPE,
+012270                     ICID_INSTR_NO,
+012280                     ICID_ACCT_NO,
+012290                     ICID_CLEAR_ACCT,
+012300                     ICID_JRNL_NO,
+012310                     ICID_TXN_BRCH
+012320              FROM ICID
+012330              WHERE ICID_SOC_NO = '003' AND
+012340                    ICID_BRANCH_NO = :HOME-BR-NO  AND
+012350                    ICID_CLRNG_TYPE = 'O' AND
+012360                    ICID_INSTR_NO = :CHQ-NO AND
+012370                    ICID_ACCT_NO = :WA-ACCT-NO AND
+012380                    ICID_TRN_DATE = :WA-TRAN-DATE
+012390     END-EXEC.
+012400     EXEC SQL
+012410          OPEN GETICID
+012420     END-EXEC.
+012430     IF SQLCODE NOT = ZEROS
+012440        DISPLAY " ICID ERROR WHILE OPENING CURSOR" SQLCODE
+U75556************** START OF IR 75556 **************************
+U75556        MOVE "Y" TO WA-REC-NOT-FOUND
+U75556        EXEC SQL
+U75556             CLOSE GETICID
+U75556        END-EXEC
+U75556        GO TO G199-EXIT
+U75556************** END OF IR 75556 ****************************
+012520     END-IF
+012530     IF SQLCODE = ZEROS
+012540        EXEC SQL
+012550             FETCH GETICID
+012560                     INTO :WI-ICID-BRANCH-NO,
+012570                          :WI-ICID-CLRNG-TYPE,
+012580                          :WI-ICID-INSTR-NO,
+012590                          :WI-ICID-ACCT-NO,
+012600                          :WI-ICID-CLEAR-ACCT,
+012610                          :WI-ICID-JRNL-NO,
+012620                          :WI-ICID-TXN-BRCH
+012630         END-EXEC
+012640         IF SQLCODE NOT = ZEROS AND 1403
+012650            DISPLAY " ICID ERROR WHILE FETCHING " SQLCODE
+012660            MOVE "Y" TO WA-REC-NOT-FOUND
+012670            EXEC SQL
+012680                 CLOSE GETICID
+012690            END-EXEC
+012700            GO TO G199-EXIT
+012710         END-IF
+012720         IF WI-ICID-JRNL-NO    =  WA-JRNL-NO
+012730            DISPLAY "RECORD FOUND IN ICID"
+012740            MOVE "Y" TO WA-REC-FOUND
+A70129*--------- START OF IR 70129 ---------------
+012760*           EXEC SQL
+012770*                CLOSE GETICID
+012780*           END-EXEC
+A70129*--------------------- END OF IR 70129 ---
+012800         ELSE
+012810            MOVE "Y" TO WA-REC-NOT-FOUND
+012820         END-IF
+A70129*------------ START OF IR 70129 --------------
+012840         EXEC SQL
+012850              CLOSE GETICID
+012860         END-EXEC
+A70129*---------------------END OF IR 70129 -----------
+012880     END-IF.
+012890 G199-EXIT.
+012900     EXIT.
+ARYA82*------------- END OF IR 17745 -------------------------
+012920
+R71265*****************START OF REVERTING IR 71265**********************
+012940*********************START OF IR 71265***********************
+012950*G001-READ-ICDD.
+012960*    EXEC SQL
+012970*     SELECT  COUNT(1) INTO :COUNT-ICDD
+012980*     FROM ICDD WHERE
+012990*         ICDD_SOC_NO = '003' AND
+013000*         ICDD_BRANCH_NO = :HOME-BR-NO AND
+013010*         ICDD_CLRNG_TYPE = 'O' AND
+013020*         ICDD_INSTR_NO = :CHQ-NO AND
+013030*         ICDD_ACCT_NO = :WA-ACCT-NO AND
+013040*         ICDD_TRN_DATE = :WA-TRAN-DATE AND
+013050*         ICDD_JRNL_NO = :WA-JRNL-NO
+013060*    END-EXEC
+013070*    IF SQLCODE NOT = ZEROS
+013080*       DISPLAY " ICDD READ ERROR" SQLCODE
+013090*    END-IF
+013100*    IF SQLCODE = ZEROS
+R71265*        IF COUNT-ICDD > 0
+R71265*           MOVE 1 TO WA-TEMP-ICID
+013130*        ELSE
+013140*           MOVE 0 TO WA-TEMP-ICID
+013150*        END-IF
+013160*    END-IF.
+013170*G199-ICDD-EXIT.
+013180*    EXIT.
+013190*********************END OF IR 71265************************
+R71265*******************END OF REVERTING IR 71265**********************
 
