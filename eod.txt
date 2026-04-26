@@ -1,44 +1,140 @@
- fnsonli  5167     1  1  Apr 14  ?         6:03 B24GWBLTLS -d 1 -r 21 -lrf 40
- fnsonli 10420     1  1  Apr 14  ?        400:24 B24GWBLTLS -d 1 -r 25 -lrf 40
- fnsonli 26517     1  1  Apr 14  ?         0:34 B24GWBLTLS -d 1 -r 117 -lrf 40
- fnsonli  2984     1  0 00:01:21 ?         0:21 B24GWBLTLS -d 1 -r 07 -lrf 40
- fnsonli 21910     1  0 00:02:11 ?         0:00 B24GWBL -d 1 -r 24 -lrf 40
- fnsonli 23120     1  0 00:02:15 ?         0:03 B24GWBLENC -d 1 -r 74 -lrf 40
- fnsonli 28187     1  0 00:02:30 ?         0:03 B24GWBLENC -d 1 -r 81 -lrf 40
- fnsonli 19244     1  0 00:01:59 ?         0:21 B24GWBLTLS -d 1 -r 16 -lrf 40
- fnsonli 27012     1  0 00:02:28 ?         0:03 B24GWBLENC -d 1 -r 80 -lrf 40
- fnsonli 58422     1  0 00:01:03 ?         0:28 B24GWBLTLS -d 1 -r 01 -lrf 40
- fnsonli 59430     1  0 00:01:07 ?         0:22 B24GWBLTLS -d 1 -r 03 -lrf 40
- fnsonli  6761     1  0  Apr 14  ?         0:41 B24GWBLTLS -d 1 -r 22 -lrf 40
- fnsonli 33354     1  0 00:02:37 ?         0:03 B24GWBLENC -d 1 -r 84 -lrf 40
- fnsonli  1754     1  0  Apr 14  ?         0:31 B24GWBLTLS -d 1 -r 12 -lrf 40
- fnsonli 17504     1  0 00:01:54 ?         0:21 B24GWBLTLS -d 1 -r 13 -lrf 40
- fnsonli  1643     1  0  Apr 14  ?        398:09 B24GWBLTLS -d 1 -r 11 -lrf 40
- fnsonli 30864     1  0 00:02:32 ?         0:03 B24GWBLENC -d 1 -r 82 -lrf 40
- fnsonli 19778     1  0  Apr 14  ?         0:11 B24GWBLTLS -d 1 -r 85 -lrf 40
- fnsonli 18325     1  0 00:01:56 ?         0:20 B24GWBLTLS -d 1 -r 15 -lrf 40
- fnsonli 15694     1  0 00:01:50 ?         0:20 B24GWBLTLS -d 1 -r 10 -lrf 40
- fnsonli 26334     1  0  Apr 14  ?         1:19 B24GWBLTLS -d 1 -r 116 -lrf 40
- fnsonli 58791     1  0 00:01:05 ?         0:20 B24GWBLTLS -d 1 -r 02 -lrf 40
- fnsonli 24583     1  0 00:02:19 ?         0:03 B24GWBLENC -d 1 -r 76 -lrf 40
- fnsonli  2021     1  0 00:01:17 ?         0:22 B24GWBLTLS -d 1 -r 06 -lrf 40
- fnsonli 24672     1  0  Apr 14  ?         6:40 B24GWBLTLS -d 1 -r 88 -lrf 40
- fnsonli 36258     1  0 00:02:45 ?         0:07 B24GWBLTLS -d 1 -r 102 -lrf 40
- fnsonli  5730     1  0 00:01:27 ?         0:21 B24GWBLTLS -d 1 -r 08 -lrf 40
- fnsonli 20060     1  0 00:02:03 ?         0:21 B24GWBLTLS -d 1 -r 17 -lrf 40
- fnsonli  8608     1  0  Apr 14  ?         0:39 B24GWBLTLS -d 1 -r 23 -lrf 40
- fnsonli 20958     1  0  Apr 14  ?        399:08 B24GWBLTLS -d 1 -r 86 -lrf 40
- fnsonli  3335     1  0  Apr 14  ?         7:00 B24GWBLTLS -d 1 -r 18 -lrf 40
- fnsonli 35653     1  0 00:02:43 ?         0:07 B24GWBLTLS -d 1 -r 99 -lrf 40
- fnsonli 32456     1  0 00:02:35 ?         0:03 B24GWBLENC -d 1 -r 83 -lrf 40
- fnsonli 26046     1  0 00:02:26 ?         0:03 B24GWBLENC -d 1 -r 79 -lrf 40
- fnsonli 25043     1  0 00:02:21 ?         0:03 B24GWBLENC -d 1 -r 77 -lrf 40
- fnsonli 21904     1  1  Apr 14  ?        397:35 B24GWBLTLS -d 1 -r 87 -lrf 40
- fnsonli  1364     1  0 00:01:14 ?         0:22 B24GWBLTLS -d 1 -r 05 -lrf 40
- fnsonli 12335     1  0 00:01:40 ?         0:21 B24GWBLTLS -d 1 -r 09 -lrf 40
- fnsonli 20869     1  0 00:02:07 ?         0:02 B24GWBLTLS -d 1 -r 19 -lrf 40
- fnsonli 25554     1  0 00:02:24 ?         0:03 B24GWBLENC -d 1 -r 78 -lrf 40
- fnsonli   798     1  0 00:01:11 ?         0:22 B24GWBLTLS -d 1 -r 04 -lrf 40
- fnsonli 11943     1  0  Apr 14  ?        397:55 B24GWBLTLS -d 1 -r 70 -lrf 40
- fnsonli 23888     1  0 00:02:17 ?         0:03 B24GWBLENC -d 1 -r 75 -lrf 40
- fnsonli 26132     1  0  Apr 14  ?         1:49 B24GWBLTLS -d 1 -r 114 -lrf 40
+RPTAPPL4:DAY:/fns/i/r/cat:-)ll cfpd0344ms_02022011
+-rwxr-xr-x   1 fnsonli    fnsir          123 Nov 23  2008 cfpd0344ms_02022011
+RPTAPPL4:DAY:/fns/i/r/cat:-)cat cfpd0344ms_02022011
+cfpr9507
+cfpd0vvrms
+if [ $? -ne 0 ];then
+  echo " SY0VVR has completed with errors . plz check "
+  exit 1
+fi
+cfpd0344ms_1
+
+i ran this unix job in this cfpr9507 job ran properly job i observed checkrc 12 in cfpd0vvrms job.
+
+i will share exact unix scripts and ouput of the logs.
+
+this is log of the job
+*** 20260420 ***
+*** Start of  SY9507  at  Tue Apr 21 08:15:06 IST 2026
+   -   |08:15:06.547526|              DBIO:(A100) FILE-INDEX, FILE-NUM, NO-DATA-SETS: 0497 0496 0494
+   -   |08:15:06.547646|              DBIO:(A100) FIRST ENTRY = AACH
+   -   |08:15:06.550663|              UT9004: (A000) INITIAL SET TO BE DONE
+SY9507:(A100) GOOD DB SIGNON
+SY9507:(B000) NO MORE RECORDS IN ED1P
+SY9507:(B000) LAST TXN NO ACCESSED . 99999
+   -   |08:15:12.789321|              IOMISC:(R000) COMMITED ...
+*** End   of  SY9507  at  Tue Apr 21 08:15:12 IST 2026  - RC =  0
+Y
+RUNNING SY0VVR IN MULTISTREAM MODE
+########################################################################
+
+         RUNNING MULTISTREAMING SETUP FOR SINGLE APPLICATION SETUP
+
+########################################################################
+Starting SY0VVR Stream No: 001
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 002
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 003
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 004
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 005
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 006
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 007
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 008
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 009
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 010
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 011
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 012
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 013
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 014
+
+*** 20260420 ***
+Starting SY0VVR Stream No: 015
+
+"VVR_MONITOR.log" 2790L, 74442C                                                                                                                                                                                            13,2          Top
+
+  SY0VVR_073      09:00:54        09:00:59        0
+
+  SY0VVR_074      09:00:56        09:01:01        0
+
+  SY0VVR_075      09:00:58        09:01:04        0
+
+  SY0VVR_076      09:01:00        09:01:05        0
+
+  SY0VVR_077      09:01:02        09:01:07        0
+
+  SY0VVR_078      09:01:04        09:01:09        0
+
+  SY0VVR_079      09:01:06        09:01:11        0
+
+  SY0VVR_080      09:01:08        09:01:13        0
+
+  SY0VVR_081      09:01:10        09:01:15        0
+
+  SY0VVR_082      09:01:12        09:01:18        0
+
+  SY0VVR_083      09:01:14        09:01:19        0
+
+  SY0VVR_084      09:01:16        09:01:22        0
+
+  SY0VVR_085      09:01:18        09:01:23        0
+
+  SY0VVR_086      09:01:20        09:01:25        0
+
+  SY0VVR_087      09:01:22        09:01:27        0
+
+  SY0VVR_088      09:01:24        09:01:29        0
+
+  SY0VVR_089      09:01:26        09:01:32        0
+
+  SY0VVR_090      09:01:28        09:01:33        0
+
+  SY0VVR_091      09:01:30        09:01:35        0
+
+  SY0VVR_092      09:01:32        09:01:37        0
+
+  SY0VVR_093      09:01:34        09:01:42        0
+
+  SY0VVR_094      09:01:36        09:01:41        0
+
+  SY0VVR_095      09:01:38        09:01:43        0
+
+  SY0VVR_096      09:01:40        09:01:46        0
+ concatenating VVREX__??? to VVR_TOTAL ....
+File does not exist
+VVR-TOTAL FILE NOT FOUND
+
+*************************************************************
+*                                                           *
+*           JOB HAS COMPLETED WITH RETURN CODE 012          *
+*                                                           *
+*           PLEASE CALL SUPPORT BEFORE CONTINUING           *
+*                                                           *
+*               To continue - reply YES                     *
+*                To Abort enter<CNTL-C>                     *
+*                                                           *
+*************************************************************
