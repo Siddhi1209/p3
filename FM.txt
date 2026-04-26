@@ -1,90 +1,667 @@
+RPTAPPL4:DAY:/fns/i/r/cat:-)cat cfpd0vvrms
+#  SY0VVR  VVR Report Multi-stream job
 
-#!/bin/ksh
-
-#############################################
-# STEP 0: ORACLE ENV
-#############################################
-export ORACLE_SID=ofsadb1
-export ORACLE_HOME=/oracle_19c/app/oracle/product/19.3
-export PATH=$ORACLE_HOME/bin:/usr/bin:/bin
-
-#############################################
-# STEP 1: GET V_DATE FROM DB
-#############################################
-V_DATE=$(sqlplus -s / <<EOF
-set heading off feedback off pages 0 verify off echo off
-select distinct V_DATE from inctarchival;
-exit;
-EOF
-)
-
-# Clean spaces/newlines
-V_DATE=$(echo "$V_DATE" | tr -d '\r' | xargs)
-
-echo "V_DATE=$V_DATE"
-
-#############################################
-# STEP 2: CONVERT DATE (DD-MON-YYYY → YYYYMMDD)
-#############################################
-V_DATE_FMT=$(echo "$V_DATE" | awk -F- '{
-mon["JAN"]="01"; mon["FEB"]="02"; mon["MAR"]="03"; mon["APR"]="04";
-mon["MAY"]="05"; mon["JUN"]="06"; mon["JUL"]="07"; mon["AUG"]="08";
-mon["SEP"]="09"; mon["OCT"]="10"; mon["NOV"]="11"; mon["DEC"]="12";
-print $3 mon[$2] $1
-}')
-
-echo "V_DATE_FMT=$V_DATE_FMT"
-
-#############################################
-# STEP 3: GET YESTERDAY DATE (AIX SAFE)
-#############################################
-YESTERDAY=$(TZ=GMT+24 date +%Y%m%d)
-
-echo "YESTERDAY=$YESTERDAY"
-
-#############################################
-# STEP 4: VALIDATION
-#############################################
-if [ "$V_DATE_FMT" != "$YESTERDAY" ]; then
-    echo "❌ Archival NOT done for yesterday"
-    exit 1
+#---MARK-PHASE1-MULTISTREAM
+pgm=`basename $0`
+program=SY0VVR
+mscard=$card/SY0VVRMS.card
+run_mode=' -s'
+jobname=cfpd0vvr
+summary_file=$program.summary.$BANCS_HOSTNO.out
+export summary_file=$summary_file
+export MULTISTREAM_SY0VVR="N"
+# Refresh Summary file
+echo > $sysout/$summary_file
+if [ ! -s $card/SY0VVRMS.card   ];then
+   echo "ATTENTION ! CANNOT FIND MULTI STREAM CARD ..."
+   echo "ABORTING PROCESSING.... "
+   exit
 fi
+ms_flag=`grep '       SPEC$STREAM' $mscard|awk  '{print $2 }'`
+echo $ms_flag
+stream_no=`grep '       SPEC$STREAM' $mscard|awk  '{print $3 }'`
+if [ $ms_flag = "Y" ];then
+   echo "RUNNING SY0VVR IN MULTISTREAM MODE "
+   export MULTISTREAM_SY0VVR="Y"
+else
+   export MULTISTREAM_SY0VVR="N"
+   echo "MULTI STREAM MODE NOT CHOSEN...."
+   cfpd0vvr
+   exit
+fi
+if [ "$BANCS_MULTI_APPS" = "Y" ];
+then
+    echo "########################################################################"
+    echo
+    echo "         RUNNING MULTISTREAMING SETUP FOR MULTI APPLICATION SETUP       "
+    echo
+    echo "########################################################################"
+else
+    echo "########################################################################"
+    echo
+    echo "         RUNNING MULTISTREAMING SETUP FOR SINGLE APPLICATION SETUP      "
+    echo
+    echo "########################################################################"
+fi
+#---MARK-PHASE1-MULTISTREAM
 
-echo "✅ Archival verified"
+echo Starting SY0VVR Stream No:  001
+export stream=SY0VVR_001
+export outfile=SY0VVR_001.1.out
+cfpd0vvr_001 -s 2>&1 &
+sleep 2
 
-#############################################
-# STEP 5: CREATE ORACLE DIRECTORY
-#############################################
-sqlplus -s / <<EOF
-create or replace directory INHO as '/fns/id/r/spool/INHO_DUMPS/INHO_DUMP_${V_DATE_FMT}';
-grant all on directory INHO to public;
-exit;
-EOF
+echo Starting SY0VVR Stream No:  002
+export stream=SY0VVR_002
+export outfile=SY0VVR_002.1.out
+cfpd0vvr_002 -s 2>&1 &
+sleep 2
 
-#############################################
-# STEP 6: CREATE OS DIRECTORY
-#############################################
-DUMP_PATH="/fns/id/r/spool/INHO_DUMPS/INHO_DUMP_${V_DATE_FMT}"
+echo Starting SY0VVR Stream No:  003
+export stream=SY0VVR_003
+export outfile=SY0VVR_003.1.out
+cfpd0vvr_003 -s 2>&1 &
+sleep 2
 
-mkdir -p "$DUMP_PATH" || {
-    echo "❌ Failed to create directory"
-    exit 1
-}
+echo Starting SY0VVR Stream No:  004
+export stream=SY0VVR_004
+export outfile=SY0VVR_004.1.out
+cfpd0vvr_004 -s 2>&1 &
+sleep 2
 
-cd "$DUMP_PATH" || exit 1
+echo Starting SY0VVR Stream No:  005
+export stream=SY0VVR_005
+export outfile=SY0VVR_005.1.out
+cfpd0vvr_005 -s 2>&1 &
+sleep 2
 
-#############################################
-# STEP 7: RUN EXPDP
-#############################################
-expdp \'/ as sysdba\' \
-directory=INHO \
-dumpfile=INHO_${V_DATE_FMT}_%U.dmp \
-logfile=INHO_${V_DATE_FMT}.log \
-parallel=4 \
-cluster=N \
-tables=FNSONLI.INHO
+echo Starting SY0VVR Stream No:  006
+export stream=SY0VVR_006
+export outfile=SY0VVR_006.1.out
+cfpd0vvr_006 -s 2>&1 &
+sleep 2
 
-#############################################
-# DONE
-#############################################
-echo "🎉 Export completed successfully"
+echo Starting SY0VVR Stream No:  007
+export stream=SY0VVR_007
+export outfile=SY0VVR_007.1.out
+cfpd0vvr_007 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  008
+export stream=SY0VVR_008
+export outfile=SY0VVR_008.1.out
+cfpd0vvr_008 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  009
+export stream=SY0VVR_009
+export outfile=SY0VVR_009.1.out
+cfpd0vvr_009 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  010
+export stream=SY0VVR_010
+export outfile=SY0VVR_010.1.out
+cfpd0vvr_010 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  011
+export stream=SY0VVR_011
+export outfile=SY0VVR_011.1.out
+cfpd0vvr_011 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  012
+export stream=SY0VVR_012
+export outfile=SY0VVR_012.1.out
+cfpd0vvr_012 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  013
+export stream=SY0VVR_013
+export outfile=SY0VVR_013.1.out
+cfpd0vvr_013 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  014
+export stream=SY0VVR_014
+export outfile=SY0VVR_014.1.out
+cfpd0vvr_014 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  015
+export stream=SY0VVR_015
+export outfile=SY0VVR_015.1.out
+cfpd0vvr_015 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  016
+export stream=SY0VVR_016
+export outfile=SY0VVR_016.1.out
+cfpd0vvr_016 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  017
+export stream=SY0VVR_017
+export outfile=SY0VVR_017.1.out
+cfpd0vvr_017 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  018
+export stream=SY0VVR_018
+export outfile=SY0VVR_018.1.out
+cfpd0vvr_018 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  019
+export stream=SY0VVR_019
+export outfile=SY0VVR_019.1.out
+cfpd0vvr_019 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  020
+export stream=SY0VVR_020
+export outfile=SY0VVR_020.1.out
+cfpd0vvr_020 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  021
+export stream=SY0VVR_021
+export outfile=SY0VVR_021.1.out
+cfpd0vvr_021 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  022
+export stream=SY0VVR_022
+export outfile=SY0VVR_022.1.out
+cfpd0vvr_022 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  023
+export stream=SY0VVR_023
+export outfile=SY0VVR_023.1.out
+cfpd0vvr_023 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  024
+export stream=SY0VVR_024
+export outfile=SY0VVR_024.1.out
+cfpd0vvr_024 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  025
+export stream=SY0VVR_025
+export outfile=SY0VVR_025.1.out
+cfpd0vvr_025 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  026
+export stream=SY0VVR_026
+export outfile=SY0VVR_026.1.out
+cfpd0vvr_026 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  027
+export stream=SY0VVR_027
+export outfile=SY0VVR_027.1.out
+cfpd0vvr_027 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  028
+export stream=SY0VVR_028
+export outfile=SY0VVR_028.1.out
+cfpd0vvr_028 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  029
+export stream=SY0VVR_029
+export outfile=SY0VVR_029.1.out
+cfpd0vvr_029 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  030
+export stream=SY0VVR_030
+export outfile=SY0VVR_030.1.out
+cfpd0vvr_030 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  031
+export stream=SY0VVR_031
+export outfile=SY0VVR_031.1.out
+cfpd0vvr_031 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  032
+export stream=SY0VVR_032
+export outfile=SY0VVR_032.1.out
+cfpd0vvr_032 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  033
+export stream=SY0VVR_033
+export outfile=SY0VVR_033.1.out
+cfpd0vvr_033 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  034
+export stream=SY0VVR_034
+export outfile=SY0VVR_034.1.out
+cfpd0vvr_034 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  035
+export stream=SY0VVR_035
+export outfile=SY0VVR_035.1.out
+cfpd0vvr_035 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  036
+export stream=SY0VVR_036
+export outfile=SY0VVR_036.1.out
+cfpd0vvr_036 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  037
+export stream=SY0VVR_037
+export outfile=SY0VVR_037.1.out
+cfpd0vvr_037 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  038
+export stream=SY0VVR_038
+export outfile=SY0VVR_038.1.out
+cfpd0vvr_038 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  039
+export stream=SY0VVR_039
+export outfile=SY0VVR_039.1.out
+cfpd0vvr_039 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  040
+export stream=SY0VVR_040
+export outfile=SY0VVR_040.1.out
+cfpd0vvr_040 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  041
+export stream=SY0VVR_041
+export outfile=SY0VVR_041.1.out
+cfpd0vvr_041 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  042
+export stream=SY0VVR_042
+export outfile=SY0VVR_042.1.out
+cfpd0vvr_042 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  043
+export stream=SY0VVR_043
+export outfile=SY0VVR_043.1.out
+cfpd0vvr_043 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  044
+export stream=SY0VVR_044
+export outfile=SY0VVR_044.1.out
+cfpd0vvr_044 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  045
+export stream=SY0VVR_045
+export outfile=SY0VVR_045.1.out
+cfpd0vvr_045 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  046
+export stream=SY0VVR_046
+export outfile=SY0VVR_046.1.out
+cfpd0vvr_046 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  047
+export stream=SY0VVR_047
+export outfile=SY0VVR_047.1.out
+cfpd0vvr_047 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  048
+export stream=SY0VVR_048
+export outfile=SY0VVR_048.1.out
+cfpd0vvr_048 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  049
+export stream=SY0VVR_049
+export outfile=SY0VVR_049.1.out
+cfpd0vvr_049 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  050
+export stream=SY0VVR_050
+export outfile=SY0VVR_050.1.out
+cfpd0vvr_050 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  051
+export stream=SY0VVR_051
+export outfile=SY0VVR_051.1.out
+cfpd0vvr_051 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  052
+export stream=SY0VVR_052
+export outfile=SY0VVR_052.1.out
+cfpd0vvr_052 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  053
+export stream=SY0VVR_053
+export outfile=SY0VVR_053.1.out
+cfpd0vvr_053 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  054
+export stream=SY0VVR_054
+export outfile=SY0VVR_054.1.out
+cfpd0vvr_054 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  055
+export stream=SY0VVR_055
+export outfile=SY0VVR_055.1.out
+cfpd0vvr_055 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  056
+export stream=SY0VVR_056
+export outfile=SY0VVR_056.1.out
+cfpd0vvr_056 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  057
+export stream=SY0VVR_057
+export outfile=SY0VVR_057.1.out
+cfpd0vvr_057 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  058
+export stream=SY0VVR_058
+export outfile=SY0VVR_058.1.out
+cfpd0vvr_058 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  059
+export stream=SY0VVR_059
+export outfile=SY0VVR_059.1.out
+cfpd0vvr_059 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  060
+export stream=SY0VVR_060
+export outfile=SY0VVR_060.1.out
+cfpd0vvr_060 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  061
+export stream=SY0VVR_061
+export outfile=SY0VVR_061.1.out
+cfpd0vvr_061 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  062
+export stream=SY0VVR_062
+export outfile=SY0VVR_062.1.out
+cfpd0vvr_062 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  063
+export stream=SY0VVR_063
+export outfile=SY0VVR_063.1.out
+cfpd0vvr_063 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  064
+export stream=SY0VVR_064
+export outfile=SY0VVR_064.1.out
+cfpd0vvr_064 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  065
+export stream=SY0VVR_065
+export outfile=SY0VVR_065.1.out
+cfpd0vvr_065 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  066
+export stream=SY0VVR_066
+export outfile=SY0VVR_066.1.out
+cfpd0vvr_066 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  067
+export stream=SY0VVR_067
+export outfile=SY0VVR_067.1.out
+cfpd0vvr_067 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  068
+export stream=SY0VVR_068
+export outfile=SY0VVR_068.1.out
+cfpd0vvr_068 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  069
+export stream=SY0VVR_069
+export outfile=SY0VVR_069.1.out
+cfpd0vvr_069 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  070
+export stream=SY0VVR_070
+export outfile=SY0VVR_070.1.out
+cfpd0vvr_070 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  071
+export stream=SY0VVR_071
+export outfile=SY0VVR_071.1.out
+cfpd0vvr_071 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  072
+export stream=SY0VVR_072
+export outfile=SY0VVR_072.1.out
+cfpd0vvr_072 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  073
+export stream=SY0VVR_073
+export outfile=SY0VVR_073.1.out
+cfpd0vvr_073 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  074
+export stream=SY0VVR_074
+export outfile=SY0VVR_074.1.out
+cfpd0vvr_074 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  075
+export stream=SY0VVR_075
+export outfile=SY0VVR_075.1.out
+cfpd0vvr_075 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  076
+export stream=SY0VVR_076
+export outfile=SY0VVR_076.1.out
+cfpd0vvr_076 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  077
+export stream=SY0VVR_077
+export outfile=SY0VVR_077.1.out
+cfpd0vvr_077 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  078
+export stream=SY0VVR_078
+export outfile=SY0VVR_078.1.out
+cfpd0vvr_078 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  079
+export stream=SY0VVR_079
+export outfile=SY0VVR_079.1.out
+cfpd0vvr_079 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  080
+export stream=SY0VVR_080
+export outfile=SY0VVR_080.1.out
+cfpd0vvr_080 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  081
+export stream=SY0VVR_081
+export outfile=SY0VVR_081.1.out
+cfpd0vvr_081 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  082
+export stream=SY0VVR_082
+export outfile=SY0VVR_082.1.out
+cfpd0vvr_082 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  083
+export stream=SY0VVR_083
+export outfile=SY0VVR_083.1.out
+cfpd0vvr_083 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  084
+export stream=SY0VVR_084
+export outfile=SY0VVR_084.1.out
+cfpd0vvr_084 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  085
+export stream=SY0VVR_085
+export outfile=SY0VVR_085.1.out
+cfpd0vvr_085 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  086
+export stream=SY0VVR_086
+export outfile=SY0VVR_086.1.out
+cfpd0vvr_086 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  087
+export stream=SY0VVR_087
+export outfile=SY0VVR_087.1.out
+cfpd0vvr_087 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  088
+export stream=SY0VVR_088
+export outfile=SY0VVR_088.1.out
+cfpd0vvr_088 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  089
+export stream=SY0VVR_089
+export outfile=SY0VVR_089.1.out
+cfpd0vvr_089 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  090
+export stream=SY0VVR_090
+export outfile=SY0VVR_090.1.out
+cfpd0vvr_090 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  091
+export stream=SY0VVR_091
+export outfile=SY0VVR_091.1.out
+cfpd0vvr_091 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  092
+export stream=SY0VVR_092
+export outfile=SY0VVR_092.1.out
+cfpd0vvr_092 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  093
+export stream=SY0VVR_093
+export outfile=SY0VVR_093.1.out
+cfpd0vvr_093 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  094
+export stream=SY0VVR_094
+export outfile=SY0VVR_094.1.out
+cfpd0vvr_094 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  095
+export stream=SY0VVR_095
+export outfile=SY0VVR_095.1.out
+cfpd0vvr_095 -s 2>&1 &
+sleep 2
+
+echo Starting SY0VVR Stream No:  096
+export stream=SY0VVR_096
+export outfile=SY0VVR_096.1.out
+cfpd0vvr_096 -s 2>&1 &
+sleep 2
+#---MARK-PHASE2-MULTISTREAM
+
+# Submitted all streams, now monitor them
+echo
+while :
+do
+streams_running=`ps -fu $LOGNAME|grep 'rtsora SY0VVR'|grep -v grep|wc -l`
+if [ $streams_running -ne "0" ];then
+   echo "RUNNING " $streams_running " STREAM(S) OF SY0VVR...."
+   sleep 30
+else
+   echo "COMPLETED SY0VVR.... SUMMARY IS AS FOLLOWS"
+   break;
+fi
+done
+# All the streams have completed processing, provide a summary
+echo "  STREAM NO    START TIME      END TIME     RETURN CODE "
+error=0
+for replica_name in `grep -e '... Start of  SY0VVR' $sysout/$summary_file|tr -s " "|cut -d' ' -f4`
+do
+   stream_name=`grep -e '... Start of  '$replica_name $sysout/$summary_file \
+                |awk '{print $4}'`
+   start_time=`grep -e '... Start of  '$replica_name $sysout/$summary_file \
+               |awk '{print $9}'`
+   echo $replica_name|awk '{print $2}'
+# get end time of the replica
+   end_stat=`grep -e '... End   of  '$stream_name $sysout/$summary_file \
+             |awk '{print $9,$15}'`
+   end_time=`echo $end_stat|awk '{print $1}'`
+   exit_cde=`echo $end_stat|awk '{print $2}'`
+# display statistics
+   echo '  '$stream_name'      '$start_time'        '$end_time'        '$exit_cde
+   if [ $exit_cde -ne "0" ];then
+      error=$exit_cde
+   fi
+done
+if [ $error -ne "0" ];then
+   echo "                                       "
+   echo "SY0VVR has completed with errors...."
+   exit_code=$error
+   checkrc.sh $exit_code
+   exit 1
+fi
+#---MARK-PHASE2-MULTISTREAM
+
