@@ -1,1 +1,172 @@
 
+UNIX Basic Commands (Detailed Training Script – Easy Language)
+Now I will explain some basic UNIX commands.
+These are the most commonly used commands in day-to-day production support.
+Using these commands, we can navigate folders, manage files, check logs, and troubleshoot issues.
+1. pwd – Present Working Directory
+Used to know where we are currently located in the file system.
+Bash
+pwd
+Example Output:
+Bash
+/home/applprod
+This means currently we are inside /home/applprod
+Why Useful?
+When working in many directories, we may forget current location.
+Training Line:
+“pwd tells our current path.”
+2. ls – List Files and Folders
+Shows files and folders in current directory.
+Bash
+ls
+Example:
+Bash
+logs scripts input output
+ls -l
+Detailed format.
+Bash
+ls -l
+Shows:
+permissions
+owner
+size
+date
+filename
+ls -a
+Shows hidden files also.
+Bash
+ls -a
+ls -ltr
+Very useful in production.
+Bash
+ls -ltr
+Shows latest files at bottom with time.
+Used for checking newest logs/files.
+3. cd – Change Directory
+Move from one folder to another.
+Bash
+cd /home
+Go to home folder.
+One Step Back:
+Bash
+cd ..
+Previous Folder:
+Bash
+cd -
+Home Directory:
+Bash
+cd ~
+4. mkdir – Make Directory
+Create new folder.
+Bash
+mkdir testfolder
+5. rmdir – Remove Empty Folder
+Bash
+rmdir testfolder
+Only works if folder empty.
+6. touch
+Create empty file.
+Bash
+touch sample.txt
+Used to create new blank file.
+7. cat
+Display file content.
+Bash
+cat sample.txt
+Shows complete content.
+8. more / less
+View long files page by page.
+Bash
+less logfile.log
+Press:
+Space = next page
+q = quit
+9. head
+Shows first lines of file.
+Bash
+head logfile.log
+Useful for header checking.
+10. tail
+Shows last lines of file.
+Bash
+tail logfile.log
+Most used in support.
+Live Monitoring:
+Bash
+tail -f logfile.log
+Shows new entries continuously.
+Excellent for running jobs.
+11. cp – Copy
+Copy file.
+Bash
+cp file1.txt file2.txt
+Copy folder:
+Bash
+cp -r dir1 dir2
+12. mv – Move / Rename
+Rename file:
+Bash
+mv old.txt new.txt
+Move file:
+Bash
+mv file.txt /backup/
+13. rm – Remove File
+Delete file.
+Bash
+rm file.txt
+Delete folder with contents:
+Bash
+rm -r foldername
+Very dangerous if wrong path used.
+14. clear
+Clears terminal screen.
+Bash
+clear
+15. history
+Shows previously used commands.
+Bash
+history
+Helpful for repeating commands.
+16. whoami
+Shows current logged-in user.
+Bash
+whoami
+Output:
+Bash
+applprod
+17. date
+Shows server date and time.
+Bash
+date
+Important during incident analysis.
+18. man
+Help manual for command.
+Bash
+man ls
+Real Production Support Flow
+Bash
+pwd
+cd /logs
+ls -ltr
+tail -f app.log
+This is common daily usage.
+Common Mistakes to Explain
+rm without checking path
+Wrong file deleted.
+cd wrong folder
+Checking wrong logs.
+tail wrong file
+Wrong troubleshooting.
+Good Questions to Ask Audience
+Difference between cp and mv?
+Why use ls -ltr?
+Why tail -f useful?
+What does pwd show?
+Why whoami useful?
+Time Stretch Tip
+After each command ask trainees:
+“Where can we use this in banking production?”
+Closing Line
+“These commands are the foundation of UNIX operations and production support.”
+Say next and I’ll give you Advanced UNIX Commands for Support Team
+(grep, find, ps, kill, chmod, df, du, top, nohup)
