@@ -1,1 +1,216 @@
 
+<?php
+date_default_timezone_set("Asia/Kolkata");
+
+/* ================= CONFIG ================= */
+$basePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/";
+
+/* =============== DATE HANDLING =============== */
+$selectedDateInput = isset($_GET['date']) ? $_GET['date'] : date("Y-m-d");
+$selectedDate = str_replace("-", "", $selectedDateInput);
+
+$filePath = $basePath . "invalid_neft_" . $selectedDate . ".txt";
+
+/* =============== READ FILE =============== */
+$dataRows = [];
+$noDataFlag = false;
+
+if (file_exists($filePath)) {
+
+    $handle = fopen($filePath, "r");
+
+    while (($line = fgets($handle)) !== false) {
+
+        $line = trim($line);
+        $line = str_replace("\r", "", $line);
+
+        if ($line == "") continue;
+
+        if (strtolower($line) == "no invalid utr") {
+            $noDataFlag = true;
+            break;
+        }
+
+        $data = explode(",", $line);
+
+        /* FORCE EXACTLY 13 COLUMNS */
+        $data = array_slice($data, 0, 13);
+        $data = array_pad($data, 13, "");
+
+        $dataRows[] = $data;
+    }
+
+    fclose($handle);
+}
+
+/* PRINT MESSAGE ROW (IMPORTANT FIX) */
+function printMessageRow($msg) {
+    echo "<tr>";
+    for ($i = 0; $i < 13; $i++) {
+        if ($i == 0) {
+            echo "<td style='font-weight:bold;'>$msg</td>";
+        } else {
+            echo "<td></td>";
+        }
+    }
+    echo "</tr>";
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NEFT Invalid UTR Monitoring</title>
+
+    <!-- AUTO REFRESH -->
+    <meta http-equiv="refresh" content="60">
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 0;
+            background: #f4f6f9;
+        }
+
+        .header {
+            background: #0b3d91;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .subheader {
+            text-align: center;
+            background: #1c5db6;
+            color: white;
+            padding: 5px;
+        }
+
+        .container {
+            width: 98%;
+            margin: auto;
+            margin-top: 15px;
+        }
+
+        .controls {
+            margin-bottom: 15px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        th {
+            background: #0b3d91;
+            color: white;
+        }
+
+        table {
+            width: 100% !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    NEFT Invalid UTR Monitoring Dashboard
+</div>
+
+<div class="subheader">
+    <?php echo date("d M H:i"); ?>
+</div>
+
+<div class="container">
+
+    <div class="controls">
+        <form method="GET">
+            <input type="date" name="date" value="<?php echo $selectedDateInput; ?>">
+            <button type="submit">Load</button>
+        </form>
+    </div>
+
+    <h3>Date: <?php echo date("d-m-Y", strtotime($selectedDateInput)); ?></h3>
+
+    <div class="table-container">
+
+        <table id="neftTable" class="display">
+
+            <thead>
+                <tr>
+                    <th>UTR</th>
+                    <th>IN_OUT</th>
+                    <th>STATUS</th>
+                    <th>TRAN_DATE</th>
+                    <th>AMOUNT</th>
+                    <th>ACCOUNT_NO</th>
+                    <th>BENEF_ACCT_NO</th>
+                    <th>JRNL_NO</th>
+                    <th>BRANCH</th>
+                    <th>IFSC_SENDER</th>
+                    <th>IFSC_RECVR</th>
+                    <th>CREDIT_BGL</th>
+                    <th>DEBIT_BGL</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <?php
+                if (!file_exists($filePath)) {
+
+                    printMessageRow("File not found");
+
+                } elseif ($noDataFlag) {
+
+                    printMessageRow("No Invalid UTR Found");
+
+                } elseif (empty($dataRows)) {
+
+                    printMessageRow("No Records Found");
+
+                } else {
+
+                    foreach ($dataRows as $row) {
+
+                        echo "<tr>";
+
+                        for ($i = 0; $i < 13; $i++) {
+                            echo "<td>" . htmlspecialchars($row[$i]) . "</td>";
+                        }
+
+                        echo "</tr>";
+                    }
+                }
+                ?>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- JS -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#neftTable').DataTable({
+        pageLength: 25,
+        scrollX: true
+    });
+});
+</script>
+
+</body>
+</html>
