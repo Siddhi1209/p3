@@ -1,1 +1,88 @@
 
+#!/bin/ksh
+
+############################################
+# BASE ROOT
+############################################
+BASE_ROOT="/fns/id/r/spool/Interfaces/NEFT/INVALID"
+
+############################################
+# CURRENT MONTH (you can change to prev if needed)
+############################################
+CURR_MONTH=$(date +%Y%m)
+
+BASE_DIR="$BASE_ROOT/$CURR_MONTH"
+
+[ -d "$BASE_DIR" ] || { echo "Directory not found: $BASE_DIR"; exit 1; }
+
+############################################
+# GET LATEST DATE FOLDER (safe way)
+############################################
+LATEST_DIR=$(ls "$BASE_DIR" | sort | tail -1)
+FULL_PATH="$BASE_DIR/$LATEST_DIR"
+
+echo "Processing: $FULL_PATH"
+
+############################################
+# OUTPUT FILE
+############################################
+OUT_FILE="neft_pending_utr_${LATEST_DIR}.txt"
+
+# Add header (important for PHP table)
+echo "UTR,IN_OUT,STATUS,TRAN_DATE,AMOUNT,ACCOUNT_NO,BENEF_ACCT_NO,JRNL_NO,TRAN_BRANCH" > "$OUT_FILE"
+
+############################################
+# LOOP FILES
+############################################
+for FILE in "$FULL_PATH"/*.NEFT.gz
+do
+    [ -f "$FILE" ] || continue
+
+    UTR=$(basename "$FILE" | sed 's/\.NEFT\.gz//')
+
+    RESULT=$(sqlplus -s / <<EOF
+set heading off feedback off pages 0 verify off echo off lines 200 trimspool on
+
+select UTR||','||IN_OUT||','||STATUS||','||TRAN_DATE||','||AMOUNT||','||ACCOUNT_NO||','||BENEF_ACCT_NO||','||JRNL_NO_1||','||TRAN_BRANCH
+from neft
+where UTR='${UTR}' and INST_NO='003';
+
+exit;
+EOF
+)
+
+    RESULT=$(echo "$RESULT" | tr -d '\r' | xargs)
+
+    ############################################
+    # ONLY WRITE VALID ROWS (NO 0)
+    ############################################
+    if [ -n "$RESULT" ]; then
+        echo "$RESULT" >> "$OUT_FILE"
+    fi
+
+done
+
+############################################
+# CHECK IF FILE HAS DATA (more than header)
+############################################
+LINE_COUNT=$(wc -l < "$OUT_FILE")
+
+if [ "$LINE_COUNT" -le 1 ]; then
+    echo "No valid UTR records found. File not sent."
+    rm -f "$OUT_FILE"
+    exit 0
+fi
+
+############################################
+# SEND FILE USING ftc.sh
+############################################
+REMOTE_PATH="/home/portalapp/neft_reports/$OUT_FILE"
+
+echo "Sending file to portal server..."
+/home/monitorp/ftc.sh "$OUT_FILE" "$REMOTE_PATH"
+
+if [ $? -eq 0 ]; then
+    echo "File transferred successfully"
+else
+    echo "File transfer failed"
+fi
