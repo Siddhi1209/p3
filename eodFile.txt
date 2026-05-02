@@ -1,1 +1,185 @@
 
+<?php
+$basePath = "/opt/hpws/apache/cgi-bin/neft/";
+$selectedDate = $_GET['date'] ?? "";
+$files = glob($basePath . "file_*.txt");
+rsort($files);
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>NEFT UTR Monitoring</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+        .header-box {
+            background: #3c8dbc;
+            color: white;
+            padding: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .card {
+            background: white;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 6px;
+            box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+        }
+        .date-link {
+            display: block;
+            padding: 10px;
+            background: #ecf0f5;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+        }
+        .date-link:hover {
+            background: #d2d6de;
+        }
+        .success-row {
+            background-color: #dff0d8 !important;
+        }
+        .failed-row {
+            background-color: #f2dede !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header-box">
+    NEFT UTR Monitoring Dashboard
+</div>
+
+<div class="container">
+
+<?php
+########################################################
+# DATE LIST VIEW
+########################################################
+if (empty($selectedDate)) {
+?>
+    <div class="card">
+        <h4>Select Date</h4>
+        <?php
+        foreach ($files as $file) {
+            $date = str_replace(["file_", ".txt"], "", basename($file));
+            echo "<a class='date-link' href='?date=$date'>$date</a>";
+        }
+        ?>
+    </div>
+
+<?php
+}
+########################################################
+# DATA TABLE VIEW
+########################################################
+else {
+
+    $filePath = $basePath . "file_" . $selectedDate . ".txt";
+?>
+
+    <div class="card">
+        <a href="?" class="btn btn-default">⬅ Back</a>
+        <h4 style="margin-top:10px;">UTR Data for Date: <b><?php echo $selectedDate; ?></b></h4>
+
+        <table id="neftTable" class="display table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>UTR</th>
+                    <th>IN_OUT</th>
+                    <th>STATUS</th>
+                    <th>TRAN_DATE</th>
+                    <th>AMOUNT</th>
+                    <th>ACCOUNT_NO</th>
+                    <th>BENEF_ACCT_NO</th>
+                    <th>JRNL_NO</th>
+                    <th>BRANCH</th>
+                </tr>
+            </thead>
+            <tbody>
+
+<?php
+    if (!file_exists($filePath)) {
+        echo "<tr><td colspan='9'>File not found</td></tr>";
+    } else {
+        $handle = fopen($filePath, "r");
+        $first = true;
+
+        while (($line = fgets($handle)) !== false) {
+            $line = trim($line);
+
+            if ($line == "no Invalid UTR") {
+                echo "<tr><td colspan='9'>No Invalid UTR Found</td></tr>";
+                break;
+            }
+
+            if ($first) {
+                $first = false;
+                continue;
+            }
+
+            $data = explode(",", $line);
+
+            // Row highlight
+            $rowClass = "";
+            if (isset($data[2])) {
+                if (strtoupper($data[2]) == "SUCCESS") {
+                    $rowClass = "success-row";
+                } elseif (strtoupper($data[2]) == "FAILED") {
+                    $rowClass = "failed-row";
+                }
+            }
+
+            echo "<tr class='$rowClass'>";
+            foreach ($data as $value) {
+                echo "<td>" . htmlspecialchars($value) . "</td>";
+            }
+            echo "</tr>";
+        }
+
+        fclose($handle);
+    }
+?>
+
+            </tbody>
+        </table>
+    </div>
+
+<?php } ?>
+
+</div>
+
+<!-- JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#neftTable').DataTable({
+        pageLength: 25,
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel'],
+        order: [[ 0, "desc" ]]
+    });
+});
+</script>
+
+</body>
+</html>
