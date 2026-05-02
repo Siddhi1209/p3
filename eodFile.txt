@@ -1,1 +1,115 @@
 
+#!/bin/ksh
+
+########################################
+# CONFIG
+########################################
+
+BANCS_DQPTYPE="1"
+RUN_DATE=$(date +%Y%m%d)
+
+OUT_FILE="invalid_neft_${BANCS_DQPTYPE}_${RUN_DATE}.txt"
+REMOTE_PATH="/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/$OUT_FILE"
+
+########################################
+# CREATE FILE (NO OVERWRITE ISSUE)
+########################################
+
+touch "$OUT_FILE"
+> "$OUT_FILE"   # clear content but keep file
+
+########################################
+# HARD CODED UTRs (FOR TESTING)
+########################################
+
+UTR_LIST="
+SBIN121056033461
+SBIN121056033462
+SBIN121056033463
+"
+
+########################################
+# PROCESS EACH UTR
+########################################
+
+echo "Processing UTRs..."
+
+for UTR in $UTR_LIST
+do
+    echo "Checking UTR: $UTR"
+
+    RESULT=$(sqlplus -s / <<EOF
+set heading off feedback off pages 0 verify off echo off lines 1000 trimspool on
+set colsep ','
+
+select
+UTR,
+IN_OUT,
+STATUS,
+TRAN_DATE,
+AMOUNT,
+ACCOUNT_NO,
+BENEF_ACCT_NO,
+JRNL_NO_1,
+TRAN_BRANCH,
+NVL(IFSC_SENDER,''),
+NVL(IFSC_RECVR,''),
+NVL(CREDIT_BGL_ACCT,''),
+NVL(DEBIT_BGL_ACCT,'')
+from neft
+where UTR='${UTR}' and INST_NO='003';
+
+exit;
+EOF
+)
+
+    # CLEAN OUTPUT
+    RESULT=$(echo "$RESULT" | tr -d '\r' | sed '/^$/d')
+
+    ########################################
+    # APPEND IF DATA FOUND
+    ########################################
+
+    if echo "$RESULT" | grep -q ','; then
+        echo "$RESULT" >> "$OUT_FILE"
+        echo "✔ Data found for $UTR"
+    else
+        echo "✖ No data for $UTR"
+    fi
+
+done
+
+########################################
+# HANDLE NO DATA CASE
+########################################
+
+LINE_COUNT=$(wc -l < "$OUT_FILE")
+
+if [ "$LINE_COUNT" -eq 0 ]; then
+    echo "no invalid utr" > "$OUT_FILE"
+fi
+
+########################################
+# SHOW OUTPUT (DEBUG)
+########################################
+
+echo "-------------------------------------"
+echo "Generated File Content:"
+cat "$OUT_FILE"
+echo "-------------------------------------"
+
+########################################
+# SEND FILE TO PORTAL
+########################################
+
+echo "Sending file to portal..."
+
+/home/monitorp/pace/ftc.sh "$OUT_FILE" "$REMOTE_PATH"
+
+if [ $? -eq 0 ]; then
+    echo "✔ File transferred successfully"
+else
+    echo "✖ File transfer failed"
+fi
+
+echo "Test completed."
