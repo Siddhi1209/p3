@@ -1,1 +1,124 @@
 
+#!/bin/ksh
+
+########################################
+# CONFIG
+########################################
+
+BANCS_DQPTYPE="1"
+RUN_DATE=$(date +%Y%m%d)
+
+OUT_FILE="invalid_neft_${BANCS_DQPTYPE}_${RUN_DATE}.txt"
+REMOTE_PATH="/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/$OUT_FILE"
+
+########################################
+# CREATE FILE
+########################################
+
+touch "$OUT_FILE"
+> "$OUT_FILE"
+
+########################################
+# TEST UTRs
+########################################
+
+UTR_LIST="
+SBIN121056033461
+SBIN121056033462
+SBIN121056033463
+"
+
+echo "Processing UTRs..."
+
+########################################
+# LOOP
+########################################
+
+for UTR in $UTR_LIST
+do
+    echo "Checking UTR: $UTR"
+
+    RESULT=$(sql -s / <<EOF
+set heading off
+set feedback off
+set pages 0
+set verify off
+set echo off
+set lines 4000
+set trimspool on
+set tab off
+
+select
+UTR||','||
+IN_OUT||','||
+STATUS||','||
+TO_CHAR(TRAN_DATE,'YYYYMMDD')||','||
+AMOUNT||','||
+ACCOUNT_NO||','||
+BENEF_ACCT_NO||','||
+JRNL_NO_1||','||
+TRAN_BRANCH||','||
+NVL(IFSC_SENDER,'')||','||
+NVL(IFSC_RECVR,'')||','||
+NVL(CREDIT_BGL_ACCT,'')||','||
+NVL(DEBIT_BGL_ACCT,'')
+from neft
+where UTR='${UTR}' and INST_NO='003';
+
+exit;
+EOF
+)
+
+    ########################################
+    # CLEAN OUTPUT
+    ########################################
+
+    RESULT=$(echo "$RESULT" | tr -d '\r' | sed '/^$/d' | sed 's/[[:space:]]*$//')
+
+    ########################################
+    # APPEND
+    ########################################
+
+    if echo "$RESULT" | grep -q ','; then
+        echo "$RESULT" >> "$OUT_FILE"
+        echo "✔ Data found for $UTR"
+    else
+        echo "✖ No data for $UTR"
+    fi
+
+done
+
+########################################
+# NO DATA CASE
+########################################
+
+LINE_COUNT=$(wc -l < "$OUT_FILE")
+
+if [ "$LINE_COUNT" -eq 0 ]; then
+    echo "no invalid utr" > "$OUT_FILE"
+fi
+
+########################################
+# DEBUG OUTPUT
+########################################
+
+echo "--------------------------------"
+echo "Generated File:"
+cat "$OUT_FILE"
+echo "--------------------------------"
+
+########################################
+# SEND FILE
+########################################
+
+echo "Sending file..."
+
+/home/monitorp/pace/ftc.sh "$OUT_FILE" "$REMOTE_PATH"
+
+if [ $? -eq 0 ]; then
+    echo "✔ File transferred successfully"
+else
+    echo "✖ File transfer failed"
+fi
+
+echo "Done."
