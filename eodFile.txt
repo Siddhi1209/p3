@@ -1,1 +1,191 @@
 
+<?php
+$basePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/";
+$selectedDate = $_GET['date'] ?? date("Ymd");
+$filePath = $basePath . "invalid_neft_" . $selectedDate . ".txt";
+
+$dataRows = [];
+$noDataFlag = false;
+
+if (file_exists($filePath)) {
+    $handle = fopen($filePath, "r");
+    $first = true;
+
+    while (($line = fgets($handle)) !== false) {
+        $line = trim($line);
+
+        if (strtolower($line) == "no invalid utr") {
+            $noDataFlag = true;
+            break;
+        }
+
+        if ($first) {
+            $first = false;
+            continue;
+        }
+
+        if (!empty($line)) {
+            $dataRows[] = array_map('trim', explode(",", $line));
+        }
+    }
+
+    fclose($handle);
+}
+
+// If "no invalid utr", force empty
+if ($noDataFlag) {
+    $dataRows = [];
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>NEFT Dashboard</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+<style>
+body { background:#eef2f7; }
+
+.header {
+    background:#1f3c88;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+}
+
+.time-box {
+    background:#34495e;
+    color:white;
+    text-align:center;
+    padding:8px;
+}
+
+.container-full {
+    width:100%;
+    padding:10px;
+}
+
+.card {
+    background:white;
+    padding:15px;
+    margin:10px;
+    border-radius:5px;
+}
+
+.table-wrapper {
+    overflow-x:auto;
+}
+
+th, td {
+    white-space:nowrap;
+}
+
+.success-row { background:#d4edda; }
+.failed-row { background:#f8d7da; }
+</style>
+</head>
+
+<body>
+
+<div class="header">NEFT Invalid UTR Monitoring Dashboard</div>
+<div class="time-box" id="time"></div>
+
+<div class="container-full">
+
+<!-- DATE SELECTOR -->
+<form method="get" style="margin:10px;">
+    <input type="date" name="date" value="<?php echo date('Y-m-d', strtotime($selectedDate)); ?>">
+    <button class="btn btn-primary">Load</button>
+</form>
+
+<div class="card">
+
+<h4>Date: <?php echo date("d-m-Y", strtotime($selectedDate)); ?></h4>
+
+<div class="table-wrapper">
+
+<table id="neftTable" class="table table-bordered table-striped">
+<thead>
+<tr>
+<th>UTR</th>
+<th>IN_OUT</th>
+<th>STATUS</th>
+<th>TRAN_DATE</th>
+<th>AMOUNT</th>
+<th>ACCOUNT_NO</th>
+<th>BENEF_ACCT_NO</th>
+<th>JRNL_NO</th>
+<th>BRANCH</th>
+<th>IFSC_SENDER</th>
+<th>IFSC_RECVR</th>
+<th>CREDIT_BGL</th>
+<th>DEBIT_BGL</th>
+</tr>
+</thead>
+
+<tbody>
+
+<?php
+$colCount = 13;
+
+foreach ($dataRows as $row) {
+
+    $status = strtoupper($row[2] ?? "");
+    $class = "";
+
+    if ($status == "SUCCESS") $class = "success-row";
+    if ($status == "FAILED") $class = "failed-row";
+
+    echo "<tr>";
+
+    for ($i = 0; $i < $colCount; $i++) {
+        echo "<td>" . htmlspecialchars($row[$i] ?? "") . "</td>";
+    }
+
+    echo "</tr>";
+}
+?>
+
+</tbody>
+</table>
+
+</div>
+</div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+$('#neftTable').DataTable({
+    scrollX: true,
+    pageLength: 25,
+    language: {
+        emptyTable: "No Invalid UTR Found"
+    }
+});
+
+// LIVE TIME
+function updateTime(){
+    let now=new Date();
+    let m=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    document.getElementById("time").innerHTML =
+        now.getDate()+" "+m[now.getMonth()]+" "+
+        now.getHours().toString().padStart(2,'0')+":"+
+        now.getMinutes().toString().padStart(2,'0');
+}
+setInterval(updateTime,1000);
+updateTime();
+
+// AUTO REFRESH
+setInterval(()=>location.reload(),60000);
+</script>
+
+</body>
+</html>
