@@ -1,11 +1,1 @@
-See i want to make a php page like the one i mentioned in attachment this pages should show the only the UTR's for which the 
-we get the data from our neft script.
- 
-my web pages made in php should print all these field by taking input from the neft script in file format.
-the script should use ftc.sh
--rwxr-xr-x   1 monitorp   users           33 Mar  1  2021 ftc.sh
-sutlej:/home/monitorp:-)cat ftc.sh
-scp -P 2321 $1 portalapp.core:$2
 
-already present on my server for sending the consolidated file to my portal server.
-UTR||','||IN_OUT||','||STATUS||','||TRAN_DATE||','||AMOUNT||','||ACCOUNT_NO||','||BENEF_ACCT_NO||','||JRNL_NO_1||','||TRAN_BRANCH
