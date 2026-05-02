@@ -1,13 +1,13 @@
 #!/bin/ksh
 
-############################################
+
 # BASE PATH (FIXED ROOT)
-############################################
+
 BASE_ROOT="/fns/id/r/spool/Interfaces/NEFT/INVALID"
 
-############################################
+
 # GET CURRENT MONTH (YYYYMM)
-############################################
+
 CURR_MONTH=$(date +%Y%m)
 
 BASE_DIR="$BASE_ROOT/$CURR_MONTH"
@@ -18,18 +18,18 @@ if [ ! -d "$BASE_DIR" ]; then
     exit 1
 fi
 
-############################################
+
 # GET LATEST DATE DIRECTORY (like ls -lrt last)
-############################################
+
 LATEST_DIR=$(ls -1rt "$BASE_DIR" | tail -1)
 
 FULL_PATH="$BASE_DIR/$LATEST_DIR"
 
 echo "Processing latest directory: $FULL_PATH"
 
-############################################
+
 # LOOP FILES
-############################################
+
 for FILE in "$FULL_PATH"/*.NEFT.gz
 do
     [ -f "$FILE" ] || continue
@@ -37,10 +37,10 @@ do
     # Extract UTR
     UTR=$(basename "$FILE" | sed 's/\.NEFT\.gz//')
 
-    ############################################
+
     # SQL QUERY (OS AUTH)
-    ############################################
-    RESULT=$(sqlplus -s / <<EOF
+
+    RESULT=$(sql -s / <<EOF
 set heading off feedback off pages 0 verify off echo off lines 200 trimspool on
 
 select UTR||','||IN_OUT||','||STATUS||','||TRAN_DATE||','||AMOUNT||','||ACCOUNT_NO||','||BENEF_ACCT_NO||','||JRNL_NO_1||','||TRAN_BRANCH
@@ -51,14 +51,14 @@ exit;
 EOF
 )
 
-    ############################################
+
     # CLEAN OUTPUT
-    ############################################
+
     RESULT=$(echo "$RESULT" | tr -d '\r' | xargs)
 
-    ############################################
+
     # OUTPUT
-    ############################################
+
     if [ -z "$RESULT" ]; then
         echo "${UTR},0"
     else
