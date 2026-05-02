@@ -1,3 +1,4 @@
+sutlej:/home/monitorp/pace:-)cat neft2.sh
 
 #!/bin/ksh
 
@@ -13,26 +14,26 @@ FULL_PATH="$BASE_DIR/$LATEST_DIR"
 
 echo "Processing: $FULL_PATH"
 
-############################################
+
 # OUTPUT FILE
-############################################
-OUT_FILE="file_${LATEST_DIR}.txt"
 
-echo "UTR,IN_OUT,STATUS,TRAN_DATE,AMOUNT,ACCOUNT_NO,BENEF_ACCT_NO,JRNL_NO,TRAN_BRANCH" > "$OUT_FILE"
+OUT_FILE="invalid_neft_${BANCS_DQPTYPE}_${LATEST_DIR}.txt"
 
-############################################
+echo "UTR,IN_OUT,STATUS,TRAN_DATE,AMOUNT,ACCOUNT_NO,BENEF_ACCT_NO,JRNL_NO,TRAN_BRANCH,IFSC_SENDER,IFSC_RECVR,CREDIT_BGL_ACCT,DEBIT_BGL_ACCT" > "$OUT_FILE"
+
+
 # LOOP FILES
-############################################
+
 for FILE in "$FULL_PATH"/*.NEFT.gz
 do
     [ -f "$FILE" ] || continue
 
     UTR=$(basename "$FILE" | sed 's/\.NEFT\.gz//')
 
-    RESULT=$(sqlplus -s / <<EOF
+    RESULT=$(sql -s / <<EOF
 set heading off feedback off pages 0 verify off echo off lines 200 trimspool on
 
-select UTR||','||IN_OUT||','||STATUS||','||TRAN_DATE||','||AMOUNT||','||ACCOUNT_NO||','||BENEF_ACCT_NO||','||JRNL_NO_1||','||TRAN_BRANCH
+select UTR||','||IN_OUT||','||STATUS||','||TRAN_DATE||','||AMOUNT||','||ACCOUNT_NO||','||BENEF_ACCT_NO||','||JRNL_NO_1||','||TRAN_BRANCH','||IFSC_SENDER||','||IFSC_RECVR||','||CREDIT_BGL_ACCT||','||DEBIT_BGL_ACCT
 from neft
 where UTR='${UTR}' and INST_NO='003';
 
@@ -48,22 +49,22 @@ EOF
 
 done
 
-############################################
+
 # HANDLE NO DATA CASE
-############################################
+
 LINE_COUNT=$(wc -l < "$OUT_FILE")
 
 if [ "$LINE_COUNT" -le 1 ]; then
     echo "no Invalid UTR" > "$OUT_FILE"
 fi
 
-############################################
+
 # SEND FILE
-############################################
-REMOTE_PATH="/home/portalapp/neft_reports/$OUT_FILE"
+
+REMOTE_PATH="/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/$OUT_FILE"
 
 echo "Sending file to portal server..."
-/home/monitorp/ftc.sh "$OUT_FILE" "$REMOTE_PATH"
+/home/monitorp/pace/ftc.sh "$OUT_FILE" "$REMOTE_PATH"
 
 if [ $? -eq 0 ]; then
     echo "File transferred successfully"
