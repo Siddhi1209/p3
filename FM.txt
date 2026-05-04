@@ -1,1 +1,47 @@
 
+#!/bin/ksh
+
+BASE_PATH="/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/HISTORY"
+
+# ✅ YESTERDAY DATE
+RUN_DATE=$(date -d "yesterday" +%Y%m%d)
+
+MERGED_FILE="$BASE_PATH/invalid_neft_${RUN_DATE}"
+
+echo "Merging files for date: $RUN_DATE"
+
+touch "$MERGED_FILE"
+> "$MERGED_FILE"
+
+DATA_FOUND=0
+
+# ✅ ONLY PICK FILES OF THAT DATE
+for FILE in "$BASE_PATH"/invalid_neft_*.txt.$RUN_DATE
+do
+    [ -f "$FILE" ] || continue
+
+    echo "Processing $FILE"
+
+    while IFS= read LINE
+    do
+        CLEAN=$(echo "$LINE" | tr -d '\r' | xargs)
+
+        [ -z "$CLEAN" ] && continue
+        echo "$CLEAN" | grep -qi "no invalid utr" && continue
+
+        echo "$CLEAN" >> "$MERGED_FILE"
+        DATA_FOUND=1
+
+    done < "$FILE"
+
+done
+
+# ✅ IF NOTHING FOUND
+if [ $DATA_FOUND -eq 0 ]; then
+    echo "no invalid utr" > "$MERGED_FILE"
+fi
+
+echo "Final merged file:"
+cat "$MERGED_FILE"
+
+echo "Done."
