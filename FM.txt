@@ -1,10 +1,11 @@
-#!/bin/ksh
+
+!/bin/ksh
 
 ########################################
 # CONFIG
 ########################################
 
-BASE_ROOT="/fns/id/r/spool/Interfaces/NEFT/INVALID"
+BASE_ROOT="/home/monitorp/Siddhi"
 
 CURR_MONTH=$(date +%Y%m)
 BASE_DIR="$BASE_ROOT/$CURR_MONTH"
@@ -16,17 +17,12 @@ FULL_PATH="$BASE_DIR/$LATEST_DIR"
 
 echo "Processing: $FULL_PATH"
 
-########################################
-# HANDLE BANCS_DQPTYPE
-########################################
-
-[ -z "$BANCS_DQPTYPE" ] && BANCS_DQPTYPE="NEFT"
 
 ########################################
 # OUTPUT FILE
 ########################################
 
-OUT_FILE="invalid_neft_${BANCS_DQPTYPE}_${LATEST_DIR}.txt"
+OUT_FILE="Hi_neft_${BANCS_DQPTYPE}.txt.${LATEST_DIR}"
 
 # Create file if not exists
 touch "$OUT_FILE"
@@ -51,29 +47,23 @@ do
     # SQL QUERY (NO HEADER, CSV FORMAT)
     ########################################
 
-    RESULT=$(sql -s / <<EOF
-set heading off feedback off pages 0 verify off echo off lines 200 trimspool on
-
-select
-UTR||','||
-IN_OUT||','||
-STATUS||','||
-TRAN_DATE||','||
-AMOUNT||','||
-ACCOUNT_NO||','||
-BENEF_ACCT_NO||','||
-JRNL_NO_1||','||
-TRAN_BRANCH||','||
-NVL(IFSC_SENDER,'')||','||
-NVL(IFSC_RECVR,'')||','||
-NVL(CREDIT_BGL_ACCT,'')||','||
-NVL(DEBIT_BGL_ACCT,'')
-from neft
-where UTR='${UTR}' and INST_NO='003';
-
-exit;
-EOF
-)
+DB_QUERY() {
+        queryResult=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD << EOF
+        set heading off
+        set feedback off
+        set pages 0
+        set verify off
+        set echo off
+        set lines 4000
+        set trimspool on
+        set tab off
+        set colsep ','
+        $@;
+        show sqlcode;
+        exit;
+EOF`
+}
+DB_QUERY " select UTR, IN_OUT, STATUS, TRAN_DATE, AMOUNT, ACCOUNT_NO, BENEF_ACCT_NO, JRNL_NO_1, TRAN_BRANCH, NVL(IFSC_SENDER,''), NVL(IFSC_RECVR,''), NVL(CREDIT_BGL_ACCT,''), NVL(DEBIT_BGL_ACCT,'') from neft where UTR='$UTR' and INST_NO='003' "
 
     ########################################
     # CLEAN OUTPUT
@@ -104,13 +94,5 @@ fi
 # SEND FILE
 ########################################
 
-REMOTE_PATH="/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/$OUT_FILE"
-
-echo "Sending file..."
-/home/monitorp/pace/ftc.sh "$OUT_FILE" "$REMOTE_PATH"
-
-if [ $? -eq 0 ]; then
-    echo "File transferred successfully"
-else
-    echo "File transfer failed"
+$HOME/pace/ftc.sh $OUT_FILE /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/$OUT_FILE
 fi
