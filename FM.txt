@@ -1,3 +1,7 @@
+
+RESULT=$(echo "$queryResult" | tr -d '\r' | sed '/^$/d' | sed "s/^\([^,]*\),/\1,${BANCS_DQPTYPE},/")
+
+
 #!/bin/ksh
 # CONFIG
 BASE_ROOT="/fns/id/r/spool/Interfaces/NEFT/INVALID"
