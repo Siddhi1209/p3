@@ -1,4 +1,3 @@
-
 #!/bin/ksh
 
 ########################################
@@ -18,39 +17,25 @@ FULL_PATH="$BASE_DIR/$LATEST_DIR"
 echo "Processing: $FULL_PATH"
 
 ########################################
-# FILE NAME
+# HANDLE BANCS_DQPTYPE
 ########################################
 
-BANCS_DQPTYPE="1"
+[ -z "$BANCS_DQPTYPE" ] && BANCS_DQPTYPE="NEFT"
+
+########################################
+# OUTPUT FILE
+########################################
+
 OUT_FILE="invalid_neft_${BANCS_DQPTYPE}_${LATEST_DIR}.txt"
 
+# Create file if not exists
 touch "$OUT_FILE"
+
+# Clear file (VERY IMPORTANT)
 > "$OUT_FILE"
 
 ########################################
-# DB FUNCTION (UNCHANGED SQL)
-########################################
-
-DB_QUERY() {
-queryResult=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD << EOF
-set heading off
-set feedback off
-set pages 0
-set verify off
-set echo off
-set lines 4000
-set trimspool on
-set tab off
-set colsep ','
-
-$@;
-
-exit;
-EOF`
-}
-
-########################################
-# LOOP THROUGH FILES
+# LOOP FILES
 ########################################
 
 DATA_FOUND=0
@@ -59,28 +44,50 @@ for FILE in "$FULL_PATH"/*.NEFT.gz
 do
     [ -f "$FILE" ] || continue
 
+    # Extract UTR
     UTR=$(basename "$FILE" | sed 's/\.NEFT\.gz//')
 
-    echo "Checking UTR: $UTR"
-
-    DB_QUERY " select UTR, IN_OUT, STATUS, TRAN_DATE, AMOUNT, ACCOUNT_NO, BENEF_ACCT_NO, JRNL_NO_1, TRAN_BRANCH, NVL(IFSC_SENDER,''), NVL(IFSC_RECVR,''), NVL(CREDIT_BGL_ACCT,''), NVL(DEBIT_BGL_ACCT,'') from neft where UTR='$UTR' and INST_NO='003' "
-
     ########################################
-    # CLEAN OUTPUT (FROM YOUR TEST SCRIPT)
+    # SQL QUERY (NO HEADER, CSV FORMAT)
     ########################################
 
-    RESULT=$(echo "$queryResult" | tr -d '\r' | sed '/^$/d' | tr '\n' ' ' | sed 's/  */ /g')
+    RESULT=$(sql -s / <<EOF
+set heading off feedback off pages 0 verify off echo off lines 200 trimspool on
+
+select
+UTR||','||
+IN_OUT||','||
+STATUS||','||
+TRAN_DATE||','||
+AMOUNT||','||
+ACCOUNT_NO||','||
+BENEF_ACCT_NO||','||
+JRNL_NO_1||','||
+TRAN_BRANCH||','||
+NVL(IFSC_SENDER,'')||','||
+NVL(IFSC_RECVR,'')||','||
+NVL(CREDIT_BGL_ACCT,'')||','||
+NVL(DEBIT_BGL_ACCT,'')
+from neft
+where UTR='${UTR}' and INST_NO='003';
+
+exit;
+EOF
+)
 
     ########################################
-    # APPEND
+    # CLEAN OUTPUT
     ########################################
 
-    if echo "$RESULT" | grep -q ','; then
+    RESULT=$(echo "$RESULT" | tr -d '\r' | xargs)
+
+    ########################################
+    # APPEND RESULT
+    ########################################
+
+    if [ -n "$RESULT" ]; then
         echo "$RESULT" >> "$OUT_FILE"
         DATA_FOUND=1
-        echo "✔ Data found"
-    else
-        echo "✖ No data"
     fi
 
 done
@@ -94,28 +101,16 @@ if [ $DATA_FOUND -eq 0 ]; then
 fi
 
 ########################################
-# DEBUG OUTPUT
-########################################
-
-echo "--------------------------------"
-echo "Generated File:"
-cat "$OUT_FILE"
-echo "--------------------------------"
-
-########################################
 # SEND FILE
 ########################################
 
 REMOTE_PATH="/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/$OUT_FILE"
 
 echo "Sending file..."
-
 /home/monitorp/pace/ftc.sh "$OUT_FILE" "$REMOTE_PATH"
 
 if [ $? -eq 0 ]; then
-    echo "✔ File transferred successfully"
+    echo "File transferred successfully"
 else
-    echo "✖ File transfer failed"
+    echo "File transfer failed"
 fi
-
-echo "Done."
