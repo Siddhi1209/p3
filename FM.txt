@@ -1,1 +1,51 @@
 
+#!/bin/ksh
+
+########################################
+# CONFIG
+########################################
+
+BASE_PATH="/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/HISTORY"
+OUT_FILE="$BASE_PATH/invalid_neft_all.txt"
+
+########################################
+# MOVE TO DIRECTORY
+########################################
+
+cd "$BASE_PATH" || {
+    echo "Directory not found: $BASE_PATH"
+    exit 1
+}
+
+########################################
+# CREATE / CLEAR OUTPUT FILE
+########################################
+
+> "$OUT_FILE"
+
+########################################
+# MERGE FILES (IGNORE 'no invalid utr')
+########################################
+
+cat invalid_neft_*.txt 2>/dev/null | grep -vi "no invalid utr" > "$OUT_FILE"
+
+########################################
+# HANDLE CASE: ALL FILES HAD NO DATA
+########################################
+
+if [ ! -s "$OUT_FILE" ]; then
+    echo "no invalid utr" > "$OUT_FILE"
+fi
+
+########################################
+# PERMISSION (FOR PHP ACCESS)
+########################################
+
+chmod 644 "$OUT_FILE"
+
+########################################
+# LOG
+########################################
+
+echo "Merged file created successfully:"
+echo "$OUT_FILE"
