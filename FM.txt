@@ -1,1 +1,44 @@
 
+Dear Team,
+
+This is to seek approval for implementing NEFT Invalid UTR monitoring scripts for both day and night processing regions.
+
+The proposed scripts are designed to:
+
+- Identify invalid UTR transactions from NEFT input files
+- Fetch corresponding transaction details from the NEFT database
+- Generate a consolidated CSV output file (UTR-wise data)
+- Make the file available on the portal server for monitoring through the dashboard
+
+📌 Key Details
+
+1. Purpose:
+To enable centralized monitoring of invalid NEFT UTRs and improve visibility for reconciliation and issue tracking.
+
+2. Output Location (Portal Server):
+/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/HISTORY/
+
+3. Output File Format:
+invalid_neft_YYYYMMDD.txt
+
+4. Execution Scope:
+
+- Day Region – post day NEFT processing
+- Night Region – post night NEFT processing
+
+5. Impact:
+
+- No impact on existing systems or processing flows
+- Read-only database queries
+- Minimal system resource usage
+
+---
+
+Kindly review and provide approval to proceed with implementation and scheduling of these scripts.
+
+Please let me know if any additional details or clarification is required.
+
+---
+
+Thanks & Regards,
+Siddhi Borkar
