@@ -1,83 +1,100 @@
-public static function queue_buildup_details($flag,$bool){
-                $data1 = explode("\n",trim(file_get_contents("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/production_history/queue/online/$flag.".timedisplay::dateUp())));
-                //print_r($data1);
-                //echo timedisplay::pathgiver()."/production_history/queue/online/$flag.".timedisplay::dateUp();
-                //$repostqueuebasedTime = shell_exec("cat ".timedisplay::pathgiver()."reposterr.txt*".timedisplay::dateUp()."|grep Queue-based|awk '{print $3}'|sort|tail -2|head -1");
-                $repostqueuebasedTime = shell_exec("cat ".timedisplay::pathgiver()."repost_time_forqueue.txt.".timedisplay::dateUp());
-                //echo "cat ".timedisplay::pathgiver()."reposterr.txt*".timedisplay::dateUp()."|grep Queue-based|awk '{print $3}'|sort|head -1";
-                $timeornot=strpos($repostqueuebasedTime,":");
-                if($timeornot == 2){
-                        //$queuebasedHour=explode(":",$repostqueuebasedTime)[0];
-                        //$queuebasedHour=explode(":",$repostqueuebasedTime)[0];
-                        $queuebasedHour=explode(":",$repostqueuebasedTime);
-                        $queuebasedMin=explode(":",$repostqueuebasedTime);
-                        //$queuebasedMin=explode(":",$repostqueuebasedTime)[1]+1;
-                }
-                else{
-                        $queuebasedHour="05";
-                        $queuebasedMin="00";
-                }
-                //print_r($data1);
-                if(count($data1) == '0'){
-                        echo "<thead><tr><th><span class='btn btn-warning'>No Data Available</span></th></tr></thead>";
-                }
-                else{
-                        if($bool == 1){
-                                $data=array_reverse($data1);
-                                echo "<tbody>";
-                                foreach ($data as $line_num => $line) {
-                                        if($line_num < count($data)-1 ){
-                                                $var = explode(",",$line);
-                                                $getHig = array_unique($var);rsort($getHig);
-                                                        //if(in_array("5",$var)){
-                                                        //if( $getHig[1] > 4 && strpos($getHig[1],":") < 1 ){
-                                                        echo "<tr>";
-                                                                foreach ($var as $k3 => $v3) {
-                                                                        $vall = trim($v3);
-                                                                         $explodequeuebasedMin=explode(":",$var[0]);
-                                                                         $explodequeuebasedhour=explode(":",$var[0]);
-                                                                        if(($explodequeuebasedhour[0] ==$queuebasedHour[0] && $explodequeuebasedMin[1] > $queuebasedMin[1]+1) || $explodequeuebasedhour[0] > $queuebasedHour[0]){
-                                                                                if($k3 == '0' && $vall != '0' ){
-                                                                                        echo "<td style='background-color:#1f3f92;color:white;' class='text-center'>".$v3."</td>";
-                                                                                }
-                                                                                /*elseif($vall != '' && $vall == '1' && $vall != 'NQKE' ) {
-                                                                                        echo "<td class='text-center' >".$vall."</td>";
-                                                                                }*/
-                                                                                elseif($vall != '' && intval($vall) > 20 && $vall != 'NQKE' ) {
-                                                                                        echo "<td class='text-center' style='background-color:red;color:white;'>".$vall."</td>";
-                                                                                }
-                                                                                else{
-                                                                                        echo "<td style='background-color:green;color:white;' class='text-center'>-</td>";
-                                                                                }
-                                                                        }
-                                                                        else{
-                                                                                //echo "<td class='text-center'>-</td>";
-                                                                        }
-                                                                }
-                                                        echo "</tr>";
-                                                //      }
-                                        }
-                                }
-                                echo "</tbody>";
-                        }
-                        elseif($bool == 0){
-                                echo "<thead>";
-                                foreach ($data1 as $line_num => $line) {
-                                        if($line_num == 0 ){
-                                                $var = explode(",",$line);
-                                                echo "<tr>";
-                                                        foreach ($var as $k3 => $v3) {
-                                                                $vall = trim($v3);
-                                                                if($k3 == '0' && $vall != '' || $line_num == 0   ){
-                                                                        echo "<th style='background-color:#1f3f92;color:white;' class='text-center'>".$v3."</th>";
-                                                                }
-                                                        }
-                                                echo "</tr>";
-                                        }
-                                }
-                                echo "</thead>";
-                        }
+#****************************************************************************************
+#
+#  SCRIPT NAME : vvrt_table_count_check.sh
+#  IR      :26030052 : TUSHAR
+#
+#****************************************************************************************
 
-                }
-        }
-		
+export DD_MFLAGS=$data/file/MFLAGS
+pgm=`basename $0`
+g_today_date=`cat $data/file/MFLAGS|cut -c 9-16`
+tab_owner=fnsonl${REGION}
+cd /sutlej_temp/ram/>vvrt_vvrc_count_$g_today_date.log
+ECHO_P()
+{
+  if [ "$AUTOSYS_MODE" = "Y" ]
+  then
+  echo " [`date|awk '{print $2\" \"$3\" \"$4}'`] $pgm : $@" >> $sysout/zerobyte.log
+  else
+  echo " [`date|awk '{print $2\" \"$3\" \"$4}'`] $pgm : $@"
+  fi
+
+}
+ECHO_M()
+{
+  echo " [`date|awk '{print $2\" \"$3\" \"$4}'`] $pgm : $@"  >> /fns/id/r/sysout/vvrt_vvrc_count_$g_today_date.log
+  }
+
+
+
+DB_QUERY()
+{
+        queryResult=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD << EOF
+        set time off timing off
+        set feedback off
+        set head off
+        set pages 0
+        $@;
+        show sqlcode;
+        exit;
+EOF`
+
+
+   export sqlCode=`echo "$queryResult" | grep sqlcode | awk '{print $2}'`
+      if [ $sqlCode -ne 0 ]; then
+       ECHO_P " $sqlCode "
+       ECHO_M " $sqlCode "
+        exit 2
+      fi
+
+}
+
+db_vvr=`echo $VVR_DB`
+db=`echo $TWO_TASK`
+if [ "$db_vvr" = "$db" ]; then
+ ECHO_P "THIS CANNOT BE RUN IN VVR DATA BASE"
+ ECHO_M "THIS CANNOT BE RUN IN VVR DATA BASE"
+ ECHO_P "PLEASE CHANGE THE DATA BASE "
+ ECHO_M "PLEASE CHANGE THE DATA BASE "
+ exit 1
+fi
+
+DB_QUERY "select lpad(to_char(to_date($g_today_date,'YYYYMMDD'),'J')-2415020 -1,9,'0') from dual"                          #BINARY DATE OF MFLAG IN $BIN_DATE#
+                       bin_date=`echo $queryResult | cut -d " " -f1`
+
+DB_QUERY "select /*+ parallel(vvrt,16)*/ count(1) from $tab_owner.vvrt where INST_NO='003' and VOUCHER_DATE=$bin_date"                                                                                                                          #COUNT OF VVRT FROM DAY-PROD FOR EODDATE#
+           bancs_vvrt_count=`echo $queryResult |  cut -d " " -f1`
+           ECHO_M "VVRT COUNT \033[32m$bancs_vvrt_count\033[m in \033[33m$db\033[m "
+
+DB_QUERY "select /*+ parallel(vvrc,16)*/ count(1) from $tab_owner.vvrc where INST_NO='003' and VOUCHER_DATE=$bin_date"                                                                                                                      #COUNT OF VVRC FROM DAY-PROD FOR EODDATE#
+          bancs_vvrc_count=`echo $queryResult |  cut -d " " -f1`
+          ECHO_M "VVRC COUNT \033[32m$bancs_vvrc_count\033[m in \033[33m$db\033[m "
+
+
+export TWO_TASK="$VVR_DB"
+if [ `echo $TWO_TASK` = "vvrprod" ];then
+
+    DB_QUERY "select /*+ parallel(vvrt,16)*/ count(1) from $tab_owner.vvrt where INST_NO='003' and VOUCHER_DATE=$bin_date"                                                                                                                  #COUNT OF VVRT FROM VVRPROD FOR EODDATE#
+           OVVR_vvrt_count=`echo $queryResult |  cut -d " " -f1`
+           ECHO_M "VVRT COUNT \033[32m$OVVR_vvrt_count\033[m in \033[33m$db_vvr\033[m "
+
+    DB_QUERY "select /*+ parallel(vvrc,16)*/ count(1) from $tab_owner.vvrc where INST_NO='003' and VOUCHER_DATE=$bin_date" #COUNT OF VVRC FROM VVRPROD FOR EODDATE#
+          OVVR_vvrc_count=`echo $queryResult |  cut -d " " -f1`
+          ECHO_M "VVRC COUNT \033[32m$OVVR_vvrc_count\033[m in \033[33m$db_vvr\033[m "
+else
+        ECHO_M "SID IS NOT SET PROPERLY to \033[33m$db_vvr\033[m "
+        exit 2
+fi
+
+if [ bancs_vvrt_count -eq OVVR_vvrt_count       ];then
+        ECHO_M " VVRT COUNT OF PRODUCTION :$bancs_vvrt_count \033[32mis equal\033[m to VVRDB COUNT $OVVR_vvrt_count "
+else
+        ECHO_M " VVRT COUNT OF PRODUCTION :$bancs_vvrt_count \033[33mis not equal\033[m to VVRDB COUNT $OVVR_vvrt_count"
+        exit 2
+fi
+if [ bancs_vvrc_count -eq OVVR_vvrc_count       ];then
+        ECHO_M " VVRC COUNT OF PRODUCTION :$bancs_vvrc_count \033[32mis equal\033[m to VVRDB COUNT $OVVR_vvrc_count "
+else
+        ECHO_M " VVRC COUNT OF PRODUCTION :$bancs_vvrc_count \033[33mis not equal\033[m to VVRDB COUNT $OVVR_vvrc_count "
+        exit 2
+fi
