@@ -1,50 +1,238 @@
 
-function schl_transaction(){
-    $data = file($this->currpath."schl_data.".$this->datecrr);
-    $data1 = file($this->currpath."neft_incoming.txt.".$this->datecrr);
+JIL AND AUTOSYS COMMANDS
 
-    $natsfmq = shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/NAT_utr.txt|grep ".$this->datecrr);
+JIL (JOB INFORMATION LANGUAGE)
 
-    if(count($data1) > 1){
-        $errorstring = explode(":", $data1[3]);
-        $pushelement = "NEFT INCOMING QUERY ERROR,".$errorstring[0].'('.$errorstring[1].')';
-    } else {
-        $pushelement = $data1[0];
-    }
+    • It is a standardized mode by which we write down the instructions for the WAAE (Workload Automation AE ) server and also get them stored in the database
 
-    // FIX added here to avoid PHP8 fatal error
-    if (!is_array($data)) {
-        $data = [];
-    }
-    array_push($data, $pushelement);
+    • Attributes of a JIL
 
-    if(parent::checkblank($data)) { echo parent::checkblank($data); }
+insert_job : This will insert a new job definition to the database.
 
-    foreach ($data as $line_num => $line){
-        echo "<tr>";
-        $var = explode(",",$line);
+update_job : This will update an existing job definition to the database.
 
-        foreach ($var as $k3 => $v3){
-            if($k3 == '0'){
-                if($line_num == 0){
-                    echo "<th style='background-color:#cdc;color:black;' title='StockHolding Corporation of India Limited (SHCIL)' class='text-center'>".$v3."</th>";
-                } else {
-                    echo "<th style='background-color:#cdc;color:black;' class='text-center'>".$v3."</th>";
-                }
-            }
-            elseif($k3 == 1 && $v3 == 0){
-                echo "<th class='bg-green text-center'>Please Check</th>";
-            }
-            elseif($k3 == 2 && $v3 > 100){
-                echo "<th style='background-color:red;color:white;' class='text-center'>".$v3."</th>";
-            }
-            elseif($k3 == 3 && trim($v3) == "ERROR"){
-                echo "<th class='bg-red text-center'>".$v3."</th>";
-            }
-            else{
-                echo "<td class='text-center' style='font-weight:bold;'>".$v3."</td>";
-            }
-        }
-        echo "</tr>";
-    }
-}
+delete_job : This will delete an existing job  definition to the database.
+
+job_type : Autosys supports three types of jobs:
+
+Command type: execution of simple UNIX commands.
+
+Box type: It is used to organize and control process flow by acting as a container for a group of jobs that run together.
+
+box_name : Name of the Box.
+
+command: /usr/bin/ksh  -c '    '
+	command attribute specifies the job that will run on the Remote Agent . /usr/bin/ksh implies that execute the job in Korn Shell . –c means anything that is between the single quotes treat it as a single command.
+
+machine : Define the client ( remote agent) where a job runs.
+
+owner : It is the owner  of the job that will run the job on remote agent.
+
+permission: gx,wx
+	permission attribute specifies group execute (UNIX) and world execute , i.e. anyone can execute the job
+
+condition : The condition on which a job will be fired. You can base dependencies on one or more of the following: 
+ 
+    • Job status; for example, success(DB_BACKUP)
+    • Job exit code; for example, exitcode (my_job)=4  
+    • Global variables; for example, VALUE(TODAY)=Friday 
+
+ job_terminator : This implies if the job should be terminated if the box in which the job resides fails . 1 means yes , 0 means no .
+
+std_out_file : The file to which standard o/p file will be redirected . It is any file for which the job owner has write permissions on the client m/c
+
+std_err_file: The file to which standard error file will be redirected . It is any file for which the job owner has write permissions on the client m/c.
+
+alarm_if_fail : If the job fails then alarm should be posted (1) or not posted (0) to the event processor
+
+max_exit_success : Define the maximum exit code that the job can exit with and be considered a success.
+
+start_times: The start_times attribute defines the times of day, in 24-hour format, at which the job should start on the days specified in the days_of week attribute or on the dates specified in the calendar identified in the run_calendar attribute. 
+E.g  start_mins: 00,15,30,45
+days_of_week: all
+
+box_failure: By default, CA Workload Automation AE considers a Box job to have failed when any job in it completes with a failure condition. You can use the box_failure attribute to define specific conditions for Box job failure in situations where there may be multiple failure or recovery scenarios. 
+For e.g  box_failure: f(SLAVE6.i_post_reg_mode_chk_e)
+
+box_success: By default, CA Workload Automation AE considers a box job successful when every job in it completes successfully. some jobs in the box may never need to run, but the default box behavior would be to interpret this as a box failure. You can use the box_success attribute to define specific conditions for box job success in situations where there may be multiple success scenarios. 
+For e.g  box_success: s(MASTER.is_cfpd1002_i) & s(MASTER.is_bancs.kill_2_i) & s(MASTER.is_hktoeodok_i) & (s(MASTER.is_cfps1001_i) | f(MASTER.is_cfps1001_i))
+
+n_retrys : Define the number of times to restart a job after a failure.
+
+Profile : The profile file to be executed on remote agent is .profile_uajm . When the profile attribute is not set , the auto.profile is executed by default on the Application Server . But this does not set the BANCS-24 environment variables . Moreover when a job is run through Autosys no shell is executed so variables like $HOME or $LOGNAME are not set . So setting of all these variables , along with some others and .profile execution are included in .profile_uajm file
+
+
+You can create a job defination in interactive mode using following command:
+        Jil
+  After entering the “jil” command, following prompt will come:
+       Jil>>1>
+-- attributes of a jil ----
+:
+exit
+Alternatively, You can create a job defination (JIL) in a text file and then import  the job definitions by redirecting the file as a input to the JIL. To import a job defination from a text file use the following command:
+	Jil < filename.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                Autosys commands
+
+To view the  definition of a job and  its dependencies
+
+a) autorep -q -J [job name]  -- Gives the job defination of a specified job
+
+autorep -q -j SBH_h_REGION_UP_DAY_cfpd0080
+insert_job: SBH_h_REGION_UP_DAY_cfpd0080   job_type: CMD
+box_name: SBH_REGION_UP_DAY
+command: /usr/bin/ksh -c 'cfpd0080'
+machine: SBH
+owner: fnsonlh
+permission: gx
+condition: s(SBH_hd_cfpd9600)
+job_terminator: t
+std_out_file: $sysout/autosyslog.out
+std_err_file: $sysout/autosyslog.err
+alarm_if_fail: t
+profile: $HOME/.profile_uajm
+send_notification: n
+
+b) autorep -q -J %  OR	
+     autorep -q -J ALL             -- Gives the definition of all jobs present in the database.
+
+c)  job_depends -c -j [job_name]  --- Gives the job_dependencies and condition.
+
+job_depends -c -j SBH_h_REGION_UP_DAY_cfpd0080
+                                                                  					 Start        Dependent
+Job Name                       		  	Status         Date Cond?        Cond?     Jobs?
+--------                        			 ------          ---------------      	     -----        ---------
+SBH_h_REGION_UP_DAY_cfpd0080     SUCCESS     No                       Yes                Yes
+
+Condition: s(SBH_hd_cfpd9600)
+
+   Atomic Condition                              Current Status  T/F
+   ----------------                                       --------------	 ---
+   s(SBH_hd_cfpd9600)                            SUCCESS        T
+
+   Dependent Job Name                            Condition
+   ------------------                                              ---------
+   SBH_h_bncons_1                                SUCCESS(SBH_h_REGION_UP_DAY_cfpd0080)
+    • To view the status of a job
+
+a) autorep -s -J [job name]
+
+autorep -s -j 
+Job Name                                                      Last Start           		Last End             
+_______________                                   ____________________  ________ SBH_h_REGION_UP_DAY_cfpd0080   04/04/2014 18:42:54        04/04/2014 18:43:02  
+
+ST   Run/Ntry  Pri/Xit
+__  _______  ___
+SU 17647/1      0
+
+
+b) autorep –s –j % OR
+     autorep -s -J ALL         --- 	shows the status of all jobs present in the database.
+       
+  Status can be any one of the following: 	
+ST (starting)
+RU(running)
+SU(success)
+FA (failed)
+TE(terminated)
+AC(active: in case the dependent job is waiting for it dependency to finish)
+IN (inactive: in case the job is not supposed to start at all)
+OH (job on hold: in case the job is to be paused from starting, to block its dependents)
+OI (job on ice: in case, the job is to be skipped, and dependents are to be started)
+RE (restart)
+   
+    • To execute a job
+
+a) For normal firing of a job:
+	sendevent -E STARTJOB -J [job_name]
+ 		In this case, however, if the starting conditions of the job are not met with, it will not start.
+
+b) For forceful firing of a job:
+
+	sendevent -E FORCE_STARTJOB -J [job_name]
+	 	In this case, the job will be fired, even if its starting conditions are not met with.
+
+c) For changing the status of a job:
+
+	sendevent -E CHANGE_STATUS -J [job_name] -s [new_status]
+
+Status can be any one of the following:
+	I) ACTIVATED
+	ii) FAILURE
+	iii) INACTIVE
+	iv) ON_HOLD
+	v) ON_ICE
+	vii) RESTART
+	viii) RUNNING
+	ix) STARTING
+	x) SUCCESS
+    xi) TERMINATED
+
+    •  To put a job on hold
+	sendevent -E JOB_ON_HOLD -J [job_name]
+	           Jobs that are on hold will not start, and downstream dependent jobs will not run.
+
+    •  To put  a job OFF hold
+	sendevent -E JOB_OFF_HOLD -J [job_name]
+	         Jobs that are on hold will start. It is always recommend to FORCE_STARTJOB which is on HOLD. 
+
+    •  To put  a job on ice
+	sendevent -E JOB_ON_ICE -J [job_name]
+	       Jobs that are on ice will not start, and downstream dependent jobs will run.
+
+    •  To put a job off ice
+	sendevent -E JOB_OFF_ICE -J [job_name]
+        Jobs that are on ice will  start. It is always recommend to FORCE_STARTJOB which is on ICE .
+
+    •  To kill a job
+	sendevent -E KILLJOB -J [job_name]
+
+    • To put a job on NO_EXEC
+	sendevent -e JOB_ON_NOEXEC -j [job_name]
+	      Jobs that are on NO_EXEC will not execute and downstream dependent jobs will run.
+
+
+
+
+Important Note:
+
+    1) The box itself performs no actions, but it can trigger other jobs to run. 
+    2) Boxes can contain other boxes that contain jobs.
+    3) Box type job does not have machine attribute.
+    4) The owner of the box is autosys EDIT user I.e (autosys, autoabs) not fnsonlid/is/ir/md/ms etc.
+    5) To start a job within a box  always use FORCE_STARTJOB event.
+    6) To control the process(JOB) flow, global variables can be used.
+    • Global variabls defined in following way:
+                command: /usr/bin/ksh -c 'sendevent -E SET_GLOBAL -G "MASTER_REGION_MODE=DAY"'
+    • Global variabls used in following way:
+condition: v(MASTER_REGION_MODE) = "DAY"
+ 
