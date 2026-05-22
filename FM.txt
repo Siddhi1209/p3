@@ -1,100 +1,100 @@
-#****************************************************************************************
-#
-#  SCRIPT NAME : vvrt_table_count_check.sh
-#  IR      :26030052 : TUSHAR
-#
-#****************************************************************************************
+#!/bin/ksh
+# CONFIG
+BASE_ROOT="/fns/id/r/spool/Interfaces/NEFT/INVALID"
 
-export DD_MFLAGS=$data/file/MFLAGS
-pgm=`basename $0`
-g_today_date=`cat $data/file/MFLAGS|cut -c 9-16`
-tab_owner=fnsonl${REGION}
-cd /sutlej_temp/ram/>vvrt_vvrc_count_$g_today_date.log
-ECHO_P()
-{
-  if [ "$AUTOSYS_MODE" = "Y" ]
-  then
-  echo " [`date|awk '{print $2\" \"$3\" \"$4}'`] $pgm : $@" >> $sysout/zerobyte.log
-  else
-  echo " [`date|awk '{print $2\" \"$3\" \"$4}'`] $pgm : $@"
-  fi
+CURR_MONTH=$(date +%Y%m)
+BASE_DIR="$BASE_ROOT/$CURR_MONTH"
 
-}
-ECHO_M()
-{
-  echo " [`date|awk '{print $2\" \"$3\" \"$4}'`] $pgm : $@"  >> /fns/id/r/sysout/vvrt_vvrc_count_$g_today_date.log
-  }
+[ -d "$BASE_DIR" ] || { echo "Directory not found: $BASE_DIR"; exit 1; }
+
+LATEST_DIR=$(ls "$BASE_DIR" | sort | tail -1)
+FULL_PATH="$BASE_DIR/$LATEST_DIR"
+
+echo "Processing: $FULL_PATH"
 
 
+# OUTPUT FILE
 
-DB_QUERY()
-{
+
+OUT_FILE="invalid_neft_${BANCS_DQPTYPE}.txt.${LATEST_DIR}"
+
+touch "$OUT_FILE"
+> "$OUT_FILE"
+
+
+# LOOP FILES
+
+
+DATA_FOUND=0
+
+for FILE in "$FULL_PATH"/*.NEFT.gz
+do
+    [ -f "$FILE" ] || continue
+
+    UTR=$(basename "$FILE" | sed 's/\.NEFT\.gz//')
+
+
+    # SQL QUERY
+
+
+    DB_QUERY() {
         queryResult=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD << EOF
-        set time off timing off
+        set heading off
         set feedback off
-        set head off
         set pages 0
+        set verify off
+        set echo off
+        set lines 4000
+        set trimspool on
+        set tab off
+        set colsep ','
         $@;
-        show sqlcode;
         exit;
 EOF`
+    }
+
+    DB_QUERY " select UTR, IN_OUT, STATUS, TRAN_DATE, AMOUNT, ACCOUNT_NO, BENEF_ACCT_NO, JRNL_NO_1, TRAN_BRANCH, NVL(IFSC_SENDER,''), NVL(IFSC_RECVR,''), NVL(CREDIT_BGL_ACCT,''), NVL(DEBIT_BGL_ACCT,'') from neft where UTR='$UTR' and INST_NO='003' "
 
 
-   export sqlCode=`echo "$queryResult" | grep sqlcode | awk '{print $2}'`
-      if [ $sqlCode -ne 0 ]; then
-       ECHO_P " $sqlCode "
-       ECHO_M " $sqlCode "
-        exit 2
-      fi
+    # CLEAN OUTPUT (FIXED)
 
-}
 
-db_vvr=`echo $VVR_DB`
-db=`echo $TWO_TASK`
-if [ "$db_vvr" = "$db" ]; then
- ECHO_P "THIS CANNOT BE RUN IN VVR DATA BASE"
- ECHO_M "THIS CANNOT BE RUN IN VVR DATA BASE"
- ECHO_P "PLEASE CHANGE THE DATA BASE "
- ECHO_M "PLEASE CHANGE THE DATA BASE "
- exit 1
+RESULT=$(echo "$queryResult" | tr -d '\r' | sed '/^$/d' | sed "s/^\([^,]*\),/\1,${BANCS_DQPTYPE},/")
+
+    # APPEND RESULT (FIXED)
+
+
+    if [ -n "$RESULT" ]; then
+        echo "$RESULT" >> "$OUT_FILE"
+        DATA_FOUND=1
+    fi
+
+done
+
+
+# HANDLE NO DATA
+
+
+if [ $DATA_FOUND -eq 0 ]; then
+    echo "no invalid utr" > "$OUT_FILE"
 fi
 
-DB_QUERY "select lpad(to_char(to_date($g_today_date,'YYYYMMDD'),'J')-2415020 -1,9,'0') from dual"                          #BINARY DATE OF MFLAG IN $BIN_DATE#
-                       bin_date=`echo $queryResult | cut -d " " -f1`
 
-DB_QUERY "select /*+ parallel(vvrt,16)*/ count(1) from $tab_owner.vvrt where INST_NO='003' and VOUCHER_DATE=$bin_date"                                                                                                                          #COUNT OF VVRT FROM DAY-PROD FOR EODDATE#
-           bancs_vvrt_count=`echo $queryResult |  cut -d " " -f1`
-           ECHO_M "VVRT COUNT \033[32m$bancs_vvrt_count\033[m in \033[33m$db\033[m "
-
-DB_QUERY "select /*+ parallel(vvrc,16)*/ count(1) from $tab_owner.vvrc where INST_NO='003' and VOUCHER_DATE=$bin_date"                                                                                                                      #COUNT OF VVRC FROM DAY-PROD FOR EODDATE#
-          bancs_vvrc_count=`echo $queryResult |  cut -d " " -f1`
-          ECHO_M "VVRC COUNT \033[32m$bancs_vvrc_count\033[m in \033[33m$db\033[m "
+# SEND FILE (FIXED)
 
 
-export TWO_TASK="$VVR_DB"
-if [ `echo $TWO_TASK` = "vvrprod" ];then
+echo "Sending file..."
 
-    DB_QUERY "select /*+ parallel(vvrt,16)*/ count(1) from $tab_owner.vvrt where INST_NO='003' and VOUCHER_DATE=$bin_date"                                                                                                                  #COUNT OF VVRT FROM VVRPROD FOR EODDATE#
-           OVVR_vvrt_count=`echo $queryResult |  cut -d " " -f1`
-           ECHO_M "VVRT COUNT \033[32m$OVVR_vvrt_count\033[m in \033[33m$db_vvr\033[m "
+$HOME/fnsonlid/utils/ftc.sh "$OUT_FILE" "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/HISTORY/$OUT_FILE"
 
-    DB_QUERY "select /*+ parallel(vvrc,16)*/ count(1) from $tab_owner.vvrc where INST_NO='003' and VOUCHER_DATE=$bin_date" #COUNT OF VVRC FROM VVRPROD FOR EODDATE#
-          OVVR_vvrc_count=`echo $queryResult |  cut -d " " -f1`
-          ECHO_M "VVRC COUNT \033[32m$OVVR_vvrc_count\033[m in \033[33m$db_vvr\033[m "
+if [ $? -eq 0 ]; then
+    echo "File transferred successfully"
+    exit 0;
 else
-        ECHO_M "SID IS NOT SET PROPERLY to \033[33m$db_vvr\033[m "
-        exit 2
+    echo "File transfer failed"
 fi
 
-if [ bancs_vvrt_count -eq OVVR_vvrt_count       ];then
-        ECHO_M " VVRT COUNT OF PRODUCTION :$bancs_vvrt_count \033[32mis equal\033[m to VVRDB COUNT $OVVR_vvrt_count "
-else
-        ECHO_M " VVRT COUNT OF PRODUCTION :$bancs_vvrt_count \033[33mis not equal\033[m to VVRDB COUNT $OVVR_vvrt_count"
-        exit 2
-fi
-if [ bancs_vvrc_count -eq OVVR_vvrc_count       ];then
-        ECHO_M " VVRC COUNT OF PRODUCTION :$bancs_vvrc_count \033[32mis equal\033[m to VVRDB COUNT $OVVR_vvrc_count "
-else
-        ECHO_M " VVRC COUNT OF PRODUCTION :$bancs_vvrc_count \033[33mis not equal\033[m to VVRDB COUNT $OVVR_vvrc_count "
-        exit 2
-fi
+
+in this script the OUT_FILE should be stored in the below mentioned path not in the path where script is running
+/fns/id/r/spool/NEFT_INVALID_MONITORING_FOR_PORTAL 
+ make this change and give the script
