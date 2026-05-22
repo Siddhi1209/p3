@@ -92,3 +92,9 @@ if [ $? -eq 0 ]; then
 else
     echo "File transfer failed"
 fi
+
+
+Now this script is for night, now make this change here also
+in this script the OUT_FILE should be stored in the below mentioned path not in the path where script is running
+/fns/is/r/spool/NEFT_INVALID_MONITORING_FOR_PORTAL 
+ make this change and give the script
