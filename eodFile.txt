@@ -1,115 +1,82 @@
+Autosys  - To automate the workflow . 
 
-#!/bin/ksh
+Automate - [Event base / Time base ]
 
-########################################
-# CONFIG
-########################################
+1. Event base  - > Automation tool 
 
-BANCS_DQPTYPE="1"
-RUN_DATE=$(date +%Y%m%d)
+2. Time base -> Either Automation tool or  CRONTAB 
 
-OUT_FILE="invalid_neft_${BANCS_DQPTYPE}_${RUN_DATE}.txt"
-REMOTE_PATH="/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/$OUT_FILE"
+Components  - 
+1. Event Server
+2. Scheduler 
+3. Agent 
 
-########################################
-# CREATE FILE (NO OVERWRITE ISSUE)
-########################################
 
-touch "$OUT_FILE"
-> "$OUT_FILE"   # clear content but keep file
+OS compatibility  - 
 
-########################################
-# HARD CODED UTRs (FOR TESTING)
-########################################
+1. Windows
+2. HP-UX
+3. Linux
 
-UTR_LIST="
-SBIN121056033461
-SBIN121056033462
-SBIN121056033463
-"
+Supported Database - 
 
-########################################
-# PROCESS EACH UTR
-########################################
+1. Microsoft SQL Server
+2. Oracle 
+3. Sybase
+4. Postgre [Dec 2024]
 
-echo "Processing UTRs..."
+Autosys Product - 
+1. WAAE [Workload Automation Autosys Edition]
+2. WCC [Workload Control Centre]
+3. EEM [Embeded Entitlement Manager]
 
-for UTR in $UTR_LIST
-do
-    echo "Checking UTR: $UTR"
+Command in autosys - 
+1. Jil -> Job information language
+2. sendevent -> to send the event in autosys database . 
+3. autorep -> To get the job detail with option [sj and qj ]
+	alias sj => autorep -sj 
+	alias qj => autorep -qj 
 
-    RESULT=$(sqlplus -s / <<EOF
-set heading off feedback off pages 0 verify off echo off lines 1000 trimspool on
-set colsep ','
+script -> It is a program [set of instructions ] that provide a desired result. 
 
-select
-UTR,
-IN_OUT,
-STATUS,
-TRAN_DATE,
-AMOUNT,
-ACCOUNT_NO,
-BENEF_ACCT_NO,
-JRNL_NO_1,
-TRAN_BRANCH,
-NVL(IFSC_SENDER,''),
-NVL(IFSC_RECVR,''),
-NVL(CREDIT_BGL_ACCT,''),
-NVL(DEBIT_BGL_ACCT,'')
-from neft
-where UTR='${UTR}' and INST_NO='003';
+job -> set of program. 
 
-exit;
-EOF
-)
+Job type in autosys - 
 
-    # CLEAN OUTPUT
-    RESULT=$(echo "$RESULT" | tr -d '\r' | sed '/^$/d')
+CMD
+BOX  [It is a wrapper job]
+--------------------------------------------------------------------------
+To insert the job in autosys 
+--------------------------------------------------------------------------
+insert_job: <SERVER_NAME>.<owner>_<JOB_NAME>_<DQP_TYPE>
+insert_job: SLAVE11.i_online_test_job   job_type: CMD
+box_name: TEST_JOB
+command: /usr/bin/ksh -c '$data/Autosys_scripts/auto_conn_check.sh'
+machine: SLAVE11
+owner: fnsonli
+permission: gx
+job_terminator: t
+std_out_file: "$sysout/autosyslog.out"
+std_err_file: "$sysout/autosyslog.err"
+alarm_if_fail: t
+profile: "$HOME/.profile_uajm"
+alarm_if_terminated: t
+send_notification: n
 
-    ########################################
-    # APPEND IF DATA FOUND
-    ########################################
 
-    if echo "$RESULT" | grep -q ','; then
-        echo "$RESULT" >> "$OUT_FILE"
-        echo "✔ Data found for $UTR"
-    else
-        echo "✖ No data for $UTR"
-    fi
 
-done
 
-########################################
-# HANDLE NO DATA CASE
-########################################
+Type of Job - 
+1. CMD
+2. Filewatcher
+3. scp
+4. ftp 
+5. hadoop
+6. Kubernet
+7. SQL server
+8.  
 
-LINE_COUNT=$(wc -l < "$OUT_FILE")
-
-if [ "$LINE_COUNT" -eq 0 ]; then
-    echo "no invalid utr" > "$OUT_FILE"
-fi
-
-########################################
-# SHOW OUTPUT (DEBUG)
-########################################
-
-echo "-------------------------------------"
-echo "Generated File Content:"
-cat "$OUT_FILE"
-echo "-------------------------------------"
-
-########################################
-# SEND FILE TO PORTAL
-########################################
-
-echo "Sending file to portal..."
-
-/home/monitorp/pace/ftc.sh "$OUT_FILE" "$REMOTE_PATH"
-
-if [ $? -eq 0 ]; then
-    echo "✔ File transferred successfully"
-else
-    echo "✖ File transfer failed"
-fi
-
-echo "Test completed."
+Platform  Support to run the job  - 
+1. Unix 
+2. Winodws
+3. Linux
