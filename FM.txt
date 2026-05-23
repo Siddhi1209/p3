@@ -1,134 +1,58 @@
+MIZO:cbsprodm:/fns/i/r/cat:-)cat cssr0940
+##### JOB TO RUN SSR940 PROGRAM #########
 
-#!/bin/ksh
+dd=`cat $data/file/MFLAGS|cut -c15-16`
+mm=`cat $data/file/MFLAGS|cut -c13-14`
+yyyy=`cat $data/file/MFLAGS|cut -c9-12`
 
-# CONFIG
+todays_date=$dd$mm$yyyy
 
-BASE_ROOT="/fns/is/r/spool/Interfaces/NEFT/INVALID"
+if [ -d "$spool/Interfaces/SR0940/EXTRACTS" ]
+ then
+     continue
+ else
+     echo "Creating Directory $spool/Interfaces/SR0940/EXTRACTS"
+     mkdir -p $spool/Interfaces/SR0940/EXTRACTS
+  if [ ! -d "$spool/Interfaces/SR0940/EXTRACTS-ARCHIVE" ]
+    then
+     echo "Creating Directory $spool/Interfaces/SR0940/EXTRACTS-ARCHIVE"
+     mkdir -p $spool/Interfaces/SR0940/EXTRACTS-ARCHIVE
+  fi
+fi
 
-CURR_MONTH=$(date +%Y%m)
+cd $spool/Interfaces/SR0940/EXTRACTS-ARCHIVE
+mkdir $todays_date
+echo "Moving previously generated extracts to archive folder"
+mv $spool/Interfaces/SR0940/EXTRACTS/* $spool/Interfaces/SR0940/EXTRACTS-ARCHIVE/$todays_date/
 
-BASE_DIR="$BASE_ROOT/$CURR_MONTH"
-
-OUTPUT_PATH="/fns/is/r/spool/NEFT_INVALID_MONITORING_FOR_PORTAL"
-
-
-# CHECK INPUT DIRECTORY
-
-[ -d "$BASE_DIR" ] || {
-    echo "Directory not found: $BASE_DIR"
-    exit 1
-}
-
-
-# CHECK OUTPUT DIRECTORY
-
-[ -d "$OUTPUT_PATH" ] || {
-    echo "Output directory not found: $OUTPUT_PATH"
-    exit 1
-}
-
-
-# GET LATEST DIRECTORY
-
-LATEST_DIR=$(ls "$BASE_DIR" | sort | tail -1)
-
-FULL_PATH="$BASE_DIR/$LATEST_DIR"
-
-echo "Processing: $FULL_PATH"
-
-
-# OUTPUT FILE
-
-OUT_FILE="$OUTPUT_PATH/invalid_neft_${BANCS_DQPTYPE}.txt.${LATEST_DIR}"
-
-touch "$OUT_FILE"
-
-> "$OUT_FILE"
-
-
-# LOOP FILES
-
-DATA_FOUND=0
-
-for FILE in "$FULL_PATH"/*.NEFT.gz
-do
-    [ -f "$FILE" ] || continue
-
-    UTR=$(basename "$FILE" | sed 's/\.NEFT\.gz//')
-
-
-    # SQL QUERY
-
-    DB_QUERY() {
-
-        queryResult=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD << EOF
-        set heading off
-        set feedback off
-        set pages 0
-        set verify off
-        set echo off
-        set lines 4000
-        set trimspool on
-        set tab off
-        set colsep ','
-
-        $@;
-
-        exit;
-EOF`
-    }
-
-
-    DB_QUERY "select UTR,
-                     IN_OUT,
-                     STATUS,
-                     TRAN_DATE,
-                     AMOUNT,
-                     ACCOUNT_NO,
-                     BENEF_ACCT_NO,
-                     JRNL_NO_1,
-                     TRAN_BRANCH,
-                     NVL(IFSC_SENDER,''),
-                     NVL(IFSC_RECVR,''),
-                     NVL(CREDIT_BGL_ACCT,''),
-                     NVL(DEBIT_BGL_ACCT,'')
-              from neft
-              where UTR='$UTR'
-              and INST_NO='003'"
-
-
-    # CLEAN OUTPUT
-
-    RESULT=$(echo "$queryResult" | tr -d '\r' | sed '/^$/d' | sed "s/^\([^,]*\),/\1,${BANCS_DQPTYPE},/")
-
-
-    # APPEND RESULT
-
-    if [ -n "$RESULT" ]; then
-        echo "$RESULT" >> "$OUT_FILE"
-        DATA_FOUND=1
-    fi
-
+pgm=`basename $0`
+export DD_MFLAGS=$data/file/MFLAGS
+export DD_INSPARAM=$data/params/INSPARAM
+export DD_VCCPARAM=$data/params/VCCPARAM
+################START OF IR 76205##########
+export DD_FDBRANCH=$card/FDBRCH.card
+################END OF IR 76205############
+cmd="run.sh -t"
+while getopts bdft c ; do
+   case $c in
+      b) cmd="run.sh -b" ;;
+      d) cmd="run.sh -d";;
+      f) cmd="run.sh -f";;
+      t) cmd="run.sh -t";;
+   esac
 done
-
-
-# HANDLE NO DATA
-
-if [ $DATA_FOUND -eq 0 ]; then
-    echo "no invalid utr" > "$OUT_FILE"
+shift `expr $OPTIND - 1`
+$cmd SSR940
+exit_cde=$?
+if [ $exit_cde -ne "0" ];then
+      echo "SSR940 has completed with errors...."
+#### CHANGES FOR AUTOSYS ####
+   if [ $AUTOSYS_MODE = Y ];then
+          echo "SSR940 has completed with errors...." >> zerobyte.log
+          exit 1
+   fi
 fi
-
-
-# SEND FILE
-
-echo "Sending file..."
-
-$HOME/pace/ftc.sh "$OUT_FILE" "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/HISTORY/$(basename $OUT_FILE)"
-
-if [ $? -eq 0 ]; then
-    echo "File transferred successfully"
-    exit 0
-else
-    echo "File transfer failed"
-    exit 1
-fi
+echo "FDKOL $spool/Interfaces/SR0940/EXTRACTS/SSR940_$todays_date  /SSR_files_CBS/SSR0940/SSR940_$todays_date" | TBpush
+#--------------------START OF IR 23060201------------------------------------------
+echo "CIFSR $spool/Interfaces/SR0940/EXTRACTS/SSR940_$todays_date  /CDC/FCNB_RFC_EEFC/netposition/MT940/SSR940_$todays_date" | TBpush
+#----------------------END OF IR 23060201------------------------------------------
