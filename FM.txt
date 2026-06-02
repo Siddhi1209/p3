@@ -1,3 +1,11 @@
+
+Dear Team,
+The portal server (10.0.40.8) was migrated from Linux version 7.9 to Linux version 8.10 as part of the OS upgrade activity.
+During the same activity, the PHP version used by the portal was upgraded from PHP 5.6 to PHP 8.0.30, considering compatibility with the Linux 8.10 environment and application stability requirements.
+Please note that the official support lifecycle (security support/EOL) for PHP 8.0.x expired on 26-November-2023.
+
+
+
 MIZO:cbsprodm:/fns/i/r/cat:-)cat cssr0940
 ##### JOB TO RUN SSR940 PROGRAM #########
 
