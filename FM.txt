@@ -1,66 +1,450 @@
+Scope of project
+Contents 
+1. Application and Service Monitoring ..................................................................................................................2 
+2. End of the Day Batch Management ..................................................................................................................4 
+3. Finance One application Support and Management ........................................................................................6 
+4. Online Activity & Critical Jobs Management ....................................................................................................7
+5. BCP DR and Contingency Management ............................................................................................................8 
+6. Offline Reports and Extracts Management.......................................................................................................9 
+7. Autosys Development ,Deployment and Management ................................................................................ 10 
+8. Process Management, Reporting & Governance........................................................................................... 11 
+9. Regular Miscellaneous Activities .................................................................................................................... 12 
+10. Muliapps Deployment .................................................................................................................................... 13 
+11. Tools Development and Management ........................................................................................................... 13
 
-Dear Team,
-The portal server (10.0.40.8) was migrated from Linux version 7.9 to Linux version 8.10 as part of the OS upgrade activity.
-During the same activity, the PHP version used by the portal was upgraded from PHP 5.6 to PHP 8.0.30, considering compatibility with the Linux 8.10 environment and application stability requirements.
-Please note that the official support lifecycle (security support/EOL) for PHP 8.0.x expired on 26-November-2023.
+Activity Deliverable 
+
+- Ensuring high availability of the Core Banking application and the channel 
+services running on the CBS application servers 
+
+-Ensuring error free execution of various business functions serviced out of 
+CBS application 
+-Ensuring prompt alert and timely escalations to pre-empt outages 
+Activity Overview ‒ Monitoring of the online services and channels based on the generic as 
+well as service specific monitoring criterion. This also involves monitoring 
+of the other auxiliary business function specific services running on CBS 
+application services like secondary updates ,batch recalculation 
+‒ Periodic sanity checks pertaining to application runtime environment like 
+shared memory loading, context block and various flags, console Q’s 
+programs status 
+‒ Monitoring the CBS application servers resource utilization namely ,CPU, 
+Disk ,processes and notify contentions 
+‒ Need based intervention and deep dive by reviewing the online 
+application log files to identify any errors and exceptions impacting the 
+application/service availability and CBS responses.
+‒ Trend based monitoring using historic business load patterns 
+‒ Identifying the processing bottlenecks (current & prospective) and 
+providing regular feedback to the development and architecture teams 
+‒ Managing alerts, notification and escalations to concerned for timely 
+issue readdress 
+‒ Capture and facilitate the data points like log files backup ,Q snapshots, 
+forming problem definitions ,transaction screen shots etc to aid 
+subsequent issue investigation 
+‒ Service Desk coordination for gathering transaction specific issues from 
+branches causing disruptions at CBS host 
+‒ Focal point of escalation for other channel support teams for real time 
+issues pertaining to channels availability 
+‒ Notifying and coordinating with other support teams (DBA team, Sys 
+admin and Network) for errors and performance bottlenecks in 
+application 
+‒ Logging Incident ticket in HPSM for further investigation
+------------------------------------------------------------------------------------------------------
+
+Activity Coverage 
+‒ Gateways for Branch, ATM, Internet Banking , Multi Remittance ,Trade 
+Finance ,Contact Center for 
+• Continuous availability of the services 
+• Regular inflow of the transactions 
+• Number of TCP connections on the gateway ports 
+• Errors ,exceptions in the gateway log files 
+• ATM offline and INB timeouts monitoring 
+• INB file based enquiry transactions 
+• ATM Cobol and C gateways monitoring 
+‒ Online application Queues monitoring and management 
+• Monitoring Q buildups and drops 
+
+• Online Q replica management 
+• High resource consuming and hung replicas identification 
+• Q logs monitoring for ORA errors, RC errors and other exceptions 
+• Identifying and communicating PID of hung replicas to DBA’s 
+• Capturing the transaction number, account number, branch ,teller 
+particulars causing errors and exceptions 
+• Coordinating with service desk to contact the branches for 
+specific transactions causing Q builds, drops and hung replicas 
+‒ Payment & Settlement Systems Monitoring 
+‒ RTGS,NEFT,GRPT,NSBL Monitoring 
+• Number of Incoming and Outgoing messages processed/pending 
+• Acknowledgements and returns processing for timely settlement 
+• Per minute processing rate and processing trends 
+• IT PSG MQ server errors and exceptions 
+• RTGS Bulk files processing monitoring 
+• Coordination and Communication with SBI IT PSG team for overall 
+processing status 
+• Attending calls and queries for IT-PSG team 
+• Providing NEFT daily processing report to IT PSG 
+• Monitoring of below mentioned online Business functions 
+• Processing status of secondary update(SY1000) 
+• SY1000 hourly pending entries identification and timestamp 
+update 
+• Backdated calculation SY3000 monitoring 
+• Cheque dishonor extract -SY2005 timely generation 
+• SC/DDP automation job replica and number of connections 
+monitoring 
+• Audit/Adhoc requests processing’s and pending checks 
+• Standing Instructions and Rollovers processing-Post SOD 
+• Cheque clearing and rollovers 
+• Sweeps processing 
+‒ Monitoring the backend system cron jobs 
+‒ Monitoring of application environment, regions and context block flags 
+and notifying the appropriate values 
+‒ Monitoring of Trickle Feed Based Processing on 4 application servers for 
+• Pending and processed files 
+• Files priority and replica configuration management
+• FTP cron and pending files monitoring of FTP server
+‒ Monitoring the generation and ftp of online extracts like 
+• broker extracts, ACD/DRD/IOI,ATM recon, Haj committee, 
+UPSC,FICO, National premeir,RML,School_College, Competitive, 
+Rail Shakti, Oltas, Wealth Management, ATM-PBF generated in 
+EOD/Online 
+‒ Checking and verifying the Direct changes in the system and the 
+component changes in production
+
+2. End of the Day Batch Managemen
+
+Activity Objective
+
+- Error free completion of the daily EOD batch within time
+- Ensure timely availability of system for online business operations 
+- Strategize, Plan and Manage the critical period end batches 
+- Mitigate contingencies during batch execution 
+- Foresee, Identify and drive the improvement actions to contain batch window
+
+‒ Critical monitoring of the system resources ,jobs executions and outcomes
+‒ Perform pre batch and post batch mandatory validation checks 
+‒ Trend based monitoring using the historic runtime data of jobs 
+‒ Troubleshoot and manage failure state recoveries of jobs/batches to avoid 
+any delay in start of next day online operations 
+‒ Liaise with DBA/sysadmin teams and approval authorities(SBI & TCS) to 
+trigger a corrective action course in event of failures/disruptions 
+‒ Coordination with other department/channels support teams for night region 
+channel transaction support 
+‒ Strategize end-to-end executions schedules for critical period ends like 
+month-end ,quarter-end, year-end for error free and timely execution 
+‒ Plan ,coordinate and manage various pre/post EOD maintenance activities 
+‒ Check and validate the finance one upload outputs 
+‒ Continuously lookout for improvement areas for reducing the EOD batch 
+runtime and best fitment of jobs and schedules 
+‒ Analyze and report the bottlenecks and potential improvement areas 
+‒ Provide Execution support to SBI DCOG team 
+‒ Validations checks for reports and extracts generated during EOD 
+‒ Perform checks for high value identification during EOD 
+‒ Initiate escalation for triggering corrective action before F1 EOD start in case 
+of high value 
+‒ Capture and facilitate the data points like log files backup , forming problem 
+definitions ,transaction screen shots to aid subsequent issue investigation 
+‒ Notify the development support team of the failures which would require 
+datafix 
+‒ Provide vital inputs for capacity planning driven by systematic historic data 
+analysis
+
+Activity Description
+
+Pre EOD Batch Activities
+
+‒ Review the stream wise runtime duration of multistreams jobs and identify 
+jobs for rebalancing 
+‒ Analyze and prepare balanced cards 
+‒ Provide execution support to DCOG team for mssetups execution and verify 
+the logs and output 
+‒ Space management in $sysout,$data before EOD execution 
+‒ Check if any new component promotion w.r.t to EOD batch requires any 
+mssetups runs
+
+During EOD Batch Activities
+
+‒ Critically monitor the outcome and processing rate of EOD jobs 
+‒ Verify the SYNC table checksts entries for 
+‒ Monitor the CPU utilizations(sys and usr),no of processes(sleep, 
+running),space utilizations
+‒ From IN0800/BR0501 logs check the processing date and monitor 
+GLIFINV/INVTOGL files 
+‒ Check with DBA on the number of connections on each DB instance, 
+waits/locks or any other issues
+‒ Identify any anomalies w.r.t to runtime of the jobs. Check the scenarios if any 
+jobs is not triggered in time
+‒ Verify the autosys logs and verify checkrc, oracle errors, cobol failures and 
+take corrective actions accordingly 
+‒ Identify the jobs/streams in loop/hung state or failed and take corrective 
+actions like restart ability accordingly 
+
+Post EOD Batch Activities 
+‒ Finance one upload checks
+‒ Check the DB switch and EOD call closure
+‒ Ensure the completion of all the jobs 
+‒ Check the eodlog/smart logs
+‒ Check the post eod backup jobs
+‒ Monitor and verify the region switch and SOD process 
+‒ Check the date rollovers, Q initializations, shared memory load, replica 
+changes ,parameter checks ,regions sanity checks after SOD
+‒ Perform daily SOD check as per checklist
+‒ Analysis and reporting on EOD issues 
+
+Finance One application Support and Management
+
+-Ensure the availability of F1 application 
+-Timely and error free extraction of Returns, Reports & Financial Statements 
+-Mitigate contingencies during Finance One operations execution
+
+‒ Ensure the readiness and availability of Finance one application and region
+‒ Monitoring ,verification and validation of End-to-End process of extract 
+generation from CBS to Finance One upload and subsequent report 
+generation 
+‒ Review of balance compare report, assets liability mismatch, high value 
+checks and various other functional checks. Notify to initiate corrective 
+actions 
+‒ Coordinate with GLIF-Reconciliation team for fixes and rectifications 
+‒ Plan, schedule and manage the execution during the critical period end 
+‒ Troubleshoot and manage failure state recoveries of jobs/batches to avoid 
+any delay in subsequent generation of reports and extracts 
+‒ Provide execution support to bank operation’s team 
+‒ Coordinate with banks team and notify any changes to execution checklist 
+‒ Review the log files for RC/Oracle errors and exceptions 
+‒ Strategize ,communicate and manage the execution schedules of the critical 
+periods end batches 
+‒ Perform causal analysis for high number of GLCC entries in daily bal comp 
+report and trace the root cause to Bancs EOD 
+‒ Identify the discrepancies in EOD causing F1 GLCC out and drive rectification 
+and corrective actions 
+‒ Perform end to end application testing in case of hardware ,Oracle, Cobol and 
+OS version upgrades 
+‒ Provisional entries upload in Finance one and subsequent validations 
+
+
+---------------------------------------------------------------------
+
+4. Online Activity & Critical Jobs Management 
+
+- Oversee the time bound and error free completion of critical online functions
+- Mitigate contingencies in online activities
+‒ Monitoring the entire day execution of the activities (as per DCOG checklist) 
+through autosys as the business day progresses. This includes 
+‒ Day SOD and Region Bounce 
+‒ Reposting ,subsequent reruns and failed report generation 
+‒ Post SOD ,Standing Instructions, Rollovers and Payouts 
+‒ Post Standing Instructions 
+‒ Night EOD execution 
+‒ Brach cutoff and Interfaces stop 
+‒ Sweeps execution and Parallel to Sweeps 
+‒ Region Switch and Pre EOD backup 
+‒ Database Switch and Reference Up 
+‒ Parallel to EOD backup 
+‒ Interfaces start,SY1000,Audit Adhoc,Batch Recalculation, Online crons
+‒ Various Online Extracts 
+‒ Glif Loading 
+‒ Monitor the capacity utilizations ,errors logs, job outcomes and processing 
+rates 
+‒ Verify the autosys execution and error logs 
+‒ Monitor for any impact on online processing 
+‒ Troubleshoot and manage failure state recoveries of jobs/batches to avoid 
+any delay in subsequent generation of reports and extracts 
+‒ Provide support to the banks operations team 
+‒ Manage the restarts in the event of hardware/application restarts 
+‒ Reschedule in the event of early EOD starts 
+‒ Identify processing bottlenecks and drive the corrective actions 
+‒ Review the card files and multi stream jobs balancing 
+‒ Manage the cron based job initiations in the event of extended cutoff or 
+branch requests 
+
+5. BCP DR and Contingency Management
+ Ensure the timely application availability at DR site in case of primary site 
+failure 
+ Strategize, plan and manage the application recovery emanating from partial 
+failures at primary site
+‒ Planning ,coordinating, supporting and executing DR Drills
+‒ Performing detailed preparatory checks as per checklist 
+‒ Coordinate with various channel teams for IP configuration changes and 
+signoff 
+‒ Perform application level checks after switch over to DR and seek 
+conformation from channels 
+‒ Troubleshoot issues reported by channels during DR drills 
+‒ Review and manage the application .profile changes at DR servers inline to 
+the production servers 
+‒ Manage the in-transit and future dated file based processing load 
+‒ Daily verification of the application code sync at the DR servers, space 
+allocations and sanity checks 
+‒ Prepare and submit report to bank post DR 
+‒ Identify the issues during DR drill and drive the closure actions 
+‒ Handling contingency scenarios where the services, jobs, operations cannot 
+be served out of the standard setup of server and configuration and requires 
+failovers, switches to other servers or changes in the standard configuration 
+and setup
+
+
+6. Offline Reports and Extracts Management
+
+ Managing offline reports and extracts generation ,monitoring and delivery
+from DR and Agrani servers 
+ Handling backdated generation and distribution requests
+
+‒ Managing end-to-end daily offline reports generation & distribution process 
+on penna server 
+‒ Manage the generation, verification and distribution of CISLA,BASEL,CRMD 
+and NRD extracts from Agrani server 
+‒ Performing preparatory checks pertaining to region,date,synch status,index 
+creation, space allocations etc as per the operations checklist before start of 
+the report on Agrani and Penna 
+‒ Coordinate with DR team on release schedule of penna database and perform 
+checks before reports start of reports 
+‒ Manage autosys changes after new job promotions or 
+‒ Re-initialize the Autosys execution schedules before start of EOD 
+‒ Review any change in reports generation schedule is required incase of 
+reprioritization requests from bank 
+‒ Review the balancing requirements based on runtimes of multistream jobs 
+‒ Execute the mutistream setups after balanced cards are deployed 
+‒ Trigger the reports execution 
+‒ Critical monitoring of the system resources ,jobs executions and outcomes 
+‒ Troubleshoot and manage failure state recoveries of jobs to avoid any delay in 
+reports distribution to branches 
+‒ Capture and facilitate the data points like log files backup , forming problem 
+definitions ,transaction screen shots to aid subsequent issue investigation 
+‒ Continuously lookout for improvement areas for reducing the report runtime 
+window and best fitment of jobs and schedules 
+‒ Coordinate with EDW and Audi time support teams and provide support 
+‒ Handle tickets assigned by DCOG 
+‒ Manage backdated reports regenerations requests on penna after reports 
+completion 
+‒ Manage multiple execution schedules of CISLA/BASEL during march month 
+‒ Handle distribution requests/calls from Branches/DCOG/Service Desk 
+‒ Plan and execute the month-end, quarter-end, year-end reports schedule 
+over Penna and Agrani 
+
+7. Autosys Development ,Deployment and Management
+- Automation of Manual Operations through Autosys deployment
+- Attain Operational Reliability by eliminating manual interventions leading to 
+errors and omission 
+- Deeper Insights into complex job execution flows assisted by Flow diagram 
+based representation Handling backdated generation and distribution 
+requests 
+- Minimize lead time in rollout of new application servers for horizontal scaling 
+- Eliminate backend production access for repetitive activities 
+- Automated Multichannel alerts and notification 
+- Build in additional controls and checks in operational process 
+
+‒ End-to-End autosys application support and management involving 
+application deployment, version upgrades ,patch management and user 
+management 
+‒ Setup of Autosys in production, UAT, Preprod and ST environments 
+‒ Setup of DR and hot failovers of Autosys 
+
+8. Process Management, Reporting & Governance
+
+- To ensure that the production operations are managed and services are 
+delivered to Bank effectively and efficiently 
+- Facilitate quick recoveries in the event service failure and minimize business 
+impact 
+- Methodologically record and analyze production incidents to identify the root 
+cause and drive the issues to closure 
+- Keep the stakeholders informed on overall application health, Daily 
+production Incidents ,analysis ,propose solution and closure plan.
+
+9.Incident Management and Problem Management
+‒ For all production service disruptions record outage duration, business 
+impact, affected service and recovery solution in Incident Management 
+tool 
+‒ Utilize and update known error database with recovery solution 
+‒ Perform causal analysis to identify the underlying problem 
+‒ Track the issues and drive the initiatives to closure by coordinating with 
+stakeholders 
+‒ Daily Incident and production problem reporting to bank and regular 
+discussion 
+Change Management 
+‒ Participate in weekly CAB’s to review and plan the changes to production 
+‒ Maintain the change ticketing in HPSM tool 
+‒ Evaluate the changes from operations perspective 
+‒ Prepare run plan for weekly change deployments in production and 
+communicate to all stakeholders 
+‒ Coordinate with all the stakeholder for the successful completion of the 
+activity 
+
+9. Regular Miscellaneous Activities
+
+Office DB Management
+‒ Handling request from SBI Implementation for new branch addition 
+‒ Handling requests for branch passwords changes in office db 
+‒ Maintaining the officeDB change tool
+
+Multistream Jobs Balancing 
+‒ Monitor the runtime of multistream jobs 
+‒ Analyze the workload distribution across streams 
+‒ Balance the account/branch distribution and prepare the new balanced 
+cards 
+‒ Review and Validate the cards before deploying in production 
+‒ Manage the execution and verification of MS setups post card 
+deployment 
+
+Mock runs Management 
+‒ Execute and Monitor the mock validation runs on Agrani/Rebuid for 
+• Monthly bulk releases 
+• Month/Quarter/Year end EOD 
+• Year end critical report generations for verification 
+• Validating changes in critical business functionalities or parameter 
+changes related to NPA, Interest processing etc 
+• Performance evaluation of architectural changes 
+‒ Region preparation on Agrani, Preparatory pre mock validations checks 
+‒ Coordinating with multiple stakeholders from development team ,config, 
+DBA,sysadmin and Bank authorities 
+‒ Execution of the pre/post data collection routines 
+‒ Coordinate with Sysadmin team for timely data restoration in F1 region 
+‒ Manage the execution of end-to-end EOD of CBS then Finance one 
+upload, balance compare and report generation 
+‒ Monitor the entire process critically and identify bottlenecks if any 
+TCS PSO Activity Charter for SBI Core Banking Application 
+Page 13 of 13
+Application file system Housekeeping 
+‒ Regular application file system cleaning and application logs purging 
+‒ Coordinate sysadmin team with space provisioning
+
+Support for adhoc activities 
+‒ Provide support during adhoc activities like Bulk Promotions,Branch 
+mergers, bulk data fix executions, data extractions requirements for 
+forensic and business needs, scheduled downtimes, LV additions 
+
+10. Muliapps Deployment
+
+‒ Undertake the development ,testing & configuration work required for new 
+application server commissioning 
+‒ Plan ,execute and Manage the application deployment 
+‒ Coordinate with system,sysadmin,DBA,config team for configuration settings 
+and perform sanity checks as per documented checklist 
+‒ Identify and manage the downstream operational dependencies 
+‒ Coordinate with DCOG team for checklist amends 
+‒ Setup Autosys and undertake changes in portal 
+‒ Communicate the deployment day plan and schedule
+
+11. Tools Development and Managemen
+
+‒ Design, development and enhancement of Online and EOD monitoring portal,
+Production file change tracking dashboard and knowledge management 
+portal
 
 
 
-MIZO:cbsprodm:/fns/i/r/cat:-)cat cssr0940
-##### JOB TO RUN SSR940 PROGRAM #########
 
-dd=`cat $data/file/MFLAGS|cut -c15-16`
-mm=`cat $data/file/MFLAGS|cut -c13-14`
-yyyy=`cat $data/file/MFLAGS|cut -c9-12`
 
-todays_date=$dd$mm$yyyy
 
-if [ -d "$spool/Interfaces/SR0940/EXTRACTS" ]
- then
-     continue
- else
-     echo "Creating Directory $spool/Interfaces/SR0940/EXTRACTS"
-     mkdir -p $spool/Interfaces/SR0940/EXTRACTS
-  if [ ! -d "$spool/Interfaces/SR0940/EXTRACTS-ARCHIVE" ]
-    then
-     echo "Creating Directory $spool/Interfaces/SR0940/EXTRACTS-ARCHIVE"
-     mkdir -p $spool/Interfaces/SR0940/EXTRACTS-ARCHIVE
-  fi
-fi
 
-cd $spool/Interfaces/SR0940/EXTRACTS-ARCHIVE
-mkdir $todays_date
-echo "Moving previously generated extracts to archive folder"
-mv $spool/Interfaces/SR0940/EXTRACTS/* $spool/Interfaces/SR0940/EXTRACTS-ARCHIVE/$todays_date/
 
-pgm=`basename $0`
-export DD_MFLAGS=$data/file/MFLAGS
-export DD_INSPARAM=$data/params/INSPARAM
-export DD_VCCPARAM=$data/params/VCCPARAM
-################START OF IR 76205##########
-export DD_FDBRANCH=$card/FDBRCH.card
-################END OF IR 76205############
-cmd="run.sh -t"
-while getopts bdft c ; do
-   case $c in
-      b) cmd="run.sh -b" ;;
-      d) cmd="run.sh -d";;
-      f) cmd="run.sh -f";;
-      t) cmd="run.sh -t";;
-   esac
-done
-shift `expr $OPTIND - 1`
-$cmd SSR940
-exit_cde=$?
-if [ $exit_cde -ne "0" ];then
-      echo "SSR940 has completed with errors...."
-#### CHANGES FOR AUTOSYS ####
-   if [ $AUTOSYS_MODE = Y ];then
-          echo "SSR940 has completed with errors...." >> zerobyte.log
-          exit 1
-   fi
-fi
-echo "FDKOL $spool/Interfaces/SR0940/EXTRACTS/SSR940_$todays_date  /SSR_files_CBS/SSR0940/SSR940_$todays_date" | TBpush
-#--------------------START OF IR 23060201------------------------------------------
-echo "CIFSR $spool/Interfaces/SR0940/EXTRACTS/SSR940_$todays_date  /CDC/FCNB_RFC_EEFC/netposition/MT940/SSR940_$todays_date" | TBpush
-#----------------------END OF IR 23060201------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
