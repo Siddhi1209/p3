@@ -1,1 +1,47 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+<title>SOP Repository</title>
+<style>
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+th,td{
+    border:1px solid #ddd;
+    padding:8px;
+}
+</style>
+</head>
+<body>
+
+<h2>SOP Repository</h2>
+
+<input type="text" id="search" placeholder="Search SOP">
+
+<table>
+<tr>
+    <th>SOP Name</th>
+    <th>Open</th>
+</tr>
+
+<tr>
+    <td>13th APP CHECKLIST</td>
+    <td><a href="sop/13th_APP_CHECKLIST.xlsx">Open</a></td>
+</tr>
+
+<tr>
+    <td>CISLA SOP</td>
+    <td><a href="sop/CISLA_SOP.xlsx">Open</a></td>
+</tr>
+
+<tr>
+    <td>EA SOP</td>
+    <td><a href="sop/EA_SOP.pdf" target="_blank">Open</a></td>
+</tr>
+
+</table>
+
+</body>
+</html>
