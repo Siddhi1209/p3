@@ -1,1 +1,217 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOP Repository</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:20px;
+}
+
+h1{
+    text-align:center;
+    color:#003366;
+    margin-bottom:20px;
+}
+
+#searchBox{
+    width:100%;
+    padding:12px;
+    font-size:16px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    margin-bottom:15px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+th{
+    background:#003366;
+    color:white;
+    padding:12px;
+    text-align:left;
+}
+
+td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+}
+
+tr:hover{
+    background:#f1f7ff;
+}
+
+.open-btn{
+    background:#28a745;
+    color:white;
+    padding:6px 12px;
+    border-radius:4px;
+    text-decoration:none;
+}
+
+.open-btn:hover{
+    background:#218838;
+}
+
+</style>
+
+<script>
+
+function searchSOP() {
+
+    let input = document.getElementById("searchBox").value.toUpperCase();
+    let table = document.getElementById("sopTable");
+    let tr = table.getElementsByTagName("tr");
+
+    for(let i=1;i<tr.length;i++){
+
+        let td = tr[i].getElementsByTagName("td")[0];
+
+        if(td){
+
+            let txtValue = td.textContent || td.innerText;
+
+            if(txtValue.toUpperCase().indexOf(input) > -1){
+                tr[i].style.display = "";
+            }else{
+                tr[i].style.display = "none";
+            }
+        }
+    }
+}
+
+</script>
+
+</head>
+
+<body>
+
+<h1>KEDB SOP Repository</h1>
+
+<input type="text"
+       id="searchBox"
+       onkeyup="searchSOP()"
+       placeholder="Search SOP...">
+
+<table id="sopTable">
+
+<tr>
+<th>SOP Name</th>
+<th>Action</th>
+</tr>
+
+<tr><td>13th_APP_checklist.xlsx</td><td><a class="open-btn" href="sop/13th_APP_checklist.xlsx">Open</a></td></tr>
+
+<tr><td>CBS_EOY_MOCK_CHARTER_2024_25.xlsx</td><td><a class="open-btn" href="sop/CBS_EOY_MOCK_CHARTER_2024_25.xlsx">Open</a></td></tr>
+
+<tr><td>CISLA_SOP.xlsx</td><td><a class="open-btn" href="sop/CISLA_SOP.xlsx">Open</a></td></tr>
+
+<tr><td>Checklist_for_Autosys_basic_troubleshooting.xlsx</td><td><a class="open-btn" href="sop/Checklist_for_Autosys_basic_troubleshooting.xlsx">Open</a></td></tr>
+
+<tr><td>Checklist_for_Enabling_of_New_DA_Tables_for_SI_SWEEP_DJ0120_Report.xlsx</td><td><a class="open-btn" href="sop/Checklist_for_Enabling_of_New_DA_Tables_for_SI_SWEEP_DJ0120_Report.xlsx">Open</a></td></tr>
+
+<tr><td>DEC-CAP-EOQ_Dec_2025.xlsx</td><td><a class="open-btn" href="sop/DEC-CAP-EOQ_Dec_2025.xlsx">Open</a></td></tr>
+
+<tr><td>DRILL_CHECKLIST.xlsx</td><td><a class="open-btn" href="sop/DRILL_CHECKLIST.xlsx">Open</a></td></tr>
+
+<tr><td>EA_SOP_for_CBS_Queue_Build_Up_Adhoc_Query_Execution.pdf</td><td><a class="open-btn" href="sop/EA_SOP_for_CBS_Queue_Build_Up_Adhoc_Query_Execution.pdf" target="_blank">Open</a></td></tr>
+
+<tr><td>EOQ_20250930.xlsx</td><td><a class="open-btn" href="sop/EOQ_20250930.xlsx">Open</a></td></tr>
+
+<tr><td>FINAL_BANCS_MOCK_FLOW.xlsx</td><td><a class="open-btn" href="sop/FINAL_BANCS_MOCK_FLOW.xlsx">Open</a></td></tr>
+
+<tr><td>Final_SOP_Bring_Up_and_Down_the_Regions_in_CBS.docx</td><td><a class="open-btn" href="sop/Final_SOP_Bring_Up_and_Down_the_Regions_in_CBS.docx">Open</a></td></tr>
+
+<tr><td>GL_JOB_ALTERNATE_FLOW.txt</td><td><a class="open-btn" href="sop/GL_JOB_ALTERNATE_FLOW.txt">Open</a></td></tr>
+
+<tr><td>Generic_Flow_Of_Files_At_Bhaga_1st_Draft.docx</td><td><a class="open-btn" href="sop/Generic_Flow_Of_Files_At_Bhaga_1st_Draft.docx">Open</a></td></tr>
+
+<tr><td>INCT_OFFLINE_LOADING.txt</td><td><a class="open-btn" href="sop/INCT_OFFLINE_LOADING.txt">Open</a></td></tr>
+
+<tr><td>INTEREST_CAPITALIZATION_CHECKPOINTS.docx</td><td><a class="open-btn" href="sop/INTEREST_CAPITALIZATION_CHECKPOINTS.docx">Open</a></td></tr>
+
+<tr><td>JR_SY1000_restart_in_day_mode.txt</td><td><a class="open-btn" href="sop/JR_SY1000_restart_in_day_mode.txt">Open</a></td></tr>
+
+<tr><td>NEERA_JOBS.ods</td><td><a class="open-btn" href="sop/NEERA_JOBS.ods">Open</a></td></tr>
+
+<tr><td>NIGHTFLOW.txt</td><td><a class="open-btn" href="sop/NIGHTFLOW.txt">Open</a></td></tr>
+
+<tr><td>PSO_Operations_Charter.pdf</td><td><a class="open-btn" href="sop/PSO_Operations_Charter.pdf" target="_blank">Open</a></td></tr>
+
+<tr><td>REGION_SET_UP_CHECK_LIST.xlsx</td><td><a class="open-btn" href="sop/REGION_SET_UP_CHECK_LIST.xlsx">Open</a></td></tr>
+
+<tr><td>REPOSTING_SOP.odt</td><td><a class="open-btn" href="sop/REPOSTING_SOP.odt">Open</a></td></tr>
+
+<tr><td>RTGSIN_EXTERNALIZATION_DOCUMENT.docx</td><td><a class="open-btn" href="sop/RTGSIN_EXTERNALIZATION_DOCUMENT.docx">Open</a></td></tr>
+
+<tr><td>Reposting_Process_in_Core_Banking.docx</td><td><a class="open-btn" href="sop/Reposting_Process_in_Core_Banking.docx">Open</a></td></tr>
+
+<tr><td>SMS_Flow_CBS-NE.txt</td><td><a class="open-btn" href="sop/SMS_Flow_CBS-NE.txt">Open</a></td></tr>
+
+<tr><td>SOP_BNT_PROCESSING.doc</td><td><a class="open-btn" href="sop/SOP_BNT_PROCESSING.doc">Open</a></td></tr>
+
+<tr><td>SOP_FOR_CBS_TRAINING_SERVER.pdf</td><td><a class="open-btn" href="sop/SOP_FOR_CBS_TRAINING_SERVER.pdf" target="_blank">Open</a></td></tr>
+
+<tr><td>SOP_Production_Access_Original.docx</td><td><a class="open-btn" href="sop/SOP_Production_Access_Original.docx">Open</a></td></tr>
+
+<tr><td>SOP_Reference_No_Status_checklist_CBS.docx</td><td><a class="open-btn" href="sop/SOP_Reference_No_Status_checklist_CBS.docx">Open</a></td></tr>
+
+<tr><td>SOP_for_AUTOSYS_JIL_CODE_REVIEW_CHECKS.docx</td><td><a class="open-btn" href="sop/SOP_for_AUTOSYS_JIL_CODE_REVIEW_CHECKS.docx">Open</a></td></tr>
+
+<tr><td>SOP_for_Annual_Loan_Interest_Certificate_Generation.docx</td><td><a class="open-btn" href="sop/SOP_for_Annual_Loan_Interest_Certificate_Generation.docx">Open</a></td></tr>
+
+<tr><td>SOP_for_Autosys_PR-NR-DR-FAILOVER_Drill.xlsx</td><td><a class="open-btn" href="sop/SOP_for_Autosys_PR-NR-DR-FAILOVER_Drill.xlsx">Open</a></td></tr>
+
+<tr><td>SOP_for_Backend_Autosys_Upgradation.docx</td><td><a class="open-btn" href="sop/SOP_for_Backend_Autosys_Upgradation.docx">Open</a></td></tr>
+
+<tr><td>SOP_for_Deposit_Interest_Certificate.docx</td><td><a class="open-btn" href="sop/SOP_for_Deposit_Interest_Certificate.docx">Open</a></td></tr>
+
+<tr><td>SOP_for_Front_End_Autosys_Switchover.docx</td><td><a class="open-btn" href="sop/SOP_for_Front_End_Autosys_Switchover.docx">Open</a></td></tr>
+
+<tr><td>SOP_for_PSGI_Backup_Table_Import_In_Archsbi.docx</td><td><a class="open-btn" href="sop/SOP_for_PSGI_Backup_Table_Import_In_Archsbi.docx">Open</a></td></tr>
+
+<tr><td>SOP_of_NODE_DOWN_APPLICATION_RESTART_STEPS.docx</td><td><a class="open-btn" href="sop/SOP_of_NODE_DOWN_APPLICATION_RESTART_STEPS.docx">Open</a></td></tr>
+
+<tr><td>SOP_to_up_the_services_of_Autosys_after_making_database_up_in_snapshot_mode.docx</td><td><a class="open-btn" href="sop/SOP_to_up_the_services_of_Autosys_after_making_database_up_in_snapshot_mode.docx">Open</a></td></tr>
+
+<tr><td>SOP_transaction_block.doc</td><td><a class="open-btn" href="sop/SOP_transaction_block.doc">Open</a></td></tr>
+
+<tr><td>STAGGERED_EOY_CHECKLIST_20260331.xlsx</td><td><a class="open-btn" href="sop/STAGGERED_EOY_CHECKLIST_20260331.xlsx">Open</a></td></tr>
+
+<tr><td>Skipped_Accounts_NEW.txt</td><td><a class="open-btn" href="sop/Skipped_Accounts_NEW.txt">Open</a></td></tr>
+
+<tr><td>Sop_FOR_TLS_GATEWAY_EXECUTION.pdf</td><td><a class="open-btn" href="sop/Sop_FOR_TLS_GATEWAY_EXECUTION.pdf" target="_blank">Open</a></td></tr>
+
+<tr><td>Sop_For_ATM_TLS.pdf</td><td><a class="open-btn" href="sop/Sop_For_ATM_TLS.pdf" target="_blank">Open</a></td></tr>
+
+<tr><td>Sop_For_Key_Generation.pdf</td><td><a class="open-btn" href="sop/Sop_For_Key_Generation.pdf" target="_blank">Open</a></td></tr>
+
+<tr><td>Steps_of_9292_9293.docx</td><td><a class="open-btn" href="sop/Steps_of_9292_9293.docx">Open</a></td></tr>
+
+<tr><td>TRAINING_DOC.docx</td><td><a class="open-btn" href="sop/TRAINING_DOC.docx">Open</a></td></tr>
+
+<tr><td>TRICKLEFEED.pdf</td><td><a class="open-btn" href="sop/TRICKLEFEED.pdf" target="_blank">Open</a></td></tr>
+
+<tr><td>Training_Region_KEDB.docx</td><td><a class="open-btn" href="sop/Training_Region_KEDB.docx">Open</a></td></tr>
+
+<tr><td>mock_f1_file_sending_sop.txt</td><td><a class="open-btn" href="sop/mock_f1_file_sending_sop.txt">Open</a></td></tr>
+
+<tr><td>monthend_checklist_20260531.ods</td><td><a class="open-btn" href="sop/monthend_checklist_20260531.ods">Open</a></td></tr>
+
+<tr><td>CAPITALIZATION_CHECKLIST_version_20250925.docx</td><td><a class="open-btn" href="sop/CAPITALIZATION_CHECKLIST_version_20250925.docx">Open</a></td></tr>
+
+</table>
+
+</body>
+</html>
