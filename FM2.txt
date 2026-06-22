@@ -1,656 +1,220 @@
-i was running a mock on a unix server, i observed the following checkrc in it.
+<?php
+date_default_timezone_set("Asia/Kolkata");
 
-                 EOD RUN DATE : 20260531
+/* ================= CONFIG ================= */
+$basePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/HISTORY/";
 
-JOB NAME     No. of streams
----------------------------
+/* =============== DATE HANDLING =============== */
+$selectedDateInput = isset($_GET['date']) ? $_GET['date'] : date("Y-m-d");
+$selectedDate = str_replace("-", "", $selectedDateInput);
 
-rtsora    ::    100
+$filePath = $basePath . "invalid_neft_" . $selectedDate;
 
----------------------------
-fnsonlid 28237 28123 254 18:22:03 ?        52:04 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 28093 27956 252 18:11:07 ?        54:51 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11991 11904 254 19:01:07 ?        47:07 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8812  8654 254 18:09:17 ?        56:21 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 20532 20407 253 18:20:34 ?        55:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37362 14773 253 21:32:29 ?        41:28 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11863 11743 252 18:46:20 ?        49:31 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12832 12751 251 19:01:18 ?        47:47 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 47732 47613 253 18:14:21 ?        53:37 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 41827 41705 254 18:13:25 ?        56:12 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 42670 42527 254 18:13:33 ?        56:40 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 24982 24845 253 18:10:39 ?        55:23 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  9676  9581 252 18:45:51 ?        49:23 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  9285  9183 254 19:00:26 ?        48:04 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 32980 32841 253 18:11:56 ?        56:41 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 19855 19665 251 18:20:25 ?        52:55 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 16156 16053 253 18:47:14 ?        49:18 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11202 11084 254 18:46:12 ?        49:19 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 18078 17914 253 18:20:06 ?        52:45 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 32232 32159 252 18:50:45 ?        51:58 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 25777 25627 251 18:10:45 ?        58:24 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 30290 30207 254 18:50:18 ?        51:26 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10035  9873 254 18:09:23 ?        55:05 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12406 12323 252 19:01:12 ?        50:26 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 34946 34839 253 18:51:19 ?        48:27 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  1812  1710 252 18:28:50 ?        52:43 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 57232 57104 253 18:27:59 ?        53:28 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 27258 27129 252 18:10:59 ?        54:56 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 25440 25328 252 18:21:33 ?        51:47 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 33328 33196 254 18:12:00 ?        57:01 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 32625 32479 254 18:11:52 ?        57:15 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 33035 32921 255 18:50:55 ?        49:10 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37055 16418 252 21:32:29 ?        37:36 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 34639 34496 254 18:12:12 ?        54:05 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14665 14552 253 18:46:56 ?        52:34 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 22188 22070 253 18:20:54 ?        52:53 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  1471  1384 253 18:28:45 ?        53:18 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13767 13604 254 18:09:39 ?        56:46 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 28807 28657 253 18:22:09 ?        52:05 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 52054 51897 254 18:15:11 ?        55:49 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 51986 51869 255 18:26:58 ?        52:02 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 59873 59696 251 18:28:29 ?        51:35 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  7905  7758 253 18:18:11 ?        54:59 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11850 11769 253 19:01:04 ?        48:10 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 35333 35234 255 18:51:26 ?        48:55 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11532 11416 251 18:46:16 ?        49:23 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 42454 42338 252 18:13:31 ?        54:15 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 19998 19819 255 18:10:06 ?        55:42 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 42269 42132 251 18:13:29 ?        53:46 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 24348 24200 255 18:10:33 ?        56:59 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 16153 16003 253 18:09:50 ?        59:12 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14765 14674 254 19:01:45 ?        50:41 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 27416 27251 255 18:21:55 ?        55:40 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 30805 30672 252 18:11:34 ?        56:08 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 41205 41052 255 18:13:19 ?        56:51 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 15687 15526 253 18:09:48 ?        56:50 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14293 14196 253 18:46:52 ?        51:33 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 35040 34906 255 18:12:16 ?        53:58 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 51289 51153 253 18:15:02 ?        52:17 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 36770 36659 254 18:51:46 ?        49:52 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 31629 31471 252 18:11:42 ?        54:08 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 25776 25665 255 18:21:37 ?        54:56 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10053  9965 251 19:00:38 ?        51:29 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37223 10952 251 21:32:29 ?        37:58 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37222 12413 252 21:32:29 ?        40:56 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 25912 25806 254 18:21:39 ?        52:36 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37236 15498 253 21:32:29 ?        39:25 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 18447 18331 251 18:47:44 ?        51:57 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 20225 20145 254 18:20:30 ?        52:26 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 33123 33022 254 18:11:58 ?        56:01 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 54664 54588 251 18:15:38 ?        53:54 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 17053 16898 254 18:09:54 ?        55:27 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13057 12981 254 18:46:36 ?        52:16 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 43300 43139 255 18:13:39 ?        53:42 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 41636 41500 251 18:13:23 ?        56:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 56346 56238 252 18:27:49 ?        52:13 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 18864 18725 255 18:20:14 ?        55:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 24113 23971 252 18:10:31 ?        54:49 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 19046 18907 252 18:20:16 ?        55:03 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 56526 56410 253 18:27:51 ?        54:06 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid   629   517 253 18:28:35 ?        50:45 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37355 37249 253 18:51:54 ?        48:44 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 26217 26094 252 18:10:49 ?        55:17 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 51080 50962 252 18:15:00 ?        55:33 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 27461 27346 252 18:11:01 ?        58:13 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 46494 46362 253 18:14:09 ?        56:15 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12987 12886 251 19:01:20 ?        48:14 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 31474 31370 254 18:50:35 ?        52:17 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  9151  9025 253 19:00:24 ?        47:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 26815 26702 252 18:10:55 ?        54:41 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 22652 22506 252 18:10:19 ?        54:47 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 52885 52768 255 18:27:09 ?        54:15 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 24569 24444 255 18:21:23 ?        55:40 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37631 37531 254 18:51:57 ?        51:45 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14830 14724 251 18:46:58 ?        50:38 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 56694 56580 255 18:27:53 ?        54:14 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 25991 25867 255 18:10:47 ?        55:02 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 54042 53908 253 18:27:23 ?        51:26 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  9963  9884 254 18:45:55 ?        49:37 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 57819 57719 252 18:28:05 ?        51:17 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 49681 49593 253 18:14:44 ?        55:26 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 20111 19989 252 18:20:28 ?        55:40 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11689 11573 252 18:46:18 ?        50:00 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10362 10292 254 19:00:44 ?        51:33 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11397 11327 254 19:00:58 ?        47:37 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  6672  6549 255 18:59:50 ?        51:35 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 36174 36104 253 18:51:37 ?        51:28 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 50559 50422 254 18:14:54 ?        53:46 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 50908 50796 255 18:14:58 ?        55:21 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13281 13119 251 18:09:37 ?        56:26 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 55190 55082 252 18:15:44 ?        55:43 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12808 12651 255 18:09:35 ?        56:07 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  1310  1202 254 18:28:43 ?        50:38 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 16761 16642 253 18:47:22 ?        49:38 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 27696 27554 255 18:11:04 ?        56:07 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 32845 32750 255 18:50:53 ?        49:34 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 36594 36514 255 18:51:43 ?        51:39 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 54221 54106 252 18:27:25 ?        53:37 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 48985 48876 252 18:14:36 ?        55:51 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 50249 50118 251 18:14:50 ?        56:23 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 36455 36366 253 18:51:41 ?        48:48 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 36064 35963 255 18:51:35 ?        50:06 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 55780 55642 252 18:15:51 ?        55:46 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 49541 49418 252 18:14:42 ?        53:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10478 10317 253 18:09:25 ?        59:26 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 51663 51539 251 18:26:55 ?        53:04 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37276 15173 253 21:32:29 ?        41:55 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  6801  6702 255 18:59:51 ?        48:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 41415 41274 254 18:13:21 ?        56:08 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 15467 15355 254 18:47:06 ?        51:51 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 56194 56071 253 18:27:47 ?        52:04 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 30575 30457 251 18:11:32 ?        53:28 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 54946 54844 253 18:27:33 ?        54:55 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13146 13051 252 19:01:23 ?        51:34 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 36895 36816 252 18:51:48 ?        52:14 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10471 10329 254 18:46:01 ?        52:05 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 26490 26318 255 18:10:51 ?        54:22 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  1132  1019 253 18:28:41 ?        51:22 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 15285 15187 254 18:47:04 ?        48:10 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13837 13739 253 18:46:46 ?        52:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 48629 48516 254 18:14:32 ?        56:41 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11347 11257 253 18:46:13 ?        52:39 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12939 12830 253 18:46:34 ?        49:39 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 46905 46780 253 18:14:13 ?        56:37 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37488 37394 254 18:51:56 ?        51:59 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37330 11891 251 21:32:29 ?        38:39 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 51475 51359 254 18:26:52 ?        50:46 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 16316 16216 252 18:47:16 ?        51:29 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 35780 35676 254 18:51:31 ?        49:24 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 27876 27759 252 18:11:05 ?        57:56 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37200 11755 254 21:32:29 ?        38:46 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 32817 32686 253 18:11:54 ?        53:36 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 51308 51127 254 18:26:50 ?        51:12 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13488 13397 252 18:46:42 ?        49:56 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13790 13657 252 19:01:31 ?        50:37 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 53099 52984 253 18:15:22 ?        53:51 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 29964 29828 252 18:11:26 ?        54:29 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37375 13213 253 21:32:29 ?        38:02 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 34149 34057 255 18:51:09 ?        47:52 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 23941 23812 252 18:21:15 ?        50:55 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 24400 24282 255 18:21:21 ?        55:59 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 31391 31267 253 18:11:40 ?        57:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 18027 17861 255 18:09:58 ?        57:55 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 17918 17815 253 18:47:38 ?        52:21 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 26280 26161 251 18:21:43 ?        49:54 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 44925 44812 253 18:13:56 ?        52:28 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 32433 32308 254 18:50:47 ?        49:58 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37149 15401 252 21:32:29 ?        38:14 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 23131 22989 253 18:10:23 ?        54:53 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid   952   827 254 18:28:39 ?        51:22 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37353 13570 254 21:32:29 ?        38:21 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 45316 45184 252 18:13:59 ?        54:40 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 17195 17098 255 18:47:28 ?        49:22 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 28145 28055 253 18:49:54 ?        49:19 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11985 11884 254 18:46:22 ?        48:38 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 31647 31527 255 18:50:37 ?        49:36 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  2013  1867 253 18:28:52 ?        51:31 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 40250 40237  0  Jun  9  ?         0:08 /bin/ksh /fns/i/r/sh/checkrc.sh 8 shmemmoni
-fnsonlid 52191 52058 251 18:27:00 ?        52:05 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8124  8088  0 09:12:30 pts/1     0:00 grep checkrc
-fnsonlid  9930  9854 255 19:00:36 ?        49:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 48848 48733 254 18:14:34 ?        53:18 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 22386 22199 253 18:10:17 ?        55:23 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 50715 50603 255 18:14:56 ?        53:08 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14967 14846 252 19:01:47 ?        47:59 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37126 17133 254 21:32:29 ?        38:26 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 29335 29200 252 18:11:20 ?        54:05 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 29733 29611 255 18:11:24 ?        54:43 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 52432 52296 253 18:15:14 ?        54:16 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 53542 53382 252 18:15:26 ?        52:24 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37311 13927 251 21:32:29 ?        39:05 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10151 10099 253 19:00:40 ?        48:05 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 19035 18849 253 18:10:02 ?        55:04 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 27175 27053 254 18:21:53 ?        51:16 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37117 12874 253 21:32:29 ?        39:02 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 21568 21440 253 18:20:46 ?        51:45 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8860  8742 252 19:00:20 ?        47:41 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 22703 22540 254 18:21:01 ?        55:16 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 55900 55794 251 18:27:43 ?        51:43 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid   434   321 253 18:28:33 ?        51:05 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 18759 18666 254 18:47:48 ?        48:47 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 21908 21781 253 18:20:51 ?        51:43 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 29135 28959 254 18:11:18 ?        54:17 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 15973 15881 252 18:47:12 ?        48:44 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12785 12669 255 18:46:32 ?        49:25 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 46704 46582 254 18:14:11 ?        52:46 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 58290 58146 252 18:28:11 ?        49:50 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37318 16603 251 21:32:29 ?        38:45 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 46282 46133 253 18:14:08 ?        54:11 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 31788 31679 255 18:11:44 ?        55:05 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 26090 25972 253 18:21:41 ?        55:53 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11542 11462 252 19:01:00 ?        51:44 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13981 13913 254 18:46:48 ?        49:23 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 48294 48178 252 18:14:28 ?        53:41 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 55730 55615 252 18:27:41 ?        50:16 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 28570 28479 255 18:22:07 ?        53:17 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 30160 30058 254 18:50:17 ?        48:51 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid   243 59910 254 18:28:31 ?        54:02 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 26644 26502 252 18:21:47 ?        51:10 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 29526 29409 254 18:50:09 ?        49:00 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 49851 49731 255 18:14:46 ?        53:18 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 53390 53283 253 18:27:15 ?        51:42 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37282 16174 252 21:32:29 ?        38:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13677 13576 254 18:46:44 ?        49:10 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 18383 18205 255 18:10:00 ?        57:53 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 55562 55437 255 18:15:48 ?        53:19 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 28672 28512 253 18:11:14 ?        57:43 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12128 12035 253 19:01:08 ?        48:45 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 46044 45927 253 18:14:05 ?        54:02 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 31190 31070 252 18:11:38 ?        54:11 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37169 14242 254 21:32:29 ?        38:22 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 34618 34515 251 18:51:15 ?        48:40 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 34209 34079 255 18:12:08 ?        53:40 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 58806 58703 253 18:28:17 ?        55:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 56101 55985 252 18:15:55 ?        53:12 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 58646 58520 252 18:28:15 ?        51:13 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 19588 19471 252 18:20:22 ?        55:54 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12147 12046 254 18:46:24 ?        49:05 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37202 15816 254 21:32:29 ?        41:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 18613 18495 252 18:47:46 ?        49:16 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37102 13452 255 21:32:29 ?        38:46 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 57960 57865 253 18:28:07 ?        51:00 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 34027 33865 253 18:12:06 ?        54:45 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 33993 33913 253 18:51:07 ?        48:53 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37233 13689 253 21:32:29 ?        38:55 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 28471 28350 252 18:49:59 ?        48:43 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12303 12212 254 18:46:26 ?        49:41 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 54508 54393 255 18:15:36 ?        54:11 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8981  8890 252 19:00:22 ?        51:09 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  7863  7791 255 19:00:06 ?        48:06 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11864 11699 253 18:09:31 ?        55:46 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 23882 23731 252 18:10:29 ?        57:15 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 29707 29593 255 18:50:10 ?        49:39 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  9843  9744 251 18:45:53 ?        49:22 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 32116 32009 252 18:50:43 ?        48:09 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10637 10520 252 18:46:04 ?        48:51 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 59308 59214 254 18:28:23 ?        51:15 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  9690  9550 254 18:09:22 ?        56:36 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 25090 24993 255 18:21:29 ?        53:35 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  9255  9100 254 18:09:19 ?        59:34 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 53205 53116 252 18:27:12 ?        51:07 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  9679  9599 252 19:00:32 ?        48:48 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12288 12191 252 19:01:11 ?        50:37 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  9541  9453 254 19:00:30 ?        50:10 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 47935 47795 255 18:14:24 ?        53:35 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37466 16940 254 21:32:30 ?        39:29 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 31943 31833 254 18:50:41 ?        49:38 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13906 13814 254 19:01:33 ?        48:33 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  7402  7251 252 19:00:00 ?        48:26 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 26656 26538 255 18:10:53 ?        54:38 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 47314 47171 252 18:14:18 ?        52:24 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  7417  7248 252 18:09:11 ?        56:36 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10965 10858 253 19:00:52 ?        49:03 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 15089 15018 254 19:01:49 ?        48:00 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37307 10619 254 21:32:29 ?        37:52 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 19490 19324 254 18:10:04 ?        56:19 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37192 14549 254 21:32:29 ?        38:57 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 25261 25068 252 18:10:41 ?        55:09 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 52506 52408 253 18:27:04 ?        50:00 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37193 16703 252 21:32:29 ?        41:14 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10223 10169 251 19:00:42 ?        48:22 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8530  8342 254 18:18:17 ?        53:19 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 26789 26680 253 18:21:49 ?        52:26 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37210 15078 252 21:32:29 ?        38:52 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 58108 58030 253 18:28:09 ?        52:15 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 17533 17374 253 18:09:56 ?        55:36 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10098 10005 254 18:45:57 ?        48:41 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 28292 28173 252 18:11:09 ?        53:54 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 44532 44421 255 18:13:51 ?        56:06 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 29144 29072 251 18:50:04 ?        52:02 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 27773 27632 255 18:21:59 ?        55:06 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 15414 15280 255 19:01:53 ?        48:43 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 25632 25517 254 18:21:35 ?        51:46 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 50055 49928 252 18:14:48 ?        53:45 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8594  8485 254 19:00:16 ?        48:50 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 18264 18136 255 18:47:43 ?        50:17 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 54833 54723 253 18:15:40 ?        51:58 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 28844 28733 253 18:11:15 ?        54:14 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37224 15700 255 21:32:29 ?        39:04 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12453 12349 255 18:46:28 ?        49:22 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 20683 20588 253 18:20:36 ?        55:26 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 34440 34301 254 18:12:10 ?        55:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 59619 59544 253 18:28:27 ?        51:07 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10798 10711 252 19:00:50 ?        47:46 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 50379 50288 251 18:14:52 ?        52:50 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10732 10662 253 18:46:05 ?        49:39 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 29899 29764 253 18:50:14 ?        51:34 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 55134 55046 252 18:27:34 ?        48:49 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 25575 25350 251 18:10:43 ?        54:13 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 24777 24633 254 18:21:25 ?        52:08 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 15165 15051 252 18:47:03 ?        48:52 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14335 14239 253 19:01:39 ?        48:16 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 42859 42731 254 18:13:35 ?        54:45 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 33843 33750 253 18:51:05 ?        52:03 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37197 14979 254 21:32:29 ?        37:54 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37068 13105 252 21:32:29 ?        39:18 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 47100 46981 253 18:14:15 ?        53:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37407 10700 253 21:32:29 ?        38:12 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 59176 59062 253 18:28:21 ?        52:49 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 23027 22903 255 18:21:04 ?        52:24 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37141 16495 255 21:32:29 ?        38:59 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 57063 56923 252 18:27:57 ?        52:15 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 28428 28299 251 18:22:05 ?        52:51 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 28054 27818 254 18:22:01 ?        52:11 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  1649  1545 255 18:28:47 ?        51:47 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 44355 44207 255 18:13:49 ?        53:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14621 14541 252 19:01:43 ?        47:49 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 32546 32456 255 18:50:49 ?        48:57 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 21614 21430 254 18:10:13 ?        58:03 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  7177  7095 254 18:59:58 ?        48:14 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 34287 34204 253 18:51:11 ?        50:31 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37414 15938 255 21:32:29 ?        38:49 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 58449 58335 252 18:28:13 ?        51:54 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 53536 53440 252 18:27:16 ?        50:58 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 24574 24445 254 18:10:35 ?        55:58 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 43716 43576 253 18:13:43 ?        54:33 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37417 14327 252 21:32:29 ?        38:34 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 54169 54034 254 18:15:32 ?        55:10 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 22888 22757 252 18:10:21 ?        55:16 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  6950  6854 252 18:59:54 ?        51:02 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13271 13201 252 19:01:24 ?        48:44 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 33798 33667 254 18:12:04 ?        54:19 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 24824 24694 254 18:10:38 ?        54:07 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 31974 31866 253 18:11:46 ?        54:04 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37209 37099 252 18:51:52 ?        49:21 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12607 12499 251 18:46:30 ?        52:47 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10875 10774 254 18:46:08 ?        48:37 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8293  8255 251 19:00:11 ?        48:15 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14246 14084 251 18:09:41 ?        58:33 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 17617 17502 253 18:47:35 ?        49:18 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10919 10764 254 18:09:27 ?        55:37 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 44143 43986 253 18:13:47 ?        54:03 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37026 36921 255 18:51:49 ?        48:41 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 43905 43777 255 18:13:45 ?        53:30 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 19119 19014 252 18:47:52 ?        51:17 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37411 11296 255 21:32:29 ?        39:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 22315 22233 253 18:20:56 ?        50:45 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37260 12534 251 21:32:29 ?        38:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 31036 30875 251 18:11:36 ?        55:55 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14486 14371 254 18:46:54 ?        49:33 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37208 11524 252 21:32:29 ?        41:05 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 22501 22356 255 18:20:59 ?        52:38 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 33205 33092 255 18:50:57 ?        48:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 19276 19179 254 18:47:54 ?        48:42 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37198 11406 252 21:32:29 ?        39:04 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 30167 30041 254 18:11:28 ?        54:10 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13441 13349 253 19:01:27 ?        49:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37128 16303 252 21:32:29 ?        38:14 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  7745  7651 255 19:00:04 ?        47:17 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 33373 33268 254 18:50:59 ?        51:17 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 19214 19106 253 18:20:18 ?        51:25 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 35273 35109 254 18:12:18 ?        55:21 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 19412 19289 252 18:20:20 ?        52:07 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 16608 16441 254 18:09:52 ?        55:42 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  7865  7710 254 18:09:13 ?        56:33 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 55380 55252 253 18:15:46 ?        56:22 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  7053  6976 252 18:59:56 ?        48:51 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37195 12025 254 21:32:29 ?        38:43 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 16561 16476 251 18:47:20 ?        52:31 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 32404 32264 252 18:11:50 ?        53:53 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 35089 34991 252 18:51:22 ?        51:29 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8733  8611 252 19:00:19 ?        48:29 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37086 14137 253 21:32:29 ?        39:12 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 52381 52255 252 18:27:03 ?        51:39 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 20882 20745 254 18:20:38 ?        52:53 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 27051 26910 254 18:10:57 ?        54:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 21733 21608 252 18:20:49 ?        52:29 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 59474 59358 252 18:28:25 ?        53:39 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 22017 21940 254 18:20:52 ?        55:10 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 18279 18113 254 18:20:08 ?        52:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 57660 57529 253 18:28:03 ?        51:31 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 30724 30638 255 18:50:24 ?        48:35 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 23383 23260 252 18:21:09 ?        52:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 47534 47386 253 18:14:19 ?        54:04 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37412 14648 254 21:32:29 ?        38:01 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 54371 54271 251 18:27:26 ?        50:49 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 44754 44622 255 18:13:53 ?        52:44 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 48101 47988 255 18:14:25 ?        53:09 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 34838 34686 255 18:12:14 ?        54:14 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 30431 30342 253 18:50:21 ?        49:39 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  9807  9729 253 19:00:34 ?        48:28 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 18945 18834 252 18:47:50 ?        49:09 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 16901 16800 253 18:47:25 ?        48:58 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 51647 51537 253 18:15:06 ?        52:34 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11392 11222 252 18:09:29 ?        55:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 27575 27462 254 18:21:57 ?        50:50 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 19448 19355 254 18:47:56 ?        49:05 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 17699 17443 253 18:20:02 ?        53:01 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  2117  2042 254 18:28:53 ?        50:55 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 21164 21003 254 18:10:10 ?        55:30 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 18494 18335 254 18:20:10 ?        52:25 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 24053 23978 255 18:21:17 ?        53:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 17309 17242 252 18:47:30 ?        52:06 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13239 13098 253 18:46:38 ?        49:34 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid   787   672 252 18:28:38 ?        50:52 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 42068 41910 252 18:13:27 ?        53:10 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 35640 35526 252 18:51:30 ?        48:04 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 55946 55817 252 18:15:52 ?        53:23 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 35462 35366 253 18:51:27 ?        48:42 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 57458 57280 253 18:28:01 ?        54:49 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 30598 30488 252 18:50:23 ?        49:37 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 16423 16359 255 18:47:18 ?        53:10 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 30019 29877 252 18:50:15 ?        48:31 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37161 15591 251 21:32:29 ?        38:56 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 35907 35835 252 18:51:33 ?        47:23 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37206 12988 255 21:32:29 ?        41:37 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 21389 21272 253 18:20:44 ?        51:37 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13361 13266 251 18:46:40 ?        49:48 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 43063 42933 254 18:13:37 ?        53:38 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 55047 54900 254 18:15:43 ?        53:41 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 24221 24097 254 18:21:19 ?        52:39 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14502 14416 253 19:01:40 ?        47:16 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 56024 55931 254 18:27:45 ?        51:30 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 29534 29402 252 18:11:22 ?        52:59 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14043 13956 253 19:01:35 ?        48:01 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 32185 32052 252 18:11:48 ?        53:07 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 18685 18554 255 18:20:12 ?        53:02 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37150 17058 253 21:32:29 ?        38:27 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 45614 45419 251 18:14:01 ?        52:39 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37187 12780 253 21:32:29 ?        39:30 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 28457 28339 253 18:11:12 ?        56:44 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12708 12611 254 19:01:16 ?        47:52 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 21042 20927 252 18:20:40 ?        53:50 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 54800 54677 251 18:27:31 ?        51:10 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 51492 51356 253 18:15:04 ?        52:12 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8235  8109 252 19:00:10 ?        48:11 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 23578 23438 253 18:21:11 ?        50:42 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 33713 33600 253 18:51:03 ?        49:29 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 24935 24829 254 18:21:27 ?        53:31 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 55340 55249 254 18:27:36 ?        51:34 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10687 10577 255 19:00:49 ?        47:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14173 14089 255 19:01:37 ?        47:23 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37163 13306 254 21:32:29 ?        38:36 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 23218 23096 254 18:21:07 ?        53:22 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 20368 20258 252 18:20:32 ?        51:40 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 53072 52939 254 18:27:11 ?        51:46 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 30833 30765 251 18:50:26 ?        52:34 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 34792 34668 251 18:51:17 ?        48:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 53709 53599 254 18:27:19 ?        50:40 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8397  8353 253 19:00:13 ?        49:21 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37838 37692 252 18:52:00 ?        51:50 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37384 16825 254 21:32:29 ?        38:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 15818 15706 251 18:47:10 ?        49:49 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 19940 19800 254 18:20:26 ?        53:31 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11269 11170 252 19:00:56 ?        48:30 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 29018 28867 254 18:50:02 ?        48:39 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 45861 45717 254 18:14:04 ?        54:18 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8317  8160 253 18:09:15 ?        57:01 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 33602 33424 254 18:12:02 ?        53:34 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  9424  9340 254 19:00:28 ?        48:13 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 53853 53737 253 18:27:21 ?        51:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 13588 13489 254 19:01:28 ?        47:48 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37386 11176 254 21:32:29 ?        38:27 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12342 12174 254 18:09:33 ?        58:29 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 49179 49055 252 18:14:38 ?        52:53 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 32718 32597 254 18:50:51 ?        48:40 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  6491  6401 252 18:59:47 ?        48:15 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37203 10827 255 21:32:29 ?        38:50 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 48468 48357 253 18:14:30 ?        52:52 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8000  7910 252 19:00:08 ?        52:15 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 52584 52484 253 18:15:16 ?        53:00 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 35215 35112 255 18:51:23 ?        48:29 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 17427 17350 254 18:47:32 ?        48:35 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 31183 31062 255 18:50:31 ?        48:44 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 29372 29237 254 18:50:07 ?        49:09 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 22864 22743 252 18:21:03 ?        52:06 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 31020 30908 254 18:50:29 ?        49:52 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37170 13812 255 21:32:29 ?        39:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 15209 15037 252 18:09:46 ?        56:11 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 45115 44984 253 18:13:57 ?        53:14 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 33532 33422 252 18:51:01 ?        49:35 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 55547 55427 253 18:27:39 ?        51:35 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 23377 23244 254 18:10:25 ?        55:24 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37215 14880 253 21:32:29 ?        38:02 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 19610 19510 255 18:47:58 ?        49:33 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 59011 58877 255 18:28:19 ?        54:23 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11031 10930 254 18:46:10 ?        48:51 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 18100 17984 255 18:47:41 ?        52:14 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 25274 25156 252 18:21:31 ?        52:56 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 53790 53620 255 18:15:28 ?        55:39 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37121 11060 253 21:32:29 ?        38:20 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 30395 30240 254 18:11:30 ?        53:40 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  6320  6225 254 18:59:45 ?        51:40 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10252 10144 252 18:46:00 ?        49:56 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 52689 52560 251 18:27:06 ?        51:18 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 21230 21104 253 18:20:43 ?        51:18 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 56863 56760 254 18:27:55 ?        52:23 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11116 11034 255 19:00:54 ?        47:53 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37110 14453 253 21:32:29 ?        38:41 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37075 15300 255 21:32:29 ?        39:10 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 17748 17655 253 18:47:36 ?        49:48 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8089  7958 252 18:18:13 ?        52:11 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 54625 54461 254 18:27:29 ?        51:31 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 17849 17720 252 18:20:04 ?        52:32 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  2312  2182 255 18:28:56 ?        54:34 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 28296 28189 254 18:49:56 ?        48:17 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 12563 12469 253 19:01:15 ?        48:24 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37207 16052 252 21:32:29 ?        39:04 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 17025 16924 254 18:47:26 ?        48:57 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 23629 23489 252 18:10:27 ?        56:36 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 38006 37886 252 18:52:02 ?        49:12 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  7572  7491 254 19:00:01 ?        51:12 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 51820 51702 251 18:26:56 ?        50:56 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37137 11635 254 21:32:29 ?        39:00 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 52245 52100 253 18:15:13 ?        53:56 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 23769 23628 254 18:21:13 ?        52:52 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 28740 28504 252 18:50:01 ?        49:35 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14716 14555 255 18:09:43 ?        58:36 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37108 12146 254 21:32:29 ?        38:35 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 43505 43373 252 18:13:41 ?        57:03 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  2460  2366 254 18:28:57 ?        54:41 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 51840 51701 252 18:15:08 ?        53:29 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 15638 15538 252 18:47:08 ?        49:42 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 10527 10428 252 19:00:46 ?        48:59 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14996 14898 255 18:47:00 ?        49:29 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 26449 26328 253 18:21:45 ?        51:36 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 15215 15131 253 19:01:51 ?        48:28 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 53292 53168 252 18:15:24 ?        54:01 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 14136 14024 253 18:46:50 ?        49:57 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 54003 53858 254 18:15:31 ?        53:04 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 49367 49236 253 18:14:40 ?        53:53 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid  8301  8152 253 18:18:15 ?        52:15 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 31305 31216 255 18:50:33 ?        50:14 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 54344 54205 251 18:15:34 ?        53:03 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37168 12655 254 21:32:29 ?        38:31 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 26990 26854 255 18:21:51 ?        51:49 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 22003 21844 253 18:10:15 ?        55:17 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 31791 31686 254 18:50:39 ?        48:34 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 11706 11608 251 19:01:02 ?        48:31 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 36308 36211 252 18:51:39 ?        50:08 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 37133 12284 252 21:32:29 ?        38:38 /bin/ksh /fns/i/r/sh/checkrc.sh 12
-fnsonlid 34475 34350 251 18:51:13 ?        49:15 /bin/ksh /fns/i/r/sh/checkrc.sh 12
- REGION IS FINE
-====================================================
-                   SPACE DETAILS
-====================================================
-                   -------------
+/* =============== READ FILE =============== */
+$dataRows = [];
+$noDataFlag = false;
 
+if (file_exists($filePath)) {
 
-spnrapp1:DAY:/home/fnsonlid)
-spnrapp1:DAY:/home/fnsonlid)
-spnrapp1:DAY:/home/fnsonlid)
-spnrapp1:DAY:/home/fnsonlid) ptree 34475
-34350      sh ./dcin0816sql1_040
- 34475      /bin/ksh /fns/i/r/sh/checkrc.sh 12
-spnrapp1:DAY:/home/fnsonlid)
+    $handle = fopen($filePath, "r");
 
-the below mentioned is the job.
+    while (($line = fgets($handle)) !== false) {
 
-spnrapp1:DAY:/fns/i/r/cat) cat dcin0816sql1_040
-##checksts.sh DCIN0813 2
-echo "START OF dcin0816sql1_040 at `date` " >> $sysout/DC0816.plsql.out
-DBQUERY() {
-        queryResult=`sqlplus -s \/ << EOF
-        set feedback on
-        set SERVEROUTPUT ON;
-        set head off
-        set pages 0
-        $@;
-        show sqlcode;
-        exit;
-EOF`
-        export sqlCode=`echo "$queryResult" | grep sqlcode | awk '{print $2}'`
-        export queryResult=`echo "$queryResult" | grep -v sqlcode`
-        export status=`echo "$queryResult" | grep "SP2-" |wc -l`
-}
-        DBQUERY "select START_ACCT from rebl where job_name='DC0816' and stream_no=040"
-        if [ $sqlCode -ne 0 ];
-        then
-                echo "Error encountered while reading start acct from rebl , SQLCODE=${sqlCode} , STATUS=${status}" >> $sysout/DC0816.plsql.out
-                echo "END OF dcin0816sql1_040 at `date` with RC=$sqlCode" >> $sysout/DC0816.plsql.out
-                exit 12
-        else
-                start_acct_no=`echo $queryResult|awk '{print $1}'`
-                start_acct=`echo $start_acct_no | cut -c 4-19`
-                echo "start account no is :  $start_acct"  >> $sysout/DC0816.plsql.out
-        fi
+        $line = trim($line);
+        $line = str_replace("\r", "", $line);
 
-        DBQUERY "select END_ACCT from rebl where job_name='DC0816' and stream_no=040"
-        if [ $sqlCode -ne 0 ];
-        then
-                echo "Error encountered while reading start acct from rebl , SQLCODE=${sqlCode} , STATUS=${status}" >> $sysout/DC0816.plsql.out
-                echo "END OF dcin0816sql1_040 at `date` with RC=$sqlCode" >> $sysout/DC0816.plsql.out
-                exit 12
-        else
-                end_acct_no=`echo $queryResult|awk '{print $1}'`
-                end_acct=`echo $end_acct_no | cut -c 4-19`
-                echo "end account no is :  $end_acct"  >> $sysout/DC0816.plsql.out
-        fi
+        if ($line == "") continue;
 
-DBQUERY1() {
-        queryResult=`sqlplus -s \/ << EOF
-        set feedback on
-        set SERVEROUTPUT ON;
-        set head off
-        set pages 0
-        $@;
-        show sqlcode;
-        exit;
-EOF`
-      export sqlCode=`echo "$queryResult" | grep  sqlcode | awk '{print $2}'`
-      if [ $sqlCode -ne 0 ];
-       then
-        if [ "$AUTOSYS_MODE" = "Y" ];
-        then
-            echo "END OF dcin0816sql1_040 at `date` with RC=$sqlCode" >> $sysout/DC0816.plsql.out
-            echo "Problem while executing dcin_816 procedure SQLCODE= $sqlCode " >>$sysout/zerobyte.log
-            exit 12
-        else
-            echo "END OF dcin0816sql1_040 at `date` with RC=$sqlCode" >> $sysout/DC0816.plsql.out
-            echo "Problem while executing dcin_816 procedure SQLCODE= " $sqlCode
-            checkrc.sh 12
-        fi
-      fi
-      if [ $sqlCode -eq 0 ];
-      then
-         echo "END OF dcin0816sql1_040 at `date` with RC=$sqlCode" >> $sysout/DC0816.plsql.out
-      fi
+        if (strtolower($line) == "no invalid utr") {
+            $noDataFlag = true;
+            break;
+        }
+
+        $data = explode(",", $line);
+
+        /* FORCE EXACTLY 13 COLUMNS */
+        $data = array_slice($data, 0, 14);
+        $data = array_pad($data, 14, "");
+
+        $dataRows[] = $data;
+    }
+
+    fclose($handle);
 }
 
-DBQUERY1 "exec dcin_816_mult1('$start_acct','$end_acct')"
+/* PRINT MESSAGE ROW (IMPORTANT FIX) */
+function printMessageRow($msg) {
+    echo "<tr>";
+    for ($i = 0; $i < 14; $i++) {
+        if ($i == 0) {
+            echo "<td style='font-weight:bold;'>$msg</td>";
+        } else {
+            echo "<td></td>";
+        }
+    }
+    echo "</tr>";
+}
+?>
 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NEFT Invalid UTR Monitoring</title>
 
+    <!-- AUTO REFRESH -->
+    <meta http-equiv="refresh" content="60">
 
-spnrapp1:DAY:/fns/i/r/cat)
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
+    <style>
+        body {
+            font-family: Arial;
+            margin: 0;
+            background: #f4f6f9;
+        }
+
+        .header {
+            background: #0b3d91;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .subheader {
+            text-align: center;
+            background: #1c5db6;
+            color: white;
+            padding: 5px;
+        }
+
+        .container {
+            width: 98%;
+            margin: auto;
+            margin-top: 15px;
+        }
+
+        .controls {
+            margin-bottom: 15px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        th {
+            background: #0b3d91;
+            color: white;
+        }
+
+        table {
+            width: 100% !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    NEFT Invalid UTR Monitoring Dashboard
+</div>
+
+<div class="subheader">
+    <?php echo date("d M H:i"); ?>
+</div>
+
+<div class="container">
+
+    <div class="controls">
+        <form method="GET">
+            <input type="date" name="date" value="<?php echo $selectedDateInput; ?>">
+            <button type="submit">Load</button>
+        </form>
+    </div>
+
+    <h3>Date: <?php echo date("d-m-Y", strtotime($selectedDateInput)); ?></h3>
+
+    <div class="table-container">
+
+        <table id="neftTable" class="display">
+
+            <thead>
+                <tr>
+                    <th>UTR</th>
+                    <th>BANCS_DQPTYPE</th>
+                    <th>IN_OUT</th>
+                    <th>STATUS</th>
+                    <th>TRAN_DATE</th>
+                    <th>AMOUNT</th>
+                    <th>ACCOUNT_NO</th>
+                    <th>BENEF_ACCT_NO</th>
+                    <th>JRNL_NO</th>
+                    <th>BRANCH</th>
+                    <th>IFSC_SENDER</th>
+                    <th>IFSC_RECVR</th>
+                    <th>CREDIT_BGL</th>
+                    <th>DEBIT_BGL</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <?php
+                if (!file_exists($filePath)) {
+
+                    printMessageRow("File not found");
+
+                } elseif ($noDataFlag) {
+
+                    printMessageRow("No Invalid UTR Found");
+
+                } elseif (empty($dataRows)) {
+
+                    printMessageRow("No Records Found");
+
+                } else {
+
+                    foreach ($dataRows as $row) {
+
+                        echo "<tr>";
+
+                        for ($i = 0; $i < 14; $i++) {
+                            echo "<td>" . htmlspecialchars($row[$i]) . "</td>";
+                        }
+
+                        echo "</tr>";
+                    }
+                }
+                ?>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- JS -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#neftTable').DataTable({
+        pageLength: 25,
+        scrollX: true
+    });
+});
+</script>
+
+</body>
+</html>
+
+Here this php page is displaying invalid_neft_ file.
+i want to show a propmt and the user should be able to download this file
+in excel and pdf format. make this change in this code and keep existing code as it is.
