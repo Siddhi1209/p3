@@ -1,3 +1,67 @@
+<script>
+
+function downloadExcel() {
+
+    var table = $('#neftTable').DataTable();
+
+    table.page.len(-1).draw();
+
+    setTimeout(function() {
+
+        var wb = XLSX.utils.table_to_book(
+            document.getElementById("neftTable"),
+            { sheet: "NEFT Invalid UTR" }
+        );
+
+        XLSX.writeFile(
+            wb,
+            "invalid_neft_<?php echo $selectedDate; ?>.xlsx"
+        );
+
+        table.page.len(25).draw(false);
+
+    }, 1000);
+}
+
+
+async function downloadPDF() {
+
+    var table = $('#neftTable').DataTable();
+
+    table.page.len(-1).draw();
+
+    setTimeout(function() {
+
+        const { jsPDF } = window.jspdf;
+
+        const doc = new jsPDF('l', 'mm', 'a4');
+
+        doc.text(
+            "NEFT Invalid UTR Monitoring Dashboard",
+            14,
+            15
+        );
+
+        doc.autoTable({
+            html: '#neftTable',
+            startY: 20,
+            styles: {
+                fontSize: 6
+            },
+            theme: 'grid'
+        });
+
+        doc.save(
+            "invalid_neft_<?php echo $selectedDate; ?>.pdf"
+        );
+
+        table.page.len(25).draw(false);
+
+    }, 1000);
+}
+
+</script>
+
 
 function downloadExcel() {
 
