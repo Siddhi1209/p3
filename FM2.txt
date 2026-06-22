@@ -1,1 +1,56 @@
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+<div style="margin-bottom:15px;">
+    <button onclick="downloadExcel()">Download Excel</button>
+    <button onclick="downloadPDF()">Download PDF</button>
+</div>
+
+
+
+<script>
+
+function downloadExcel() {
+
+    var table = document.getElementById("neftTable");
+
+    var wb = XLSX.utils.table_to_book(
+        table,
+        { sheet: "NEFT Invalid UTR" }
+    );
+
+    XLSX.writeFile(
+        wb,
+        "invalid_neft_<?php echo $selectedDate; ?>.xlsx"
+    );
+}
+
+async function downloadPDF() {
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF('l', 'mm', 'a4');
+
+    doc.text(
+        "NEFT Invalid UTR Monitoring Dashboard",
+        14,
+        15
+    );
+
+    doc.autoTable({
+        html: '#neftTable',
+        startY: 20,
+        styles: {
+            fontSize: 6
+        },
+        theme: 'grid'
+    });
+
+    doc.save(
+        "invalid_neft_<?php echo $selectedDate; ?>.pdf"
+    );
+}
+
+</script>
