@@ -1,4 +1,30 @@
 
+function downloadExcel() {
+
+    var table = $('#neftTable').DataTable();
+
+    table.page.len(-1).draw();
+
+    setTimeout(function() {
+
+        var wb = XLSX.utils.table_to_book(
+            document.getElementById("neftTable"),
+            { sheet: "NEFT Invalid UTR" }
+        );
+
+        XLSX.writeFile(
+            wb,
+            "invalid_neft_<?php echo $selectedDate; ?>.xlsx"
+        );
+
+        table.page.len(25).draw();
+
+    }, 1000);
+}
+
+
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -54,3 +80,54 @@ async function downloadPDF() {
 }
 
 </script>
+
+
+function downloadExcel() {
+
+    var table = $('#neftTable').DataTable();
+
+    table.page.len(-1).draw();
+
+    setTimeout(function() {
+
+        var wb = XLSX.utils.table_to_book(
+            document.getElementById("neftTable"),
+            { sheet: "NEFT Invalid UTR" }
+        );
+
+        XLSX.writeFile(
+            wb,
+            "invalid_neft_<?php echo $selectedDate; ?>.xlsx"
+        );
+
+        table.page.len(25).draw();
+
+    }, 1000);
+}
+
+
+٪%%%%%%%%%%
+
+
+var table = $('#neftTable').DataTable();
+
+table.page.len(-1).draw();
+
+setTimeout(function() {
+
+    var wb = XLSX.utils.table_to_book(
+        document.getElementById("neftTable"),
+        { sheet: "NEFT Invalid UTR" }
+    );
+
+    XLSX.writeFile(
+        wb,
+        "invalid_neft_<?php echo $selectedDate; ?>.xlsx"
+    );
+
+    table.page.len(25).draw();
+
+}, 500);
+
+
+
