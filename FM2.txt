@@ -1,197 +1,183 @@
-<script>
-
-function downloadExcel() {
-
-    var table = $('#neftTable').DataTable();
-
-    table.page.len(-1).draw();
-
-    setTimeout(function() {
-
-        var wb = XLSX.utils.table_to_book(
-            document.getElementById("neftTable"),
-            { sheet: "NEFT Invalid UTR" }
-        );
-
-        XLSX.writeFile(
-            wb,
-            "invalid_neft_<?php echo $selectedDate; ?>.xlsx"
-        );
-
-        table.page.len(25).draw(false);
-
-    }, 1000);
+DB_QUERY() {
+        queryResult=`sqlplus -s \/ << YSPID
+        set feedback off
+        set head off
+        set pages 0
+        $@;
+        show sqlcode;
+        commit;
+        exit;
+YSPID`
+        export sqlCode=`echo "$queryResult" | grep sqlcode | awk '{print $2}'`
+        export queryResult=`echo "$queryResult" | grep -v sqlcode`
 }
 
+echo "####################################################################"
 
-async function downloadPDF() {
-
-    var table = $('#neftTable').DataTable();
-
-    table.page.len(-1).draw();
-
-    setTimeout(function() {
-
-        const { jsPDF } = window.jspdf;
-
-        const doc = new jsPDF('l', 'mm', 'a4');
-
-        doc.text(
-            "NEFT Invalid UTR Monitoring Dashboard",
-            14,
-            15
-        );
-
-        doc.autoTable({
-            html: '#neftTable',
-            startY: 20,
-            styles: {
-                fontSize: 6
-            },
-            theme: 'grid'
-        });
-
-        doc.save(
-            "invalid_neft_<?php echo $selectedDate; ?>.pdf"
-        );
-
-        table.page.len(25).draw(false);
-
-    }, 1000);
+PRINT_LOG() {
+       if [ "$AUTOSYS_MODE" = "Y" ];then
+    echo "$@" >> $sysout/zerobyte.log
+        else
+        echo "$@"
+        fi
 }
 
-</script>
+echo "###############################################################################"
+echo "following function print the given text onto screen and to the log file as well"
+echo "###############################################################################"
 
+ DISP_AND_LOG() {
+ #################################################START OF IR 73147######################################################################
+  if [ "$AUTOSYS_MODE" = "Y" ];then
+     echo "$@" >> $sysout/zerobyte.log
+         PRINT_LOG "$@"
+  else
+       echo "$@"
+       PRINT_LOG "$@"
+ #################################################START OF IR 73147######################################################################
+fi
+        }
 
-function downloadExcel() {
+echo "#################################################################"
+echo "           CONACTINATION AND FILE TRANSFER                       "
+echo "#################################################################"
 
-    var table = $('#neftTable').DataTable();
+if [ "$BANCS_MULTI_APPS" = "Y" ];
+then
+        if [ "$BANCS_DQPTYPE" = "$MASTER_DQPTYPE"  ];
+        then
+                cd $data/file
+                echo "Concatination of BORMLOAD file Starts......."
+                cat BORMLOAD* > $data/CRMD/RECONCILATION/BORMLOAD.dat_${BANCS_DQPTYPE}
+                if [ $? -ne 0 ]
+                then
+                       if [ "$AUTOSYS_MODE" = "Y" ];then
+                           echo "[`date|awk '{print $2\" \"$3\" \"$4}'`]:ERROR: PROBLEM WITH CONCATINATION PLEASE CHECK.......... `hostname`" >> $sysout/zerobyte.log
+                             exit 1
+                       else
+                        echo "PROBLEM WITH CONCATINATION PLEASE CHECK.........."|tee -a $sysout/splitCIS.log
+                        $sh/checkrc.sh 18
+                       fi
+                fi
+                cd $data/file
+                #rm -f BORMLOAD*
+                wait ;
 
-    table.page.len(-1).draw();
+                echo "File Transfer to be Start"
+                fileTransfer.sh 3 $data/CRMD/RECONCILATION/ $data/CRMD/RECONCILATION/ BORMLOAD.dat_${BANCS_DQPTYPE} $LOGNAME $SLAVE_DQPTYPE1
+                checksts.sh BORMLOAD 1
+                if [ $? -eq 0 ] ;
+                then
+                        if [ "$AUTOSYS_MODE" = "Y" ];then
+                                echo "[`date|awk '{print $2\" \"$3\" \"$4}'`]:File Transfer Successful on `hostname`" >> $sysout/zerobyte.log
+                        else
+                        echo"File Transfer Successful" | tee -a $sysout/splitCIS.log
+                         fi
+                else
+                     if [ "$AUTOSYS_MODE" = "Y" ];then
+                              echo "[`date|awk '{print $2\" \"$3\" \"$4}'`]:ERROR: Error in file transfer. ...on `hostname`" >> $sysout/zerobyte.log                                                                  exit 1
+                     else
+                       echo "ERROR: Error in file transfer. ...on `hostname`"
+                      fi
+                fi
+        elif [ "$BANCS_DQPTYPE" = "$SLAVE_DQPTYPE1" ]
+        then
+                cd $data/file
+                echo "Concatination of BORMLOAD file Starts......."
+                cat BORMLOAD* > $data/CRMD/RECONCILATION/BORMLOAD.dat_${BANCS_DQPTYPE}
+                if [ $? -ne 0 ]
+                then
+                   if [ "$AUTOSYS_MODE" = "Y" ];then
+                echo "[`date|awk '{print $2\" \"$3\" \"$4}'`]:PROBLEM WITH CONCATINATION PLEASE CHECK.......... on `hostname`" >> $sysout/zerobyte.log
+                exit 1
+                   else
+                        echo "PROBLEM WITH CONCATINATION PLEASE CHECK.........."|tee -a $sysout/splitCIS.log
+                        $sh/checkrc.sh 19
+                   fi
+                fi
+                cd $data/file
+                #rm -f BORMLOAD*
+                wait ;
 
-    setTimeout(function() {
+                if [ -f $data/CRMD/RECONCILATION/BORMLOAD.dat_${BANCS_DQPTYPE} ]
+                then
 
-        var wb = XLSX.utils.table_to_book(
-            document.getElementById("neftTable"),
-            { sheet: "NEFT Invalid UTR" }
-        );
+                while :
+                do
+                        DB_QUERY "select count(1) from SYNC where PGM_name ='BORMLOAD'"
+                        if [ $sqlCode -ne 0 ]; then
+                           DISP_AND_LOG "Error selecting from sync. Please resolve the following problem"
+                           DISP_AND_LOG "$queryResult"
+                           DISP_AND_LOG "Fix the above problem. Then press any key to retry..."
+                            if [ "$AUTOSYS_MODE" = "Y" ];then
+                              exit 1
+                              else
+                           read reply
+                             fi
+                           continue
+                        else
+                           rowCount=`echo $queryResult | tr -d ' ' | tr -d '\t' | tr -d '\n'`
+                        fi
 
-        XLSX.writeFile(
-            wb,
-            "invalid_neft_<?php echo $selectedDate; ?>.xlsx"
-        );
+                        DB_QUERY "select count(1) from HOSTIND where STATUS='R'"
+                        if [ $sqlCode -ne 0 ]; then
+                           DISP_AND_LOG "Error selecting from hostind. Please resolve the following problem"
+                           DISP_AND_LOG "$queryResult"
+                           DISP_AND_LOG "Fix the above problem. Then press any key to retry..."
+                            if [ "$AUTOSYS_MODE" = "Y" ];then
+                             exit 1
+                             else
+                           read reply
+                             fi
+                           continue
+                        else
+                           export App_Count=`echo $queryResult | tr -d ' ' | tr -d '\t' | tr -d '\n'`
+                        fi
 
-        table.page.len(25).draw();
+                        if [ $rowCount -ne `expr $App_Count - 1` ]; then
+                           DISP_AND_LOG "BORMLOAD  FILES NOT SCPED FROM ANY ONE OF THE SERVER OR JOB NOT STARTED ON OTHER SERVERS,WAIT FOR ITS COMPLETION..."
+                        else
+                                break
+                        fi
+                        sleep 5
+             done
 
-    }, 1000);
-}
+                     cd $data/CRMD/RECONCILATION/
+                     filecount=`ls -lrt BORMLOAD.dat_*|sed -n "$="`
+                     if [ $filecount -eq $App_Count ]; then
+                             echo "TOTAL BORMLOAD FILES ARE SAME PROCEED WITH CONCATINATION"| tee -a $sysout/splitCIS.log
+                     else
+                             echo "FILES ARE MISSING [OR] FILES ARE NOT EQUAL TO NO. OF APPS"| tee -a $sysout/splitCIS.log
+                             $sh/checkrc.sh 22
+                     fi
+                     cat BORMLOAD.dat_* > $data/CRMD/RECONCILATION/BORMLOAD.dat
+                     wait
 
+                     gzip BORMLOAD.dat &
+                     pid=$!
+                     wait $pid
 
+                     echo "DAT FILE COMPRESSION COMPLETED"
 
+               DB_QUERY "delete from SYNC where PGM_name='BORMLOAD'"
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-
-<div style="margin-bottom:15px;">
-    <button onclick="downloadExcel()">Download Excel</button>
-    <button onclick="downloadPDF()">Download PDF</button>
-</div>
-
-
-
-<script>
-
-function downloadExcel() {
-
-    var table = document.getElementById("neftTable");
-
-    var wb = XLSX.utils.table_to_book(
-        table,
-        { sheet: "NEFT Invalid UTR" }
-    );
-
-    XLSX.writeFile(
-        wb,
-        "invalid_neft_<?php echo $selectedDate; ?>.xlsx"
-    );
-}
-
-async function downloadPDF() {
-
-    const { jsPDF } = window.jspdf;
-
-    const doc = new jsPDF('l', 'mm', 'a4');
-
-    doc.text(
-        "NEFT Invalid UTR Monitoring Dashboard",
-        14,
-        15
-    );
-
-    doc.autoTable({
-        html: '#neftTable',
-        startY: 20,
-        styles: {
-            fontSize: 6
-        },
-        theme: 'grid'
-    });
-
-    doc.save(
-        "invalid_neft_<?php echo $selectedDate; ?>.pdf"
-    );
-}
-
-</script>
-
-
-function downloadExcel() {
-
-    var table = $('#neftTable').DataTable();
-
-    table.page.len(-1).draw();
-
-    setTimeout(function() {
-
-        var wb = XLSX.utils.table_to_book(
-            document.getElementById("neftTable"),
-            { sheet: "NEFT Invalid UTR" }
-        );
-
-        XLSX.writeFile(
-            wb,
-            "invalid_neft_<?php echo $selectedDate; ?>.xlsx"
-        );
-
-        table.page.len(25).draw();
-
-    }, 1000);
-}
-
-
-٪%%%%%%%%%%
-
-
-var table = $('#neftTable').DataTable();
-
-table.page.len(-1).draw();
-
-setTimeout(function() {
-
-    var wb = XLSX.utils.table_to_book(
-        document.getElementById("neftTable"),
-        { sheet: "NEFT Invalid UTR" }
-    );
-
-    XLSX.writeFile(
-        wb,
-        "invalid_neft_<?php echo $selectedDate; ?>.xlsx"
-    );
-
-    table.page.len(25).draw();
-
-}, 500);
-
-
-
+               if [ $sqlCode -ne 0 ]; then
+                     DISP_AND_LOG "Error selecting from hostind. Please resolve the following problem"
+                     DISP_AND_LOG "$queryResult"
+                     DISP_AND_LOG "Fix the above problem. Then press any key to retry..."
+                     if [ "$AUTOSYS_MODE" = "Y" ];then
+                        exit 1
+                      else
+                     read reply
+                     fi
+                     continue
+               else
+                     echo "BORMLOAD entry deleted successfully from SYNC"
+              fi
+           fi
+        else
+                echo "BORMLOAD FILE NOT PRESENT Please check .............."
+     fi
+else
+        echo "THIS SCRIPT MEANT FOR MULTI-APPS NOT FOR SINGLE APP"
+fi
