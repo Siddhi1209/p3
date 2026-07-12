@@ -1,1 +1,166 @@
 
+Excellent! You've now covered Subqueries. Let's move to the next high-frequency interview topic.
+PART 2 – EXISTS, IN, ANY, ALL (Very Important)
+1. IN Operator ⭐⭐⭐⭐
+Used when you want to match multiple values.
+Example:
+Find employees working in IT or HR.
+SELECT *
+FROM EMPLOYEE
+WHERE DEPARTMENT IN ('IT','HR');
+Equivalent to:
+WHERE DEPARTMENT='IT'
+OR DEPARTMENT='HR';
+2. NOT IN
+SELECT *
+FROM EMPLOYEE
+WHERE DEPARTMENT NOT IN ('IT','HR');
+Returns employees not in IT or HR.
+3. EXISTS ⭐⭐⭐⭐⭐
+Suppose we have:
+EMPLOYEE
+EMP_ID
+EMP_NAME
+DEPT_ID
+101
+Rahul
+1
+102
+Priya
+2
+103
+Amit
+1
+DEPARTMENT
+DEPT_ID
+DEPT_NAME
+1
+IT
+2
+HR
+3
+Finance
+Question: Display only departments that have employees.
+SELECT *
+FROM DEPARTMENT D
+WHERE EXISTS
+(
+SELECT 1
+FROM EMPLOYEE E
+WHERE E.DEPT_ID = D.DEPT_ID
+);
+How EXISTS Works
+Oracle checks:
+Department = IT
+SELECT 1
+FROM EMPLOYEE
+WHERE DEPT_ID=1;
+Rows found?
+✅ Yes
+Return IT.
+Department = Finance
+SELECT 1
+FROM EMPLOYEE
+WHERE DEPT_ID=3;
+Rows found?
+❌ No
+Don't return Finance.
+Remember
+EXISTS checks whether rows exist, not what the values are.
+4. NOT EXISTS
+Departments having no employees.
+SELECT *
+FROM DEPARTMENT D
+WHERE NOT EXISTS
+(
+SELECT 1
+FROM EMPLOYEE E
+WHERE E.DEPT_ID=D.DEPT_ID
+);
+Output
+Finance
+Difference: IN vs EXISTS
+IN
+Compares values.
+WHERE DEPT_ID IN (1,2,3)
+EXISTS
+Checks whether rows exist.
+WHERE EXISTS(...)
+Interview Answer
+IN
+Compares values.
+Better for small result sets.
+EXISTS
+Checks row existence.
+Better for large tables.
+Stops searching as soon as it finds one matching row.
+5. ANY ⭐⭐⭐⭐
+Suppose salaries are
+45000
+50000
+60000
+Question
+Find employees earning more than ANY salary in HR.
+SELECT *
+FROM EMPLOYEE
+WHERE SALARY > ANY
+(
+SELECT SALARY
+FROM EMPLOYEE
+WHERE DEPARTMENT='HR'
+);
+Think:
+More than at least one HR salary.
+6. ALL ⭐⭐⭐⭐
+Find employees earning more than ALL HR employees.
+SELECT *
+FROM EMPLOYEE
+WHERE SALARY > ALL
+(
+SELECT SALARY
+FROM EMPLOYEE
+WHERE DEPARTMENT='HR'
+);
+Think:
+Salary should be greater than every HR employee.
+Easy Memory Trick
+ANY
+Means
+Greater than at least one value.
+ALL
+Means
+Greater than every value.
+Example
+HR salaries
+40000
+50000
+60000
+Employee salary
+55000
+55000 > ANY?
+Yes
+Because
+55000 > 40000
+✅ True
+55000 > ALL?
+Need
+55000 > 40000 ✅
+55000 > 50000 ✅
+55000 > 60000 ❌
+Overall
+False
+Interview Questions
+You should now know:
+What is EXISTS?
+Difference between EXISTS and IN?
+Difference between ANY and ALL?
+When should we use EXISTS?
+What does SELECT 1 mean in EXISTS?
+Why SELECT 1?
+Because EXISTS doesn't care what you select. It only checks whether the subquery returns at least one row. You could also write:
+SELECT *
+or
+SELECT EMP_ID
+But SELECT 1 is the common interview and production style because it's simple and clearly shows that only row existence matters.
+✅ After you finish reading this, we'll move to Part 3: CASE, NVL, NVL2, COALESCE, DECODE (Oracle-specific functions). These are also commonly asked in Oracle SQL interviews.
+
