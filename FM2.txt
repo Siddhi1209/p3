@@ -1,166 +1,73 @@
+JIL AND AUTOSYS COMMANDS
 
-Excellent! You've now covered Subqueries. Let's move to the next high-frequency interview topic.
-PART 2 – EXISTS, IN, ANY, ALL (Very Important)
-1. IN Operator ⭐⭐⭐⭐
-Used when you want to match multiple values.
-Example:
-Find employees working in IT or HR.
-SELECT *
-FROM EMPLOYEE
-WHERE DEPARTMENT IN ('IT','HR');
-Equivalent to:
-WHERE DEPARTMENT='IT'
-OR DEPARTMENT='HR';
-2. NOT IN
-SELECT *
-FROM EMPLOYEE
-WHERE DEPARTMENT NOT IN ('IT','HR');
-Returns employees not in IT or HR.
-3. EXISTS ⭐⭐⭐⭐⭐
-Suppose we have:
-EMPLOYEE
-EMP_ID
-EMP_NAME
-DEPT_ID
-101
-Rahul
-1
-102
-Priya
-2
-103
-Amit
-1
-DEPARTMENT
-DEPT_ID
-DEPT_NAME
-1
-IT
-2
-HR
-3
-Finance
-Question: Display only departments that have employees.
-SELECT *
-FROM DEPARTMENT D
-WHERE EXISTS
-(
-SELECT 1
-FROM EMPLOYEE E
-WHERE E.DEPT_ID = D.DEPT_ID
-);
-How EXISTS Works
-Oracle checks:
-Department = IT
-SELECT 1
-FROM EMPLOYEE
-WHERE DEPT_ID=1;
-Rows found?
-✅ Yes
-Return IT.
-Department = Finance
-SELECT 1
-FROM EMPLOYEE
-WHERE DEPT_ID=3;
-Rows found?
-❌ No
-Don't return Finance.
-Remember
-EXISTS checks whether rows exist, not what the values are.
-4. NOT EXISTS
-Departments having no employees.
-SELECT *
-FROM DEPARTMENT D
-WHERE NOT EXISTS
-(
-SELECT 1
-FROM EMPLOYEE E
-WHERE E.DEPT_ID=D.DEPT_ID
-);
-Output
-Finance
-Difference: IN vs EXISTS
-IN
-Compares values.
-WHERE DEPT_ID IN (1,2,3)
-EXISTS
-Checks whether rows exist.
-WHERE EXISTS(...)
-Interview Answer
-IN
-Compares values.
-Better for small result sets.
-EXISTS
-Checks row existence.
-Better for large tables.
-Stops searching as soon as it finds one matching row.
-5. ANY ⭐⭐⭐⭐
-Suppose salaries are
-45000
-50000
-60000
-Question
-Find employees earning more than ANY salary in HR.
-SELECT *
-FROM EMPLOYEE
-WHERE SALARY > ANY
-(
-SELECT SALARY
-FROM EMPLOYEE
-WHERE DEPARTMENT='HR'
-);
-Think:
-More than at least one HR salary.
-6. ALL ⭐⭐⭐⭐
-Find employees earning more than ALL HR employees.
-SELECT *
-FROM EMPLOYEE
-WHERE SALARY > ALL
-(
-SELECT SALARY
-FROM EMPLOYEE
-WHERE DEPARTMENT='HR'
-);
-Think:
-Salary should be greater than every HR employee.
-Easy Memory Trick
-ANY
-Means
-Greater than at least one value.
-ALL
-Means
-Greater than every value.
-Example
-HR salaries
-40000
-50000
-60000
-Employee salary
-55000
-55000 > ANY?
-Yes
-Because
-55000 > 40000
-✅ True
-55000 > ALL?
-Need
-55000 > 40000 ✅
-55000 > 50000 ✅
-55000 > 60000 ❌
-Overall
-False
-Interview Questions
-You should now know:
-What is EXISTS?
-Difference between EXISTS and IN?
-Difference between ANY and ALL?
-When should we use EXISTS?
-What does SELECT 1 mean in EXISTS?
-Why SELECT 1?
-Because EXISTS doesn't care what you select. It only checks whether the subquery returns at least one row. You could also write:
-SELECT *
-or
-SELECT EMP_ID
-But SELECT 1 is the common interview and production style because it's simple and clearly shows that only row existence matters.
-✅ After you finish reading this, we'll move to Part 3: CASE, NVL, NVL2, COALESCE, DECODE (Oracle-specific functions). These are also commonly asked in Oracle SQL interviews.
+JIL (JOB INFORMATION LANGUAGE)
+
+    • It is a standardized mode by which we write down the instructions for the WAAE (Workload Automation AE ) server and also get them stored in the database
+
+    • Attributes of a JIL
+
+insert_job : This will insert a new job definition to the database.
+
+update_job : This will update an existing job definition to the database.
+
+delete_job : This will delete an existing job  definition to the database.
+
+job_type : Autosys supports three types of jobs:
+
+Command type: execution of simple UNIX commands.
+
+Box type: It is used to organize and control process flow by acting as a container for a group of jobs that run together.
+
+box_name : Name of the Box.
+
+command: /usr/bin/ksh  -c '    '
+	command attribute specifies the job that will run on the Remote Agent . /usr/bin/ksh implies that execute the job in Korn Shell . –c means anything that is between the single quotes treat it as a single command.
+
+machine : Define the client ( remote agent) where a job runs.
+
+owner : It is the owner  of the job that will run the job on remote agent.
+
+permission: gx,wx
+	permission attribute specifies group execute (UNIX) and world execute , i.e. anyone can execute the job
+
+condition : The condition on which a job will be fired. You can base dependencies on one or more of the following: 
+ 
+    • Job status; for example, success(DB_BACKUP)
+    • Job exit code; for example, exitcode (my_job)=4  
+    • Global variables; for example, VALUE(TODAY)=Friday 
+
+ job_terminator : This implies if the job should be terminated if the box in which the job resides fails . 1 means yes , 0 means no .
+
+std_out_file : The file to which standard o/p file will be redirected . It is any file for which the job owner has write permissions on the client m/c
+
+std_err_file: The file to which standard error file will be redirected . It is any file for which the job owner has write permissions on the client m/c.
+
+alarm_if_fail : If the job fails then alarm should be posted (1) or not posted (0) to the event processor
+
+max_exit_success : Define the maximum exit code that the job can exit with and be considered a success.
+
+start_times: The start_times attribute defines the times of day, in 24-hour format, at which the job should start on the days specified in the days_of week attribute or on the dates specified in the calendar identified in the run_calendar attribute. 
+E.g  start_mins: 00,15,30,45
+days_of_week: all
+
+box_failure: By default, CA Workload Automation AE considers a Box job to have failed when any job in it completes with a failure condition. You can use the box_failure attribute to define specific conditions for Box job failure in situations where there may be multiple failure or recovery scenarios. 
+For e.g  box_failure: f(SLAVE6.i_post_reg_mode_chk_e)
+
+box_success: By default, CA Workload Automation AE considers a box job successful when every job in it completes successfully. some jobs in the box may never need to run, but the default box behavior would be to interpret this as a box failure. You can use the box_success attribute to define specific conditions for box job success in situations where there may be multiple success scenarios. 
+For e.g  box_success: s(MASTER.is_cfpd1002_i) & s(MASTER.is_bancs.kill_2_i) & s(MASTER.is_hktoeodok_i) & (s(MASTER.is_cfps1001_i) | f(MASTER.is_cfps1001_i))
+
+n_retrys : Define the number of times to restart a job after a failure.
+
+Profile : The profile file to be executed on remote agent is .profile_uajm . When the profile attribute is not set , the auto.profile is executed by default on the Application Server . But this does not set the BANCS-24 environment variables . Moreover when a job is run through Autosys no shell is executed so variables like $HOME or $LOGNAME are not set . So setting of all these variables , along with some others and .profile execution are included in .profile_uajm file
+
+
+You can create a job defination in interactive mode using following command:
+        Jil
+  After entering the “jil” command, following prompt will come:
+       Jil>>1>
+-- attributes of a jil ----
+:
+exit
+Alternatively, You can create a job defination (JIL) in a text file and then import  the job definitions by redirecting the file as a input to the JIL. To import a job defination from a text file use the following command:
+	Jil < filename.txt
 
