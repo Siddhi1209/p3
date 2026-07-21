@@ -1,4 +1,94 @@
+#!/bin/ksh
 
+TODAY=$(date +%Y%m%d)
+
+LOG_DIR=/ftparea/logs
+OUT_FILE=/ftparea/logs/cdc_pending_${TODAY}.txt
+
+NOPUSH_LOG=$LOG_DIR/nopush.log.$TODAY
+IGNORED_LOG=$LOG_DIR/ignored.log.$TODAY
+FAILED_LOG=$LOG_DIR/failed.log.$TODAY
+PASSED_LOG=$LOG_DIR/passed.log.$TODAY
+
+> $OUT_FILE
+
+###########################################
+# Process nopush.log
+###########################################
+if [ -f "$NOPUSH_LOG" ]
+then
+while read line
+do
+    FILE_NAME=$(echo "$line" | awk '{print $3}')
+
+    grep -q "$FILE_NAME" "$PASSED_LOG"
+    if [ $? -ne 0 ]
+    then
+        echo "NOPUSH|$line" >> $OUT_FILE
+    fi
+
+done < $NOPUSH_LOG
+fi
+
+###########################################
+# Process ignored.log
+###########################################
+if [ -f "$IGNORED_LOG" ]
+then
+while read line
+do
+    FILE_NAME=$(echo "$line" | awk '{print $3}')
+
+    grep -q "$FILE_NAME" "$PASSED_LOG"
+    if [ $? -ne 0 ]
+    then
+        echo "IGNORED|$line" >> $OUT_FILE
+    fi
+
+done < $IGNORED_LOG
+fi
+
+###########################################
+# Process failed.log
+###########################################
+if [ -f "$FAILED_LOG" ]
+then
+
+REASON=""
+
+while read line
+do
+
+    case "$line" in
+        \#*)
+            REASON="$line"
+            ;;
+        cdc*)
+            FILE_NAME=$(echo "$line" | awk '{print $3}')
+
+            grep -q "$FILE_NAME" "$PASSED_LOG"
+            if [ $? -ne 0 ]
+            then
+                echo "FAILED|$line|$REASON" >> $OUT_FILE
+            fi
+            ;;
+    esac
+
+done < $FAILED_LOG
+
+fi
+
+###########################################
+# Send file only if records exist
+###########################################
+if [ -s "$OUT_FILE" ]
+then
+    # Example
+    # ftc.sh $OUT_FILE /portal/cgi/history/
+    echo "Pending records written to $OUT_FILE"
+else
+    rm -f $OUT_FILE
+fi
 Dear Associate,
 
 Currently, two resources have already been assigned to reduce the mount point space. Due to limited manpower in the current shift and the existing workload assigned to the team, it is not feasible to allocate an additional resource at this time.
