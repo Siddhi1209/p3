@@ -1,1 +1,12 @@
-
+perl -e '
+use Time::Local;
+$logdate="2026-07-21";
+$logtime="04:41:22";
+($y,$m,$d)=split(/-/,$logdate);
+($hh,$mm,$ss)=split(/:/,$logtime);
+$logepoch=timelocal($ss,$mm,$hh,$d,$m-1,$y);
+$current=time();
+print "Current=$current\n";
+print "Log=$logepoch\n";
+print "Diff=".($current-$logepoch)."\n";
+'
