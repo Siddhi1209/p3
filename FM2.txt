@@ -1,3 +1,7 @@
+grep -w "04791/reports/20260719/Exception_Reports/USER_AMENDMENTS_MADE_BY_BRANCH.ID_SY0103_ID.txt.gz" /ftparea/logs/passed.log.20260721
+echo $?
+
+
 perl -e '
 use Time::Local;
 $logdate="2026-07-21";
