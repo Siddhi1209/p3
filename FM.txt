@@ -1,1 +1,170 @@
 
+<?php
+
+date_default_timezone_set("Asia/Kolkata");
+
+$today = date("Ymd");
+
+$file = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/reports_monitor_" . $today . ".txt";
+
+?>
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>CDC FTP Pending Transfer Report</title>
+
+<style>
+
+body{
+    margin:20px;
+    padding:0;
+    background:#f4f6f9;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.container{
+    width:98%;
+    margin:auto;
+    background:#ffffff;
+    padding:20px;
+    border-radius:8px;
+    box-shadow:0px 2px 8px rgba(0,0,0,0.2);
+}
+
+h2{
+    text-align:center;
+    color:#003366;
+    margin-bottom:20px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+}
+
+th{
+    background:#003366;
+    color:white;
+    padding:12px;
+    border:1px solid #d9d9d9;
+    text-align:left;
+}
+
+td{
+    padding:10px;
+    border:1px solid #d9d9d9;
+}
+
+tr:nth-child(even){
+    background:#f7f7f7;
+}
+
+tr:hover{
+    background:#e6f2ff;
+}
+
+.noData{
+    text-align:center;
+    color:red;
+    font-size:18px;
+    font-weight:bold;
+    margin-top:30px;
+}
+
+.footer{
+    margin-top:20px;
+    text-align:right;
+    color:#666666;
+    font-size:12px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>CDC FTP Pending Transfer Report</h2>
+
+<?php
+
+if(file_exists($file))
+{
+
+    $fp=fopen($file,"r");
+
+    echo "<table>";
+
+    echo "<tr>";
+    echo "<th>LOG_TYPE</th>";
+    echo "<th>IDENTIFIER</th>";
+    echo "<th>SOURCE_FILE</th>";
+    echo "<th>DESTINATION_FILE</th>";
+    echo "<th>DATE</th>";
+    echo "<th>TIME</th>";
+    echo "<th>REASON</th>";
+    echo "</tr>";
+
+    $firstLine=true;
+    $records=0;
+
+    while(($line=fgets($fp))!==false)
+    {
+
+        $line=trim($line);
+
+        if($line=="")
+            continue;
+
+        if($firstLine)
+        {
+            $firstLine=false;
+            continue;
+        }
+
+        $data=explode(",",$line);
+
+        echo "<tr>";
+
+        for($i=0;$i<7;$i++)
+        {
+            echo "<td>".htmlspecialchars(isset($data[$i]) ? $data[$i] : "")."</td>";
+        }
+
+        echo "</tr>";
+
+        $records++;
+    }
+
+    fclose($fp);
+
+    echo "</table>";
+
+    if($records==0)
+    {
+        echo "<div class='noData'>No Pending FTP Records Found.</div>";
+    }
+
+}
+else
+{
+    echo "<div class='noData'>Report File Not Available.</div>";
+}
+
+?>
+
+<div class="footer">
+Generated on <?php echo date("d-m-Y H:i:s"); ?>
+</div>
+
+</div>
+
+</body>
+
+</html>
