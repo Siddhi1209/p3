@@ -1,1 +1,484 @@
+<?php
 
+date_default_timezone_set("Asia/Kolkata");
+
+$today = date("Ymd");
+
+$file = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/reports_monitor_" . $today . ".txt";
+
+/* Download Report as Excel */
+
+if(isset($_GET['download']))
+{
+    if(file_exists($file))
+    {
+        header("Content-Type: application/vnd.ms-excel");
+        header("Content-Disposition: attachment; filename=CDC_FTP_Pending_Report_".$today.".xls");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+
+        readfile($file);
+        exit;
+    }
+}
+
+?>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>CDC FTP Pending Transfer Report</title>
+
+<meta http-equiv="refresh" content="30">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#eef3f8;
+    font-family:"Segoe UI",Arial,sans-serif;
+    padding:20px;
+}
+
+.container{
+    width:98%;
+    margin:auto;
+    background:#ffffff;
+    border-radius:12px;
+    box-shadow:0 6px 20px rgba(0,0,0,.15);
+    overflow:hidden;
+}
+
+.header{
+    background:linear-gradient(90deg,#003366,#0059b3);
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+.header h1{
+    font-size:30px;
+    margin-bottom:5px;
+}
+
+.header p{
+    font-size:15px;
+}
+
+.legend{
+
+    display:flex;
+    justify-content:center;
+    gap:30px;
+    flex-wrap:wrap;
+
+    background:#f8f9fb;
+
+    padding:18px;
+
+    border-bottom:1px solid #dddddd;
+
+}
+
+.legend-item{
+
+    display:flex;
+    align-items:center;
+    font-size:14px;
+    font-weight:bold;
+
+}
+
+.legend-box{
+
+    width:18px;
+    height:18px;
+    border-radius:4px;
+    margin-right:8px;
+
+}
+
+.nopush-box{
+    background:#ffc107;
+}
+
+.failed-box{
+    background:#dc3545;
+}
+
+.ignored-box{
+    background:#17a2b8;
+}
+
+.download-btn{
+
+    float:right;
+
+    margin:20px;
+
+    background:#28a745;
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:10px 18px;
+
+    border-radius:5px;
+
+    font-weight:bold;
+
+}
+
+.download-btn:hover{
+
+    background:#218838;
+
+}
+.table-container{
+
+    padding:20px;
+
+    overflow:auto;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    font-size:14px;
+
+}
+
+thead th{
+
+    background:#003366;
+
+    color:#ffffff;
+
+    padding:12px;
+
+    text-align:left;
+
+    border:1px solid #d9d9d9;
+
+    position:sticky;
+
+    top:0;
+
+    white-space:nowrap;
+
+}
+
+tbody td{
+
+    padding:10px;
+
+    border:1px solid #e0e0e0;
+
+    vertical-align:top;
+
+    word-break:break-word;
+
+}
+
+tbody tr:nth-child(even){
+
+    background:#f8fbff;
+
+}
+
+tbody tr:hover{
+
+    background:#e8f4ff;
+
+    transition:.3s;
+
+}
+
+.nopush{
+
+    background:#fff8d6;
+
+    color:#856404;
+
+    font-weight:bold;
+
+    text-align:center;
+
+}
+
+.failed{
+
+    background:#fde2e2;
+
+    color:#b71c1c;
+
+    font-weight:bold;
+
+    text-align:center;
+
+}
+
+.ignored{
+
+    background:#d8f5ff;
+
+    color:#0b5460;
+
+    font-weight:bold;
+
+    text-align:center;
+
+}
+
+.message{
+
+    text-align:center;
+
+    color:#d32f2f;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    padding:25px;
+
+}
+
+.footer{
+
+    background:#f4f4f4;
+
+    padding:15px;
+
+    text-align:right;
+
+    font-size:13px;
+
+    color:#555;
+
+    border-top:1px solid #dddddd;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h1>CDC FTP Pending Transfer Report</h1>
+
+<p>Auto Refresh Every 30 Seconds</p>
+
+</div>
+
+<div class="legend">
+
+<div class="legend-item">
+<span class="legend-box nopush-box"></span>
+NOPUSH - File could not be pushed to destination
+</div>
+
+<div class="legend-item">
+<span class="legend-box failed-box"></span>
+FAILED - FTP transfer failed
+</div>
+
+<div class="legend-item">
+<span class="legend-box ignored-box"></span>
+IGNORED - File transfer skipped
+</div>
+
+</div>
+
+<?php
+if(file_exists($file))
+{
+?>
+
+<a class="download-btn" href="?download=1">
+📥 Download Excel
+</a>
+
+<?php
+}
+?>
+
+<div class="table-container">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>LOG TYPE</th>
+<th>IDENTIFIER</th>
+<th>SOURCE FILE</th>
+<th>DESTINATION FILE</th>
+<th>DATE</th>
+<th>TIME</th>
+<th>REASON</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+<?php
+
+if(file_exists($file))
+{
+
+    $fp = fopen($file,"r");
+
+    $firstLine = true;
+    $count = 0;
+
+    while(($line = fgets($fp)) !== false)
+    {
+
+        $line = trim($line);
+
+        if($line == "")
+            continue;
+
+        /* Skip CSV Header */
+
+        if($firstLine)
+        {
+            $firstLine = false;
+            continue;
+        }
+
+        $data = explode(",",$line);
+
+        echo "<tr>";
+
+        /* LOG TYPE */
+
+        $logType = trim($data[0]);
+
+        if($logType == "NOPUSH")
+        {
+            echo "<td class='nopush'>".$logType."</td>";
+        }
+        elseif($logType == "FAILED")
+        {
+            echo "<td class='failed'>".$logType."</td>";
+        }
+        elseif($logType == "IGNORED")
+        {
+            echo "<td class='ignored'>".$logType."</td>";
+        }
+        else
+        {
+            echo "<td>".$logType."</td>";
+        }
+
+        /* Remaining Columns */
+
+        for($i=1;$i<7;$i++)
+        {
+
+            if(isset($data[$i]))
+            {
+                echo "<td>".htmlspecialchars($data[$i])."</td>";
+            }
+            else
+            {
+                echo "<td>&nbsp;</td>";
+            }
+
+        }
+
+        echo "</tr>";
+
+        $count++;
+
+    }
+
+    fclose($fp);
+
+    if($count==0)
+    {
+
+        echo "<tr>";
+        echo "<td colspan='7' class='message'>";
+        echo "No Pending FTP Records Found";
+        echo "</td>";
+        echo "</tr>";
+
+    }
+
+}
+else
+{
+
+    echo "<tr>";
+    echo "<td colspan='7' class='message'>";
+    echo "Report File Not Available";
+    echo "</td>";
+    echo "</tr>";
+
+}
+
+?>
+
+
+</tbody>
+
+</table>
+
+</div>
+
+<?php
+if(file_exists($file))
+{
+    echo "<div class='footer'>";
+
+    echo "<b>Total Pending Records : </b>";
+
+    if(isset($count))
+        echo $count;
+    else
+        echo "0";
+
+    echo "<br><br>";
+
+    echo "<b>Report Location :</b><br>";
+
+    echo "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/reports_monitor_".$today.".txt";
+
+    echo "<br><br>";
+
+    echo "<b>Last Refreshed :</b> ";
+
+    echo date("d-m-Y H:i:s");
+
+    echo "</div>";
+}
+?>
+
+</div>
+
+</body>
+
+</html>
