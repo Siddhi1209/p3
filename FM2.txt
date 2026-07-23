@@ -1,1 +1,52 @@
 
+You can send the following requirement to the systems team.
+Requirement: CDC FTP Monitoring Report
+Objective
+Develop a Perl script to monitor CDC FTP transfer logs and generate a report of files that have not yet been successfully transferred to the portal.
+Log Location
+All log files are available under:
+/ftparea/logs
+The script should process the following daily log files:
+passed.log.YYYYMMDD
+nopush.log.YYYYMMDD
+ignored.log.YYYYMMDD
+failed.log.YYYYMMDD
+Processing Logic
+Read the following log files completely (from start to end):
+nopush.log.YYYYMMDD
+ignored.log.YYYYMMDD
+failed.log.YYYYMMDD
+For each valid FTP record:
+Extract:
+Identifier
+Source File
+Destination File
+Date
+Time
+For failed.log, also capture the FTP failure reason from the preceding # Ftp... line.
+For every source file extracted from the above logs, search the corresponding passed.log.YYYYMMDD.
+If the source file is already present in passed.log, ignore the record.
+If the source file is not present in passed.log, include it in the report.
+Output Report
+Generate the report at:
+/monitor_rp/PORTAL/reports_monitor_YYYYMMDD.txt
+Output format (comma-separated):
+LOG_TYPE,IDENTIFIER,SOURCE_FILE,DESTINATION_FILE,DATE,TIME,REASON
+Example:
+NOPUSH,bLORCN,BGL_00004899177610346_15072026.TXT.gz,BGL_00004899177610346_15072026.TXT.gz,2026-07-16,14:46:38,NA
+
+FAILED,bGORIL,INRP45_05235_14072026.prt,INRP45_05235_14072026.prt,2026-07-16,14:40:15,Ftp 'put' failed midway. Tried for 0 seconds
+File Transfer
+If the generated report contains records (other than the header), transfer it to the portal server using the existing script:
+/home/cdc/pace/ftc.sh
+Command format:
+/home/cdc/pace/ftc.sh \
+/monitor_rp/PORTAL/reports_monitor_YYYYMMDD.txt \
+/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/
+ftc.sh internally performs the SCP transfer to the portal server.
+No Records
+If there are no pending records, no report transfer is required. The generated report may be deleted or retained as per the implementation standard.
+Platform
+Operating System: HP-UX 11.31
+Programming Language: Perl
+This requirement avoids time-based filtering. The script should scan the complete log files and report only those files that are present in nopush, ignored, or failed logs but absent from the corresponding passed.log. This ensures that only pending FTP transfers are reported.
