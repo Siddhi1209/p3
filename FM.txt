@@ -1,5 +1,6 @@
-
 <?php
+error_reporting(E_ALL);
+ini.set('display_errors',1);
 
 date_default_timezone_set("Asia/Kolkata");
 
@@ -640,5 +641,3 @@ echo "<b>Last Refreshed :</b> " .
 </body>
 
 </html>
-
-
