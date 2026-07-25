@@ -1,1 +1,644 @@
 
+<?php
+
+date_default_timezone_set("Asia/Kolkata");
+
+/*----------------------------------------------------
+  Default Report Date (Today's Date)
+-----------------------------------------------------*/
+
+$selectedDate = date("Y-m-d");
+
+if(isset($_GET['report_date']) && $_GET['report_date'] != "")
+{
+    $selectedDate = $_GET['report_date'];
+}
+
+/*----------------------------------------------------
+  Convert Date to YYYYMMDD
+-----------------------------------------------------*/
+
+$fileDate = date("Ymd", strtotime($selectedDate));
+
+/*----------------------------------------------------
+  Report File Path
+-----------------------------------------------------*/
+
+$reportDirectory = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/";
+
+$file = $reportDirectory . "reports_monitor_" . $fileDate . ".txt";
+
+/*----------------------------------------------------
+  Excel Download
+-----------------------------------------------------*/
+
+if(isset($_GET['download']))
+{
+
+    if(file_exists($file))
+    {
+
+        header("Content-Type: application/vnd.ms-excel");
+        header("Content-Disposition: attachment; filename=CDC_FTP_Pending_Report_" . $fileDate . ".xls");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+
+        readfile($file);
+
+        exit;
+
+    }
+    else
+    {
+
+        echo "Report File Not Available.";
+
+        exit;
+
+    }
+
+}
+
+?>
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>CDC FTP Pending Transfer Report</title>
+
+<meta http-equiv="refresh" content="30">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    background:#eef3f8;
+
+    font-family:Segoe UI,Arial,sans-serif;
+
+    padding:20px;
+
+}
+
+.container{
+
+    width:98%;
+
+    margin:auto;
+
+    background:#ffffff;
+
+    border-radius:12px;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.15);
+
+    overflow:hidden;
+
+}
+
+.header{
+
+    background:linear-gradient(90deg,#003366,#0059b3);
+
+    color:#ffffff;
+
+    text-align:center;
+
+    padding:20px;
+
+}
+
+.header h1{
+
+    font-size:30px;
+
+    margin-bottom:8px;
+
+}
+
+.header p{
+
+    font-size:15px;
+
+    opacity:.9;
+
+}
+
+.legend{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:30px;
+
+    flex-wrap:wrap;
+
+    padding:18px;
+
+    background:#f7f9fc;
+
+    border-bottom:1px solid #dddddd;
+
+}
+
+.legend-item{
+
+    display:flex;
+
+    align-items:center;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+}
+
+.legend-box{
+
+    width:18px;
+
+    height:18px;
+
+    border-radius:4px;
+
+    margin-right:8px;
+
+}
+
+.nopush-box{
+
+    background:#ffc107;
+
+}
+
+.failed-box{
+
+    background:#dc3545;
+
+}
+
+.ignored-box{
+
+    background:#17a2b8;
+
+}
+
+.toolbar{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    flex-wrap:wrap;
+
+    padding:20px;
+
+    background:#ffffff;
+
+}
+
+.left-toolbar{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+.right-toolbar{
+
+    display:flex;
+
+    align-items:center;
+
+}
+
+input[type=date]{
+
+    padding:8px 12px;
+
+    border:1px solid #cccccc;
+
+    border-radius:5px;
+
+    font-size:14px;
+
+}
+
+.load-btn{
+
+    background:#003366;
+
+    color:white;
+
+    border:none;
+
+    padding:9px 18px;
+
+    border-radius:5px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+}
+
+.load-btn:hover{
+
+    background:#0059b3;
+
+}
+
+.download-btn{
+
+    background:#28a745;
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:10px 18px;
+
+    border-radius:5px;
+
+    font-weight:bold;
+
+}
+
+.download-btn:hover{
+
+    background:#218838;
+
+}
+
+.table-container{
+
+    padding:20px;
+
+    overflow:auto;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    font-size:14px;
+
+}
+
+thead{
+
+    background:#003366;
+
+    color:white;
+
+}
+
+thead th{
+
+    padding:12px;
+
+    border:1px solid #d9d9d9;
+
+    text-align:left;
+
+    position:sticky;
+
+    top:0;
+
+}
+
+tbody td{
+
+    padding:10px;
+
+    border:1px solid #e0e0e0;
+
+    vertical-align:top;
+
+    word-break:break-word;
+
+}
+
+tbody tr:nth-child(even){
+
+    background:#f8fbff;
+
+}
+
+tbody tr:hover{
+
+    background:#e8f4ff;
+
+}
+
+.nopush{
+
+    background:#fff8d5;
+
+    color:#856404;
+
+    font-weight:bold;
+
+    text-align:center;
+
+}
+
+.failed{
+
+    background:#ffe3e3;
+
+    color:#b71c1c;
+
+    font-weight:bold;
+
+    text-align:center;
+
+}
+
+.ignored{
+
+    background:#d7f5ff;
+
+    color:#0b5460;
+
+    font-weight:bold;
+
+    text-align:center;
+
+}
+
+.message{
+
+    text-align:center;
+
+    color:red;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    padding:25px;
+
+}
+
+.footer{
+
+    background:#f5f5f5;
+
+    border-top:1px solid #dddddd;
+
+    padding:15px;
+
+    font-size:13px;
+
+    text-align:right;
+
+    color:#555555;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h1>CDC FTP Pending Transfer Report</h1>
+
+<p>Auto Refresh Every 30 Seconds</p>
+
+</div>
+
+<div class="legend">
+
+<div class="legend-item">
+
+<span class="legend-box nopush-box"></span>
+
+NOPUSH - File could not be pushed to destination
+
+</div>
+
+<div class="legend-item">
+
+<span class="legend-box failed-box"></span>
+
+FAILED - FTP transfer failed during transmission
+
+</div>
+
+<div class="legend-item">
+
+<span class="legend-box ignored-box"></span>
+
+IGNORED - File transfer skipped
+
+</div>
+
+</div>
+<div class="toolbar">
+
+<div class="left-toolbar">
+
+<form method="get">
+
+<label><b>Report Date :</b></label>
+
+<input type="date"
+       name="report_date"
+       value="<?php echo $selectedDate; ?>">
+
+<input type="submit"
+       value="Load Report"
+       class="load-btn">
+
+</form>
+
+</div>
+
+<div class="right-toolbar">
+
+<?php
+if(file_exists($file))
+{
+?>
+
+<a class="download-btn"
+href="?download=1&report_date=<?php echo $selectedDate; ?>">
+📥 Download Excel
+</a>
+
+<?php
+}
+?>
+
+</div>
+
+</div>
+
+<div class="table-container">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>LOG TYPE</th>
+
+<th>IDENTIFIER</th>
+
+<th>SOURCE FILE</th>
+
+<th>DESTINATION FILE</th>
+
+<th>DATE</th>
+
+<th>TIME</th>
+
+<th>REASON</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<?php
+
+$count = 0;
+
+if(file_exists($file))
+{
+
+    $fp = fopen($file,"r");
+
+    $firstLine = true;
+
+    while(($line = fgets($fp)) !== false)
+    {
+
+        $line = trim($line);
+
+        if($line == "")
+            continue;
+
+        if($firstLine)
+        {
+            $firstLine = false;
+            continue;
+        }
+
+        $data = explode(",", $line);
+
+        echo "<tr>";
+
+        $logType = trim($data[0]);
+
+        if($logType=="NOPUSH")
+        {
+            echo "<td class='nopush'>$logType</td>";
+        }
+        elseif($logType=="FAILED")
+        {
+            echo "<td class='failed'>$logType</td>";
+        }
+        elseif($logType=="IGNORED")
+        {
+            echo "<td class='ignored'>$logType</td>";
+        }
+        else
+        {
+            echo "<td>$logType</td>";
+        }
+
+        for($i=1;$i<7;$i++)
+        {
+            echo "<td>";
+
+            if(isset($data[$i]))
+                echo htmlspecialchars($data[$i]);
+            else
+                echo "&nbsp;";
+
+            echo "</td>";
+        }
+
+        echo "</tr>";
+
+        $count++;
+
+    }
+
+    fclose($fp);
+    }
+
+}
+else
+{
+
+    echo "<tr>";
+    echo "<td colspan='7' class='message'>";
+    echo "Report File Not Available.";
+    echo "</td>";
+    echo "</tr>";
+
+}
+
+?>
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="footer">
+
+<?php
+
+echo "<b>Viewing Report Date :</b> " .
+     date("d-m-Y", strtotime($selectedDate));
+
+echo "&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;";
+
+echo "<b>Total Pending Records :</b> " .
+     $count;
+
+echo "&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;";
+
+echo "<b>Last Refreshed :</b> " .
+     date("d-m-Y H:i:s");
+
+?>
+
+</div>
+
+</div>
+
+</body>
+
+</html>
+
+
