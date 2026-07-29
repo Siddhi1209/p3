@@ -1,1 +1,111 @@
 
+#!/bin/ksh
+
+# CONFIG
+
+BASE_ROOT="/fns/id/r/spool/Interfaces/NEFT/INVALID"
+
+CURR_MONTH=$(date +%Y%m)
+
+BASE_DIR="$BASE_ROOT/$CURR_MONTH"
+
+OUTPUT_PATH="/fns/id/r/spool/NEFT_INVALID_MONITORING_FOR_PORTAL"
+
+
+# CHECK INPUT DIRECTORY
+
+[ -d "$BASE_DIR" ] || {
+    echo "Directory not found: $BASE_DIR"
+    exit 1
+}
+
+
+# CHECK OUTPUT DIRECTORY
+
+[ -d "$OUTPUT_PATH" ] || {
+    echo "Output directory not found: $OUTPUT_PATH"
+    exit 1
+}
+
+
+# GET LATEST DIRECTORY
+
+LATEST_DIR=$(ls "$BASE_DIR" | sort | tail -1)
+
+FULL_PATH="$BASE_DIR/$LATEST_DIR"
+
+echo "Processing: $FULL_PATH"
+
+
+# OUTPUT FILE
+
+OUT_FILE="$OUTPUT_PATH/invalid_neft_${BANCS_DQPTYPE}.txt.${LATEST_DIR}"
+
+touch "$OUT_FILE"
+
+> "$OUT_FILE"
+
+
+############################################################
+# SQL QUERY FUNCTION
+############################################################
+
+DB_QUERY()
+{
+    queryResult=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD <<EOF
+set heading off
+set feedback off
+set pages 0
+set verify off
+set echo off
+set lines 4000
+set trimspool on
+set tab off
+set colsep ','
+
+$@;
+
+exit;
+EOF`
+}
+
+
+DATA_FOUND=0
+
+
+############################################################
+# PROCESS FILES FROM LATEST YYYYMMDD DIRECTORY
+############################################################
+
+for FILE in "$FULL_PATH"/*.NEFT.gz
+do
+    [ -f "$FILE" ] || continue
+
+    UTR=$(basename "$FILE" | sed 's/\.NEFT\.gz//')
+
+    DB_QUERY "select UTR,
+                     IN_OUT,
+                     STATUS,
+                     TRAN_DATE,
+                     AMOUNT,
+                     ACCOUNT_NO,
+                     BENEF_ACCT_NO,
+                     JRNL_NO_1,
+                     TRAN_BRANCH,
+                     NVL(IFSC_SENDER,''),
+                     NVL(IFSC_RECVR,''),
+                     NVL(CREDIT_BGL_ACCT,''),
+                     NVL(DEBIT_BGL_ACCT,'')
+              from neft
+             where UTR='$UTR'
+               and INST_NO='003'"
+
+    RESULT=$(echo "$queryResult" | tr -d '\r' | sed '/^$/d' | sed "s/^\([^,]*\),/\1,${BANCS_DQPTYPE},/")
+
+    if [ -n "$RESULT" ]
+    then
+        echo "$RESULT" >> "$OUT_FILE"
+        DATA_FOUND=1
+    fi
+
+done
