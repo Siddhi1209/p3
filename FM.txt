@@ -133,3 +133,19 @@ else
     echo "File transfer failed"
     exit 1
 fi
+
+===============
+The above mentioned scripts checks in the /fns/id/r/spool/Interfaces/NEFT/INVALID/YYYYMM/YYYYMMDD
+
+i.e monthwise and datewise for todays date make one change the script should also check in 
+
+/fns/id/r/spool/Interfaces/NEFT/INVALID
+
+if any UT with todays time stamp is present that utr also it should check .
+ex: -
+drwxr-xr-x  13 fnsonlid   fnsir         1024 Jul 29 05:55 202607
+-rw-r--r--   1 fnsonlid   fnsir          357 Jul 29 08:41 SBIN526210425112.NEFT.gz
+HIMALAYA:/fns/id/r/spool/Interfaces/NEFT/INVALID:-)
+
+here the above mentioned UTR has JUL 29 timestamp which is todays date then the acript should check this UTR a swell
+in NEFT Table.
