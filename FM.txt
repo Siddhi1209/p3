@@ -1,1 +1,198 @@
 
+#!/bin/ksh
+
+# CONFIG
+
+BASE_ROOT="/fns/is/r/spool/Interfaces/NEFT/INVALID"
+
+CURR_MONTH=$(date +%Y%m)
+
+BASE_DIR="$BASE_ROOT/$CURR_MONTH"
+
+OUTPUT_PATH="/fns/is/r/spool/NEFT_INVALID_MONITORING_FOR_PORTAL"
+
+
+# CHECK INPUT DIRECTORY
+
+[ -d "$BASE_DIR" ] || {
+    echo "Directory not found: $BASE_DIR"
+    exit 1
+}
+
+
+# CHECK OUTPUT DIRECTORY
+
+[ -d "$OUTPUT_PATH" ] || {
+    echo "Output directory not found: $OUTPUT_PATH"
+    exit 1
+}
+
+
+############################################################
+# USE YESTERDAY'S DIRECTORY
+############################################################
+
+LATEST_DIR=`date -d "yesterday" +%Y%m%d`
+
+FULL_PATH="$BASE_DIR/$LATEST_DIR"
+
+[ -d "$FULL_PATH" ] || {
+    echo "Directory not found: $FULL_PATH"
+    exit 1
+}
+
+echo "Processing: $FULL_PATH"
+
+
+# OUTPUT FILE
+
+OUT_FILE="$OUTPUT_PATH/invalid_neft_${BANCS_DQPTYPE}.txt.${LATEST_DIR}"
+
+touch "$OUT_FILE"
+
+> "$OUT_FILE"
+
+
+############################################################
+# SQL QUERY FUNCTION
+############################################################
+
+DB_QUERY()
+{
+    queryResult=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD <<EOF
+set heading off
+set feedback off
+set pages 0
+set verify off
+set echo off
+set lines 4000
+set trimspool on
+set tab off
+set colsep ','
+
+$@;
+
+exit;
+EOF`
+}
+
+
+DATA_FOUND=0
+
+
+############################################################
+# PROCESS FILES FROM YESTERDAY DIRECTORY
+############################################################
+
+for FILE in "$FULL_PATH"/*.NEFT.gz
+do
+    [ -f "$FILE" ] || continue
+
+    UTR=$(basename "$FILE" | sed 's/\.NEFT\.gz//')
+
+    DB_QUERY "select UTR,
+                     IN_OUT,
+                     STATUS,
+                     TRAN_DATE,
+                     AMOUNT,
+                     ACCOUNT_NO,
+                     BENEF_ACCT_NO,
+                     JRNL_NO_1,
+                     TRAN_BRANCH,
+                     NVL(IFSC_SENDER,''),
+                     NVL(IFSC_RECVR,''),
+                     NVL(CREDIT_BGL_ACCT,''),
+                     NVL(DEBIT_BGL_ACCT,'')
+              from neft
+             where UTR='$UTR'
+               and INST_NO='003'"
+    RESULT=$(echo "$queryResult" | tr -d '\r' | sed '/^$/d' | sed "s/^\([^,]*\),/\1,${BANCS_DQPTYPE},/")
+
+    if [ -n "$RESULT" ]
+    then
+        echo "$RESULT" >> "$OUT_FILE"
+        DATA_FOUND=1
+    fi
+
+done
+
+
+############################################################
+# PROCESS TODAY'S FILES DIRECTLY UNDER INVALID DIRECTORY
+############################################################
+
+TODAY_MON=`date '+%b'`
+TODAY_DAY=`date '+%e'`
+
+TMPFILE=/tmp/neft_invalid_$$
+
+ls -l "$BASE_ROOT"/*.NEFT.gz > $TMPFILE 2>/dev/null
+
+while read PERM LINK OWNER GROUP SIZE MON DAY TIME FILE
+do
+    if [ "$MON" = "$TODAY_MON" -a "$DAY" = "$TODAY_DAY" ]
+    then
+        UTR=`basename "$FILE" | sed 's/\.NEFT\.gz//'`
+
+        DB_QUERY "select UTR,
+                         IN_OUT,
+                         STATUS,
+                         TRAN_DATE,
+                         AMOUNT,
+                         ACCOUNT_NO,
+                         BENEF_ACCT_NO,
+                         JRNL_NO_1,
+                         TRAN_BRANCH,
+                         NVL(IFSC_SENDER,''),
+                         NVL(IFSC_RECVR,''),
+                         NVL(CREDIT_BGL_ACCT,''),
+                         NVL(DEBIT_BGL_ACCT,'')
+                  from neft
+                 where UTR='$UTR'
+                   and INST_NO='003'"
+
+        RESULT=`echo "$queryResult" | tr -d '\r' | sed '/^$/d' | sed "s/^\([^,]*\),/\1,${BANCS_DQPTYPE},/"`
+
+        if [ -n "$RESULT" ]
+        then
+            echo "$RESULT" >> "$OUT_FILE"
+            DATA_FOUND=1
+        fi
+    fi
+
+done < $TMPFILE
+
+rm -f $TMPFILE
+
+############################################################
+# HANDLE NO DATA
+############################################################
+
+if [ $DATA_FOUND -eq 0 ]
+then
+    echo "no invalid utr" > "$OUT_FILE"
+fi
+
+chmod 755 "$OUT_FILE"
+
+
+############################################################
+# SEND FILE
+############################################################
+
+echo "Sending file..."
+
+$HOME/utils/ftc.sh "$OUT_FILE" "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/HISTORY/$(basename $OUT_FILE)"
+STATUS1=$?
+
+$HOME/utils/ftc.sh "$OUT_FILE" "/home/smartportal02/portal_data/HISTORY/$(basename $OUT_FILE)"
+STATUS2=$?
+
+if [ $STATUS1 -eq 0 -a $STATUS2 -eq 0 ]
+then
+    echo "File transferred successfully"
+    exit 0
+else
+    echo "File transfer failed"
+    exit 1
+fi
