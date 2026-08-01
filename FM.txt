@@ -1,15 +1,14 @@
-p
 #!/bin/ksh
 
 # CONFIG
 
-BASE_ROOT="/fns/id/r/spool/Interfaces/NEFT/INVALID"
+BASE_ROOT="/fns/is/r/spool/Interfaces/NEFT/INVALID"
 
 CURR_MONTH=$(date +%Y%m)
 
 BASE_DIR="$BASE_ROOT/$CURR_MONTH"
 
-OUTPUT_PATH="/fns/id/r/spool/NEFT_INVALID_MONITORING_FOR_PORTAL"
+OUTPUT_PATH="/fns/is/r/spool/NEFT_INVALID_MONITORING_FOR_PORTAL"
 
 
 # CHECK INPUT DIRECTORY
@@ -189,3 +188,16 @@ else
     echo "File transfer failed"
     exit 1
 fi
+
+
+
+This is NEFT in invalid night script but for night the date directory will be date -1 for ex today is 1st Agust 2026.
+the directory is as follows. date -1 
+
+drwxr-xr--   2 fnsonlis   fnsir           96 Jul 30 14:30 20260729
+drwxr-xr--   2 fnsonlis   fnsir           96 Jul 31 14:39 20260730
+drwxr-xr--   2 fnsonlis   fnsir           96 Aug  1 14:54 20260731
+HIMALAYA:cbsprodm:/fns/is/r/spool/Interfaces/NEFT/INVALID/202607:-)
+HIMALAYA:cbsprodm:/fns/is/r/spool/Interfaces/NEFT/INVALID/202607:-)
+
+here in latest directory we need to check.
