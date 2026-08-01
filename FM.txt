@@ -1,3 +1,9 @@
+CURR_MONTH=`date +%Y%m`
+
+BASE_DIR="$BASE_ROOT/$CURR_MONTH"
+
+LATEST_DIR=$(ls "$BASE_DIR" | sort | tail -1)
+
 
 perl -MPOSIX -e 'print strftime("%Y%m", localtime(time-86400));'
 
