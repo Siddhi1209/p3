@@ -1,4 +1,34 @@
 
+document.getElementById("enableQueueBeep").onclick = function () {
+
+    try {
+
+        window.queueAudioContext =
+            new (window.AudioContext || window.webkitAudioContext)();
+
+        window.queueAudioContext.resume().then(function () {
+
+            window.queueBeepEnabled = true;
+
+            document.getElementById("enableQueueBeep").innerHTML =
+                "QUEUE ALERT ENABLED";
+
+            document.getElementById("enableQueueBeep").style.background =
+                "green";
+
+            console.log("QUEUE ALERT ENABLED");
+
+        });
+
+    } catch (error) {
+
+        console.log("QUEUE AUDIO ERROR");
+        console.log(error);
+
+    }
+
+};
+
 <!-- QUEUE ALERT ENABLE BUTTON -->
 
 <button type="button"
