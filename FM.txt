@@ -1,3 +1,17 @@
+success:function(d){
+    $("#alldiv").html("");
+    $("#alldiv").append(d);
+
+    if ($("#alldiv .queueBeepTrigger").length > 0) {
+        console.log("QUEUE BEEP: TRIGGER FOUND AFTER REFRESH");
+        playQueueBeep();
+        $("#alldiv .queueBeepTrigger").remove();
+    }
+
+    setCardsValues();
+    //console.log("Loading MonitorFile");
+}
+
 
 function playQueueBeep() {
 
