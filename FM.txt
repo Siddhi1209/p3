@@ -1,3 +1,27 @@
+
+function playQueueBeep() {
+
+    var beepAudio = document.getElementById("queueBuildupBeep");
+
+    if (!beepAudio) {
+        console.log("QUEUE BEEP: Audio element not found");
+        return;
+    }
+
+    beepAudio.currentTime = 0;
+
+    beepAudio.play().then(function () {
+
+        console.log("QUEUE BEEP: SOUND PLAYING");
+
+    }).catch(function (error) {
+
+        console.log("QUEUE BEEP: SOUND ERROR");
+        console.log(error);
+
+    });
+}
+
 <button type="button"
 onclick="document.getElementById('queueBuildupBeep').play();"
 style="position:fixed;bottom:20px;right:20px;z-index:99999;background:green;color:white;padding:10px;font-weight:bold;">
