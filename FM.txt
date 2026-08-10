@@ -1,3 +1,12 @@
+if ($beepRequired) {
+    echo "<tr style='display:none;'><td colspan='16'>
+        <button type='button' class='queueBeepTrigger'
+        onclick=\"document.getElementById('queueBuildupBeep').play();\">
+        BEEP
+        </button>
+    </td></tr>";
+}
+
 
 function playQueueBeep() {
 
