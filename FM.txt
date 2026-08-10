@@ -1,3 +1,9 @@
+<button type="button"
+onclick="document.getElementById('queueBuildupBeep').play();"
+style="position:fixed;bottom:20px;right:20px;z-index:99999;background:green;color:white;padding:10px;font-weight:bold;">
+TEST BEEP
+</button>
+
 
 if ($beepRequired) {
     echo "<tr style='display:none;'><td colspan='16'><span class='queueBeepTrigger'>BEEP</span></td></tr>";
