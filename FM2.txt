@@ -1,230 +1,69 @@
-###############################################################################
-#Mahanth Mandaloju:17102023 : IR 23120142 : ISD review changes of CSR2022-23
-#                                      Deleted Commented password line
-###############################################################################
-pgm=`basename $0`
-echo ${pgm}
-######################### START OF IR 16120019 ##################################
-mflags_d=`cut -c 15-16 $data/file/MFLAGS`
-mflags_m=`cut -c 13-14 $data/file/MFLAGS`
-mflags_y=`cut -c 9-12 $data/file/MFLAGS`
-######################### START OF IR 19030035 ##################################
-per=$mflags_y$mflags_m
-date=$mflags_d$mflags_m$mflags_y
-######################### END OF IR 19030035   ##################################
-dt=`echo ${mflags_y}${mflags_m}${mflags_d}`
-######################### END OF IR 16120019 ##################################
-######################### START OF IR 18090174 ##################################
-######################### START OF IR 18110033 ##################################
-#rm -f $spool/gend7058.prt
-rm -f $spool/gend7058*.prt
-######################### END OF IR 18110033 ##################################
-######################### END OF IR 18090174 ##################################
-export DD_MFLAGS=$data/file/MFLAGS
-export DD_INSPARAM=$data/params/INSPARAM
-export DD_VCCPARAM=$data/params/VCCPARAM
-#-----IR 16362 CHANGE BEGIN-----####
-export DD_BCARD=$card/GL7058.card
-#-----IR 16362 CHANGE END-------####
-export DD_PRNTFILE=$spool/${pgm}.prt
-######################### START OF IR 16120019 ##################################
-export DD_EXTRFILE=$spool/bgl_balance_file_${dt}.txt
-######################### END OF IR 16120019 ##################################
-cmd="run.sh -t"
-while getopts bdft c ; do
-   case $c in
-      b) cmd="run.sh -b" ;;
-      d) cmd="run.sh -d";;
-      f) cmd="run.sh -f";;
-      t) cmd="run.sh -t";;
-   esac
-done
-shift `expr $OPTIND - 1`
-$cmd GL7058
-#================START IR 19070097===================
-enc_func()
-{
-    inputpath=${1}
-    if [ -f "${inputpath}" ];
-    then
-        removecr ${inputpath}
-        fname=`echo ${inputpath}|sed -e 's#\(.*\)/\(.*\)#\2#'`
-        dirname=`echo ${inputpath}|sed -e 's#\(.*\)/\(.*\)#\1#'`
-        result=`/opt/java8/bin/java -jar ${java}/encryptionSign.jar ${inputpath} ${dirname} ${des_pub_key} ${src_pvt_key} ${mode}`
-        retVal=`echo ${result}|cut -d ":" -f 1`
-        if [ "$retVal" = "SUCCESS" ];
-        then
-            gzip -nf ${dirname}/${fname}.enc
-################################ START OF CR 21020056 #######################################################################
-#            echo "${destination} ${dirname}/${fname}.enc.gz /reports/${dt}/Reports_on_Request/${fname}.enc.gz" >> ${spool}/ftplist.due
-#            echo "${destination} ${dirname}/${fname}.KeyDetails /reports/${dt}/Reports_On_Request/${fname}.KeyDetails" >> ${spool}/ftplist.due
-             echo "${destination} ${dirname}/${fname}.enc.gz ${fname}.enc.gz" >> ${spool}/ftplist.due
-             echo "${destination} ${dirname}/${fname}.KeyDetails ${fname}.KeyDetails" >> ${spool}/ftplist.due
-################################ END OF CR 21020056 #########################################################################                                                                                                                
-        else
-            echo "${result}" >> ${sysout}/${pgm}.failedlog_${dt}.log
-       fi
-    fi
-}
-#================ END IR 19070097===================
-exit_code=$?
-if [ "$exit_code" -eq "0" ]
-then
-   TBsplit -reportcode GL7058 -reportfile $DD_PRNTFILE -l $spool/ftplist.due -verbose >> $sysout/GL7058.$BANCS_HOSTNO.out 2>&1
-#================ START IR 19070097===================
-    flagCardFile=${card}/GL7058_ENC.card
-    cat ${flagCardFile}|grep -v "^#" | while read line
-    do
-        flag=`echo ${line}|cut -d "|" -f 3|cut -d "=" -f 2`
-        branch=`echo ${line}|cut -d "|" -f 1 |cut -d "=" -f 2`
-        destination=`echo ${line}|cut -d "|" -f 2 |cut -d "=" -f 2`
-        odb=`getUserDetails | cut -f1`
-        cd ${odb}/locations/${branch}/reports/${dt}/Reports_On_Request
-        rbdauFile="Status_Report_For_BGL_gend7058_${mflags_d}${mflags_m}${mflags_y}.txt"
-        if [ "${flag}" = 'Y' -o "${flag}" = 'y' ];
-        then
-            mode=`echo ${line}|cut -d "|" -f 4|cut -d "=" -f 2`
-            src_pvt_key=${keystore}/GL7058/`echo ${line}|grep -v "^#"|cut -d "|" -f 5 |cut -d "=" -f 2 `
-            des_pub_key=${keystore}/GL7058/`echo ${line}|grep -v "^#"|cut -d "|" -f 6 |cut -d "=" -f 2 `
-#================ START OF IR 21010091===================
-#            gunzip -df ${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/Status_Report_For_BGL_gend7058.txt.gz
-#            cp -f Status_Report_For_BGL_gend7058.txt ${rbdauFile}
-            gunzip -df ${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/Status_Report_For_BGL_gend7058.ID_GL7058_ID.txt.gz
-            cp -f Status_Report_For_BGL_gend7058.ID_GL7058_ID.txt ${rbdauFile}
-#================ END OF IR 21010091===================
-            enc_func ${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/${rbdauFile}
-#================ START OF IR 21010091===================
-#           gzip -nf ${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/Status_Report_For_BGL_gend7058.txt
-            gzip -nf ${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/Status_Report_For_BGL_gend7058.ID_GL7058_ID.txt
-#================ END OF IR 21010091===================
-            rm -f ${rbdauFile}
-        elif [  "${flag}" = 'N' -o "${flag}" = 'n' ];
-        then
-#================ START OF IR 21010091===================
-#            ftpFile="${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/Status_Report_For_BGL_gend7058.txt.gz"
-            ftpFile="${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/Status_Report_For_BGL_gend7058.ID_GL7058_ID.txt.gz"
-#================ END OF IR 21010091===================
-################################ START OF CR 21020056 #######################################################################
-#            echo "${destination} $ftpFile /reports/${dt}/Reports_On_Request/${rbdauFile}.gz " >> ${spool}/ftplist.due
-            echo "${destination} $ftpFile ${rbdauFile}.gz " >> ${spool}/ftplist.due
-################################ END OF CR 21020056 #########################################################################                                                                                                                
-        else
-            echo "flag should be set as Y for Encryption or N for no Encryption in ${flagCardFile} for ${branch} and ${destination} "
-        fi
-    done
-#================ END IR 19070097===================
-else
-   exit $exit_code
-fi
-########################## START OF IR 73915 ################################
-cd $spool
-######################### START OF IR 16120019 ##################################
-#mflags_d=`cut -c 15-16 $data/file/MFLAGS`
-#mflags_m=`cut -c 13-14 $data/file/MFLAGS`
-#mflags_y=`cut -c 9-12 $data/file/MFLAGS`
-#dt=`echo ${mflags_y}${mflags_m}${mflags_d}`
-######################### END OF IR 16120019 ##################################
-username=`grep ^office=CYBER /opt/TouchBase/config/officedbsbi.txt | awk -F "|" '{print $5}' | awk -F "=" '{print $2}'`
-ipaddr=`grep ^office=CYBER /opt/TouchBase/config/officedbsbi.txt | awk -F "|" '{print $4}' | awk -F "=" '{print $2}'`
-#########################Start of IR 16080030 #########################
-#ftp -n -i -v $ipaddr <<gend >$HOME/gend7058.log
-#bin
-#promp
-#mkdir gend
-#cd gend
-#mkdir $dt
-#cd $dt
-#put gend7058.prt
-#ls gend7058.prt
-#bye
-#gend
-##################################### START OF IR 18110033 #####################################
-#echo "CYBER $spool/gend7058.prt  /gend/${dt}/gend7058.prt" >> $spool/ftplist.due
- cp -f $spool/gend7058.prt $spool/gend7058_${dt}.prt
- echo "CYBER $spool/gend7058_${dt}.prt /gend/gend7058_${dt}.prt" >> $spool/ftplist.due
-##################################### END OF IR 18110033 ######################################
-#########################End of IR 16080030 ###########################
-cp $spool/gend7058.prt $spool/gend7058.prt.$dt
-######################### START OF IR 18090174 ##################################
-#gzip $spool/gend7058.prt.$dt
-######################### END OF IR 18090174 ##################################
-######################### END OF IR 73915 ########################################
-######################### START OF IR 18090174 ##################################
-echo "INFOMIX ${spool}/gend7058.prt.$dt ${dt}/gend7058.prt.$dt" >> $spool/ftplist.due
-######################### END OF IR 18090174 ##################################
-
-######################### START OF IR 16120019 ##################################
-if [ ! -f ${spool}/bgl_balance_file_${dt}.txt ]
-then
-   echo "ERROR ... bgl_balance_file_${dt}.txt NOT FOUND " > $sysout/${pgm}_log.$BANCS_HOSTNO.out 2>&1
-   echo "ABORTING PROCESS..."
-   if [ $AUTOSYS_MODE = Y ]
-   then
-      echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] bgl_balance_file_${dt}.txt NOT FOUND " >> $sysout/zerobyte.log
-      exit 1
-   else
-      exit 13
-   fi
-else
-######################### START OF IR 18090174 ##################################
-#   echo "INFOMIX ${spool}/bgl_balance_file_${dt}.txt ${dt}/bgl_balance_file_${dt}.txt" | TBpush -s -v > $sysout/${pgm}_log.$BANCS_HOSTNO.out 2>&1
-######################### END OF IR 18090174 ##################################
-######################### START OF IR 17070122 ##################################
-   echo "OFSA1 ${spool}/bgl_balance_file_${dt}.txt bgl_balance_file_${dt}.txt" | TBpush -s -v > $sysout/${pgm}_log.$BANCS_HOSTNO.out 2>&1
-######################### END OF IR 17070122 ##################################
-fi
-######################### END OF IR 16120019 ##################################
-######################### START OF IR 19030035 ##################################
-if [ ! -f ${spool}/gend7058.prt.$dt ]
-then
-    echo "ERROR ... gend7058.prt.$dt NOT FOUND " > $sysout/${pgm}_log.$BANCS_HOSTNO.out 2>&1
-    echo "ABORTING PROCESS..."
-    if [ $AUTOSYS_MODE = Y ]
-    then
-        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] gend7058.prt.$dt NOT FOUND " >> $sysout/zerobyte.log
-        exit 1
-    else
-        exit 13
-    fi
-else
-    echo "UPLOAD ${spool}/gend7058.prt.$dt /${per}/${date}/gend7058.prt.$dt" >> $spool/ftplist.due
-fi
-######################### END OF IR 19030035   ##################################
-#-----IR 20060036 CHANGE BEGIN-----####
-today_date_ccyymmdd=`cut -c 9-12 $data/file/MFLAGS``cut -c 13-14 $data/file/MFLAGS``cut -c 15-16 $data/file/MFLAGS`
-today_date_ddmmccyy=`cut -c 15-16 $data/file/MFLAGS``cut -c 13-14 $data/file/MFLAGS``cut -c 9-12 $data/file/MFLAGS`
-cat $card/GL2636.card | while read line
-do
-dep_id=`echo $line| awk -F ' ' '{print $1}'`
-CBS_path=`echo $line| awk -F ' ' '{print $2}' | sed 's/yyyymmdd/'$today_date_ccyymmdd'/g'`
-cbs_file_name=`echo $line| awk -F ' ' '{print $3}'`
-dept_path=`echo $line| awk -F ' ' '{print $4}'`
-dept_file_name=`echo $line| awk -F ' ' '{print $5}' | sed 's/ddmmyyyy/'$today_date_ddmmccyy'/g'`
-echo "$dep_id $CBS_path$cbs_file_name $dept_path$dept_file_name" >>$spool/ftplist.due
-done
-#-----IR 20060036 CHANGE END-------####
-rptdb2(126):DAY:/fns/i/r/cat:-)
-rptdb2(126):DAY:/fns/i/r/cat:-)
-rptdb2(126):DAY:/fns/i/r/cat:-)sy
+rptdb2(126):DAY:/fns/id/r/sysout:-)ipcs -m
+IPC status from /dev/kmem as of Mon Aug 10 09:41:38 2026
+T                   ID     KEY        MODE        OWNER     GROUP
+Shared Memory:
+m                    0 0x411497d7 --rw-rw-rw-      root      root
+m                    1 0x4e040002 --rw-rw-rw-      root      root
+m                    2 0x412815f6 --rw-rw-rw-      root      root
+m                    3 0x00000001 --rw-------     sfmdb     users
+m                32772 0x06347849 --rw-rw-rw-      root      root
+m                98309 0x435dce60 --rw-rw-rw-      root      root
+m                    6 0x0128c818 --rw-rw-r--      root      root
+m                    7 0x0128c816 --rw-rw-r--      root      root
+m               196616 0x491ef89e --rw-r--r--      root      root
+m                32777 0xa9042c72 -----------      root      root
+m               163850 0x0128c81a --rw-rw-r--      root      root
+m             10551307 0x00000000 --rw-------    oracle  oinstall
+m                65548 0x00000000 --rw-------    oracle  oinstall
+m                65549 0x0af7d194 --rw-------    oracle  oinstall
+m           1300660238 0x00000000 --rw-------    oracle  oinstall
+m             44007439 0x00000000 --rw-------    oracle  oinstall
+m            668467216 0x00000000 --rw-------    oracle  oinstall
+m              6193169 0x8762253c --rw-------    oracle  oinstall
+m              2719762 0x7d874dc0 --rw-------    oracle  oinstall
+m             23887891 0x30024518 --rw-------    oracle  oinstall
+m            217022484 0x56c4c96c --rw-------    oracle  oinstall
+m            315097109 0x00000000 --rw-------    oracle  oinstall
+m            178323478 0x00000000 --rw-------    oracle  oinstall
+m              2228247 0x00000000 --rw-------    oracle  oinstall
+m               983064 0x536ef3fc --rw-------    oracle  oinstall
+m              5963801 0xdaa8e06c --rw-------    oracle  oinstall
+m             36143130 0x37166c80 --rw-------    oracle  oinstall
+m            289505307 0x0a566c50 --rw-------    oracle  oinstall
+m            215253020 0x73fff025 --rw-rw----   fnsonli     fnsir
+m               950301 0x73e29e7f --rw-rw----   fnsonli     fnsir
+m               229406 0x73e29e80 --rw-rw----   fnsonli     fnsir
+m              2752543 0x73e2b5fe --rw-rw----   fnsonli     fnsir
+m               950304 0x73e2b5ff --rw-rw----   fnsonli     fnsir
+m              1507361 0x73fff125 --rw-rw----  fnsonlid     fnsir
+m              3702818 0x73708c7b --rw-rw----  fnsonlid     fnsir
+m               229411 0x73708c7c --rw-rw----  fnsonlid     fnsir
+m              2457636 0x7370a3fa --rw-rw----  fnsonlid     fnsir
+m               852005 0x7370a3fb --rw-rw----  fnsonlid     fnsir
+m              2261030 0x7370baf2 --rw-rw----  fnsonlid     fnsir
+m             34537511 0x7370baf3 --rw-rw----  fnsonlid     fnsir
+m            234094632 0x73fff22c --rw-rw----  fnsonlis     fnsir
+m            578388009 0x730e8007 --rw-rw----  fnsonlis     fnsir
+m             72286250 0x730e8008 --rw-rw----  fnsonlis     fnsir
+m             48201771 0x730e9786 --rw-rw----  fnsonlis     fnsir
+m              5668908 0x730e9787 --rw-rw----  fnsonlis     fnsir
+m               196653 0x73fff02c --rw-rw----  fnsonlis     fnsir
+m               294958 0x730eae7e --rw-rw----  fnsonlis     fnsir
+m              5505071 0x730eae7f --rw-rw----  fnsonlis     fnsir
+m              2654256 0x730eae80 --rw-rw----  fnsonlis     fnsir
+m               229425 0x730f1850 --rw-rw----  fnsonlis     fnsir
+m                32818 0x730f1851 --rw-rw----  fnsonlis     fnsir
+m           1362722867 0x7370baf4 --rw-rw----  fnsonlid     fnsir
+m             16023604 0x737124c4 --rw-rw----  fnsonlid     fnsir
+m             73138229 0x737124c5 --rw-rw----  fnsonlid     fnsir
+m           2047082550 0x73fff112 --rw-rw----  fnsonlid     fnsir
+m           1289158711 0x7345272a --rw-rw----  fnsonlid     fnsir
+m           1167786040 0x73453e22 --rw-rw----  fnsonlid     fnsir
+m            201097273 0x093fc0c4 --rw-------    oracle  oinstall
+m            178815034 0x7345272b --rw-rw----  fnsonlid     fnsir
+m            315949115 0xe8af45bc --rw-------    oracle  oinstall
+m            402292796 0x9b2a3d14 --rw-------    oracle  oinstall
+m             39747645 0x73453e23 --rw-rw----  fnsonlid     fnsir
+m              1933374 0x73453e24 --rw-rw----  fnsonlid     fnsir
 rptdb2(126):DAY:/fns/id/r/sysout:-)
-rptdb2(126):DAY:/fns/id/r/sysout:-)ls -lrt *7058*
--rw-r--r--   1 fnsonlid   fnsir          931 Aug  9 07:20 gend7058_log.1.out
--rw-rw-rw-   1 fnsonlid   fnsir         1475 Aug 10 06:45 GL7058.1.out
-rptdb2(126):DAY:/fns/id/r/sysout:-)cat GL7058.1.out
-
-*** 20260809 ***
-*** Start of  GL7058  at  Mon Aug 10 06:44:35 IST 2026
-   -   |06:44:35.287600|              DBIO:(A100) FILE-INDEX, FILE-NUM, NO-DATA-SETS: 0497 0496 0494
-   -   |06:44:35.287711|              DBIO:(A100) FIRST ENTRY = AACH
-   -   |06:44:35.291675|              UT9004: (A000) INITIAL SET TO BE DONE
-UT0008: SHARED MEMORY PROBLEM AT 06443529
-SHMEM-INDEX=1
-SHMEM-STATUS = 1 SHMEM-ITEM (SHMEM-INDEX) = B1UT00040011100100000001   D`7Lπ7sE'*▒▒▒▒
-▒ SHMEM-STATUS = 1
-UT0008CA-TARGET-KEY = 02I0001  000 UT0008CA-RETURN-CODE = 99
-   -   |06:44:35.296258|              UT9004:(A100) BAD RETURN FROM UT0008, STATUS:99
-GL7058: GOOD DB SIGNON
-GETEVAR: BANCS_CPM_TRACE not found
-   -   |06:45:59.868133|              UT0005(A000):BANCS_CPM_TRACE =N
-   -   |06:45:59.868179|              UT0005(A000): SYSTEM NO=1
-   -   |06:45:59.871361|              UT0005:(I040) ATTACH OF SHMEM SLOT (01) FAILED WITH STATUS 1
+rptdb2(126):DAY:/fns/id/r/sysout:-)
