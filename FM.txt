@@ -1,1 +1,49 @@
 
+function playQueueBeep() {
+
+    if (window.queueBeepEnabled !== true) {
+        console.log("QUEUE BEEP: ALERT NOT ENABLED");
+        return;
+    }
+
+    try {
+
+        var ctx = window.queueAudioContext;
+
+        if (!ctx) {
+            console.log("QUEUE BEEP: AudioContext not found");
+            return;
+        }
+
+        if (ctx.state === "suspended") {
+            ctx.resume();
+        }
+
+        var oscillator = ctx.createOscillator();
+        var gain = ctx.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.value = 1000;
+
+        gain.gain.setValueAtTime(0.8, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(
+            0.01,
+            ctx.currentTime + 1
+        );
+
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+
+        oscillator.start();
+
+        oscillator.stop(ctx.currentTime + 1);
+
+        console.log("QUEUE BEEP: AUTOMATIC BEEP PLAYING");
+
+    } catch (error) {
+
+        console.log("QUEUE BEEP ERROR");
+        console.log(error);
+
+    }
+}
