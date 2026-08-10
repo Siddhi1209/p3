@@ -1,201 +1,208 @@
 
-#!/bin/ksh
-
-############################################################
-# CONFIG
-############################################################
-
-BASE_ROOT="/fns/is/r/spool/Interfaces/NEFT/INVALID"
-
-# Yesterday's Month (YYYYMM)
-CURR_MONTH=`perl -MPOSIX -e 'print strftime("%Y%m", localtime(time-86400));'`
-
-BASE_DIR="$BASE_ROOT/$CURR_MONTH"
-
-OUTPUT_PATH="/fns/is/r/spool/NEFT_INVALID_MONITORING_FOR_PORTAL"
-
-############################################################
-# CHECK INPUT DIRECTORY
-############################################################
-
-[ -d "$BASE_DIR" ] || {
-    echo "Directory not found: $BASE_DIR"
-    exit 1
-}
-
-############################################################
-# CHECK OUTPUT DIRECTORY
-############################################################
-
-[ -d "$OUTPUT_PATH" ] || {
-    echo "Output directory not found: $OUTPUT_PATH"
-    exit 1
-}
-
-############################################################
-# USE YESTERDAY'S DIRECTORY (YYYYMMDD)
-############################################################
-
-LATEST_DIR=`perl -MPOSIX -e 'print strftime("%Y%m%d", localtime(time-86400));'`
-
-FULL_PATH="$BASE_DIR/$LATEST_DIR"
-
-echo "Processing Directory : $FULL_PATH"
-
-############################################################
-# OUTPUT FILE
-############################################################
-
-OUT_FILE="$OUTPUT_PATH/invalid_neft_${BANCS_DQPTYPE}.txt.${LATEST_DIR}"
-
-touch "$OUT_FILE"
-> "$OUT_FILE"
-
-############################################################
-# SQL QUERY FUNCTION
-############################################################
-
-DB_QUERY()
-{
-    queryResult=`sqlplus -s $ORA_LOGIN/$ORA_PASSWD <<EOF
-set heading off
-set feedback off
-set pages 0
-set verify off
-set echo off
-set lines 4000
-set trimspool on
-set tab off
-set colsep ','
-
-$@;
-
-exit;
-EOF`
-}
-############################################################
-# INITIALIZE
-############################################################
-
-DATA_FOUND=0
-
-############################################################
-# PROCESS FILES FROM YESTERDAY'S DIRECTORY
-############################################################
-
-for FILE in "$FULL_PATH"/*.NEFT.gz
-do
-    [ -f "$FILE" ] || continue
-
-    UTR=`basename "$FILE" | sed 's/\.NEFT\.gz//'`
-
-    DB_QUERY "select UTR,
-                     IN_OUT,
-                     STATUS,
-                     TRAN_DATE,
-                     AMOUNT,
-                     ACCOUNT_NO,
-                     BENEF_ACCT_NO,
-                     JRNL_NO_1,
-                     TRAN_BRANCH,
-                     NVL(IFSC_SENDER,''),
-                     NVL(IFSC_RECVR,''),
-                     NVL(CREDIT_BGL_ACCT,''),
-                     NVL(DEBIT_BGL_ACCT,'')
-              from neft
-             where UTR='$UTR'
-               and INST_NO='003'"
-
-    RESULT=`echo "$queryResult" | tr -d '\r' | sed '/^$/d' | sed "s/^\([^,]*\),/\1,${BANCS_DQPTYPE},/"`
-
-    if [ -n "$RESULT" ]
-    then
-        echo "$RESULT" >> "$OUT_FILE"
-        DATA_FOUND=1
-    fi
-
+###############################################################################
+#Mahanth Mandaloju:17102023 : IR 23120142 : ISD review changes of CSR2022-23
+#                                      Deleted Commented password line
+###############################################################################
+pgm=`basename $0`
+echo ${pgm}
+######################### START OF IR 16120019 ##################################
+mflags_d=`cut -c 15-16 $data/file/MFLAGS`
+mflags_m=`cut -c 13-14 $data/file/MFLAGS`
+mflags_y=`cut -c 9-12 $data/file/MFLAGS`
+######################### START OF IR 19030035 ##################################
+per=$mflags_y$mflags_m
+date=$mflags_d$mflags_m$mflags_y
+######################### END OF IR 19030035   ##################################
+dt=`echo ${mflags_y}${mflags_m}${mflags_d}`
+######################### END OF IR 16120019 ##################################
+######################### START OF IR 18090174 ##################################
+######################### START OF IR 18110033 ##################################
+#rm -f $spool/gend7058.prt
+rm -f $spool/gend7058*.prt
+######################### END OF IR 18110033 ##################################
+######################### END OF IR 18090174 ##################################
+export DD_MFLAGS=$data/file/MFLAGS
+export DD_INSPARAM=$data/params/INSPARAM
+export DD_VCCPARAM=$data/params/VCCPARAM
+#-----IR 16362 CHANGE BEGIN-----####
+export DD_BCARD=$card/GL7058.card
+#-----IR 16362 CHANGE END-------####
+export DD_PRNTFILE=$spool/${pgm}.prt
+######################### START OF IR 16120019 ##################################
+export DD_EXTRFILE=$spool/bgl_balance_file_${dt}.txt
+######################### END OF IR 16120019 ##################################
+cmd="run.sh -t"
+while getopts bdft c ; do
+   case $c in
+      b) cmd="run.sh -b" ;;
+      d) cmd="run.sh -d";;
+      f) cmd="run.sh -f";;
+      t) cmd="run.sh -t";;
+   esac
 done
-
-############################################################
-# PROCESS TODAY'S FILES DIRECTLY UNDER INVALID DIRECTORY
-############################################################
-
-TODAY_MON=`date '+%b'`
-TODAY_DAY=`date '+%e'`
-
-TMPFILE=/tmp/neft_invalid_$$
-
-ls -l "$BASE_ROOT"/*.NEFT.gz > $TMPFILE 2>/dev/null
-
-while read PERM LINK OWNER GROUP SIZE MON DAY TIME FILE
-do
-    if [ "$MON" = "$TODAY_MON" -a "$DAY" = "$TODAY_DAY" ]
+shift `expr $OPTIND - 1`
+$cmd GL7058
+#================START IR 19070097===================
+enc_func()
+{
+    inputpath=${1}
+    if [ -f "${inputpath}" ];
     then
-        UTR=`basename "$FILE" | sed 's/\.NEFT\.gz//'`
-
-        DB_QUERY "select UTR,
-                         IN_OUT,
-                         STATUS,
-                         TRAN_DATE,
-                         AMOUNT,
-                         ACCOUNT_NO,
-                         BENEF_ACCT_NO,
-                         JRNL_NO_1,
-                         TRAN_BRANCH,
-                         NVL(IFSC_SENDER,''),
-                         NVL(IFSC_RECVR,''),
-                         NVL(CREDIT_BGL_ACCT,''),
-                         NVL(DEBIT_BGL_ACCT,'')
-                  from neft
-                 where UTR='$UTR'
-                   and INST_NO='003'"
-
-        RESULT=`echo "$queryResult" | tr -d '\r' | sed '/^$/d' | sed "s/^\([^,]*\),/\1,${BANCS_DQPTYPE},/"`
-
-        if [ -n "$RESULT" ]
+        removecr ${inputpath}
+        fname=`echo ${inputpath}|sed -e 's#\(.*\)/\(.*\)#\2#'`
+        dirname=`echo ${inputpath}|sed -e 's#\(.*\)/\(.*\)#\1#'`
+        result=`/opt/java8/bin/java -jar ${java}/encryptionSign.jar ${inputpath} ${dirname} ${des_pub_key} ${src_pvt_key} ${mode}`
+        retVal=`echo ${result}|cut -d ":" -f 1`
+        if [ "$retVal" = "SUCCESS" ];
         then
-            echo "$RESULT" >> "$OUT_FILE"
-            DATA_FOUND=1
-        fi
+            gzip -nf ${dirname}/${fname}.enc
+################################ START OF CR 21020056 #######################################################################
+#            echo "${destination} ${dirname}/${fname}.enc.gz /reports/${dt}/Reports_on_Request/${fname}.enc.gz" >> ${spool}/ftplist.due
+#            echo "${destination} ${dirname}/${fname}.KeyDetails /reports/${dt}/Reports_On_Request/${fname}.KeyDetails" >> ${spool}/ftplist.due
+             echo "${destination} ${dirname}/${fname}.enc.gz ${fname}.enc.gz" >> ${spool}/ftplist.due
+             echo "${destination} ${dirname}/${fname}.KeyDetails ${fname}.KeyDetails" >> ${spool}/ftplist.due
+################################ END OF CR 21020056 #########################################################################                                                                                                                
+        else
+            echo "${result}" >> ${sysout}/${pgm}.failedlog_${dt}.log
+       fi
     fi
-
-done < $TMPFILE
-
-rm -f $TMPFILE
-############################################################
-# HANDLE NO DATA
-############################################################
-
-if [ $DATA_FOUND -eq 0 ]
+}
+#================ END IR 19070097===================
+exit_code=$?
+if [ "$exit_code" -eq "0" ]
 then
-    echo "no invalid utr" > "$OUT_FILE"
-fi
-
-chmod 755 "$OUT_FILE"
-
-############################################################
-# SEND FILES TO PORTAL SERVERS
-############################################################
-
-echo "Sending file..."
-
-$HOME/utils/ftc.sh "$OUT_FILE" "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/HISTORY/$(basename $OUT_FILE)"
-STATUS1=$?
-
-$HOME/utils/ftc.sh "$OUT_FILE" "/home/smartportal02/portal_data/HISTORY/$(basename $OUT_FILE)"
-STATUS2=$?
-
-############################################################
-# FINAL STATUS
-############################################################
-
-if [ $STATUS1 -eq 0 -a $STATUS2 -eq 0 ]
-then
-    echo "File transferred successfully"
-    exit 0
+   TBsplit -reportcode GL7058 -reportfile $DD_PRNTFILE -l $spool/ftplist.due -verbose >> $sysout/GL7058.$BANCS_HOSTNO.out 2>&1
+#================ START IR 19070097===================
+    flagCardFile=${card}/GL7058_ENC.card
+    cat ${flagCardFile}|grep -v "^#" | while read line
+    do
+        flag=`echo ${line}|cut -d "|" -f 3|cut -d "=" -f 2`
+        branch=`echo ${line}|cut -d "|" -f 1 |cut -d "=" -f 2`
+        destination=`echo ${line}|cut -d "|" -f 2 |cut -d "=" -f 2`
+        odb=`getUserDetails | cut -f1`
+        cd ${odb}/locations/${branch}/reports/${dt}/Reports_On_Request
+        rbdauFile="Status_Report_For_BGL_gend7058_${mflags_d}${mflags_m}${mflags_y}.txt"
+        if [ "${flag}" = 'Y' -o "${flag}" = 'y' ];
+        then
+            mode=`echo ${line}|cut -d "|" -f 4|cut -d "=" -f 2`
+            src_pvt_key=${keystore}/GL7058/`echo ${line}|grep -v "^#"|cut -d "|" -f 5 |cut -d "=" -f 2 `
+            des_pub_key=${keystore}/GL7058/`echo ${line}|grep -v "^#"|cut -d "|" -f 6 |cut -d "=" -f 2 `
+#================ START OF IR 21010091===================
+#            gunzip -df ${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/Status_Report_For_BGL_gend7058.txt.gz
+#            cp -f Status_Report_For_BGL_gend7058.txt ${rbdauFile}
+            gunzip -df ${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/Status_Report_For_BGL_gend7058.ID_GL7058_ID.txt.gz
+            cp -f Status_Report_For_BGL_gend7058.ID_GL7058_ID.txt ${rbdauFile}
+#================ END OF IR 21010091===================
+            enc_func ${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/${rbdauFile}
+#================ START OF IR 21010091===================
+#           gzip -nf ${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/Status_Report_For_BGL_gend7058.txt
+            gzip -nf ${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/Status_Report_For_BGL_gend7058.ID_GL7058_ID.txt
+#================ END OF IR 21010091===================
+            rm -f ${rbdauFile}
+        elif [  "${flag}" = 'N' -o "${flag}" = 'n' ];
+        then
+#================ START OF IR 21010091===================
+#            ftpFile="${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/Status_Report_For_BGL_gend7058.txt.gz"
+            ftpFile="${odb}/locations/${branch}/reports/${dt}/Reports_On_Request/Status_Report_For_BGL_gend7058.ID_GL7058_ID.txt.gz"
+#================ END OF IR 21010091===================
+################################ START OF CR 21020056 #######################################################################
+#            echo "${destination} $ftpFile /reports/${dt}/Reports_On_Request/${rbdauFile}.gz " >> ${spool}/ftplist.due
+            echo "${destination} $ftpFile ${rbdauFile}.gz " >> ${spool}/ftplist.due
+################################ END OF CR 21020056 #########################################################################                                                                                                                
+        else
+            echo "flag should be set as Y for Encryption or N for no Encryption in ${flagCardFile} for ${branch} and ${destination} "
+        fi
+    done
+#================ END IR 19070097===================
 else
-    echo "File transfer failed"
-    echo "STATUS1=$STATUS1"
-    echo "STATUS2=$STATUS2"
-    exit 1
+   exit $exit_code
 fi
+########################## START OF IR 73915 ################################
+cd $spool
+######################### START OF IR 16120019 ##################################
+#mflags_d=`cut -c 15-16 $data/file/MFLAGS`
+#mflags_m=`cut -c 13-14 $data/file/MFLAGS`
+#mflags_y=`cut -c 9-12 $data/file/MFLAGS`
+#dt=`echo ${mflags_y}${mflags_m}${mflags_d}`
+######################### END OF IR 16120019 ##################################
+username=`grep ^office=CYBER /opt/TouchBase/config/officedbsbi.txt | awk -F "|" '{print $5}' | awk -F "=" '{print $2}'`
+ipaddr=`grep ^office=CYBER /opt/TouchBase/config/officedbsbi.txt | awk -F "|" '{print $4}' | awk -F "=" '{print $2}'`
+#########################Start of IR 16080030 #########################
+#ftp -n -i -v $ipaddr <<gend >$HOME/gend7058.log
+#bin
+#promp
+#mkdir gend
+#cd gend
+#mkdir $dt
+#cd $dt
+#put gend7058.prt
+#ls gend7058.prt
+#bye
+#gend
+##################################### START OF IR 18110033 #####################################
+#echo "CYBER $spool/gend7058.prt  /gend/${dt}/gend7058.prt" >> $spool/ftplist.due
+ cp -f $spool/gend7058.prt $spool/gend7058_${dt}.prt
+ echo "CYBER $spool/gend7058_${dt}.prt /gend/gend7058_${dt}.prt" >> $spool/ftplist.due
+##################################### END OF IR 18110033 ######################################
+#########################End of IR 16080030 ###########################
+cp $spool/gend7058.prt $spool/gend7058.prt.$dt
+######################### START OF IR 18090174 ##################################
+#gzip $spool/gend7058.prt.$dt
+######################### END OF IR 18090174 ##################################
+######################### END OF IR 73915 ########################################
+######################### START OF IR 18090174 ##################################
+echo "INFOMIX ${spool}/gend7058.prt.$dt ${dt}/gend7058.prt.$dt" >> $spool/ftplist.due
+######################### END OF IR 18090174 ##################################
+
+######################### START OF IR 16120019 ##################################
+if [ ! -f ${spool}/bgl_balance_file_${dt}.txt ]
+then
+   echo "ERROR ... bgl_balance_file_${dt}.txt NOT FOUND " > $sysout/${pgm}_log.$BANCS_HOSTNO.out 2>&1
+   echo "ABORTING PROCESS..."
+   if [ $AUTOSYS_MODE = Y ]
+   then
+      echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] bgl_balance_file_${dt}.txt NOT FOUND " >> $sysout/zerobyte.log
+      exit 1
+   else
+      exit 13
+   fi
+else
+######################### START OF IR 18090174 ##################################
+#   echo "INFOMIX ${spool}/bgl_balance_file_${dt}.txt ${dt}/bgl_balance_file_${dt}.txt" | TBpush -s -v > $sysout/${pgm}_log.$BANCS_HOSTNO.out 2>&1
+######################### END OF IR 18090174 ##################################
+######################### START OF IR 17070122 ##################################
+   echo "OFSA1 ${spool}/bgl_balance_file_${dt}.txt bgl_balance_file_${dt}.txt" | TBpush -s -v > $sysout/${pgm}_log.$BANCS_HOSTNO.out 2>&1
+######################### END OF IR 17070122 ##################################
+fi
+######################### END OF IR 16120019 ##################################
+######################### START OF IR 19030035 ##################################
+if [ ! -f ${spool}/gend7058.prt.$dt ]
+then
+    echo "ERROR ... gend7058.prt.$dt NOT FOUND " > $sysout/${pgm}_log.$BANCS_HOSTNO.out 2>&1
+    echo "ABORTING PROCESS..."
+    if [ $AUTOSYS_MODE = Y ]
+    then
+        echo "[`date|awk '{print $2\" \"$3\" \"$4}'`] gend7058.prt.$dt NOT FOUND " >> $sysout/zerobyte.log
+        exit 1
+    else
+        exit 13
+    fi
+else
+    echo "UPLOAD ${spool}/gend7058.prt.$dt /${per}/${date}/gend7058.prt.$dt" >> $spool/ftplist.due
+fi
+######################### END OF IR 19030035   ##################################
+#-----IR 20060036 CHANGE BEGIN-----####
+today_date_ccyymmdd=`cut -c 9-12 $data/file/MFLAGS``cut -c 13-14 $data/file/MFLAGS``cut -c 15-16 $data/file/MFLAGS`
+today_date_ddmmccyy=`cut -c 15-16 $data/file/MFLAGS``cut -c 13-14 $data/file/MFLAGS``cut -c 9-12 $data/file/MFLAGS`
+cat $card/GL2636.card | while read line
+do
+dep_id=`echo $line| awk -F ' ' '{print $1}'`
+CBS_path=`echo $line| awk -F ' ' '{print $2}' | sed 's/yyyymmdd/'$today_date_ccyymmdd'/g'`
+cbs_file_name=`echo $line| awk -F ' ' '{print $3}'`
+dept_path=`echo $line| awk -F ' ' '{print $4}'`
+dept_file_name=`echo $line| awk -F ' ' '{print $5}' | sed 's/ddmmyyyy/'$today_date_ddmmccyy'/g'`
+echo "$dep_id $CBS_path$cbs_file_name $dept_path$dept_file_name" >>$spool/ftplist.due
+done
+#-----IR 20060036 CHANGE END-------####
+
+
