@@ -1,4 +1,14 @@
 
+if ($beepRequired) {
+    echo "<tr style='display:none;'><td colspan='16'><span class='queueBeepTrigger'>BEEP</span></td></tr>";
+}
+
+if ($beepRequired) {
+    echo "<tr style='display:none;'><td colspan='16'><span class='queueBeepTrigger'>BEEP</span></td></tr>";
+}
+
+
+
 <!-- QUEUE BUILDUP BEEP -->
 
 <audio id="queueBuildupBeep" preload="auto">
