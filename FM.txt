@@ -1,3 +1,211 @@
+<!-- QUEUE BUILDUP BEEP START -->
+
+<audio id="queueBuildupBeep"
+       src="beep.mp3"
+       preload="auto"></audio>
+
+<script type="text/javascript">
+
+var queueBeepInterval = null;
+var queueBeepUnlocked = false;
+
+
+/* ==========================================
+   PLAY BEEP
+   ========================================== */
+
+function playQueueBeep() {
+
+    var beep = document.getElementById("queueBuildupBeep");
+
+    if (!beep) {
+        console.log("QUEUE BEEP: audio not found");
+        return;
+    }
+
+    beep.pause();
+    beep.currentTime = 0;
+
+    beep.play().then(function() {
+
+        console.log("QUEUE BEEP: PLAYING");
+
+    }).catch(function(error) {
+
+        console.log("QUEUE BEEP: PLAY BLOCKED");
+        console.log(error);
+
+    });
+}
+
+
+/* ==========================================
+   CHECK FOR 500+ VALUE
+   ========================================== */
+
+function checkQueueBeep() {
+
+    var trigger =
+        document.querySelector("#alldiv .queueBeepTrigger");
+
+    if (trigger) {
+
+        console.log("QUEUE BEEP: 500+ DETECTED");
+
+        if (queueBeepUnlocked) {
+
+            startQueueBeep();
+
+        }
+
+    } else {
+
+        stopQueueBeep();
+
+    }
+}
+
+
+/* ==========================================
+   START BEEP EVERY 5 SECONDS
+   ========================================== */
+
+function startQueueBeep() {
+
+    if (queueBeepInterval !== null) {
+        return;
+    }
+
+    console.log("QUEUE BEEP: STARTED");
+
+    /* First beep */
+    playQueueBeep();
+
+
+    /* Every 5 seconds */
+
+    queueBeepInterval = setInterval(function() {
+
+        var trigger =
+            document.querySelector("#alldiv .queueBeepTrigger");
+
+        /* If 500+ disappeared, stop */
+
+        if (!trigger) {
+
+            stopQueueBeep();
+
+            return;
+        }
+
+        playQueueBeep();
+
+    }, 5000);
+}
+
+
+/* ==========================================
+   STOP BEEP
+   ========================================== */
+
+function stopQueueBeep() {
+
+    if (queueBeepInterval !== null) {
+
+        clearInterval(queueBeepInterval);
+
+        queueBeepInterval = null;
+
+        console.log("QUEUE BEEP: STOPPED");
+    }
+
+    var beep =
+        document.getElementById("queueBuildupBeep");
+
+    if (beep) {
+
+        beep.pause();
+        beep.currentTime = 0;
+    }
+}
+
+
+/* ==========================================
+   UNLOCK AUDIO
+   ========================================== */
+
+function unlockQueueBeep() {
+
+    if (queueBeepUnlocked) {
+        return;
+    }
+
+    var beep =
+        document.getElementById("queueBuildupBeep");
+
+    if (!beep) {
+        return;
+    }
+
+    beep.currentTime = 0;
+
+    beep.play().then(function() {
+
+        beep.pause();
+        beep.currentTime = 0;
+
+        queueBeepUnlocked = true;
+
+        console.log("QUEUE BEEP: AUDIO UNLOCKED");
+
+        checkQueueBeep();
+
+    }).catch(function(error) {
+
+        console.log("QUEUE BEEP: AUDIO BLOCKED");
+        console.log(error);
+
+    });
+}
+
+
+/* ==========================================
+   FIRST USER INTERACTION
+   ========================================== */
+
+document.addEventListener(
+    "click",
+    unlockQueueBeep,
+    { once: true }
+);
+
+document.addEventListener(
+    "keydown",
+    unlockQueueBeep,
+    { once: true }
+);
+
+
+/* ==========================================
+   INITIAL CHECK
+   ========================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        checkQueueBeep();
+
+    }
+);
+
+</script>
+
+<!-- QUEUE BUILDUP BEEP END -->
+
+
+
+
 
 if ($v2n !== null && $v2n >= 500) {
 
