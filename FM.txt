@@ -1,3 +1,5 @@
+powershell -NoProfile -Command "(Get-Process chrome | Select-Object -First 1).Path"
+
 
 @echo off
 
