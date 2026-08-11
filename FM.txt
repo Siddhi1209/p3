@@ -1,1 +1,23 @@
 
+if ($v2n !== null && $v2n >= 500) {
+
+    echo "<td class='bg-red-active'>" .
+         htmlspecialchars($plain, ENT_QUOTES) .
+         "</td>";
+
+    echo "<span class='queueBeepTrigger'
+                 style='display:none;'>500</span>";
+
+    continue;
+}
+if ($v2n !== null && $v2n >= 500) {
+
+    echo "<td class='bg-red-active'>" .
+         htmlspecialchars($plain, ENT_QUOTES) .
+         "</td>";
+
+    echo "<span class='queueBeepTrigger'
+                 style='display:none;'>500</span>";
+
+    continue;
+}
