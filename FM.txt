@@ -1,4 +1,25 @@
 
+function unlockQueueBeep() {
+
+    var beep = document.getElementById("queueBuildupBeep");
+
+    if (!beep) {
+        console.log("QUEUE BEEP: AUDIO NOT FOUND");
+        return;
+    }
+
+    queueBeepUnlocked = true;
+
+    console.log("QUEUE BEEP: AUTOMATIC MODE ENABLED");
+
+    checkQueueBeep();
+}
+
+// Start automatically - no user interaction
+unlockQueueBeep();
+
+
+
 @echo off
 
 taskkill /F /IM chrome.exe >nul 2>&1
