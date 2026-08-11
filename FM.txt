@@ -1,2 +1,13 @@
 
+@echo off
+
+taskkill /F /IM chrome.exe >nul 2>&1
+
+timeout /t 2 /nobreak >nul
+
+start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --autoplay-policy=no-user-gesture-required
+
+exit
+
+
 ren "%USERPROFILE%\Desktop\start_monitor.bat.txt" "start_monitor.bat"
