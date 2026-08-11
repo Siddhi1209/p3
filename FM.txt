@@ -1,3 +1,18 @@
+
+@echo off
+
+taskkill /F /IM chrome.exe >nul 2>&1
+
+timeout /t 2 /nobreak >nul
+
+start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --autoplay-policy=no-user-gesture-required
+
+exit
+
+
+
+
+
 powershell -NoProfile -Command "(Get-Process chrome | Select-Object -First 1).Path"
 
 
