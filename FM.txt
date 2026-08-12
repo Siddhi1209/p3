@@ -1,4 +1,55 @@
 
-elseif($k2 > '0' && $v2 > 500 && trim($v2) != 'NQKE') {
-    echo "<td class='text-center beep-on-load' style='background-color:red;color:white;'>".(intval($v2))."</td>";
+<audio id="queueBuildupBeep" preload="auto">
+    <source src="beep.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+var queueBeepUnlocked = true;
+
+function checkQueueBeep() {
+
+    if (!queueBeepUnlocked) {
+        return;
+    }
+
+    var beep = document.getElementById("queueBuildupBeep");
+
+    if (!beep) {
+        console.log("QUEUE BEEP: AUDIO NOT FOUND");
+        return;
+    }
+
+    var criticalQueue = document.querySelector(".beep-on-load");
+
+    if (!criticalQueue) {
+        return;
+    }
+
+    beep.currentTime = 0;
+
+    beep.play().then(function () {
+
+        console.log("QUEUE BEEP: PLAYING");
+
+    }).catch(function (error) {
+
+        console.log("QUEUE BEEP ERROR:");
+        console.log(error);
+
+    });
 }
+
+
+/* Check automatically every 5 seconds */
+setInterval(function () {
+
+    checkQueueBeep();
+
+}, 5000);
+
+
+/* Check immediately when page loads */
+checkQueueBeep();
+
+</script>
