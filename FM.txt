@@ -1,1 +1,4 @@
 
+elseif($k2 > '0' && $v2 > 500 && trim($v2) != 'NQKE') {
+    echo "<td class='text-center beep-on-load' style='background-color:red;color:white;'>".(intval($v2))."</td>";
+}
