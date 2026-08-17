@@ -1,4 +1,30 @@
 
+Subject: Request to Monitor NT/NX Log KPIs and Intermediate Server
+Dear Monitoring Team,
+We have implemented NT and NX Log Monitoring on the monitoring portal.
+Request you to include the following in regular monitoring:
+NT Monitoring
+sftp_log
+syslog
+push_log
+passed_log
+NX Monitoring
+sftp_log
+syslog
+push_log
+passed_log
+Intermediate Server
+Mountpoint utilization (/var, /tmp, /ftparea, /ftparea/locations)
+TB Forward Status for PR and DR
+Log Size for PR and DR
+The NT/NX log timestamps should be monitored for any delay of 15 minutes or more, which will be highlighted in red on the monitoring portal.
+Request you to monitor these KPIs along with the Intermediate Server box and report/escalate any abnormality or delay as per the monitoring process.
+Regards,
+Siddhi
+
+
+
+
 public static function NT()
 {
         $mithi_mountpoint = file("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/NTlog.txt");
