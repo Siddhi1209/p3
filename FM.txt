@@ -1,55 +1,38 @@
-
-<audio id="queueBuildupBeep" preload="auto">
-    <source src="beep.mp3" type="audio/mpeg">
-</audio>
-
-<script>
-
-var queueBeepUnlocked = true;
-
-function checkQueueBeep() {
-
-    if (!queueBeepUnlocked) {
-        return;
-    }
-
-    var beep = document.getElementById("queueBuildupBeep");
-
-    if (!beep) {
-        console.log("QUEUE BEEP: AUDIO NOT FOUND");
-        return;
-    }
-
-    var criticalQueue = document.querySelector(".beep-on-load");
-
-    if (!criticalQueue) {
-        return;
-    }
-
-    beep.currentTime = 0;
-
-    beep.play().then(function () {
-
-        console.log("QUEUE BEEP: PLAYING");
-
-    }).catch(function (error) {
-
-        console.log("QUEUE BEEP ERROR:");
-        console.log(error);
-
-    });
-}
-
-
-/* Check automatically every 5 seconds */
-setInterval(function () {
-
-    checkQueueBeep();
-
-}, 5000);
-
-
-/* Check immediately when page loads */
-checkQueueBeep();
-
-</script>
+ <div class="row">
+                                                                        <div class="col-lg-2 col-md-6 col-sm-6 col-xs-6">
+                                                                                <div class="panel panel-primary">
+                                                                                        <div class="panel-heading bg-tcs-active">
+                                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("topstat_8apps.txt",".");?></span><n>NT MONITORING
+                                                                                        </div>
+                                                                                        <div class="panel-body table-responsive">
+                                                                                                <table class="table table-bordered table-striped mithi_mountpoint">
+                                                                                                        <thead>
+                                                                                                                <th class="text-center">LOG Name</th>
+                                                                                                                <th class="text-center bg-aqua-active">TIME</th>
+                                                                                                        </thead>
+                                                                                                        <tbody>
+                                                                                                                <?php echo msl::NT();?>
+                                                                                                        </tbody>
+                                                                                                </table>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
+                                                         <div class="row">
+                                                                        <div class="col-lg-2 col-md-6 col-sm-6 col-xs-6">
+                                                                                <div class="panel panel-primary">
+                                                                                        <div class="panel-heading bg-tcs-active">
+                                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("topstat_8apps.txt",".");?></span><n>NX MONITORING
+                                                                                        </div>
+                                                                                        <div class="panel-body table-responsive">
+                                                                                                <table class="table table-bordered table-striped mithi_mountpoint">
+                                                                                                        <thead>
+                                                                                                                <th class="text-center">LOG Name</th>
+                                                                                                                <th class="text-center bg-aqua-active">TIME</th>
+                                                                                                        </thead>
+                                                                                                        <tbody>
+                                                                                                                <?php echo msl::NX();?>
+                                                                                                        </tbody>
+                                                                                                </table>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
