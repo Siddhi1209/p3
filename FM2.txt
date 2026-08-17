@@ -1,25 +1,10 @@
-        public static function NT(){
-        $mithi_mountpoint=file("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/NTlog.txt");
-        foreach ($mithi_mountpoint as $line_num => $line1) {
-                $varmount = explode(",",$line1);
-                echo "<tr>";
-                foreach ($varmount as $k3 => $v3) {
-                               echo "<td class='text-center'>".$v3."</td>";
-                }
-                echo "</tr>";
-        }
-}
-
-
-        public static function NX(){
-        $mithi_mountpoint=file("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/NXlog.txt");
-        foreach ($mithi_mountpoint as $line_num => $line1) {
-                $varmount = explode(",",$line1);
-                echo "<tr>";
-                foreach ($varmount as $k3 => $v3) {
-                               echo "<td class='text-center'>".$v3."</td>";
-                }
-                echo "</tr>";
-        }
-}
-
+MONITORP : /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING ]cat NTlog.txt
+sftp_log,Aug 17 11:28
+syslog,Aug 17 11:28
+push_log,Aug 17 11:28
+passed_log,Aug 17 11:28
+MONITORP : /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING ]cat NXlog.txt
+sftp_log,Aug 17 11:25
+syslog,Aug 17 11:29
+push_log,Aug 17 11:25
+passed_log,Aug 17 11:25
