@@ -1,1 +1,144 @@
 
+/* NT / NX / Intermediate Server ALERT */
+
+a.ntnx-alert {
+    background-color: red !important;
+    color: white !important;
+    font-weight: bold !important;
+    animation: ntnxAlertBlink 1s infinite;
+}
+
+@keyframes ntnxAlertBlink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+
+
+
+<script>
+
+function checkNTNXIntermediateAlert()
+{
+    $.ajax({
+        url: "monitor_nt_nx_alert.php",
+        type: "GET",
+        cache: false,
+        dataType: "json",
+
+        success: function(data)
+        {
+            var button = document.querySelector(
+                'a[href="nt_nx_intermediate.php"]'
+            );
+
+            if (!button)
+            {
+                return;
+            }
+
+            if (data.alert === true)
+            {
+                button.classList.add("ntnx-alert");
+            }
+            else
+            {
+                button.classList.remove("ntnx-alert");
+            }
+        },
+
+        error: function()
+        {
+            console.log("NT/NX/Intermediate alert check failed");
+        }
+    });
+}
+
+
+/* Check immediately */
+checkNTNXIntermediateAlert();
+
+
+/* Check every 10 seconds */
+setInterval(
+    checkNTNXIntermediateAlert,
+    10000
+);
+
+</script>
+
+
+
+
+
+
+
+
+<?php
+
+error_reporting(0);
+
+require("../config_apr.php");
+
+$alert = false;
+
+
+/* NT */
+ob_start();
+msl::NT();
+$nt_output = ob_get_clean();
+
+
+/* NX */
+ob_start();
+msl::NX();
+$nx_output = ob_get_clean();
+
+
+/* Intermediate Server */
+ob_start();
+msl::intermdiate_server_space();
+$intermediate_output = ob_get_clean();
+
+
+/* Combine all monitoring output */
+$combined_output =
+    $nt_output .
+    $nx_output .
+    $intermediate_output;
+
+
+/* Check for any existing RED condition */
+
+if (
+       strpos($combined_output, "bg-red") !== false
+    || strpos($combined_output, "progress-bar-red") !== false
+    || strpos($combined_output, "background-color:red") !== false
+    || strpos($combined_output, "background-color: red") !== false
+    || strpos($combined_output, "background:red") !== false
+    || strpos($combined_output, "background: red") !== false
+)
+{
+    $alert = true;
+}
+
+
+header("Content-Type: application/json");
+
+echo json_encode(
+    array(
+        "alert" => $alert
+    )
+);
+
+?>
+
