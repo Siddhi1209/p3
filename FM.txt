@@ -1,4 +1,15 @@
- <div class="row">
+DEPD SRH1 Job – Long Running Issue Update:
+The long-running issue of the DEPD SRH1 job is currently under analysis by the Deposits team.
+As discussed with Pushkar from the Deposits team yesterday, the issue is still being investigated, and he mentioned that providing a status update on a daily basis may not be feasible until the analysis is completed.
+We also have the mail communication where it was highlighted that records with status 0, 3 and 7 are present in the SRHR table, while the corresponding records are not available in the master table as the data has been archived. Around 7 crore records are being traversed by the program, which appears to be contributing to the long-running behavior.
+Our team has already written to the Deposits team requesting the expected timeline for raising the CR and promoting the fix.
+No response has been received yet from the Deposits team regarding the CR timeline.
+We also had a telephonic discussion with Pushkar yesterday, during which he confirmed that the analysis is still in progress.
+Hence, currently the issue is with the Deposits team for further analysis and resolution, and we are awaiting their confirmation on the CR and implementation timeline
+
+
+
+<div class="row">
                                                                         <div class="col-lg-2 col-md-6 col-sm-6 col-xs-6">
                                                                                 <div class="panel panel-primary">
                                                                                         <div class="panel-heading bg-tcs-active">
