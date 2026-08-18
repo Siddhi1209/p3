@@ -1,3 +1,11 @@
+<a
+    href="nt_nx_intermediate.php"
+    target="_blank"
+    class="btn btn-info stylemargin">
+    NT / NX / Intermediate
+</a>
+
+
 
 <?php
 
