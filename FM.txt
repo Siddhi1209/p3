@@ -1,14 +1,3 @@
-DEPD SRH1 Job – Long Running Issue Update:
-The long-running issue of the DEPD SRH1 job is currently under analysis by the Deposits team.
-As discussed with Pushkar from the Deposits team yesterday, the issue is still being investigated, and he mentioned that providing a status update on a daily basis may not be feasible until the analysis is completed.
-We also have the mail communication where it was highlighted that records with status 0, 3 and 7 are present in the SRHR table, while the corresponding records are not available in the master table as the data has been archived. Around 7 crore records are being traversed by the program, which appears to be contributing to the long-running behavior.
-Our team has already written to the Deposits team requesting the expected timeline for raising the CR and promoting the fix.
-No response has been received yet from the Deposits team regarding the CR timeline.
-We also had a telephonic discussion with Pushkar yesterday, during which he confirmed that the analysis is still in progress.
-Hence, currently the issue is with the Deposits team for further analysis and resolution, and we are awaiting their confirmation on the CR and implementation timeline
-
-
-
 <div class="row">
                                                                         <div class="col-lg-2 col-md-6 col-sm-6 col-xs-6">
                                                                                 <div class="panel panel-primary">
@@ -47,3 +36,95 @@ Hence, currently the issue is with the Deposits team for further analysis and re
                                                                                         </div>
                                                                                 </div>
                                                                         </div>
+
+																		<div class="col-lg-4 col-md-6 col-sm-6 col-xs-6">
+                                                                                <div class="panel panel-primary">
+                                                                                        <div class="panel-heading bg-tcs-active">
+                                                                                                <span style="float:right;font-size:18px;"><img src="loading-bubbles.svg"><?php echo $yummy->timeUpdated("/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/space_check_median.txt","OutDate");?></span>
+                                                                                                <a href="#"  data-toggle="modal" data-target="#myModal4" style="color:#fff;">Intermediate Server</a>
+                                                                                        </div>
+                                                                                        <div class="panel-body table-responsive">
+                                                                                                <table class="table table-bordered table-striped intermediate_mountpoint">
+                                                                                                        <thead>
+
+                                                                                                                <th class="text-center">Mountpoint Name</th>
+                                                                                                                <th class="text-center  bg-aqua-active">PR</th>
+                                                                                                                <th class="text-center  bg-aqua-active">DR</th>
+                                                                                                        </thead>
+                                                                                                        <tbody>
+                                                                                                                <?php echo msl::intermdiate_server_space();?>
+                                                                                                        </tbody>
+                                                                                                </table>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
+
+																		
+																		 public static function intermdiate_server_space(){
+                $median_mountpoint=explode("\n",shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/NT000_PR_space_check_median.txt|grep -v sysimage"));
+                $median_mountpoint_dr=explode("\n",shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/NT000_DR_space_check_median.txt"));
+                array_pop($median_mountpoint);
+                array_pop($median_mountpoint_dr);
+                $len = count($median_mountpoint);
+                for ($i=0; $i<$len;$i++){
+                        echo "<tr>";
+                                $row_data_pr = explode('|',$median_mountpoint[$i]);
+                                echo "<td class='text-center'>".$row_data_pr[1]."</td>";
+                                if($row_data_pr[0] > 85){
+                                        echo "<td style='padding:3px;'><div class='progress-bar progress-bar-red progress-bar-striped active' style='width:".intval(trim($row_data_pr[0]))."%'>".$row_data_pr[0]."</div></td>";
+                                }
+                                else if(intval($row_data_pr[0]) > 70){
+                                        echo "<td style='padding:3px;'><div class='progress-bar progress-bar-yellow progress-bar-striped active' style='width:".intval(trim($row_data_pr[0]))."%'>".$row_data_pr[0]."</div></td>";
+                                }
+                                else{
+                                        echo "<td style='padding:3px;'><div class='progress-bar progress-bar-green progress-bar-striped active' style='width:".intval(trim($row_data_pr[0]))."%'>".$row_data_pr[0]."</div></td>";
+                                }
+                                $row_data_dr = explode('|',$median_mountpoint_dr[$i]);
+                                if($row_data_dr[0] > 85){
+                                        echo "<td style='padding:3px;'><div class='progress-bar progress-bar-red progress-bar-striped active' style='width:".intval(trim($row_data_dr[0]))."%'>".$row_data_dr[0]."</div></td>";
+                                }
+                                else if(intval($row_data_dr[0]) > 70){
+                                        echo "<td style='padding:3px;'><div class='progress-bar progress-bar-yellow progress-bar-striped active' style='width:".intval(trim($row_data_dr[0]))."%'>".$row_data_dr[0]."</div></td>";
+                                }
+                                else{
+                                        echo "<td style='padding:3px;'><div class='progress-bar progress-bar-green progress-bar-striped active' style='width:".intval(trim($row_data_dr[0]))."%'>".$row_data_dr[0]."</div></td>";
+                                }
+                        echo "</tr>";
+                }
+                echo "<tr>";
+                        $TBforward_status_pr=trim(shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/NT000_PR_TBforward_status.txt"));
+                        $TBforward_status_dr=trim(shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/NT000_DR_TBforward_status.txt"));
+                        echo "<td class='bg-info text-center'>TB Forward Status</td>";
+                        if(stristr($TBforward_status_pr,"RU")){
+                                //echo "<th class='text-center' style='background-color: green;color:white;'>TBforward Status</th>";
+                                echo "<td class='bg-green text-center'><i class='fa fa-thumbs-up'></i>".substr_replace($TBforward_status_pr,'',0,2)."</td>";
+                        }
+                        else{
+                                //echo "<th class='text-center' style='background-color: red;color:white;'>TBforward Status</th>";
+                                echo "<td class='bg-red text-center'><i class='fa fa-thumbs-down'></i>".substr_replace($TBforward_status_pr,'',0,2)."</td>";
+                        }
+                        if(stristr($TBforward_status_dr,"RU")){
+                                //echo "<th class='text-center' style='background-color: green;color:white;'>TBforward Status</th>";
+                                echo "<td class='bg-green text-center'><i class='fa fa-thumbs-up'></i>".substr_replace($TBforward_status_dr,'',0,2)."</td>";
+                        }
+                        else{
+                                //echo "<th class='text-center' style='background-color: red;color:white;'>TBforward Status</th>";
+                                echo "<td class='bg-red text-center'><i class='fa fa-thumbs-down'></i>".substr_replace($TBforward_status_dr,'',0,2)."</td>";
+                        }
+                        echo "</tr>";
+                echo "<tr>";
+                        $log_space_pr=trim(shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/NT000_PR_log_space.txt"));
+                        $log_space_dr=trim(shell_exec("cat /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/NT000_DR_log_space.txt"));
+                        echo "<td class='bg-info text-center'> Log Size </td>";
+                        if($log_space_pr > 10){
+                                echo "<td class='bg-red text-center' style='padding:5px;'><b>".$log_space_pr." GB</b></div></td>";
+						}
+                        else if(intval($log_space_dr) > 5){
+                                echo "<td class='bg-yellow text-center' style='padding:5px;'>".$log_space_dr." GB</b></div></td>";
+                        }
+                        else{
+                                echo "<td class='bg-green text-center' style='padding:5px;'>".$log_space_dr." GB</b></div></td>";
+                        }
+                        echo "</tr>";
+        }
+		
