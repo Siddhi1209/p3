@@ -1,1 +1,7 @@
 
+<li>
+    <a href="nt_nx_intermediate.php" target="_blank">
+        <i class="fa fa-desktop"></i>
+        <span>NT / NX / Intermediate</span>
+    </a>
+</li>
