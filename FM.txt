@@ -1,1 +1,341 @@
 
+<?php
+error_reporting(0);
+session_start();
+
+require("../config_apr.php");
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>NT / NX / Intermediate Server Monitoring</title>
+
+<!-- Use the same Bootstrap already used by your portal -->
+<link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
+
+<style>
+
+body {
+    margin: 0;
+    padding: 15px;
+    background: #ecf0f5;
+}
+
+/* Keep all 3 panels visually consistent */
+.monitor-panel {
+    margin-bottom: 15px;
+}
+
+.monitor-panel .panel-heading {
+    background-color: #1f4e8c !important;
+    color: #fff !important;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    padding: 9px;
+}
+
+.monitor-panel .panel-body {
+    padding: 8px;
+}
+
+/* Tables */
+.monitor-panel table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.monitor-panel th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.monitor-panel td {
+    vertical-align: middle;
+}
+
+/* NT and NX */
+.ntnx-table th:first-child,
+.ntnx-table td:first-child {
+    width: 50%;
+    text-align: center;
+}
+
+.ntnx-table th:last-child,
+.ntnx-table td:last-child {
+    width: 50%;
+    text-align: center;
+}
+
+/* Intermediate */
+.intermediate-table th:first-child {
+    width: 40%;
+}
+
+.intermediate-table th:nth-child(2),
+.intermediate-table th:nth-child(3) {
+    width: 30%;
+}
+
+.intermediate-table td {
+    text-align: center;
+}
+
+
+/* =========================================================
+   ALERT BANNER
+   ========================================================= */
+
+#monitorAlert {
+
+    display: none;
+
+    background-color: red;
+    color: white;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    text-align: center;
+
+    padding: 8px;
+
+    margin-bottom: 15px;
+
+    animation: alertBlink 1s infinite;
+}
+
+@keyframes alertBlink {
+
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.35;
+    }
+
+    100% {
+        opacity: 1;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container-fluid">
+
+
+    <!-- ALERT -->
+
+    <div id="monitorAlert">
+
+        ⚠ ALERT - NT / NX / INTERMEDIATE SERVER ISSUE ⚠
+
+    </div>
+
+
+
+    <!-- =====================================================
+         NT MONITORING
+         ===================================================== -->
+
+    <div class="panel panel-primary monitor-panel">
+
+        <div class="panel-heading">
+
+            NT MONITORING
+
+        </div>
+
+
+        <div class="panel-body table-responsive">
+
+            <table class="table table-bordered table-striped ntnx-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>LOG Name</th>
+
+                        <th>TIME</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <?php
+
+                    echo msl::NT();
+
+                    ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         NX MONITORING
+         ===================================================== -->
+
+    <div class="panel panel-primary monitor-panel">
+
+        <div class="panel-heading">
+
+            NX MONITORING
+
+        </div>
+
+
+        <div class="panel-body table-responsive">
+
+            <table class="table table-bordered table-striped ntnx-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>LOG Name</th>
+
+                        <th>TIME</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <?php
+
+                    echo msl::NX();
+
+                    ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         INTERMEDIATE SERVER
+         ===================================================== -->
+
+    <div class="panel panel-primary monitor-panel">
+
+        <div class="panel-heading">
+
+            INTERMEDIATE SERVER
+
+        </div>
+
+
+        <div class="panel-body table-responsive">
+
+            <table class="table table-bordered table-striped intermediate-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Mountpoint Name</th>
+
+                        <th>PR</th>
+
+                        <th>DR</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <?php
+
+                    echo msl::intermdiate_server_space();
+
+                    ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+/*
+============================================================
+CHECK RED CELLS
+============================================================
+*/
+
+function checkRedCell()
+{
+
+    var redCells = document.querySelectorAll(
+        '.bg-red, ' +
+        '[style*="background-color:red"], ' +
+        '[style*="background-color: red"], ' +
+        '.progress-bar-red'
+    );
+
+
+    var alertBox =
+        document.getElementById("monitorAlert");
+
+
+    if (redCells.length > 0)
+    {
+
+        alertBox.style.display = "block";
+
+    }
+    else
+    {
+
+        alertBox.style.display = "none";
+
+    }
+
+}
+
+
+checkRedCell();
+
+</script>
+
+
+</body>
+
+</html>
