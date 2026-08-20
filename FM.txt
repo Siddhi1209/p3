@@ -1,1 +1,35 @@
 
+.inventory-bar {
+    width: 100%;
+    background: #ffffff;
+    text-align: left;
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.inventory-button {
+    display: inline-block;
+    margin-left: 20px;
+    padding: 8px 18px;
+    background: #0d477d;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.inventory-button:hover {
+    background: #08345d;
+}
+
+
+<div class="inventory-bar">
+
+    <a href="inventory.php" class="inventory-button">
+        INVENTORY
+    </a>
+
+</div>
+
+
