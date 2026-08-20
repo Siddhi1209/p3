@@ -1,1 +1,678 @@
 
+
+<?php
+
+error_reporting(0);
+session_start();
+
+require("../config_apr.php");
+
+?>
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>NT / NX / Intermediate Server Monitoring</title>
+
+    <meta charset="utf-8">
+
+    <meta http-equiv="refresh" content="30">
+
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+          name="viewport">
+
+
+    <!-- =====================================================
+         SAME CSS AS EXISTING SMART.PHP
+         ===================================================== -->
+
+    <link href="../css/bootstrap.min.css"
+          rel="stylesheet"
+          type="text/css" />
+
+    <link href="../font-awesome/css/font-awesome.min.css"
+          rel="stylesheet"
+          type="text/css" />
+
+    <link href="../css/AdminLTE.min.css"
+          rel="stylesheet"
+          type="text/css" />
+
+    <link href="../css/skins/_all-skins.min.css"
+          rel="stylesheet"
+          type="text/css" />
+
+    <link href="../css/compactPage.css"
+          rel="stylesheet"
+          type="text/css" />
+
+    <link href="../css/animate.css"
+          rel="stylesheet"
+          type="text/css" />
+
+    <link rel="stylesheet"
+          href="../css/fix-colors-icons.css">
+
+    <link href="../css/normalize.min.css"
+          rel="stylesheet">
+
+
+    <!-- =====================================================
+         PAGE CSS
+         ===================================================== -->
+
+    <style>
+
+        html,
+        body {
+
+            width: 100%;
+            height: 100%;
+
+        }
+
+
+        body {
+
+            margin: 0;
+
+            padding: 15px;
+
+            background-color: #ecf0f5;
+
+            font-family: Arial,
+                         Helvetica,
+                         sans-serif;
+
+        }
+
+
+        /*
+        =====================================================
+        COMMON MONITOR PANEL
+        =====================================================
+        */
+
+        .monitor-panel {
+
+            width: 100%;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        /*
+        =====================================================
+        PANEL HEADER
+        =====================================================
+        */
+
+        .monitor-panel .panel-heading {
+
+            background-color: #1f4e8c !important;
+
+            color: #ffffff !important;
+
+            text-align: center;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            padding: 8px;
+
+        }
+
+
+        /*
+        =====================================================
+        PANEL BODY
+        =====================================================
+        */
+
+        .monitor-panel .panel-body {
+
+            background-color: #ffffff;
+
+            padding: 8px;
+
+        }
+
+
+        /*
+        =====================================================
+        NT / NX TABLE
+        =====================================================
+        */
+
+        .ntnx-table {
+
+            width: 100% !important;
+
+            margin-bottom: 0 !important;
+
+            table-layout: fixed;
+
+        }
+
+
+        .ntnx-table th {
+
+            text-align: center !important;
+
+            vertical-align: middle !important;
+
+            font-weight: bold;
+
+        }
+
+
+        .ntnx-table td {
+
+            vertical-align: middle !important;
+
+        }
+
+
+        /*
+        LOG NAME COLUMN
+        */
+
+        .ntnx-table th:first-child,
+        .ntnx-table td:first-child {
+
+            width: 50%;
+
+            text-align: center;
+
+        }
+
+
+        /*
+        TIME COLUMN
+        */
+
+        .ntnx-table th:last-child,
+        .ntnx-table td:last-child {
+
+            width: 50%;
+
+            text-align: center;
+
+        }
+
+
+        /*
+        =====================================================
+        INTERMEDIATE SERVER TABLE
+        =====================================================
+        */
+
+        .intermediate-table {
+
+            width: 100% !important;
+
+            margin-bottom: 0 !important;
+
+            table-layout: fixed;
+
+        }
+
+
+        /*
+        MOUNTPOINT
+        */
+
+        .intermediate-table th:nth-child(1),
+        .intermediate-table td:nth-child(1) {
+
+            width: 33.33%;
+
+            text-align: center;
+
+        }
+
+
+        /*
+        PR
+        */
+
+        .intermediate-table th:nth-child(2),
+        .intermediate-table td:nth-child(2) {
+
+            width: 33.33%;
+
+            text-align: center;
+
+        }
+
+
+        /*
+        DR
+        */
+
+        .intermediate-table th:nth-child(3),
+        .intermediate-table td:nth-child(3) {
+
+            width: 33.33%;
+
+            text-align: center;
+
+        }
+
+
+        .intermediate-table th {
+
+            text-align: center !important;
+
+            vertical-align: middle !important;
+
+            font-weight: bold;
+
+        }
+
+
+        .intermediate-table td {
+
+            text-align: center;
+
+            vertical-align: middle !important;
+
+            padding: 4px !important;
+
+        }
+
+
+        /*
+        =====================================================
+        PROGRESS BAR
+        =====================================================
+        */
+
+        .intermediate-table .progress {
+
+            margin-bottom: 0 !important;
+
+            width: 100%;
+
+            height: 22px;
+
+        }
+
+
+        .intermediate-table .progress-bar {
+
+            height: 22px;
+
+            line-height: 22px;
+
+            min-width: 0;
+
+            float: none;
+
+            display: block;
+
+        }
+
+
+        /*
+        =====================================================
+        ALERT BANNER
+        =====================================================
+        */
+
+        #monitorAlert {
+
+            display: none;
+
+            width: 100%;
+
+            background-color: red;
+
+            color: white;
+
+            font-size: 18px;
+
+            font-weight: bold;
+
+            text-align: center;
+
+            padding: 9px;
+
+            margin-bottom: 12px;
+
+            animation: alertBlink 1s infinite;
+
+        }
+
+
+        @keyframes alertBlink {
+
+            0% {
+
+                opacity: 1;
+
+            }
+
+            50% {
+
+                opacity: 0.35;
+
+            }
+
+            100% {
+
+                opacity: 1;
+
+            }
+
+        }
+
+
+        /*
+        =====================================================
+        REMOVE UNNECESSARY OUTER SPACING
+        =====================================================
+        */
+
+        .container-fluid {
+
+            padding-left: 0 !important;
+
+            padding-right: 0 !important;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container-fluid">
+
+
+    <!-- =====================================================
+         ALERT BANNER
+         ===================================================== -->
+
+    <div id="monitorAlert">
+
+          ALERT - NT / NX / INTERMEDIATE SERVER ISSUE
+
+    </div>
+
+
+
+    <!-- =====================================================
+         NT MONITORING
+         ===================================================== -->
+
+    <div class="panel panel-primary monitor-panel">
+
+
+        <div class="panel-heading">
+
+            NT MONITORING
+
+        </div>
+
+
+        <div class="panel-body table-responsive">
+
+
+            <table class="table table-bordered table-striped ntnx-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+
+                            LOG Name
+
+                        </th>
+
+                        <th>
+
+                            TIME
+
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <?php
+
+                    echo msl::NT();
+
+                    ?>
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         NX MONITORING
+         ===================================================== -->
+
+    <div class="panel panel-primary monitor-panel">
+
+
+        <div class="panel-heading">
+
+            NX MONITORING
+
+        </div>
+
+
+        <div class="panel-body table-responsive">
+
+
+            <table class="table table-bordered table-striped ntnx-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+
+                            LOG Name
+
+                        </th>
+
+                        <th>
+
+                            TIME
+
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <?php
+
+                    echo msl::NX();
+
+                    ?>
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         INTERMEDIATE SERVER
+         ===================================================== -->
+
+    <div class="panel panel-primary monitor-panel">
+
+
+        <div class="panel-heading">
+
+            INTERMEDIATE SERVER
+
+        </div>
+
+
+        <div class="panel-body table-responsive">
+
+
+            <table class="table table-bordered table-striped intermediate-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+
+                            Mountpoint Name
+
+                        </th>
+
+                        <th>
+
+                            PR
+
+                        </th>
+
+                        <th>
+
+                            DR
+
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <?php
+
+                    echo msl::intermdiate_server_space();
+
+                    ?>
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     CHECK RED CELLS
+     ========================================================= -->
+
+<script>
+
+function checkRedCell()
+
+{
+
+    var redCells = document.querySelectorAll(
+
+        '.bg-red, ' +
+
+        '[style*="background-color:red"], ' +
+
+        '[style*="background-color: red"], ' +
+
+        '.progress-bar-red'
+
+    );
+
+
+    var alertBox =
+        document.getElementById("monitorAlert");
+
+
+    if (redCells.length > 0)
+
+    {
+
+        alertBox.style.display = "block";
+
+    }
+
+    else
+
+    {
+
+        alertBox.style.display = "none";
+
+    }
+
+}
+
+
+/*
+=============================================================
+INITIAL CHECK
+=============================================================
+*/
+
+checkRedCell();
+
+
+/*
+=============================================================
+CHECK AGAIN EVERY 10 SECONDS
+=============================================================
+*/
+
+setInterval(
+
+    checkRedCell,
+
+    10000
+
+);
+
+</script>
+
+
+</body>
+
+</html>
