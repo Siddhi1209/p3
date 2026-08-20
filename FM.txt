@@ -1,1 +1,1357 @@
 
+<?php
+
+/*
+=========================================================
+              OFFLINE REPORTS PORTAL
+=========================================================
+
+Report files are expected in:
+
+/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING/
+
+Today's files:
+
+job_status_reports.txt_YYYYMMDD
+space_reports.txt_YYYYMMDD
+
+Example for 20-Aug-2026:
+
+job_status_reports.txt_20260820
+space_reports.txt_20260820
+
+=========================================================
+*/
+
+
+/*
+---------------------------------------------------------
+BASE PATH
+---------------------------------------------------------
+*/
+
+$basePath = "/opt/hpws/apache/cgi-bin/trials/bip/data/TESTING";
+
+
+/*
+---------------------------------------------------------
+TODAY'S DATE
+---------------------------------------------------------
+*/
+
+$today = date("Ymd");
+
+
+/*
+---------------------------------------------------------
+TODAY'S REPORT FILES
+---------------------------------------------------------
+*/
+
+$jobFile = $basePath . "/job_status_reports.txt_" . $today;
+
+$spaceFile = $basePath . "/space_reports.txt_" . $today;
+
+
+/*
+---------------------------------------------------------
+HTML ESCAPE FUNCTION
+---------------------------------------------------------
+*/
+
+function h($value)
+{
+    return htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8');
+}
+
+
+/*
+---------------------------------------------------------
+READ COMMA-SEPARATED FILE
+---------------------------------------------------------
+*/
+
+function readCSVFile($file)
+{
+    $rows = array();
+
+    /*
+    Check whether today's file exists
+    */
+
+    if (!file_exists($file)) {
+        return $rows;
+    }
+
+
+    /*
+    Open file
+    */
+
+    $handle = fopen($file, "r");
+
+
+    if ($handle === false) {
+        return $rows;
+    }
+
+
+    /*
+    Read every CSV line
+    */
+
+    while (($data = fgetcsv($handle, 0, ",")) !== false) {
+
+        /*
+        Ignore completely blank lines
+        */
+
+        $hasData = false;
+
+
+        foreach ($data as $value) {
+
+            if (trim($value) !== "") {
+
+                $hasData = true;
+
+                break;
+            }
+        }
+
+
+        if ($hasData) {
+
+            $rows[] = $data;
+        }
+    }
+
+
+    /*
+    Close file
+    */
+
+    fclose($handle);
+
+
+    return $rows;
+}
+
+
+/*
+---------------------------------------------------------
+READ TODAY'S FILES
+---------------------------------------------------------
+*/
+
+$jobRows = readCSVFile($jobFile);
+
+$spaceRows = readCSVFile($spaceFile);
+
+
+/*
+---------------------------------------------------------
+REMOVE JOB HEADER IF PRESENT
+---------------------------------------------------------
+
+Expected job CSV:
+
+Job_name,Machine_name,start_time,End_time,status,Duration
+
+---------------------------------------------------------
+*/
+
+if (count($jobRows) > 0) {
+
+    $firstJobValue = strtolower(trim($jobRows[0][0]));
+
+
+    if (
+        $firstJobValue == "sr.no" ||
+        $firstJobValue == "srno" ||
+        $firstJobValue == "job_name"
+    ) {
+
+        array_shift($jobRows);
+    }
+}
+
+
+/*
+---------------------------------------------------------
+REMOVE SPACE HEADER IF PRESENT
+---------------------------------------------------------
+
+Expected:
+
+Server,Data(D),Spool(D),Sysout(D),/Tmp,/home(id),
+Sys(C),Sys(N),Data(N),Spool(C),Ftparea,/Opt,/var
+
+---------------------------------------------------------
+*/
+
+if (count($spaceRows) > 0) {
+
+    $firstSpaceValue = strtolower(trim($spaceRows[0][0]));
+
+
+    if ($firstSpaceValue == "server") {
+
+        array_shift($spaceRows);
+    }
+}
+
+
+/*
+=========================================================
+SPACE UTILIZATION CELL
+=========================================================
+
+If value > 75:
+    RED BACKGROUND
+    WHITE TEXT
+
+If value <= 75:
+    NORMAL
+
+If value is "-":
+    DISPLAY "-"
+
+=========================================================
+*/
+
+function spaceCell($value)
+{
+    $value = trim($value);
+
+
+    /*
+    Empty or unavailable value
+    */
+
+    if ($value === "" || $value === "-") {
+
+        return '<td class="space-cell dash">-</td>';
+    }
+
+
+    /*
+    Remove % sign if present
+    */
+
+    $numericValue = intval(str_replace("%", "", $value));
+
+
+    /*
+    Greater than 75 = RED
+    */
+
+    if ($numericValue > 75) {
+
+        return '<td class="space-cell high">'
+             . h($numericValue)
+             . '</td>';
+    }
+
+
+    /*
+    75 or below = NORMAL
+    */
+
+    return '<td class="space-cell">'
+         . h($numericValue)
+         . '</td>';
+}
+
+?>
+
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta http-equiv="refresh" content="60">
+
+<title>OFFLINE REPORTS PORTAL</title>
+
+
+<style>
+
+/*
+=========================================================
+GENERAL PAGE
+=========================================================
+*/
+
+html,
+body {
+
+    margin: 0;
+
+    padding: 0;
+
+    background: #f5f5f5;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    color: #333333;
+}
+
+
+/*
+=========================================================
+MAIN PORTAL HEADING
+=========================================================
+*/
+
+.portal-header {
+
+    width: 100%;
+
+    background: #0d477d;
+
+    color: white;
+
+    text-align: center;
+
+    padding: 14px 0;
+
+    font-size: 25px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+}
+
+
+/*
+=========================================================
+MAIN CONTAINER
+=========================================================
+*/
+
+.container {
+
+    width: 96%;
+
+    margin: 20px auto;
+}
+
+
+/*
+=========================================================
+MONITORING BOX
+=========================================================
+*/
+
+.monitor-box {
+
+    width: 100%;
+
+    background: #ffffff;
+
+    border-radius: 8px;
+
+    margin-bottom: 25px;
+
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.12);
+
+    overflow: hidden;
+}
+
+
+/*
+=========================================================
+BLUE MONITORING TITLE
+=========================================================
+*/
+
+.box-title {
+
+    position: relative;
+
+    height: 42px;
+
+    line-height: 42px;
+
+    background: #0d477d;
+
+    color: white;
+
+    text-align: center;
+
+    font-size: 20px;
+
+    font-weight: bold;
+}
+
+
+/*
+=========================================================
+DATE / TIME ON RIGHT
+=========================================================
+*/
+
+.box-time {
+
+    position: absolute;
+
+    right: 18px;
+
+    top: 0;
+
+    font-size: 13px;
+
+    font-weight: normal;
+
+    color: white;
+
+    line-height: 42px;
+}
+
+
+/*
+=========================================================
+TABLE CONTAINER
+=========================================================
+*/
+
+.table-container {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+    padding-bottom: 10px;
+}
+
+
+/*
+=========================================================
+TABLE
+=========================================================
+*/
+
+.monitor-table {
+
+    width: 96%;
+
+    margin: 7px auto 10px auto;
+
+    border-collapse: separate;
+
+    border-spacing: 0;
+
+    font-size: 14px;
+}
+
+
+/*
+=========================================================
+TABLE HEADER
+=========================================================
+*/
+
+.monitor-table th {
+
+    background: #ffffff;
+
+    color: #333333;
+
+    font-weight: bold;
+
+    padding: 8px 7px;
+
+    text-align: center;
+
+    white-space: nowrap;
+
+    border: none;
+}
+
+
+/*
+=========================================================
+TABLE DATA
+=========================================================
+*/
+
+.monitor-table td {
+
+    padding: 7px 8px;
+
+    text-align: center;
+
+    white-space: nowrap;
+
+    border: none;
+
+    color: #444444;
+
+    background: #ffffff;
+}
+
+
+/*
+=========================================================
+SERVER COLUMN
+=========================================================
+*/
+
+.server-cell {
+
+    background: #dfeeda !important;
+
+    border-radius: 8px;
+
+    font-weight: normal;
+
+    color: #333333 !important;
+}
+
+
+/*
+=========================================================
+NORMAL SPACE UTILIZATION
+=========================================================
+*/
+
+.space-cell {
+
+    background: #ffffff !important;
+
+    font-weight: normal;
+}
+
+
+/*
+=========================================================
+SPACE UTILIZATION > 75%
+
+RED CELL
+=========================================================
+*/
+
+.space-cell.high {
+
+    background: red !important;
+
+    color: white !important;
+
+    font-weight: bold;
+
+    border-radius: 2px;
+}
+
+
+/*
+=========================================================
+DASH
+=========================================================
+*/
+
+.space-cell.dash {
+
+    background: #ffffff !important;
+
+    color: #333333 !important;
+
+    font-weight: bold;
+}
+
+
+/*
+=========================================================
+JOB STATUS - SUCCESS / COMPLETED
+=========================================================
+*/
+
+.status-completed,
+.status-success {
+
+    color: #198754 !important;
+
+    font-weight: bold;
+}
+
+
+/*
+=========================================================
+JOB STATUS - RUNNING
+=========================================================
+*/
+
+.status-running {
+
+    color: #e67e22 !important;
+
+    font-weight: bold;
+}
+
+
+/*
+=========================================================
+JOB STATUS - FAILED / ERROR / ABORTED
+=========================================================
+*/
+
+.status-failed,
+.status-error,
+.status-aborted {
+
+    background: red !important;
+
+    color: white !important;
+
+    font-weight: bold;
+
+    border-radius: 2px;
+}
+
+
+/*
+=========================================================
+NO DATA MESSAGE
+=========================================================
+*/
+
+.no-data {
+
+    text-align: center;
+
+    padding: 18px;
+
+    color: #777777;
+
+    font-size: 14px;
+
+    background: #ffffff !important;
+}
+
+
+/*
+=========================================================
+FOOTER
+=========================================================
+*/
+
+.footer {
+
+    text-align: center;
+
+    color: #777777;
+
+    font-size: 12px;
+
+    padding: 10px 0 20px 0;
+}
+
+
+/*
+=========================================================
+SMALL SCREEN
+=========================================================
+*/
+
+@media screen and (max-width: 1000px) {
+
+    .container {
+
+        width: 99%;
+    }
+
+
+    .monitor-table {
+
+        width: 100%;
+
+        font-size: 12px;
+    }
+
+
+    .monitor-table th,
+    .monitor-table td {
+
+        padding: 6px 5px;
+    }
+
+
+    .box-title {
+
+        font-size: 18px;
+    }
+
+
+    .box-time {
+
+        right: 10px;
+
+        font-size: 11px;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!--
+=========================================================
+              OFFLINE REPORTS PORTAL
+=========================================================
+-->
+
+<div class="portal-header">
+
+    OFFLINE REPORTS PORTAL
+
+</div>
+
+
+<div class="container">
+
+
+<!--
+=========================================================
+                  JOBS MONITORING
+=========================================================
+-->
+
+<div class="monitor-box">
+
+
+    <!-- TITLE -->
+
+    <div class="box-title">
+
+        Jobs Monitoring
+
+
+        <span class="box-time">
+
+            <?php echo date("d M H:i"); ?>
+
+        </span>
+
+    </div>
+
+
+    <!-- TABLE -->
+
+    <div class="table-container">
+
+
+        <table class="monitor-table">
+
+
+            <!--
+            ---------------------------------------------
+            JOB TABLE HEADINGS
+            ---------------------------------------------
+            -->
+
+            <thead>
+
+                <tr>
+
+                    <th>Sr.No</th>
+
+                    <th>Job Name</th>
+
+                    <th>Machine Name</th>
+
+                    <th>Start Time</th>
+
+                    <th>End Time</th>
+
+                    <th>Status</th>
+
+                    <th>Duration</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+            <?php
+
+            /*
+            ---------------------------------------------
+            CHECK JOB DATA
+            ---------------------------------------------
+            */
+
+            if (count($jobRows) > 0) {
+
+
+                $srNo = 1;
+
+
+                foreach ($jobRows as $row) {
+
+
+                    /*
+                    -------------------------------------
+                    EXPECTED CSV FORMAT:
+
+                    Job_name,
+                    Machine_name,
+                    start_time,
+                    End_time,
+                    status,
+                    Duration
+                    -------------------------------------
+                    */
+
+
+                    $jobName = isset($row[0])
+                        ? $row[0]
+                        : "";
+
+
+                    $machineName = isset($row[1])
+                        ? $row[1]
+                        : "";
+
+
+                    $startTime = isset($row[2])
+                        ? $row[2]
+                        : "";
+
+
+                    $endTime = isset($row[3])
+                        ? $row[3]
+                        : "";
+
+
+                    $status = isset($row[4])
+                        ? $row[4]
+                        : "";
+
+
+                    $duration = isset($row[5])
+                        ? $row[5]
+                        : "";
+
+
+                    $statusClass = strtolower(trim($status));
+
+                    ?>
+
+
+                    <tr>
+
+
+                        <!-- SR.NO -->
+
+                        <td>
+
+                            <?php echo $srNo; ?>
+
+                        </td>
+
+
+                        <!-- JOB NAME -->
+
+                        <td style="text-align:left;">
+
+                            <?php echo h($jobName); ?>
+
+                        </td>
+
+
+                        <!-- MACHINE NAME -->
+
+                        <td>
+
+                            <?php echo h($machineName); ?>
+
+                        </td>
+
+
+                        <!-- START TIME -->
+
+                        <td>
+
+                            <?php echo h($startTime); ?>
+
+                        </td>
+
+
+                        <!-- END TIME -->
+
+                        <td>
+
+                            <?php echo h($endTime); ?>
+
+                        </td>
+
+
+                        <!-- STATUS -->
+
+                        <td class="status-<?php echo h($statusClass); ?>">
+
+                            <?php echo h($status); ?>
+
+                        </td>
+
+
+                        <!-- DURATION -->
+
+                        <td>
+
+                            <?php echo h($duration); ?>
+
+                        </td>
+
+
+                    </tr>
+
+
+                    <?php
+
+                    $srNo++;
+
+                }
+
+
+            } else {
+
+
+                /*
+                -----------------------------------------
+                NO JOB FILE
+                -----------------------------------------
+                */
+
+                ?>
+
+                <tr>
+
+                    <td colspan="7" class="no-data">
+
+                        Today's job report is not available.
+
+                    </td>
+
+                </tr>
+
+                <?php
+
+            }
+
+            ?>
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!--
+=========================================================
+                 SPACE UTILIZATION
+=========================================================
+-->
+
+<div class="monitor-box">
+
+
+    <!-- TITLE -->
+
+    <div class="box-title">
+
+        Space Utilization
+
+
+        <span class="box-time">
+
+            <?php echo date("d M H:i"); ?>
+
+        </span>
+
+    </div>
+
+
+    <!-- TABLE -->
+
+    <div class="table-container">
+
+
+        <table class="monitor-table">
+
+
+            <!--
+            ---------------------------------------------
+            SPACE TABLE HEADINGS
+            ---------------------------------------------
+            -->
+
+            <thead>
+
+                <tr>
+
+                    <th>Server</th>
+
+                    <th>Data(D)</th>
+
+                    <th>Spool(D)</th>
+
+                    <th>Sysout(D)</th>
+
+                    <th>/Tmp</th>
+
+                    <th>/home(id)</th>
+
+                    <th>Sys(C)</th>
+
+                    <th>Sys(N)</th>
+
+                    <th>Data(N)</th>
+
+                    <th>Spool(C)</th>
+
+                    <th>Ftparea</th>
+
+                    <th>/Opt</th>
+
+                    <th>/var</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+            <?php
+
+            /*
+            ---------------------------------------------
+            CHECK SPACE DATA
+            ---------------------------------------------
+            */
+
+            if (count($spaceRows) > 0) {
+
+
+                foreach ($spaceRows as $row) {
+
+
+                    ?>
+
+                    <tr>
+
+
+                        <!--
+                        ---------------------------------
+                        SERVER
+                        ---------------------------------
+                        -->
+
+                        <td class="server-cell">
+
+                            <?php
+
+                            echo isset($row[0])
+                                ? h($row[0])
+                                : "-";
+
+                            ?>
+
+                        </td>
+
+
+                        <!--
+                        ---------------------------------
+                        Data(D)
+                        ---------------------------------
+                        -->
+
+                        <?php
+
+                        echo spaceCell(
+                            isset($row[1])
+                                ? $row[1]
+                                : "-"
+                        );
+
+                        ?>
+
+
+                        <!--
+                        ---------------------------------
+                        Spool(D)
+                        ---------------------------------
+                        -->
+
+                        <?php
+
+                        echo spaceCell(
+                            isset($row[2])
+                                ? $row[2]
+                                : "-"
+                        );
+
+                        ?>
+
+
+                        <!--
+                        ---------------------------------
+                        Sysout(D)
+                        ---------------------------------
+                        -->
+
+                        <?php
+
+                        echo spaceCell(
+                            isset($row[3])
+                                ? $row[3]
+                                : "-"
+                        );
+
+                        ?>
+
+
+                        <!--
+                        ---------------------------------
+                        /Tmp
+                        ---------------------------------
+                        -->
+
+                        <?php
+
+                        echo spaceCell(
+                            isset($row[4])
+                                ? $row[4]
+                                : "-"
+                        );
+
+                        ?>
+
+
+                        <!--
+                        ---------------------------------
+                        /home(id)
+                        ---------------------------------
+                        -->
+
+                        <?php
+
+                        echo spaceCell(
+                            isset($row[5])
+                                ? $row[5]
+                                : "-"
+                        );
+
+                        ?>
+
+
+                        <!--
+                        ---------------------------------
+                        Sys(C)
+                        ---------------------------------
+                        -->
+
+                        <?php
+
+                        echo spaceCell(
+                            isset($row[6])
+                                ? $row[6]
+                                : "-"
+                        );
+
+                        ?>
+
+
+                        <!--
+                        ---------------------------------
+                        Sys(N)
+                        ---------------------------------
+                        -->
+
+                        <?php
+
+                        echo spaceCell(
+                            isset($row[7])
+                                ? $row[7]
+                                : "-"
+                        );
+
+                        ?>
+
+
+                        <!--
+                        ---------------------------------
+                        Data(N)
+                        ---------------------------------
+                        -->
+
+                        <?php
+
+                        echo spaceCell(
+                            isset($row[8])
+                                ? $row[8]
+                                : "-"
+                        );
+
+                        ?>
+
+
+                        <!--
+                        ---------------------------------
+                        Spool(C)
+                        ---------------------------------
+                        -->
+
+                        <?php
+
+                        echo spaceCell(
+                            isset($row[9])
+                                ? $row[9]
+                                : "-"
+                        );
+
+                        ?>
+
+
+                        <!--
+                        ---------------------------------
+                        Ftparea
+                        ---------------------------------
+                        -->
+
+                        <?php
+
+                        echo spaceCell(
+                            isset($row[10])
+                                ? $row[10]
+                                : "-"
+                        );
+
+                        ?>
+
+
+                        <!--
+                        ---------------------------------
+                        /Opt
+                        ---------------------------------
+                        -->
+
+                        <?php
+
+                        echo spaceCell(
+                            isset($row[11])
+                                ? $row[11]
+                                : "-"
+                        );
+
+                        ?>
+
+
+                        <!--
+                        ---------------------------------
+                        /var
+                        ---------------------------------
+                        -->
+
+                        <?php
+
+                        echo spaceCell(
+                            isset($row[12])
+                                ? $row[12]
+                                : "-"
+                        );
+
+                        ?>
+
+
+                    </tr>
+
+
+                    <?php
+
+                }
+
+
+            } else {
+
+
+                /*
+                -----------------------------------------
+                NO SPACE FILE
+                -----------------------------------------
+                */
+
+                ?>
+
+                <tr>
+
+                    <td colspan="13" class="no-data">
+
+                        Today's space utilization report is not available.
+
+                    </td>
+
+                </tr>
+
+                <?php
+
+            }
+
+            ?>
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+</div>
+
+
+</div>
+
+
+<!--
+=========================================================
+                        FOOTER
+=========================================================
+-->
+
+<div class="footer">
+
+    OFFLINE REPORTS PORTAL
+    &nbsp; | &nbsp;
+    Auto Refresh: 60 Seconds
+
+</div>
+
+
+</body>
+
+</html>
