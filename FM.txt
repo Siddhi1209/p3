@@ -1,4 +1,20 @@
 
+Subject: Implementation of NT/NX/Intermediate Server Monitoring Page with Alert Notification
+Dear Sir,
+This is to inform you that a separate NT/NX/Intermediate Server Monitoring page has been implemented in the monitoring portal to provide a consolidated view of the following:
+NT Monitoring – Monitoring of the relevant log files and their latest update times.
+NX Monitoring – Monitoring of the relevant log files and identification of delayed/exception conditions.
+Intermediate Server Monitoring – Monitoring of PR/DR mount points, TB Forward Status and Log Size.
+Additionally, an alert mechanism has been implemented in the portal. Whenever an alert condition is detected in any of the above monitoring sections, the “NT / NX / Intermediate” button on the main portal page blinks in red, providing a prominent visual indication to the monitoring team.
+The alert status is automatically checked at regular intervals, enabling timely identification of issues without requiring the user to continuously open the detailed monitoring page.
+The implementation is intended to facilitate centralized monitoring, quicker identification of exceptions and timely attention to NT/NX/Intermediate Server issues.
+The same has been implemented and made available on the monitoring portal for operational monitoring.
+Regards,
+Siddhi Borkar
+Production Support Team
+
+
+
 button.classList.add("ntnx-alert");
 
 
