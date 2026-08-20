@@ -1,35 +1,41 @@
+now i want to make a new reports reports for monitoring below mentioned servers in php.
+10.0.20.180
+10.0.20.181
+10.0.20.182
+10.0.20.184
+10.0.20.186
+10.0.20.232
+10.189.20.125
+10.189.20.126
+10.189.20.123
+10.189.20.35
+10.189.20.36
+10.189.20.37
+10.189.20.38
+10.189.20.14
+10.189.20.226
+10.176.20.35
+10.176.20.36
+10.176.20.37
+10.176.20.38
+10.176.20.222
+10.176.20.231
 
-Subject: Implementation of NT/NX/Intermediate Server Monitoring Page with Alert Notification
-Dear Sir,
-This is to inform you that a separate NT/NX/Intermediate Server Monitoring page has been implemented in the monitoring portal to provide a consolidated view of the following:
-NT Monitoring – Monitoring of the relevant log files and their latest update times.
-NX Monitoring – Monitoring of the relevant log files and identification of delayed/exception conditions.
-Intermediate Server Monitoring – Monitoring of PR/DR mount points, TB Forward Status and Log Size.
-Additionally, an alert mechanism has been implemented in the portal. Whenever an alert condition is detected in any of the above monitoring sections, the “NT / NX / Intermediate” button on the main portal page blinks in red, providing a prominent visual indication to the monitoring team.
-The alert status is automatically checked at regular intervals, enabling timely identification of issues without requiring the user to continuously open the detailed monitoring page.
-The implementation is intended to facilitate centralized monitoring, quicker identification of exceptions and timely attention to NT/NX/Intermediate Server issues.
-The same has been implemented and made available on the monitoring portal for operational monitoring.
-Regards,
-Siddhi Borkar
-Production Support Team
+The heading of the Portal should be OFFLINE REPORTS PORTAL
 
+Boxes to be monitored are Space Utilization, and we need to monitor diff
+jobs running on these servers.
 
+jobs monitoring box should show. sr.no,Job_name,Machine_name,start_time, End_time, status, Duration
+below this will be the file displayed which comes out of a monitoring script ie. job_status_reports.txt_20260820 this date will change
+it will be todays date always. it should not display previous dated file from these servers.
+the file to be displayed will be present in /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING path in portal
+server.
 
-button.classList.add("ntnx-alert");
-
-
-button.classList.remove("ntnx-alert");
-
-
-<li id="ntnxIntermediateButton">
-    <a href="NT_NX_Intermediate.php" target="_blank">
-        <i class="fa fa-desktop"></i>
-        <span>NT / NX / Intermediate</span>
-    </a>
-</li>
-
-
-var button = document.getElementById(
-    "ntnxIntermediateButton"
-);
+Space Utilization box should have  Server,Data(D),Spool(D),Sysout(D),/Tmp,/home(id),Sys(C),Sys(N),Data(N),Spool(C),Ftparea,/Opt,/var as 
+box heading and below this box it will display a output file present in /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING path.
+the output file should be space_reports.txt_20260820 this date will change
+it will be todays date always. it should not display previous dated file from these servers.
+the file to be displayed will be present in /opt/hpws/apache/cgi-bin/trials/bip/data/TESTING path in portal
+server.
 
