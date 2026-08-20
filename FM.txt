@@ -1,1 +1,53 @@
+<script>
 
+function checkNTNXIntermediateAlert()
+{
+    $.ajax({
+        url: "monitor_nt_nx_alert.php?t=" + new Date().getTime(),
+        type: "GET",
+        cache: false,
+        dataType: "json",
+
+        success: function(data)
+        {
+            var button = document.querySelector(
+                'a[href="NT_NX_Intermediate.php"]'
+            );
+
+            if (!button)
+            {
+                return;
+            }
+
+            if (data.alert === true)
+            {
+                button.classList.add("shakealarm");
+            }
+            else
+            {
+                button.classList.remove("shakealarm");
+            }
+        },
+
+        error: function(xhr, status, error)
+        {
+            console.log(
+                "NT/NX/Intermediate alert check failed: "
+                + error
+            );
+        }
+    });
+}
+
+
+/* Check immediately */
+checkNTNXIntermediateAlert();
+
+
+/* Check every 10 seconds */
+setInterval(
+    checkNTNXIntermediateAlert,
+    10000
+);
+
+</script>
