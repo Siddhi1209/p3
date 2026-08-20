@@ -1,1 +1,13 @@
 
+<li id="ntnxIntermediateButton">
+    <a href="NT_NX_Intermediate.php" target="_blank">
+        <i class="fa fa-desktop"></i>
+        <span>NT / NX / Intermediate</span>
+    </a>
+</li>
+
+
+var button = document.getElementById(
+    "ntnxIntermediateButton"
+);
+
