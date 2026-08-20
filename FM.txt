@@ -1,4 +1,10 @@
 
+button.classList.add("ntnx-alert");
+
+
+button.classList.remove("ntnx-alert");
+
+
 <li id="ntnxIntermediateButton">
     <a href="NT_NX_Intermediate.php" target="_blank">
         <i class="fa fa-desktop"></i>
